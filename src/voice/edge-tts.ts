@@ -59,9 +59,7 @@ export async function generateMultiSpeakerAudioEdge(params: EdgeTtsParams): Prom
     .map((l) => l.trim())
     .filter(Boolean);
 
-  const audioChunks: Buffer[] = [];
-
-  for (const line of lines) {
+  const segmentTasks = lines.map(async (line) => {
     let speaker = hostMaleName;
     let dialogue = line;
 
@@ -72,7 +70,7 @@ export async function generateMultiSpeakerAudioEdge(params: EdgeTtsParams): Prom
       dialogue = match[2]!.trim();
     }
 
-    if (!dialogue) continue;
+    if (!dialogue) return Buffer.alloc(0);
 
     const isFemale =
       speaker.toLowerCase().includes(hostFemaleName.toLowerCase()) ||
@@ -84,17 +82,16 @@ export async function generateMultiSpeakerAudioEdge(params: EdgeTtsParams): Prom
     const voice = isFemale ? femaleVoice : maleVoice;
 
     try {
-      const segmentBuffer = await synthesizeSegment(dialogue, voice);
-      if (segmentBuffer.length > 0) {
-        audioChunks.push(segmentBuffer);
-      }
+      return await synthesizeSegment(dialogue, voice);
     } catch (err) {
-      log.warn({ err, dialogue: dialogue.slice(0, 40) }, "Lỗi khi sinh audio cho một phân đoạn, tiếp tục đoạn sau");
+      log.warn({ err, dialogue: dialogue.slice(0, 40) }, "Lỗi khi sinh audio phân đoạn, bỏ qua");
+      return Buffer.alloc(0);
     }
-  }
+  });
+
+  const audioChunks = (await Promise.all(segmentTasks)).filter((buf) => buf.length > 0);
 
   if (audioChunks.length === 0) {
-    // Fallback: nếu không tách được theo dòng, đọc toàn bộ bằng giọng Nam
     log.info("Không tách được phân đoạn, đọc toàn bộ script bằng giọng chính");
     return await synthesizeSegment(script, maleVoice);
   }
