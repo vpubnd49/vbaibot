@@ -8,10 +8,37 @@ import { getEffectiveLlmSettings } from "../src/config/runtime-llm-settings.js";
 
 const accounts = listAccounts();
 const agents = listAgents();
-console.log("LLM Settings:", getEffectiveLlmSettings());
-console.log("TTS Settings:", getTtsSettings());
-console.log("isTtsConfigured:", isTtsConfigured());
-if (accounts.length && agents.length) {
-  const tools = listAvailableTools({ account: accounts[0], agent: agents[0] });
-  console.log("Available tools (" + tools.length + "):", tools.map(t => t.key));
+import { db } from "../src/conversation/database.js";
+import { decryptSecret } from "../src/config/secret-cipher.js";
+
+const rows = db.prepare("SELECT key, value FROM runtime_settings").all() as any[];
+for (const r of rows) {
+  let val = r.value;
+  if (r.key.includes("key") && val) {
+    try {
+      const dec = decryptSecret(val);
+      val = dec.slice(0, 8) + "..." + dec.slice(-4);
+    } catch {
+      val = "[DECRYPT_FAILED]";
+    }
+  }
+  console.log(`Setting: ${r.key} = ${val}`);
+}
+
+const llm = getEffectiveLlmSettings();
+console.log("LLM Settings:", llm.provider, llm.baseUrl, llm.model);
+
+if (llm.baseUrl && llm.apiKey) {
+  try {
+    const res = await fetch(`${llm.baseUrl}/models`, {
+      headers: { Authorization: `Bearer ${llm.apiKey}` }
+    });
+    const data = await res.json() as any;
+    const ids = (data.data || []).map((m: any) => m.id);
+    console.log("Router models count:", ids.length);
+    console.log("Router TTS/Audio models:", ids.filter((id: string) => /tts|speech|audio/i.test(id)));
+    console.log("Router Gemini models:", ids.filter((id: string) => /gemini/i.test(id)));
+  } catch (e: any) {
+    console.log("Router fetch error:", e.message);
+  }
 }
