@@ -1,5 +1,5 @@
-import { getAccounts } from "../src/config/account-store.js";
-import { getAgents } from "../src/config/agent-store.js";
+import { listAccounts } from "../src/config/account-store.js";
+import { listAgents } from "../src/config/agent-store.js";
 import { listAvailableTools } from "../src/agent/tools/tool-registry.js";
 import { buildSystemPrompt } from "../src/agent/persona-prompt.js";
 
