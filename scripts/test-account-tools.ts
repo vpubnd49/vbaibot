@@ -3,8 +3,8 @@ import { listAgents } from "../src/config/agent-store.js";
 import { listAvailableTools } from "../src/agent/tools/tool-registry.js";
 import { buildSystemPrompt } from "../src/agent/persona-prompt.js";
 
-const accounts = getAccounts();
-const agents = getAgents();
+const accounts = listAccounts();
+const agents = listAgents();
 console.log("Accounts:", JSON.stringify(accounts, null, 2));
 console.log("Agents:", JSON.stringify(agents, null, 2));
 if (accounts.length && agents.length) {
