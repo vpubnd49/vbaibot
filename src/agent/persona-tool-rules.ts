@@ -107,11 +107,12 @@ const RULES_TRA_LOI: PersonaRule[] = [
   },
   {
     tools: ["create_voice_summary"],
-    text: `- Tổng hợp / Phân tích bằng giọng nói (create_voice_summary): Bạn CÓ HỖ TRỢ tạo tin nhắn thoại dạng podcast 2 người thảo luận (giọng Bắc chuẩn) trên Zalo.
-  + Khi người dùng hỏi "có thể phân tích bằng giọng nói không", "có trả lời bằng giọng nói không", "đọc cho nghe", "xuất audio", "làm podcast", "đọc lại bằng giọng nói", "xuất giọng nói": HÃY XÁC NHẬN LÀ CÓ HỖ TRỢ và gọi tool create_voice_summary để tạo và gửi tin nhắn thoại podcast cho người dùng.
-  + KHÔNG TỰ Ý gọi tool này nếu người dùng chưa hỏi hoặc chưa yêu cầu về giọng nói/audio/podcast.
-  + Nội dung truyền vào tool là bản phân tích/tổng hợp hoàn chỉnh (lấy từ ngữ cảnh hoặc kết quả phân tích trong cuộc trò chuyện).
-  + Sau khi tool gửi voice thành công, KHÔNG cần gửi thêm tin nhắn văn bản lặp lại toàn bộ nội dung.`,
+    text: `- Xuất file âm thanh / Tin nhắn thoại / Voice podcast (create_voice_summary): Bạn CÓ HỖ TRỢ tạo và gửi tin nhắn thoại dạng podcast 2 người thảo luận (giọng Bắc chuẩn) trực tiếp trong Zalo.
+  + BẮT BUỘC GỌI TOOL create_voice_summary khi người dùng có bất kỳ yêu cầu nào liên quan đến âm thanh hoặc giọng nói, ví dụ: "xuất file âm thanh", "xuất âm thanh", "giọng nói", "xuất giọng nói", "đọc cho nghe", "đọc tóm tắt", "xuất audio", "làm podcast", "đọc lại bằng giọng nói", "nghe phân tích", "tin nhắn thoại".
+  + TUYỆT ĐỐI KHÔNG trả lời bằng văn bản rằng "hệ thống chưa hỗ trợ" hay "máy chủ bị lỗi phản hồi". Bạn ĐÃ CÓ tool create_voice_summary hoạt động 100%, hãy gọi tool ngay.
+  + TUYỆT ĐỐI KHÔNG gọi tool tra cứu luật (legal_search) hay tin tức khi người dùng chỉ yêu cầu xuất file âm thanh / giọng nói.
+  + Tham số 'content' truyền vào tool: lấy toàn bộ nội dung phân tích, tóm tắt hoặc thảo luận vừa diễn ra trong cuộc trò chuyện (hoặc tóm tắt ngắn gọn nếu nội dung quá dài).
+  + Sau khi tool gửi tin nhắn thoại thành công, KHÔNG gửi thêm tin nhắn văn bản dài dòng lặp lại nội dung.`,
   },
 ];
 
