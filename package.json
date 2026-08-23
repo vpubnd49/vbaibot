@@ -71,6 +71,7 @@
     "pino": "^10.3.1",
     "pino-roll": "^4.0.0",
     "pptxgenjs": "^4.0.1",
+    "word-extractor": "^1.0.4",
     "zca-js": "2.1.2",
     "zod": "^4.4.3"
   },

@@ -51,20 +51,30 @@ function read(key: string): string | undefined {
   return (getStmt.get(key) as { value: string } | undefined)?.value;
 }
 
+import { getEffectiveLlmSettings } from "./runtime-llm-settings.js";
+
 function readApiKey(): string {
   const stored = read(KEYS.apiKey);
   if (stored) {
     try {
       return decryptSecret(stored);
     } catch {
-      return env.TTS_API_KEY;
+      // Ignore decryption failure
     }
   }
-  // Fallback: nếu đang dùng provider Google thì tái sử dụng key LLM
-  if (!env.TTS_API_KEY && env.LLM_PROVIDER === "google") {
-    return env.LLM_API_KEY;
+  if (env.TTS_API_KEY) {
+    return env.TTS_API_KEY;
   }
-  return env.TTS_API_KEY;
+  // Fallback: Tự động dùng API key từ cấu hình LLM đang hoạt động (kể cả lưu trong DB)
+  try {
+    const llm = getEffectiveLlmSettings();
+    if (llm.apiKey && (llm.provider === "google" || llm.apiKey.startsWith("AIza"))) {
+      return llm.apiKey;
+    }
+  } catch {
+    // Không để lỗi thoát ra
+  }
+  return "";
 }
 
 export function getTtsSettings(): TtsSettings {

@@ -69,7 +69,7 @@ export type DocumentContent = {
   fileType: string;
 };
 
-const SUPPORTED_EXTENSIONS = ['.pdf', '.docx', '.xlsx', '.csv', '.txt', '.md'] as const;
+const SUPPORTED_EXTENSIONS = ['.pdf', '.docx', '.doc', '.xlsx', '.xls', '.csv', '.txt', '.md'] as const;
 export type SupportedExtension = typeof SUPPORTED_EXTENSIONS[number];
 
 export function isSupportedDocument(filePath: string): boolean {
@@ -119,14 +119,27 @@ export async function readDocument(filePath: string): Promise<DocumentContent> {
         text = htmlToStructuredText(htmlResult.value);
         break;
       }
-      case '.xlsx': {
+      case '.doc': {
+        // @ts-expect-error word-extractor lacks ts declarations
+        const WordExtractorMod = await import('word-extractor');
+        const WordExtractor = WordExtractorMod.default || WordExtractorMod;
+        const extractor = new (WordExtractor as any)();
+        const extracted = await extractor.extract(filePath);
+        const body = extracted.getBody() || '';
+        const headers = extracted.getHeaders() || '';
+        const footers = extracted.getFooters() || '';
+        text = [headers, body, footers].filter(Boolean).join('\n\n');
+        break;
+      }
+      case '.xlsx':
+      case '.xls': {
         const ExcelJS = (await import('exceljs')).default;
         const workbook = new ExcelJS.Workbook();
         await workbook.xlsx.readFile(filePath);
         
-        workbook.eachSheet((worksheet, sheetId) => {
+        workbook.eachSheet((worksheet, _sheetId) => {
           text += `--- Sheet: ${worksheet.name} ---\n`;
-          worksheet.eachRow((row, rowNumber) => {
+          worksheet.eachRow((row, _rowNumber) => {
             text += row.values
               ? (row.values as any[]).filter(v => v !== undefined && v !== null).join('\t') + '\n'
               : '\n';

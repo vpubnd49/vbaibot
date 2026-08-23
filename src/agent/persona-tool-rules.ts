@@ -107,12 +107,11 @@ const RULES_TRA_LOI: PersonaRule[] = [
   },
   {
     tools: ["create_voice_summary"],
-    text: `- Tổng hợp bằng giọng nói (create_voice_summary): CHỈ dùng khi người dùng YÊU CẦU RÕ RÀNG muốn nghe nội dung bằng giọng nói. Các dấu hiệu: "đọc cho nghe", "xuất audio", "làm podcast", "đọc lại bằng giọng nói", "xuất giọng nói".
-  + KHÔNG TỰ Ý gọi tool này nếu người dùng chưa nhắc đến giọng nói/audio/podcast.
-  + Nội dung truyền vào tool phải là bản tổng hợp ĐÃ HOÀN CHỈNH (có thể lấy từ kết quả vừa tổng hợp trong cuộc trò chuyện).
-  + Tool mất 30-90 giây để sinh audio, nên THÔNG BÁO cho người dùng trước: "Đang tạo bản audio, đợi chút nhé..."
-  + Sau khi tool gửi voice thành công, KHÔNG cần gửi thêm tin nhắn văn bản lặp lại nội dung.
-  + Khi người dùng vừa làm xong một tổng hợp/báo cáo lớn, có thể GỢI Ý (không bắt buộc) rằng họ có thể yêu cầu xuất bản audio nếu muốn.`,
+    text: `- Tổng hợp / Phân tích bằng giọng nói (create_voice_summary): Bạn CÓ HỖ TRỢ tạo tin nhắn thoại dạng podcast 2 người thảo luận (giọng Bắc chuẩn) trên Zalo.
+  + Khi người dùng hỏi "có thể phân tích bằng giọng nói không", "có trả lời bằng giọng nói không", "đọc cho nghe", "xuất audio", "làm podcast", "đọc lại bằng giọng nói", "xuất giọng nói": HÃY XÁC NHẬN LÀ CÓ HỖ TRỢ và gọi tool create_voice_summary để tạo và gửi tin nhắn thoại podcast cho người dùng.
+  + KHÔNG TỰ Ý gọi tool này nếu người dùng chưa hỏi hoặc chưa yêu cầu về giọng nói/audio/podcast.
+  + Nội dung truyền vào tool là bản phân tích/tổng hợp hoàn chỉnh (lấy từ ngữ cảnh hoặc kết quả phân tích trong cuộc trò chuyện).
+  + Sau khi tool gửi voice thành công, KHÔNG cần gửi thêm tin nhắn văn bản lặp lại toàn bộ nội dung.`,
   },
 ];
 
