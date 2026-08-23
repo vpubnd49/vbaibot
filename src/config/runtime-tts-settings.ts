@@ -82,15 +82,16 @@ export function getTtsSettings(): TtsSettings {
     model: read(KEYS.model) ?? env.TTS_MODEL,
     apiKey: readApiKey(),
     publicBaseUrl: (read(KEYS.publicBaseUrl) ?? env.TTS_PUBLIC_BASE_URL).replace(/\/$/, ""),
-    maleVoice: read(KEYS.maleVoice) ?? env.TTS_MALE_VOICE,
-    femaleVoice: read(KEYS.femaleVoice) ?? env.TTS_FEMALE_VOICE,
+    maleVoice: read(KEYS.maleVoice) ?? (env.TTS_MALE_VOICE || "vi-VN-NamMinhNeural"),
+    femaleVoice: read(KEYS.femaleVoice) ?? (env.TTS_FEMALE_VOICE || "vi-VN-HoaiMyNeural"),
     hostMaleName: read(KEYS.hostMaleName) ?? env.TTS_HOST_MALE_NAME,
     hostFemaleName: read(KEYS.hostFemaleName) ?? env.TTS_HOST_FEMALE_NAME,
   };
 }
 
 export function isTtsConfigured(settings = getTtsSettings()): boolean {
-  return Boolean(settings.apiKey && settings.publicBaseUrl);
+  // Edge TTS hoạt động hoàn toàn miễn phí và không cần API key, chỉ cần có domain public để phục vụ file âm thanh
+  return Boolean(settings.publicBaseUrl);
 }
 
 export type TtsSettingsUpdate = {

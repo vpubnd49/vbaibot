@@ -3,6 +3,7 @@ import { z } from "zod";
 import type { API, ThreadType } from "zca-js";
 import { generatePodcastScript } from "../../voice/podcast-script.js";
 import { generateMultiSpeakerAudio } from "../../voice/gemini-tts.js";
+import { generateMultiSpeakerAudioEdge } from "../../voice/edge-tts.js";
 import { saveVoiceFile } from "../../voice/voice-file-store.js";
 import { getTtsSettings } from "../../config/runtime-tts-settings.js";
 import { enqueueSend } from "../../middleware/rate-limiter.js";
@@ -30,19 +31,18 @@ export function createVoiceSummaryTool(ctx: {
 }) {
   return tool({
     description:
-      "Chuyển nội dung tổng hợp thành TIN NHẮN THOẠI dạng podcast 2 người thảo luận (giọng Bắc chuẩn) rồi gửi trực tiếp trong chat. " +
-      "Dùng khi người dùng YÊU CẦU RÕ RÀNG muốn nghe tóm tắt/tổng hợp bằng giọng nói, ví dụ: " +
-      "\"đọc tóm tắt bằng giọng nói\", \"xuất audio\", \"làm podcast\", \"đọc lại cho nghe\". " +
-      "KHÔNG TỰ Ý gọi tool này nếu người dùng chưa nói muốn nghe bằng giọng nói. " +
-      "Tool này mất 30-90 giây để sinh audio.",
+      "Chuyển nội dung tổng hợp / phân tích thành TIN NHẮN THOẠI dạng podcast 2 người thảo luận (giọng Bắc chuẩn) rồi gửi trực tiếp trong chat. " +
+      "BẮT BUỘC gọi tool này khi người dùng yêu cầu: " +
+      "\"xuất file âm thanh giọng nói\", \"đọc tóm tắt bằng giọng nói\", \"xuất audio\", \"làm podcast\", \"đọc lại cho nghe\", \"phân tích bằng giọng nói\". " +
+      "Tool này sẽ tự động viết kịch bản hội thoại 2 người (Anh và Chị) và tạo file âm thanh gửi vào Zalo.",
     inputSchema: z.object({
       content: z
         .string()
-        .min(50)
-        .max(15000)
+        .min(20)
+        .max(20000)
         .describe(
-          "Nội dung cần chuyển thành podcast. Có thể là bản tóm tắt, báo cáo, kết quả tra cứu, " +
-          "hoặc bất kỳ văn bản nào người dùng muốn nghe. Lấy từ kết quả bạn vừa tổng hợp trong cuộc trò chuyện.",
+          "Nội dung cần chuyển thành podcast. Có thể là bản tóm tắt, báo cáo, kết quả tra cứu, phân tích, " +
+          "hoặc bất kỳ văn bản nào người dùng muốn nghe. Lấy từ ngữ cảnh hoặc kết quả bạn vừa phân tích trong cuộc trò chuyện.",
         ),
       style: z
         .enum(["summary", "deep-dive", "brief"])
@@ -55,11 +55,6 @@ export function createVoiceSummaryTool(ctx: {
     execute: async ({ content, style }) => {
       // Lấy cấu hình TTS
       const ttsSettings = getTtsSettings();
-      if (!ttsSettings.apiKey) {
-        return ketQuaLoi(
-          "Chưa cấu hình API key cho chức năng giọng nói. Vui lòng cấu hình Google API key trong Cấu hình hệ thống.",
-        );
-      }
 
       if (!ttsSettings.publicBaseUrl) {
         return ketQuaLoi(
@@ -78,21 +73,48 @@ export function createVoiceSummaryTool(ctx: {
           maxLengthChars: style === "brief" ? 2000 : style === "deep-dive" ? 8000 : 5000,
         });
 
-        // Bước 2: Gọi Gemini TTS sinh audio
-        log.info("Bước 2: Gọi Gemini TTS sinh audio đa giọng...");
-        const audioBuffer = await generateMultiSpeakerAudio({
-          script,
-          voices: [
-            { speakerAlias: ttsSettings.hostMaleName, speakerId: ttsSettings.maleVoice },
-            { speakerAlias: ttsSettings.hostFemaleName, speakerId: ttsSettings.femaleVoice },
-          ],
-          apiKey: ttsSettings.apiKey,
-          model: ttsSettings.model,
-        });
+        // Bước 2: Sinh audio (ưu tiên Edge TTS Neural chuẩn Bắc, hoặc Gemini TTS nếu có key)
+        log.info("Bước 2: Sinh audio podcast đa giọng...");
+        let audioBuffer: Buffer;
+        let format = "mp3";
+
+        if (ttsSettings.apiKey) {
+          try {
+            audioBuffer = await generateMultiSpeakerAudio({
+              script,
+              voices: [
+                { speakerAlias: ttsSettings.hostMaleName, speakerId: ttsSettings.maleVoice },
+                { speakerAlias: ttsSettings.hostFemaleName, speakerId: ttsSettings.femaleVoice },
+              ],
+              apiKey: ttsSettings.apiKey,
+              model: ttsSettings.model,
+            });
+            format = "wav";
+          } catch (geminiErr) {
+            log.warn({ geminiErr }, "Gemini TTS lỗi, chuyển sang Edge TTS Neural");
+            audioBuffer = await generateMultiSpeakerAudioEdge({
+              script,
+              maleVoice: ttsSettings.maleVoice.includes("Neural") ? ttsSettings.maleVoice : "vi-VN-NamMinhNeural",
+              femaleVoice: ttsSettings.femaleVoice.includes("Neural") ? ttsSettings.femaleVoice : "vi-VN-HoaiMyNeural",
+              hostMaleName: ttsSettings.hostMaleName,
+              hostFemaleName: ttsSettings.hostFemaleName,
+            });
+            format = "mp3";
+          }
+        } else {
+          audioBuffer = await generateMultiSpeakerAudioEdge({
+            script,
+            maleVoice: ttsSettings.maleVoice.includes("Neural") ? ttsSettings.maleVoice : "vi-VN-NamMinhNeural",
+            femaleVoice: ttsSettings.femaleVoice.includes("Neural") ? ttsSettings.femaleVoice : "vi-VN-HoaiMyNeural",
+            hostMaleName: ttsSettings.hostMaleName,
+            hostFemaleName: ttsSettings.hostFemaleName,
+          });
+          format = "mp3";
+        }
 
         // Bước 3: Lưu file audio
         log.info("Bước 3: Lưu file audio...");
-        const { filename } = await saveVoiceFile(ctx.accountId, ctx.threadId, audioBuffer);
+        const { filename } = await saveVoiceFile(ctx.accountId, ctx.threadId, audioBuffer, format);
 
         // Bước 4: Gửi voice message qua Zalo
         const voiceUrl = `${ttsSettings.publicBaseUrl}/voice/${ctx.accountId}/${filename}`;
@@ -102,12 +124,12 @@ export function createVoiceSummaryTool(ctx: {
           return await ctx.api.sendVoice({ voiceUrl }, ctx.threadId, ctx.threadType);
         });
 
-        // Ước lượng thời lượng từ kích thước file (24kHz, 16-bit, mono = 48000 bytes/giây)
-        const durationSecs = audioBuffer.length / 48000;
+        // Ước lượng thời lượng
+        const durationSecs = format === "mp3" ? audioBuffer.length / 6000 : audioBuffer.length / 48000;
         ctx.ghiNhanDaGui?.(ghiChuDaGuiVoice(durationSecs));
 
         log.info({ filename, durationSecs: Math.round(durationSecs) }, "Đã gửi voice thành công");
-        return `Đã tạo và gửi tin nhắn thoại podcast thành công (khoảng ${Math.round(durationSecs)} giây). Không cần gửi thêm tin nhắn văn bản nào nữa về nội dung vừa đọc.`;
+        return `Đã tạo và gửi tin nhắn thoại podcast thành công (khoảng ${Math.max(15, Math.round(durationSecs))} giây). Không cần gửi thêm tin nhắn văn bản nào nữa về nội dung vừa đọc.`;
       } catch (error) {
         const msg = error instanceof Error ? error.message : String(error);
         log.error({ error: msg }, "Lỗi khi tạo voice podcast");

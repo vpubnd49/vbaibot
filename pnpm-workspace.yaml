@@ -8,3 +8,4 @@ auditLevel: moderate # pnpm audit flags moderate+ severity
 # khi nào thêm package cần build script thì whitelist tại đây.
 allowBuilds:
   esbuild: true # binary resolver của tsx - trusted
+  msedge-tts: set this to true or false
