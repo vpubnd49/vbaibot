@@ -25,6 +25,6 @@ test("Admin division service: tra cứu 34 tỉnh và mô hình 2 cấp", () => 
   assert.equal(lamDongSearch.provinces[0]!.name, "Tỉnh Lâm Đồng");
 
   // Lấy xã phường theo tỉnh
-  const ldCommunes = getCommunesByProvince("68");
-  assert.ok(Array.isArray(ldCommunes));
+  const ldCommunes = getCommunesByProvince("34");
+  assert.ok(Array.isArray(ldCommunes) && ldCommunes.length > 0);
 });

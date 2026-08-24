@@ -7,25 +7,31 @@ export type Commune = {
   code: string;
   name: string;
   type: string;
-  old_district: string;
-  old_names: string[];
+  oldDistrict?: string;
+  old_district?: string;
+  oldNames?: string[];
+  old_names?: string[];
 };
 
 export type Province = {
   code: string;
   name: string;
   type: string;
-  old_names: string[];
+  oldNames?: string[];
+  old_names?: string[];
   communes: Commune[];
 };
 
 export type AdminData = {
   metadata: {
-    source: string;
-    updated: string;
-    total_provinces: number;
-    total_communes: number;
-    legal_basis: string[];
+    source?: string;
+    updated?: string;
+    total_provinces?: number;
+    total_communes?: number;
+    totalProvinces?: number;
+    totalCommunes?: number;
+    legal_basis?: string[];
+    legalBasis?: string[];
   };
   provinces: Province[];
 };
@@ -61,7 +67,8 @@ export function searchAdministrativeUnit(query: string): { provinces: Province[]
   for (const province of data.provinces) {
     // Check province
     const matchProvinceName = normalizeVietnamese(province.name).includes(normalizedQuery);
-    const matchOldProvinceNames = province.old_names?.some(old => normalizeVietnamese(old).includes(normalizedQuery));
+    const oldProv = province.oldNames || province.old_names || [];
+    const matchOldProvinceNames = oldProv.some(old => normalizeVietnamese(old).includes(normalizedQuery));
     
     if (matchProvinceName || matchOldProvinceNames) {
       matchedProvinces.push(province);
@@ -71,8 +78,10 @@ export function searchAdministrativeUnit(query: string): { provinces: Province[]
     if (province.communes && Array.isArray(province.communes)) {
       for (const commune of province.communes) {
         const matchCommuneName = normalizeVietnamese(commune.name).includes(normalizedQuery);
-        const matchOldCommuneNames = commune.old_names?.some(old => normalizeVietnamese(old).includes(normalizedQuery));
-        const matchOldDistrict = commune.old_district && normalizeVietnamese(commune.old_district).includes(normalizedQuery);
+        const oldComm = commune.oldNames || commune.old_names || [];
+        const matchOldCommuneNames = oldComm.some(old => normalizeVietnamese(old).includes(normalizedQuery));
+        const dist = commune.oldDistrict || commune.old_district || '';
+        const matchOldDistrict = dist && normalizeVietnamese(dist).includes(normalizedQuery);
 
         if (matchCommuneName || matchOldCommuneNames || matchOldDistrict) {
           matchedCommunes.push({ ...commune, provinceName: province.name });
@@ -95,8 +104,10 @@ export function resolveOldAddress(oldDistrictOrCommune: string): { commune: Comm
   for (const province of data.provinces) {
     if (province.communes && Array.isArray(province.communes)) {
       for (const commune of province.communes) {
-        const matchOldDistrict = commune.old_district && normalizeVietnamese(commune.old_district) === normalizedQuery;
-        const matchOldCommune = commune.old_names?.some(old => normalizeVietnamese(old) === normalizedQuery);
+        const dist = commune.oldDistrict || commune.old_district || '';
+        const matchOldDistrict = dist && normalizeVietnamese(dist) === normalizedQuery;
+        const oldComm = commune.oldNames || commune.old_names || [];
+        const matchOldCommune = oldComm.some(old => normalizeVietnamese(old) === normalizedQuery);
         
         if (matchOldDistrict || matchOldCommune) {
           results.push({ commune, provinceName: province.name });
@@ -116,7 +127,7 @@ export function getCommunesByProvince(provinceCode: string): Commune[] {
 
 export function getStats(): { totalProvinces: number; totalCommunes: number } {
   return {
-    totalProvinces: data.metadata?.total_provinces || 0,
-    totalCommunes: data.metadata?.total_communes || 0,
+    totalProvinces: data.metadata?.totalProvinces || data.metadata?.total_provinces || data.provinces?.length || 34,
+    totalCommunes: data.metadata?.totalCommunes || data.metadata?.total_communes || 3321,
   };
 }
