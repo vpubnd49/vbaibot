@@ -207,8 +207,11 @@ describe("tool-registry", () => {
     "send_file",
     "create_word_document",
     "create_excel_file",
+    "create_powerpoint",
     "create_text_document",
     "create_image",
+    "create_voice_summary",
+    "propose_shared_knowledge",
     "finance_tracker",
     "tag_member",
   ];

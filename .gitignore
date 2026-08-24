@@ -3,7 +3,8 @@ dist/
 logs/
 
 # Runtime data: SQLite db, cookie Zalo (credential!), file tải về
-data/
+data/*
+!data/administrative_divisions.json
 bosung/
 
 # Env thật không bao giờ commit
