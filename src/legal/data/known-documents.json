@@ -1,0 +1,469 @@
+[
+  {
+    "id": "72-2025-qh15",
+    "document_number": "72/2025/QH15",
+    "document_type": "luat",
+    "title": "Luật Tổ chức chính quyền địa phương",
+    "topic_aliases": ["luật tổ chức chính quyền địa phương", "tổ chức chính quyền địa phương", "chính quyền địa phương", "chinh quyen dia phuong"],
+    "query_patterns": ["luat to chuc chinh quyen dia phuong", "to chuc chinh quyen dia phuong", "chinh quyen dia phuong", "luat 72", "72/2025/qh15"],
+    "issuer": "Quốc hội",
+    "issue_date": "2025-06-16",
+    "effective_date": "2025-06-16",
+    "effective_status": "in_force",
+    "status_as_of": "2026-08-12",
+    "replaces": ["65/2025/QH15"],
+    "amends": [],
+    "superseded_by": [],
+    "official_source_urls": [
+      "https://vanban.chinhphu.vn/?classid=1&docid=214553&pageid=27160&typegroupid=3",
+      "https://xaydungchinhsach.chinhphu.vn/toan-van-luat-so-72-2025-qh15-to-chuc-chinh-quyen-dia-phuong-119250618161434371.htm"
+    ],
+    "verification_status": "verified",
+    "verified_at": "2026-08-12T00:00:00+07:00",
+    "review_state": "published",
+    "data_version": 2
+  },
+  {
+    "id": "117-2025-qh15",
+    "document_number": "117/2025/QH15",
+    "document_type": "luat",
+    "title": "Luật Bảo vệ bí mật nhà nước",
+    "topic_aliases": ["bảo vệ bí mật nhà nước", "bi mat nha nuoc", "luật bí mật nhà nước", "bảo mật nhà nước"],
+    "query_patterns": ["bao ve bi mat nha nuoc", "bi mat nha nuoc", "117/2025/qh15", "luat bi mat nha nuoc"],
+    "issuer": "Quốc hội",
+    "issue_date": "2025-12-10",
+    "effective_date": "2026-01-01",
+    "effective_status": "in_force",
+    "status_as_of": "2026-08-14",
+    "replaces": ["29/2018/QH14"],
+    "amends": [],
+    "superseded_by": [],
+    "official_source_urls": ["https://vanban.chinhphu.vn/?classid=1&docid=214553"],
+    "verification_status": "verified",
+    "verified_at": "2026-08-21T00:00:00+07:00",
+    "review_state": "published",
+    "data_version": 2
+  },
+  {
+    "id": "74-2025-qh15",
+    "document_number": "74/2025/QH15",
+    "document_type": "luat",
+    "title": "Luật Việc làm",
+    "topic_aliases": ["luật việc làm", "viec lam", "chính sách hỗ trợ tạo việc làm", "đăng ký lao động", "bảo hiểm thất nghiệp"],
+    "query_patterns": ["luat viec lam", "74/2025/qh15", "ho tro tao viec lam", "dang ky lao dong", "bao hiem that nghiep"],
+    "issuer": "Quốc hội",
+    "issue_date": "2025-06-16",
+    "effective_date": "2026-01-01",
+    "effective_status": "in_force",
+    "status_as_of": "2026-08-14",
+    "replaces": ["38/2013/QH13"],
+    "amends": [],
+    "superseded_by": [],
+    "official_source_urls": ["https://vanban.chinhphu.vn/?classid=1&docid=214553"],
+    "verification_status": "verified",
+    "verified_at": "2026-08-21T00:00:00+07:00",
+    "review_state": "published",
+    "data_version": 2
+  },
+  {
+    "id": "75-2025-qh15",
+    "document_number": "75/2025/QH15",
+    "document_type": "luat",
+    "title": "Luật sửa đổi, bổ sung một số điều của Luật Quảng cáo",
+    "topic_aliases": ["luật quảng cáo", "quảng cáo", "sửa đổi luật quảng cáo", "quang cao"],
+    "query_patterns": ["luat quang cao", "75/2025/qh15", "sua doi luat quang cao", "quang cao xuyen bien gioi"],
+    "issuer": "Quốc hội",
+    "issue_date": "2025-06-16",
+    "effective_date": "2026-01-01",
+    "effective_status": "in_force",
+    "status_as_of": "2026-08-14",
+    "replaces": [],
+    "amends": ["16/2012/QH13"],
+    "superseded_by": [],
+    "official_source_urls": ["https://vanban.chinhphu.vn/?classid=1&docid=214553"],
+    "verification_status": "verified",
+    "verified_at": "2026-08-21T00:00:00+07:00",
+    "review_state": "published",
+    "data_version": 2
+  },
+  {
+    "id": "30-2020-nd-cp",
+    "document_number": "30/2020/NĐ-CP",
+    "document_type": "nghi_dinh",
+    "title": "Nghị định 30/2020/NĐ-CP về công tác văn thư",
+    "topic_aliases": ["nghị định 30", "nghị định 30/2020", "nghi dinh 30", "công tác văn thư", "thể thức văn bản hành chính", "soạn thảo văn bản hành chính"],
+    "query_patterns": ["nghi dinh 30", "30/2020/nd-cp", "30/2020/ndcp", "nghi dinh 30/2020", "30/2020"],
+    "issuer": "Chính phủ",
+    "issue_date": "2020-03-05",
+    "effective_date": "2020-03-05",
+    "effective_status": "in_force",
+    "status_as_of": "2026-08-13",
+    "replaces": ["110/2004/NĐ-CP", "09/2010/NĐ-CP"],
+    "amends": [],
+    "superseded_by": [],
+    "official_source_urls": [
+      "https://vanban.chinhphu.vn/?classid=1&docid=199279",
+      "https://vbpl.vn/bo-noi-vu/Pages/vbpq-toanvan.aspx?ItemID=140882"
+    ],
+    "verification_status": "verified",
+    "verified_at": "2026-08-13T00:00:00+07:00",
+    "review_state": "published",
+    "data_version": 2
+  },
+  {
+    "id": "31-2024-qh15",
+    "document_number": "31/2024/QH15",
+    "document_type": "luat",
+    "title": "Luật Đất đai 2024",
+    "topic_aliases": ["luật đất đai", "đất đai", "luat dat dai", "dat dai"],
+    "query_patterns": ["luat dat dai", "dat dai", "31/2024/qh15", "luat dat dai 2024"],
+    "issuer": "Quốc hội",
+    "issue_date": "2024-01-18",
+    "effective_date": "2024-08-01",
+    "effective_status": "in_force",
+    "status_as_of": "2026-08-13",
+    "replaces": ["45/2013/QH13"],
+    "amends": [],
+    "superseded_by": [],
+    "official_source_urls": [
+      "https://vanban.chinhphu.vn/?classid=1&docid=209700",
+      "https://vbpl.vn/bo-tai-nguyen-moi-truong/Pages/vbpq-toanvan.aspx?ItemID=164627"
+    ],
+    "verification_status": "verified",
+    "verified_at": "2026-08-13T00:00:00+07:00",
+    "review_state": "published",
+    "data_version": 2
+  },
+  {
+    "id": "05-hd-vptw",
+    "document_number": "05-HD/VPTW",
+    "document_type": "huong_dan",
+    "title": "Hướng dẫn 05-HD/VPTW về thể thức văn bản Đảng",
+    "topic_aliases": ["văn bản đảng", "thể thức văn bản đảng", "hướng dẫn 05", "hd05", "hd 05"],
+    "query_patterns": ["van ban dang", "huong dan 05", "hd05", "hd 05", "05-hd/vptw"],
+    "issuer": "Văn phòng Trung ương Đảng",
+    "issue_date": "2021-05-10",
+    "effective_date": "2021-05-10",
+    "effective_status": "in_force",
+    "status_as_of": "2026-08-13",
+    "replaces": [],
+    "amends": [],
+    "superseded_by": [],
+    "official_source_urls": [
+      "https://tulieuvankien.dangcongsan.vn/"
+    ],
+    "verification_status": "verified",
+    "verified_at": "2026-08-13T00:00:00+07:00",
+    "review_state": "published",
+    "data_version": 2
+  },
+  {
+    "id": "45-2019-qh14",
+    "document_number": "45/2019/QH14",
+    "document_type": "luat",
+    "title": "Bộ luật Lao động 2019",
+    "topic_aliases": ["bộ luật lao động", "luật lao động", "hợp đồng lao động", "thử việc", "bo luat lao dong", "luat lao dong", "hop dong lao dong", "soan hop dong lao dong"],
+    "query_patterns": ["bo luat lao dong", "45/2019/qh14", "luat lao dong 2019", "hop dong lao dong"],
+    "issuer": "Quốc hội",
+    "issue_date": "2019-11-20",
+    "effective_date": "2021-01-01",
+    "effective_status": "in_force",
+    "status_as_of": "2026-08-13",
+    "replaces": ["10/2012/QH13"],
+    "amends": [],
+    "superseded_by": [],
+    "official_source_urls": [
+      "https://vanban.chinhphu.vn/?classid=1&docid=198540",
+      "https://vbpl.vn/bocongthuong/Pages/vbpq-toanvan.aspx?ItemID=139264"
+    ],
+    "verification_status": "verified",
+    "verified_at": "2026-08-13T00:00:00+07:00",
+    "review_state": "published",
+    "data_version": 2
+  },
+  {
+    "id": "13-2012-qh13",
+    "document_number": "13/2012/QH13",
+    "document_type": "luat",
+    "title": "Luật Giám định tư pháp 2012 (sửa đổi, bổ sung bởi Luật số 44/2020/QH14)",
+    "topic_aliases": [
+      "luật giám định tư pháp",
+      "giám định tư pháp",
+      "giám định viên tư pháp",
+      "giam dinh vien tu phap",
+      "tiêu chuẩn giám định viên tư pháp",
+      "bổ nhiệm giám định viên tư pháp",
+      "luat giam dinh tu phap",
+      "giam dinh tu phap"
+    ],
+    "query_patterns": [
+      "luat giam dinh tu phap",
+      "giam dinh tu phap",
+      "giam dinh vien tu phap",
+      "tieu chuan giam dinh vien",
+      "bo nhiem giam dinh vien",
+      "13/2012/qh13",
+      "44/2020/qh14",
+      "luat 44",
+      "luat 13"
+    ],
+    "issuer": "Quốc hội",
+    "issue_date": "2012-06-20",
+    "effective_date": "2013-01-01",
+    "effective_status": "in_force",
+    "status_as_of": "2026-08-14",
+    "replaces": ["Pháp lệnh Giám định tư pháp 2004"],
+    "amends": [],
+    "superseded_by": [],
+    "official_source_urls": [
+      "https://vanban.chinhphu.vn/?classid=1&docid=163077",
+      "https://vbpl.vn/botuphap/Pages/vbpq-toanvan.aspx?ItemID=27926"
+    ],
+    "verification_status": "verified",
+    "verified_at": "2026-08-14T00:00:00+07:00",
+    "review_state": "published",
+    "data_version": 2
+  },
+  {
+    "id": "44-2020-qh14",
+    "document_number": "44/2020/QH14",
+    "document_type": "luat",
+    "title": "Luật sửa đổi, bổ sung một số điều của Luật Giám định tư pháp",
+    "topic_aliases": [
+      "luật 44",
+      "luật 44/2020",
+      "luật sửa đổi luật giám định tư pháp",
+      "luat giam dinh tu phap 2020",
+      "sửa đổi luật giám định tư pháp"
+    ],
+    "query_patterns": [
+      "44/2020/qh14",
+      "luat 44/2020",
+      "luat 44",
+      "luat giam dinh tu phap 2020",
+      "sua doi luat giam dinh tu phap"
+    ],
+    "issuer": "Quốc hội",
+    "issue_date": "2020-06-10",
+    "effective_date": "2021-01-01",
+    "effective_status": "in_force",
+    "status_as_of": "2026-08-14",
+    "replaces": [],
+    "amends": ["13/2012/QH13"],
+    "superseded_by": [],
+    "official_source_urls": [
+      "https://vanban.chinhphu.vn/?classid=1&docid=200445"
+    ],
+    "verification_status": "verified",
+    "verified_at": "2026-08-14T00:00:00+07:00",
+    "review_state": "published",
+    "data_version": 2
+  },
+  {
+    "id": "11-2020-tt-btp",
+    "document_number": "11/2020/TT-BTP",
+    "document_type": "thong_tu",
+    "title": "Thông tư 11/2020/TT-BTP quy định về mẫu thẻ, trình tự, thủ tục cấp mới, cấp lại thẻ giám định viên tư pháp",
+    "topic_aliases": [
+      "thẻ giám định viên tư pháp",
+      "cấp thẻ giám định viên",
+      "mẫu thẻ giám định viên tư pháp",
+      "thông tư 11/2020/tt-btp",
+      "thong tu 11/2020",
+      "thong tu 11 btp"
+    ],
+    "query_patterns": [
+      "the giam dinh vien tu phap",
+      "cap the giam dinh vien",
+      "11/2020/tt-btp",
+      "11/2020/ttbtp",
+      "thong tu 11/2020"
+    ],
+    "issuer": "Bộ Tư pháp",
+    "issue_date": "2020-12-31",
+    "effective_date": "2021-02-15",
+    "effective_status": "in_force",
+    "status_as_of": "2026-08-14",
+    "replaces": [],
+    "amends": [],
+    "superseded_by": [],
+    "official_source_urls": [
+      "https://vanban.chinhphu.vn/?classid=1&docid=202468"
+    ],
+    "verification_status": "verified",
+    "verified_at": "2026-08-14T00:00:00+07:00",
+    "review_state": "published",
+    "data_version": 2
+  },
+  {
+    "id": "17-2021-tt-bxd",
+    "document_number": "17/2021/TT-BXD",
+    "document_type": "thong_tu",
+    "title": "Thông tư 17/2021/TT-BXD quy định một số nội dung về giám định tư pháp trong ngành Xây dựng",
+    "topic_aliases": [
+      "giám định tư pháp xây dựng",
+      "giám định tư pháp ngành xây dựng",
+      "thông tư 17/2021/tt-bxd",
+      "thong tu 17 bxd"
+    ],
+    "query_patterns": [
+      "giam dinh tu phap xay dung",
+      "17/2021/tt-bxd",
+      "17/2021/ttbxd",
+      "thong tu 17/2021"
+    ],
+    "issuer": "Bộ Xây dựng",
+    "issue_date": "2021-12-22",
+    "effective_date": "2022-02-15",
+    "effective_status": "in_force",
+    "status_as_of": "2026-08-14",
+    "replaces": ["04/2014/TT-BXD"],
+    "amends": [],
+    "superseded_by": [],
+    "official_source_urls": [
+      "https://vanban.chinhphu.vn/?classid=1&docid=204991"
+    ],
+    "verification_status": "verified",
+    "verified_at": "2026-08-14T00:00:00+07:00",
+    "review_state": "published",
+    "data_version": 2
+  },
+  {
+    "id": "40-2022-tt-btc",
+    "document_number": "40/2022/TT-BTC",
+    "document_type": "thong_tu",
+    "title": "Thông tư 40/2022/TT-BTC quy định về giám định tư pháp trong lĩnh vực tài chính",
+    "topic_aliases": [
+      "giám định tư pháp tài chính",
+      "giám định tư pháp kế toán",
+      "giám định tư pháp lĩnh vực tài chính",
+      "thông tư 40/2022/tt-btc",
+      "thong tu 40 btc"
+    ],
+    "query_patterns": [
+      "giam dinh tu phap tai chinh",
+      "giam dinh tu phap ke toan",
+      "40/2022/tt-btc",
+      "40/2022/ttbtc",
+      "thong tu 40/2022"
+    ],
+    "issuer": "Bộ Tài chính",
+    "issue_date": "2022-06-28",
+    "effective_date": "2022-08-15",
+    "effective_status": "in_force",
+    "status_as_of": "2026-08-14",
+    "replaces": ["138/2013/TT-BTC"],
+    "amends": [],
+    "superseded_by": [],
+    "official_source_urls": [
+      "https://vanban.chinhphu.vn/?classid=1&docid=206069"
+    ],
+    "verification_status": "verified",
+    "verified_at": "2026-08-14T00:00:00+07:00",
+    "review_state": "published",
+    "data_version": 2
+  },
+  {
+    "id": "37-2026-nd-cp",
+    "document_number": "37/2026/NĐ-CP",
+    "document_type": "nghi_dinh",
+    "title": "Nghị định 37/2026/NĐ-CP quy định chi tiết về nhãn hàng hóa",
+    "topic_aliases": [
+      "nhãn hàng hóa",
+      "nhan hang hoa",
+      "nghị định nhãn hàng hóa",
+      "nghi dinh 37/2026",
+      "quy định ghi nhãn hàng hóa",
+      "nội dung bắt buộc trên nhãn hàng hóa",
+      "buôn bán hàng hóa nhãn không đúng quy định"
+    ],
+    "query_patterns": [
+      "nhan hang hoa",
+      "nghi dinh 37",
+      "37/2026/nd-cp",
+      "37/2026",
+      "ghi nhan hang hoa",
+      "nhan hang hoa bat buoc"
+    ],
+    "issuer": "Chính phủ",
+    "issue_date": "2026-02-18",
+    "effective_date": "2026-02-18",
+    "effective_status": "in_force",
+    "status_as_of": "2026-08-24",
+    "replaces": ["43/2017/NĐ-CP", "111/2021/NĐ-CP"],
+    "amends": [],
+    "superseded_by": [],
+    "official_source_urls": [
+      "https://vanban.chinhphu.vn/?classid=1&docid=214553"
+    ],
+    "verification_status": "verified",
+    "verified_at": "2026-08-24T00:00:00+07:00",
+    "review_state": "published",
+    "data_version": 2
+  },
+  {
+    "id": "43-2017-nd-cp",
+    "document_number": "43/2017/NĐ-CP",
+    "document_type": "nghi_dinh",
+    "title": "Nghị định 43/2017/NĐ-CP về nhãn hàng hóa (ĐÃ HẾT HIỆU LỰC)",
+    "topic_aliases": [
+      "nghị định 43",
+      "nghị định 43/2017",
+      "nghi dinh 43",
+      "43/2017/nd-cp"
+    ],
+    "query_patterns": [
+      "nghi dinh 43",
+      "43/2017",
+      "43/2017/nd-cp"
+    ],
+    "issuer": "Chính phủ",
+    "issue_date": "2017-04-14",
+    "effective_date": "2017-06-01",
+    "effective_status": "expired",
+    "status_as_of": "2026-08-24",
+    "replaces": ["89/2006/NĐ-CP"],
+    "amends": [],
+    "superseded_by": ["37/2026/NĐ-CP"],
+    "official_source_urls": [
+      "https://vanban.chinhphu.vn/?classid=1&docid=189283"
+    ],
+    "verification_status": "verified",
+    "verified_at": "2026-08-24T00:00:00+07:00",
+    "review_state": "published",
+    "data_version": 2
+  },
+  {
+    "id": "111-2021-nd-cp",
+    "document_number": "111/2021/NĐ-CP",
+    "document_type": "nghi_dinh",
+    "title": "Nghị định 111/2021/NĐ-CP sửa đổi, bổ sung một số điều của Nghị định 43/2017/NĐ-CP về nhãn hàng hóa (ĐÃ HẾT HIỆU LỰC)",
+    "topic_aliases": [
+      "nghị định 111",
+      "nghị định 111/2021",
+      "nghi dinh 111",
+      "111/2021/nd-cp"
+    ],
+    "query_patterns": [
+      "nghi dinh 111",
+      "111/2021",
+      "111/2021/nd-cp"
+    ],
+    "issuer": "Chính phủ",
+    "issue_date": "2021-12-09",
+    "effective_date": "2022-02-15",
+    "effective_status": "expired",
+    "status_as_of": "2026-08-24",
+    "replaces": [],
+    "amends": ["43/2017/NĐ-CP"],
+    "superseded_by": ["37/2026/NĐ-CP"],
+    "official_source_urls": [
+      "https://vanban.chinhphu.vn/?classid=1&docid=204689"
+    ],
+    "verification_status": "verified",
+    "verified_at": "2026-08-24T00:00:00+07:00",
+    "review_state": "published",
+    "data_version": 2
+  }
+]
+
