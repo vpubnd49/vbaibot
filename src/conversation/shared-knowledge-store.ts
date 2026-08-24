@@ -124,9 +124,20 @@ export function proposeKnowledge(params: {
   return { ghi: true, id: Number(result.lastInsertRowid) };
 }
 
+const approveAllStmt = db.prepare(`
+  UPDATE shared_knowledge
+  SET status = 'approved', reviewed_by = ?, approved_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
+  WHERE account_id = ? AND status = 'pending'
+`);
+
 /** Duyệt tri thức — chỉ admin gọi từ dashboard */
 export function approveKnowledge(accountId: string, id: number, reviewedBy: string): boolean {
   return approveStmt.run(reviewedBy, id, accountId).changes > 0;
+}
+
+/** Duyệt TẤT CẢ tri thức chờ duyệt của account — chỉ admin gọi từ dashboard */
+export function approveAllKnowledge(accountId: string, reviewedBy: string): number {
+  return Number(approveAllStmt.run(reviewedBy, accountId).changes);
 }
 
 /** Từ chối tri thức — chỉ admin gọi từ dashboard */

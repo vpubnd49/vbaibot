@@ -258,6 +258,10 @@ export const api = {
     request<{ ok: boolean }>(`/api/knowledge/${id}/approve?accountId=${encodeURIComponent(accountId)}`, {
       method: "POST",
     }),
+  approveAllKnowledge: (accountId: string) =>
+    request<{ ok: boolean; count?: number }>(`/api/knowledge/approve-all?accountId=${encodeURIComponent(accountId)}`, {
+      method: "POST",
+    }),
   rejectKnowledge: (accountId: string, id: number) =>
     request<{ ok: boolean }>(`/api/knowledge/${id}/reject?accountId=${encodeURIComponent(accountId)}`, {
       method: "POST",

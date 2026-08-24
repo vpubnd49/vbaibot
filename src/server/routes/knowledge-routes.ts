@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import {
+  approveAllKnowledge,
   approveKnowledge,
   countPending,
   deleteKnowledge,
@@ -71,6 +72,14 @@ export const knowledgeRoutes = new Hono()
     if (!ok) return c.json({ error: "Knowledge không tồn tại hoặc đã duyệt" }, 404);
     
     return c.json({ ok: true });
+  })
+
+  .post("/approve-all", (c) => {
+    const accountId = c.req.query("accountId");
+    if (!accountId) return c.json({ error: "Thiếu accountId" }, 400);
+
+    const count = approveAllKnowledge(accountId, "admin");
+    return c.json({ ok: true, count });
   })
 
   .post("/:id/reject", (c) => {

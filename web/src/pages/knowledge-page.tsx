@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import type { AccountInfo, SharedKnowledgeItem } from "../dashboard-api-client";
 import { api } from "../dashboard-api-client";
 import { PageHeader } from "../layout/page-header";
-import { IconDatabase, IconPlus } from "../shared/dashboard-icons";
+import { IconCheck, IconDatabase, IconPlus } from "../shared/dashboard-icons";
 import { AccountFilter } from "../shared/account-filter";
 import { Badge, EmptyRow, formatTime, ListToolbar, TableShell } from "../shared/ui-bits";
 
@@ -39,6 +39,7 @@ export function KnowledgePage({ accounts }: { accounts: AccountInfo[] }) {
   const [newCategory, setNewCategory] = useState("general");
   const [newContent, setNewContent] = useState("");
   const [newSource, setNewSource] = useState("");
+  const [busyApproveAll, setBusyApproveAll] = useState(false);
 
   const reload = useCallback(() => {
     const accId = accountFilter || (accounts.length === 1 ? accounts[0].id : "");
@@ -64,6 +65,19 @@ export function KnowledgePage({ accounts }: { accounts: AccountInfo[] }) {
   async function approve(item: SharedKnowledgeItem) {
     await api.approveKnowledge(item.accountId, item.id);
     reload();
+  }
+
+  async function approveAll() {
+    const accId = accountFilter || (accounts.length === 1 ? accounts[0].id : "");
+    if (!accId) return;
+    if (!confirm(`Duyệt tất cả ${pendingCount > 0 ? pendingCount + " mục" : ""} tri thức đang chờ?`)) return;
+    setBusyApproveAll(true);
+    try {
+      await api.approveAllKnowledge(accId);
+      reload();
+    } finally {
+      setBusyApproveAll(false);
+    }
   }
 
   async function reject(item: SharedKnowledgeItem) {
@@ -118,6 +132,17 @@ export function KnowledgePage({ accounts }: { accounts: AccountInfo[] }) {
           </button>
         ))}
         <div className="flex-1" />
+        {pendingCount > 0 && (
+          <button
+            onClick={approveAll}
+            disabled={busyApproveAll}
+            className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-[13px] font-medium text-white hover:bg-emerald-700 disabled:opacity-50 transition-colors shadow-sm"
+            title="Duyệt toàn bộ tri thức đang chờ"
+          >
+            <IconCheck size={14} />
+            Duyệt tất cả ({pendingCount})
+          </button>
+        )}
         <button
           onClick={() => setShowAdd(!showAdd)}
           className="flex items-center gap-1.5 rounded-lg bg-zalo-600 px-3 py-1.5 text-[13px] font-medium text-white hover:bg-zalo-700 transition-colors"

@@ -1,3 +1,4 @@
+import { syncTurnToVBAI } from "../telemetry/vbai-sync.js";
 import type { API } from "zca-js";
 import { runAgentTurn, type AgentTurnParams } from "../agent/agent-loop.js";
 import { phanLoaiLoiProvider } from "../agent/provider-error-classifier.js";
@@ -233,6 +234,13 @@ async function xuLyLuot(
     // logic đó.
     const giao = await deliverChatReply(replyTarget, config.id, latest.threadId, result.text);
     if (giao.hong) return;
+
+    // Tự động đồng bộ câu hỏi & trả lời chất lượng cao về trung tâm huấn luyện VBAI (Fire-and-forget)
+    void syncTurnToVBAI({
+      userPrompt: describeForHistory(latest),
+      modelResponse: result.text,
+      senderId: latest.senderId,
+    });
 
     // Memory lớp 2: gộp tin cũ vào summary - fire-and-forget sau khi đã trả lời,
     // maybeSummarizeThread tự nuốt lỗi nên không cần catch thêm
