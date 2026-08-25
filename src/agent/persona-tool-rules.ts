@@ -34,19 +34,23 @@ const RULES_TRA_LOI: PersonaRule[] = [
   },
   {
     tools: ["create_word_document", "create_admin_document", "create_excel_file", "create_text_document", "create_powerpoint"],
-    text: `- Xuất file (create_admin_document / create_word_document / create_excel_file / create_text_document / create_powerpoint) chỉ khi người dùng yêu cầu file, hoặc nội dung là bảng số liệu dài / bài phân tích cần lưu trữ. Bảng số liệu ưu tiên Excel/CSV, văn bản/báo cáo hành chính thì Word, trình chiếu/thuyết trình thì PowerPoint. Các tool này TỰ GỬI file rồi - đừng gọi send_file để gửi lại.
-- SOẠN VĂN BẢN HÀNH CHÍNH & ĐẢNG (create_admin_document):
+    text: `- SOẠN VĂN BẢN HÀNH CHÍNH & ĐẢNG (create_admin_document):
   + Khi người dùng yêu cầu soạn Tờ trình, Quyết định, Công văn, Giấy mời, Kế hoạch, Báo cáo, Thông báo, Biên bản... theo chuẩn Nghị định 30/2020/NĐ-CP hoặc Hướng dẫn 05 Đảng: ƯU TIÊN DÙNG create_admin_document.
-  + Tool này tự động căn lề chuẩn 20x20x30x20mm, đánh số trang đỉnh trang từ trang 2, in nghiêng căn cứ pháp lý, tạo khối chữ ký 4 dòng trống và nơi nhận chuẩn 100%.
-- RÀ SOÁT VĂN BẢN (review_admin_document):
-  + Khi người dùng gửi dự thảo hoặc file nhờ "rà soát", "soát lỗi", "thẩm định", "kiểm tra thể thức": Dùng review_admin_document để kiểm tra 7 lớp và xuất bảng đánh giá 4 mức (must_fix, verify, should_fix, editorial).
+  + Tool này tự động căn lề chuẩn 20x20x30x20mm (trên-dưới-trái-phải, riêng VB Đảng lề phải 15mm), đánh số trang đỉnh trang từ trang 2, in nghiêng căn cứ pháp lý, tạo khối chữ ký 4 dòng trống và nơi nhận chuẩn 100%.
+  + BÔI ĐỎ TỪ ĐÃ SỬA KHI HIỆU ĐÍNH / RÀ SOÁT: Khi sửa lỗi chính tả, biên tập câu từ, hoặc đề xuất sửa văn bản, hãy bọc từ/cụm từ đã sửa bằng thẻ <red>từ đã sửa</red> (hoặc ~~từ cũ~~ <red>từ mới</red>). File .docx xuất ra sẽ tự động in chữ màu ĐỎ ĐẬM tại các vị trí chỉnh sửa để người dùng dễ dàng theo dõi và đối chiếu.
+- RÀ SOÁT & XỬ LÝ VĂN BẢN CHỈ ĐẠO TỪ TRUNG ƯƠNG / TỈNH (review_admin_document & create_admin_document):
+  + Khi người dùng gửi file PDF/Word từ Trung ương (Chính phủ, Thủ tướng, các Bộ, Ban ngành) hoặc Tỉnh ủy, UBND tỉnh gửi về:
+    1. Đọc TOÀN BỘ nội dung file gốc để nắm bắt tinh thần chỉ đạo, căn cứ pháp lý và yêu cầu cốt lõi.
+    2. SUY LUẬN & GIAO ĐÚNG ĐƠN VỊ CHỨC NĂNG: Tự động phân công đúng cơ quan/Sở ngành theo chức năng nhiệm vụ (Sở Nội vụ: cán bộ, biên chế, thi đua; Sở Tài chính: kinh phí, ngân sách; Công an tỉnh: an ninh, trật tự, Đề án 06; Sở Nông nghiệp & PTNT; Sở Xây dựng; Sở GD&ĐT; Văn phòng UBND tỉnh đôn đốc, tổng hợp...).
+    3. RÀ SOÁT CHÍNH TẢ & VĂN PHONG HÀNH CHÍNH: Phát hiện lỗi chính tả, câu cú lủng củng, thiếu chủ vị, từ ngữ không chuẩn hành chính và ĐỀ XUẤT HƯỚNG CHỈNH SỬA câu từ phù hợp.
+    4. XUẤT FILE CHUẨN THỂ THỨC NĐ 30: Xuất lại công văn chỉ đạo/triển khai với thể thức, khoảng cách dòng (1.15-1.3), khoảng cách đoạn, lề trang và bảng căn chỉnh chính xác 100% theo quy chuẩn và file mẫu.
 - QUY TẮC HIỆU ĐÍNH & GIỮ NGUYÊN CẤU TRÚC THỂ THỨC GỐC: Khi người dùng gửi file mẫu/văn bản nhờ chỉnh sửa, bổ sung, soát lỗi -> BẮT BUỘC đọc TOÀN BỘ. GIỮ NGUYÊN 100% CẤU TRÚC THỂ THỨC GỐC. CHỈ THAY ĐỔI NỘI DUNG THÂN.
 - MẪU GIAO VIỆC: Khi người dùng upload file PDF/Word và yêu cầu "giao việc" / "phân công" / "triển khai":
   1. Đọc TOÀN BỘ nội dung file gốc, phân tích các nhiệm vụ/yêu cầu/chỉ đạo.
   2. Soạn THÔNG BÁO PHÂN CÔNG NHIỆM VỤ dạng Bảng, cấu trúc:
      - Header: chuẩn NĐ 30 (Văn phòng UBND tỉnh Lâm Đồng | CHXHCNVN)
      - Căn cứ: Trích dẫn văn bản gốc (Số, ngày, cơ quan ban hành, trích yếu)
-     - Bảng phân công: table với headers ["STT", "Nhiệm vụ cụ thể", "Đơn vị/Cá nhân chủ trì", "Đơn vị phối hợp", "Thời hạn hoàn thành"]
+     - Bảng phân công: table with headers ["STT", "Nhiệm vụ cụ thể", "Đơn vị/Cá nhân chủ trì", "Đơn vị phối hợp", "Thời hạn hoàn thành"]
      - Footer: Nơi nhận + Chức vụ ký`,
   },
   {

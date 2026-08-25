@@ -1,26 +1,39 @@
 import { TextRun } from "docx";
 
 /**
- * Chuyển text có đánh dấu inline markdown thành danh sách TextRun:
- * - `***đậm nghiêng***` → bold + italic
- * - `**đậm**` → bold
- * - `*nghiêng*` → italic
- *
- * Thứ tự quan trọng: phải parse `***` trước `**` trước `*` để không nhầm.
+ * Chuyển text có đánh dấu inline formatting thành danh sách TextRun của docx:
+ * - `<red>nội dung</red>` hoặc `[red]nội dung[/red]` → Chữ màu đỏ (FF0000) phục vụ bôi đỏ từ đã sửa
+ * - `<green>nội dung</green>` hoặc `[green]nội dung[/green]` → Chữ màu xanh lá (008000)
+ * - `<blue>nội dung</blue>` hoặc `[blue]nội dung[/blue]` → Chữ màu xanh dương (0000FF)
+ * - `~~gạch ngang~~` → Strikethrough (chữ bị gạch bỏ)
+ * - `***đậm nghiêng***` → Bold + Italic
+ * - `**đậm**` → Bold
+ * - `*nghiêng*` → Italic
  */
 export type TextRunBaseOptions = {
   bold?: boolean;
+  italics?: boolean;
   font?: string;
   size?: number;
+  color?: string;
 };
 
 export function parseTextRuns(text: string, base: TextRunBaseOptions = {}): TextRun[] {
+  if (!text) {
+    return [new TextRun({ text: "", font: base.font, size: base.size, bold: base.bold, italics: base.italics, color: base.color })];
+  }
+
   const runs: TextRun[] = [];
 
-  // Tokenizer: tách thành các đoạn [normal, marker, content, marker, normal...]
-  // Regex xử lý 3 cấp: ***bold+italic***, **bold**, *italic*
-  // Dùng lookahead/lookbehind để tránh match sai các dấu * liền nhau
-  const TOKEN_RE = /\*{3}([^*]+)\*{3}|\*{2}([^*]+)\*{2}|\*([^*]+)\*/g;
+  // Regex nhận diện các thẻ tag màu sắc, strikethrough và markdown formatting
+  // 1: <red>...</red> hoặc [red]...[/red]
+  // 2: <green>...</green> hoặc [green]...[/green]
+  // 3: <blue>...</blue> hoặc [blue]...[/blue]
+  // 4: ~~strike~~
+  // 5: ***bold+italic***
+  // 6: **bold**
+  // 7: *italic*
+  const TOKEN_RE = /<(?:red|do)>([\s\S]*?)<\/(?:red|do)>|\[(?:red|do)\]([\s\S]*?)\[\/(?:red|do)\]|<green>([\s\S]*?)<\/green>|\[green\]([\s\S]*?)\[\/green\]|<blue>([\s\S]*?)<\/blue>|\[blue\]([\s\S]*?)\[\/blue\]|~~([\s\S]*?)~~|\*{3}([^*]+)\*{3}|\*{2}([^*]+)\*{2}|\*([^*]+)\*/gi;
 
   let lastIndex = 0;
   let match: RegExpExecArray | null;
@@ -29,18 +42,97 @@ export function parseTextRuns(text: string, base: TextRunBaseOptions = {}): Text
     // Text trước marker
     if (match.index > lastIndex) {
       const before = text.slice(lastIndex, match.index);
-      if (before) runs.push(new TextRun({ text: before, font: base.font, size: base.size, bold: base.bold }));
+      if (before) {
+        runs.push(new TextRun({
+          text: before,
+          font: base.font,
+          size: base.size,
+          bold: base.bold,
+          italics: base.italics,
+          color: base.color,
+        }));
+      }
     }
 
-    if (match[1] !== undefined) {
-      // *** bold + italic ***
-      runs.push(new TextRun({ text: match[1], font: base.font, size: base.size, bold: true, italics: true }));
-    } else if (match[2] !== undefined) {
-      // ** bold **
-      runs.push(new TextRun({ text: match[2], font: base.font, size: base.size, bold: true }));
-    } else if (match[3] !== undefined) {
-      // * italic *
-      runs.push(new TextRun({ text: match[3], font: base.font, size: base.size, bold: base.bold, italics: true }));
+    const [
+      ,
+      redTag,
+      redBracket,
+      greenTag,
+      greenBracket,
+      blueTag,
+      blueBracket,
+      strikeText,
+      boldItalicText,
+      boldText,
+      italicText,
+    ] = match;
+
+    const redContent = redTag ?? redBracket;
+    const greenContent = greenTag ?? greenBracket;
+    const blueContent = blueTag ?? blueBracket;
+
+    if (redContent !== undefined) {
+      // Bôi đỏ từ đã sửa
+      runs.push(new TextRun({
+        text: redContent,
+        font: base.font,
+        size: base.size,
+        bold: true,
+        color: "FF0000",
+      }));
+    } else if (greenContent !== undefined) {
+      runs.push(new TextRun({
+        text: greenContent,
+        font: base.font,
+        size: base.size,
+        bold: true,
+        color: "008000",
+      }));
+    } else if (blueContent !== undefined) {
+      runs.push(new TextRun({
+        text: blueContent,
+        font: base.font,
+        size: base.size,
+        bold: true,
+        color: "0000FF",
+      }));
+    } else if (strikeText !== undefined) {
+      // Từ cũ bị gạch bỏ
+      runs.push(new TextRun({
+        text: strikeText,
+        font: base.font,
+        size: base.size,
+        strike: true,
+        color: "888888",
+      }));
+    } else if (boldItalicText !== undefined) {
+      runs.push(new TextRun({
+        text: boldItalicText,
+        font: base.font,
+        size: base.size,
+        bold: true,
+        italics: true,
+        color: base.color,
+      }));
+    } else if (boldText !== undefined) {
+      runs.push(new TextRun({
+        text: boldText,
+        font: base.font,
+        size: base.size,
+        bold: true,
+        italics: base.italics,
+        color: base.color,
+      }));
+    } else if (italicText !== undefined) {
+      runs.push(new TextRun({
+        text: italicText,
+        font: base.font,
+        size: base.size,
+        bold: base.bold,
+        italics: true,
+        color: base.color,
+      }));
     }
 
     lastIndex = match.index + match[0].length;
@@ -49,9 +141,19 @@ export function parseTextRuns(text: string, base: TextRunBaseOptions = {}): Text
   // Text sau marker cuối
   if (lastIndex < text.length) {
     const remaining = text.slice(lastIndex);
-    if (remaining) runs.push(new TextRun({ text: remaining, font: base.font, size: base.size, bold: base.bold }));
+    if (remaining) {
+      runs.push(new TextRun({
+        text: remaining,
+        font: base.font,
+        size: base.size,
+        bold: base.bold,
+        italics: base.italics,
+        color: base.color,
+      }));
+    }
   }
 
-  // Text rỗng hoặc toàn dấu * -> vẫn phải có 1 run để Paragraph hợp lệ
-  return runs.length > 0 ? runs : [new TextRun({ text: "", font: base.font, size: base.size, bold: base.bold })];
+  return runs.length > 0
+    ? runs
+    : [new TextRun({ text: "", font: base.font, size: base.size, bold: base.bold, italics: base.italics, color: base.color })];
 }
