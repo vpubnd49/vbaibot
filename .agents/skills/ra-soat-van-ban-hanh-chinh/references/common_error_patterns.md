@@ -59,11 +59,31 @@ Ví dụ:
 ## H. Sai động từ theo giai đoạn
 
 Phân biệt:
-`nghiên cứu → xây dựng → trình → ban hành → tổ chức thực hiện`.
+- nghiên cứu
+- xây dựng
+- trình
+- ban hành
+- tổ chức thực hiện
 
-“Ban hành” không thay thế “xây dựng” khi cơ quan chưa có thẩm quyền hoặc chưa hoàn tất quy trình.
+Không dùng “ban hành” cho cơ quan chỉ có thẩm quyền tham mưu/trình.
 
-## I. Trách nhiệm chậm trễ quá rộng
+## I. Viết hoa danh hiệu & Đối tượng chính sách
+
+- **Viết đúng tôn kính:** `Anh hùng liệt sĩ` (chữ "Anh hùng" viết hoa chữ A), `Mẹ Việt Nam anh hùng`, `Anh hùng Lực lượng vũ trang nhân dân`, `Anh hùng Lao động`.
+- **Tuyệt đối không sửa thành:** `anh hùng liệt sĩ` (viết thường làm giảm tính tôn nghiêm).
+- **Tiền tố chức vụ:** từ `nguyên` viết thường, ví dụ `nguyên Phó Chủ tịch`, `nguyên Trưởng Đoàn`.
+
+## J. Không nhất quán trong liệt kê cơ quan cấp cơ sở
+
+- **Dùng thống nhất 100%:** `Ủy ban nhân dân các xã, phường, đặc khu` (bắt buộc có chữ `các`).
+- **Lỗi thường gặp:** Mục I ghi `Ủy ban nhân dân xã, phường, đặc khu` (thiếu `các`), nhưng Mục II lại ghi `Ủy ban nhân dân các xã, phường, đặc khu`. Phải rà soát và chuẩn hóa đồng nhất toàn bộ văn bản.
+
+## K. Ký tự viết tắt và liên từ trong Nơi nhận
+
+- **Dùng từ nối:** dùng từ `và` thay vì ký tự `&`, ví dụ: `Văn phòng Đoàn ĐBQH và HĐND tỉnh` (không dùng `Đoàn ĐBQH&HĐND tỉnh`).
+- **Tránh trùng lặp:** không lặp lại câu kết mời/trân trọng kính mời nhiều lần trong Giấy mời.
+
+## L. Trách nhiệm chậm trễ quá rộng
 
 Nếu thêm:
 > “chịu trách nhiệm trước Chủ tịch UBND tỉnh...”
