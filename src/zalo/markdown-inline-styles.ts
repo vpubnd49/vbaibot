@@ -44,11 +44,17 @@ const CAP_DAU: { regex: RegExp; style: TextStyle }[] = [
   //
   // Cả 4 màu + gạch chân đã ĐO THẬT trên cả Zalo Web lẫn điện thoại: hiện y hệt
   // nhau, kể cả khi chồng với đậm hoặc nghiêng.
-  { regex: /<do>([^<\n]+)<\/do>/gi, style: TextStyle.Red },
-  { regex: /<cam>([^<\n]+)<\/cam>/gi, style: TextStyle.Orange },
-  { regex: /<vang>([^<\n]+)<\/vang>/gi, style: TextStyle.Yellow },
-  { regex: /<xanh>([^<\n]+)<\/xanh>/gi, style: TextStyle.Green },
-  { regex: /<gach>([^<\n]+)<\/gach>/gi, style: TextStyle.Underline },
+  // Hỗ trợ cả <red>, <do>, [red], [do] để khi rà soát chính tả thì Zalo hiển thị chữ MÀU ĐỎ THẬT.
+  { regex: /<(?:do|red)>([^<\n]+)<\/(?:do|red)>/gi, style: TextStyle.Red },
+  { regex: /\[(?:do|red)\]([^[\n]+)\[\/(?:do|red)\]/gi, style: TextStyle.Red },
+  { regex: /<(?:cam|orange)>([^<\n]+)<\/(?:cam|orange)>/gi, style: TextStyle.Orange },
+  { regex: /\[(?:cam|orange)\]([^[\n]+)\[\/(?:cam|orange)\]/gi, style: TextStyle.Orange },
+  { regex: /<(?:vang|yellow)>([^<\n]+)<\/(?:vang|yellow)>/gi, style: TextStyle.Yellow },
+  { regex: /\[(?:vang|yellow)\]([^[\n]+)\[\/(?:vang|yellow)\]/gi, style: TextStyle.Yellow },
+  { regex: /<(?:xanh|green)>([^<\n]+)<\/(?:xanh|green)>/gi, style: TextStyle.Green },
+  { regex: /\[(?:xanh|green)\]([^[\n]+)\[\/(?:xanh|green)\]/gi, style: TextStyle.Green },
+  { regex: /<(?:gach|u|underline)>([^<\n]+)<\/(?:gach|u|underline)>/gi, style: TextStyle.Underline },
+  { regex: /\[(?:gach|u|underline)\]([^[\n]+)\[\/(?:gach|u|underline)\]/gi, style: TextStyle.Underline },
 ];
 
 export type SpanInline = { start: number; len: number; st: Exclude<TextStyle, TextStyle.Indent> };

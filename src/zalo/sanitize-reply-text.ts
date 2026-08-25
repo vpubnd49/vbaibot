@@ -175,10 +175,10 @@ function boDongPhanCachBang(text: string, daSua: string[]): string {
  *
  * Biểu thức TUYẾN TÍNH nhờ lớp ký tự phủ định `[^<\n]`, cùng luật với cả file.
  */
-const THE_MAU_RE = /<\/?(?:do|cam|vang|xanh|gach)>/gi;
+const THE_MAU_RE = /<\/?(?:do|red|cam|orange|vang|yellow|xanh|green|blue|gach|u|underline)>|\[\/?(?:do|red|cam|orange|vang|yellow|xanh|green|blue|gach|u|underline)\]/gi;
 
 function boTheMau(text: string, daSua: string[]): string {
-  if (!text.includes("<")) return text;
+  if (!text.includes("<") && !text.includes("[")) return text;
   const sau = text.replace(THE_MAU_RE, "");
   if (sau !== text) daSua.push("thẻ màu");
   return sau;
