@@ -30,7 +30,13 @@ const headingBlock = z.object({
 
 const paragraphBlock = z.object({
   type: z.literal("paragraph"),
-  text: z.string().min(1).describe("Bôi đậm giữa dòng bằng **chữ đậm**"),
+  text: z
+    .string()
+    .min(1)
+    .describe(
+      "Đoạn văn xuôi. Đậm: **chữ đậm**, nghiêng: *chữ nghiêng*. " +
+      "QUY TẮC BÔI ĐỎ KHI SỬA LỖI: Khi rà soát/sửa lỗi chính tả/biên tập câu từ, BẮT BUỘC dùng <red>từ đã sửa</red> (hoặc ~~từ cũ~~ <red>từ mới</red>) để bôi đỏ từ đã sửa trong file Word!"
+    ),
   align: z
     .enum(["left", "center", "right", "justify"])
     .optional()
@@ -39,7 +45,10 @@ const paragraphBlock = z.object({
 
 const bulletsBlock = z.object({
   type: z.literal("bullets"),
-  items: z.array(z.string().min(1)).min(1),
+  items: z
+    .array(z.string().min(1))
+    .min(1)
+    .describe("Các gạch đầu dòng (hỗ trợ <red>từ đã sửa</red> để bôi đỏ)"),
 });
 
 const tableBlock = z.object({

@@ -92,7 +92,9 @@ export function createWordDocumentTool(ctx: Ctx) {
   return tool({
     description:
       "Tạo file Word (.docx) chuẩn văn bản Việt Nam (Times New Roman 13pt) rồi gửi luôn cho người dùng. " +
-      "Dùng khi người dùng yêu cầu file, hoặc khi nội dung dài/có bảng mà đọc trong chat sẽ rối. " +
+      "Dùng khi người dùng yêu cầu file, hoặc khi nội dung dài/có bảng mà đọc trong chat sẽ rối.\n" +
+      "QUY TẮC BÔI ĐỎ TỪ ĐÃ SỬA: Khi người dùng nhờ rà soát, sửa lỗi chính tả, biên tập lại tài liệu -> " +
+      "BẮT BUỘC dùng `<red>từ đã sửa</red>` (hoặc `~~từ cũ~~ <red>từ mới</red>`) trong các đoạn văn paragraph/items để bôi đỏ nổi bật các từ đã sửa trong file Word cho người dùng dễ nhìn thấy.\n" +
       "Văn bản hành chính: mở đầu bằng two_columns (cơ quan bên trái, quốc hiệu **CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM** bên phải), " +
       "dòng địa danh - ngày tháng dùng paragraph align right, kết bằng two_columns (nơi nhận | chức vụ + tên người ký). " +
       "Nội dung ngắn thì trả lời thẳng, đừng tạo file.",

@@ -65,6 +65,9 @@ export function createAdminDocumentTool(ctx: Ctx) {
       "(hoặc Hướng dẫn 05-HD/VPTW của Ban Chấp hành Trung ương Đảng) rồi gửi luôn cho người dùng.\n" +
       "Hỗ trợ 24 loại văn bản: Tờ trình (to_trinh), Quyết định (quyet_dinh), Công văn (cong_van), Giấy mời (giay_moi), " +
       "Kế hoạch (ke_hoach), Báo cáo (bao_cao), Thông báo (thong_bao), Biên bản (bien_ban), Quy chế (quy_che), Quy định (quy_dinh), v.v.\n" +
+      "QUY TẮC BÔI ĐỎ TỪ ĐÃ SỬA KHI RÀ SOÁT / SỬA LỖI: Khi người dùng nhờ rà soát, sửa lỗi chính tả, biên tập lại văn bản, " +
+      "BẮT BUỘC trong các đoạn văn của 'document.sections' phải dùng thẻ `<red>từ đã sửa</red>` (hoặc `~~từ sai~~ <red>từ đúng</red>`) " +
+      "để bôi đỏ nổi bật tất cả các từ đã sửa trong file Word (.docx) xuất ra cho người dùng dễ nhìn thấy.\n" +
       "Tự động định dạng Quốc hiệu, Tiêu ngữ, Căn cứ pháp lý in nghiêng, thụt đầu dòng 1cm, số trang đỉnh trang, khối ký và nơi nhận chuẩn 100%.",
     inputSchema: z.object({
       fileName: z.string().min(1).describe('Tên file .docx, ví dụ: "to-trinh-phe-duyet-du-toan.docx"'),

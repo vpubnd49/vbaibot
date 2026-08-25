@@ -61,8 +61,18 @@ export const TEN_LOAI_TIENG_VIET: Record<LoaiVanBanHC, string> = {
 
 export const adminSectionSchema = z.object({
   heading: z.string().optional().describe("Tiêu đề mục, ví dụ: 'I. SỰ CẦN THIẾT', 'Điều 1. Phạm vi điều chỉnh'"),
-  paragraphs: z.array(z.string().min(1)).min(1).describe("Các đoạn văn xuôi trong mục, tự động thụt đầu dòng 1cm"),
-  items: z.array(z.string().min(1)).optional().describe("Các gạch đầu dòng hoặc điểm a, b, c liệt kê"),
+  paragraphs: z
+    .array(z.string().min(1))
+    .min(1)
+    .describe(
+      "Các đoạn văn xuôi trong mục (tự động thụt đầu dòng 1cm). " +
+      "QUY TẮC BÔI ĐỎ KHI HIỆU ĐÍNH / SỬA LỖI: BẮT BUỘC dùng thẻ `<red>từ đã sửa</red>` (hoặc `~~từ sai~~ <red>từ đúng</red>`) " +
+      "để bôi đỏ toàn bộ các từ/cụm từ đã được chỉnh sửa trong file Word cho người dùng dễ kiểm tra đối chiếu!"
+    ),
+  items: z
+    .array(z.string().min(1))
+    .optional()
+    .describe("Các gạch đầu dòng hoặc điểm a, b, c liệt kê (hỗ trợ thẻ `<red>từ đã sửa</red>` để bôi đỏ)"),
   table: z
     .object({
       headers: z.array(z.string()).min(1),
