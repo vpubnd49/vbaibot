@@ -12,6 +12,8 @@ import { createSendFileTool } from "./send-file-tool.js";
 import { createTagMemberTool } from "./tag-member-tool.js";
 import { createFinanceTrackerTool } from "./finance-tracker-tool.js";
 import { createProposeKnowledgeTool } from "./propose-knowledge-tool.js";
+import { createAdminDocumentTool } from "./create-admin-document-tool.js";
+import { reviewAdminDocumentTool } from "./review-admin-document-tool.js";
 import type { ToolDefinition } from "./tool-catalog-types.js";
 
 /**
@@ -54,6 +56,24 @@ export const ACTION_TOOL_DEFINITIONS: ToolDefinition[] = [
     // enqueueSend, né trần ngày.
     runsInScheduledTurn: false,
     build: (ctx) => createWordDocumentTool(ctx),
+  },
+  {
+    key: "create_admin_document",
+    label: "Soạn VB Hành chính & Đảng (NĐ 30 / HD 05)",
+    description:
+      "Soạn và xuất file Word (.docx) chuẩn thể thức Nghị định 30/2020/NĐ-CP (Tờ trình, Quyết định, Công văn, Giấy mời, Kế hoạch...) hoặc Hướng dẫn 05 Đảng",
+    group: "action",
+    runsInScheduledTurn: false,
+    build: (ctx) => createAdminDocumentTool(ctx),
+  },
+  {
+    key: "review_admin_document",
+    label: "Rà soát VB Hành chính",
+    description:
+      "Rà soát, thẩm định hồ sơ văn bản hành chính theo quy trình 7 lớp (thể thức, chính tả, căn cứ, logic giao việc, thẩm quyền)",
+    group: "action",
+    runsInScheduledTurn: false,
+    build: (ctx) => reviewAdminDocumentTool(ctx),
   },
   {
     key: "create_excel_file",

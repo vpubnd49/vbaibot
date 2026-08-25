@@ -131,9 +131,45 @@ export function isPublicAddress(address: string): boolean {
 }
 
 /**
+ * Danh sách các tên miền nội bộ, localhost, cloud metadata và DNS bypass services
+ */
+const BLOCKED_DOMAINS = [
+  "localhost",
+  "instance-data",
+  "metadata.google.internal",
+  "localtest.me",
+  "vcap.me",
+  "lvh.me",
+  "nip.io",
+  "sslip.io",
+];
+
+const BLOCKED_SUFFIXES = [
+  ".localhost",
+  ".local",
+  ".internal",
+  ".lan",
+  ".home.arpa",
+];
+
+/**
+ * Kiểm tra xem hostname có nằm trong danh sách cấm hoặc dùng định dạng bypass (Hex, Octal, Integer) hay không
+ */
+export function isBlockedHostname(hostname: string): boolean {
+  const host = hostnameToAddress(hostname).toLowerCase().trim();
+  if (BLOCKED_DOMAINS.some((d) => host === d || host.endsWith("." + d))) return true;
+  if (BLOCKED_SUFFIXES.some((suffix) => host.endsWith(suffix))) return true;
+  // Chặn định dạng số nguyên thuần, hex hoặc octal (vd: 2130706433, 0x7f000001, 0177.0.0.1)
+  if (/^(0x[0-9a-f]+|\d+)$/i.test(host)) return true;
+  if (host.split(".").some((part) => /^0\d+$/.test(part) || /^0x[0-9a-f]+$/i.test(part))) return true;
+  return false;
+}
+
+/**
  * Bỏ ngoặc vuông của IPv6 trong URL: `new URL("http://[::1]/").hostname` trả về
  * "[::1]", để nguyên thì net.isIP không nhận ra là IP và guard bị lọt.
  */
 export function hostnameToAddress(hostname: string): string {
   return hostname.startsWith("[") && hostname.endsWith("]") ? hostname.slice(1, -1) : hostname;
 }
+

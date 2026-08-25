@@ -8,6 +8,7 @@ import type { ToolContext } from "./index.js";
 import { ketQuaLoi } from "./tool-failure-result.js";
 import { wrapUntrustedContent } from "./wrap-untrusted-content.js";
 import { readDocument, isSupportedDocument } from "../../documents/document-reader.js";
+import { assertSafePathInside } from "../../shared/path-security-guard.js";
 
 /**
  * Trần số file gần đây agent chọn được qua fileIndex.
@@ -116,9 +117,10 @@ export function createReadDocumentTool(ctx: ToolContext) {
       }
 
       const relPath = paths[fileIndex]!;
-      const absPath = path.isAbsolute(relPath) ? relPath : path.join(dataDir, relPath);
+      const rawAbsPath = path.isAbsolute(relPath) ? relPath : path.join(dataDir, relPath);
 
       try {
+        const absPath = assertSafePathInside(rawAbsPath, dataDir);
         const doc = await readDocument(absPath);
         const header = `[Nội dung file tài liệu: ${path.basename(relPath)} (${doc.fileType})]\n`;
         return wrapUntrustedContent(`${header}${doc.text}`, path.basename(relPath));

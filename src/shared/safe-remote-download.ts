@@ -3,7 +3,7 @@ import { request as httpRequest, type IncomingMessage } from "node:http";
 import { request as httpsRequest } from "node:https";
 import net, { type LookupFunction } from "node:net";
 import zlib from "node:zlib";
-import { hostnameToAddress, isPublicAddress } from "./private-address-guard.js";
+import { hostnameToAddress, isBlockedHostname, isPublicAddress } from "./private-address-guard.js";
 
 /**
  * Tải nội dung từ URL bên ngoài một cách an toàn:
@@ -44,6 +44,10 @@ export type DownloadOptions = { maxBytes: number; timeoutMs?: number };
  * chỉ rồi kết nối tới địa chỉ khác).
  */
 const guardedLookup: LookupFunction = (hostname, options, callback) => {
+  if (isBlockedHostname(hostname)) {
+    callback(new Error(`Chặn tên miền / địa chỉ nội bộ: ${hostname}`), "", 0);
+    return;
+  }
   const lookupOptions: dns.LookupAllOptions = { ...options, all: true };
   dns.lookup(hostname, lookupOptions, (err, addresses) => {
     if (err) {
@@ -141,6 +145,9 @@ function openGuardedRequest(url: URL, timeoutMs: number): Promise<IncomingMessag
   // URL ghi thẳng IP thì socket bỏ qua bước DNS -> guardedLookup không chạy,
   // phải tự kiểm ở đây, nếu không "http://127.0.0.1:3900" lọt thẳng qua.
   const address = hostnameToAddress(url.hostname);
+  if (isBlockedHostname(url.hostname)) {
+    throw new Error(`Chặn tên miền / địa chỉ nội bộ: ${url.hostname}`);
+  }
   if (net.isIP(address) && !isPublicAddress(address)) {
     throw new Error(`Chặn địa chỉ nội bộ: ${address}`);
   }

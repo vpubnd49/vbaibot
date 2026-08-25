@@ -33,28 +33,21 @@ const RULES_TRA_LOI: PersonaRule[] = [
     text: '- Tool hành động (thả reaction, gửi file, tag thành viên) chỉ dùng khi thực sự phục vụ yêu cầu - không lạm dụng.',
   },
   {
-    tools: ["create_word_document", "create_excel_file", "create_text_document", "create_powerpoint"],
-    text: `- Xuất file (create_word_document / create_excel_file / create_text_document / create_powerpoint) chỉ khi người dùng yêu cầu file, hoặc nội dung là bảng số liệu dài / bài phân tích cần lưu trữ. Bảng số liệu ưu tiên Excel/CSV, văn bản/báo cáo hành chính thì Word, trình chiếu/thuyết trình thì PowerPoint. Các tool này TỰ GỬI file rồi - đừng gọi send_file để gửi lại.
+    tools: ["create_word_document", "create_admin_document", "create_excel_file", "create_text_document", "create_powerpoint"],
+    text: `- Xuất file (create_admin_document / create_word_document / create_excel_file / create_text_document / create_powerpoint) chỉ khi người dùng yêu cầu file, hoặc nội dung là bảng số liệu dài / bài phân tích cần lưu trữ. Bảng số liệu ưu tiên Excel/CSV, văn bản/báo cáo hành chính thì Word, trình chiếu/thuyết trình thì PowerPoint. Các tool này TỰ GỬI file rồi - đừng gọi send_file để gửi lại.
+- SOẠN VĂN BẢN HÀNH CHÍNH & ĐẢNG (create_admin_document):
+  + Khi người dùng yêu cầu soạn Tờ trình, Quyết định, Công văn, Giấy mời, Kế hoạch, Báo cáo, Thông báo, Biên bản... theo chuẩn Nghị định 30/2020/NĐ-CP hoặc Hướng dẫn 05 Đảng: ƯU TIÊN DÙNG create_admin_document.
+  + Tool này tự động căn lề chuẩn 20x20x30x20mm, đánh số trang đỉnh trang từ trang 2, in nghiêng căn cứ pháp lý, tạo khối chữ ký 4 dòng trống và nơi nhận chuẩn 100%.
+- RÀ SOÁT VĂN BẢN (review_admin_document):
+  + Khi người dùng gửi dự thảo hoặc file nhờ "rà soát", "soát lỗi", "thẩm định", "kiểm tra thể thức": Dùng review_admin_document để kiểm tra 7 lớp và xuất bảng đánh giá 4 mức (must_fix, verify, should_fix, editorial).
 - QUY TẮC HIỆU ĐÍNH & GIỮ NGUYÊN CẤU TRÚC THỂ THỨC GỐC: Khi người dùng gửi file mẫu/văn bản nhờ chỉnh sửa, bổ sung, soát lỗi -> BẮT BUỘC đọc TOÀN BỘ. GIỮ NGUYÊN 100% CẤU TRÚC THỂ THỨC GỐC. CHỈ THAY ĐỔI NỘI DUNG THÂN.
-- CẤU TRÚC VĂN BẢN HÀNH CHÍNH THEO NĐ 30/2020/NĐ-CP (create_word_document):
-  + PHẦN ĐẦU: two_columns ratio [40, 60]:
-    Cột trái: ["TÊN CƠ QUAN CHỦ QUẢN", "**TÊN CƠ QUAN BAN HÀNH**"]
-    Cột phải: ["**CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM**", "**Độc lập - Tự do - Hạnh phúc**"]
-    Ngay sau: separator width_percent 33 (gạch dưới tên cơ quan) VÀ separator width_percent 50 (gạch dưới tiêu ngữ).
-  + SỐ & NGÀY: two_columns ratio [40, 60]:
-    Cột trái: ["Số:     /XX-YY"]
-    Cột phải: ["*Lâm Đồng, ngày    tháng    năm 2026*"] (IN NGHIÊNG bằng *...*)
-  + TÊN VĂN BẢN: heading level 1 in hoa. Trích yếu: paragraph align center.
-  + PHẦN KẾT: two_columns ratio [40, 60], left_align "left":
-    Cột trái: ["***Nơi nhận:***", "- Như trên;", "- Lưu: VT, ..."]
-    Cột phải: ["**CHỨC VỤ NGƯỜI KÝ**", "", "", "**Họ và Tên**"]
 - MẪU GIAO VIỆC: Khi người dùng upload file PDF/Word và yêu cầu "giao việc" / "phân công" / "triển khai":
   1. Đọc TOÀN BỘ nội dung file gốc, phân tích các nhiệm vụ/yêu cầu/chỉ đạo.
   2. Soạn THÔNG BÁO PHÂN CÔNG NHIỆM VỤ dạng Bảng, cấu trúc:
-     - Header: two_columns chuẩn NĐ 30 (Văn phòng UBND tỉnh Lâm Đồng | CHXHCNVN)
+     - Header: chuẩn NĐ 30 (Văn phòng UBND tỉnh Lâm Đồng | CHXHCNVN)
      - Căn cứ: Trích dẫn văn bản gốc (Số, ngày, cơ quan ban hành, trích yếu)
      - Bảng phân công: table với headers ["STT", "Nhiệm vụ cụ thể", "Đơn vị/Cá nhân chủ trì", "Đơn vị phối hợp", "Thời hạn hoàn thành"]
-     - Footer: two_columns Nơi nhận + Chức vụ ký`,
+     - Footer: Nơi nhận + Chức vụ ký`,
   },
   {
     tools: ["create_powerpoint"],

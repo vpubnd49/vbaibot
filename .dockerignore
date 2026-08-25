@@ -1,0 +1,24 @@
+# Tệp và thư mục loại trừ khi đóng gói Docker
+.git/
+.gitignore
+.env
+.env.*
+!.env.example
+data/accounts/
+data/logs/
+data/media/
+data/zalo-agent.db*
+bosung/
+.agents/
+node_modules/
+dist/
+web/dist/
+web/node_modules/
+evals/
+plans/
+docs/
+*.log
+*.enc
+*.tmp
+.DS_Store
+Thumbs.db

@@ -206,6 +206,8 @@ describe("tool-registry", () => {
     "schedule_task",
     "send_file",
     "create_word_document",
+    "create_admin_document",
+    "review_admin_document",
     "create_excel_file",
     "create_powerpoint",
     "create_text_document",

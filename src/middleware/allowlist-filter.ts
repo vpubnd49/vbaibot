@@ -1,4 +1,5 @@
 import type { AccountConfig } from "../config/account-store.js";
+import { isMentioningBot } from "../shared/fold-for-search.js";
 import type { ParsedMessage } from "../zalo/zalo-message-parser.js";
 
 export type FilterDecision = {
@@ -32,15 +33,17 @@ export function shouldRespond(
     return skip("tin của chính bot");
   }
 
-  if (!msg.text.trim() && msg.images.length === 0) {
+  if (!msg.text.trim() && msg.images.length === 0 && (msg.files?.length ?? 0) === 0) {
     return skip("không có nội dung xử lý được (sticker/voice/...)");
   }
+
+  const isMentioned = msg.mentionsMe || isMentioningBot(msg.text, account.label);
 
   if (msg.isGroup) {
     if (!account.respondToGroups) {
       return skip("account tắt trả lời group");
     }
-    if (account.groupRequireMention && !msg.mentionsMe) {
+    if (account.groupRequireMention && !isMentioned) {
       return account.groupPassiveListen
         ? recordOnly("group không @mention - chỉ ghi history")
         : skip("group yêu cầu @mention bot");

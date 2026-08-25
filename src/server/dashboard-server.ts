@@ -68,9 +68,24 @@ const setStaticCacheHeaders: MiddlewareHandler = async (c, next) => {
   }
 };
 
+/**
+ * HTTP Security Headers bảo vệ Dashboard khỏi Clickjacking, MIME sniffing, XSS...
+ */
+const setSecurityHeaders: MiddlewareHandler = async (c, next) => {
+  await next();
+  c.header("X-Content-Type-Options", "nosniff");
+  c.header("X-Frame-Options", "DENY");
+  c.header("X-XSS-Protection", "1; mode=block");
+  c.header("Referrer-Policy", "strict-origin-when-cross-origin");
+  c.header("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+};
+
 /** Tách buildApp khỏi serve() để test gọi app.request() không cần mở port */
 export function buildDashboardApp(): Hono {
   const app = new Hono();
+
+  // Bật Security Headers cho toàn bộ routes
+  app.use("*", setSecurityHeaders);
 
   // Liveness - không auth, không cache (theo healthcheck rules)
   app.get("/api/health", (c) => {

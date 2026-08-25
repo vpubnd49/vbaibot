@@ -5,6 +5,7 @@ import { z } from "zod";
 import { dataDir } from "../../config/env.js";
 import { downloadFromPublicUrl } from "../../shared/safe-remote-download.js";
 import { withTempFile } from "../../shared/temp-file-store.js";
+import { assertSafePathInside } from "../../shared/path-security-guard.js";
 import type { ToolContext } from "./index.js";
 import { ketQuaLoi } from "./tool-failure-result.js";
 import { guiFileKemCaption } from "./send-attachment-with-caption.js";
@@ -57,8 +58,9 @@ export function createSendFileTool({ api, account, message, ghiNhanDaGui }: Tool
         }
 
         const sharedDir = path.join(dataDir, "shared-files");
-        // basename chặn path traversal kiểu ../../data/accounts/...
-        const filePath = path.join(sharedDir, path.basename(source));
+        // Chặn triệt để path traversal, null bytes và symlink escape
+        const rawPath = path.join(sharedDir, path.basename(source));
+        const filePath = assertSafePathInside(rawPath, sharedDir);
         if (!fs.existsSync(filePath)) {
           return ketQuaLoi(`Không có file "${source}" trong kho shared-files`);
         }

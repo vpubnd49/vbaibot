@@ -8,7 +8,13 @@ import { TextRun } from "docx";
  *
  * Thứ tự quan trọng: phải parse `***` trước `**` trước `*` để không nhầm.
  */
-export function parseTextRuns(text: string, base: { bold?: boolean } = {}): TextRun[] {
+export type TextRunBaseOptions = {
+  bold?: boolean;
+  font?: string;
+  size?: number;
+};
+
+export function parseTextRuns(text: string, base: TextRunBaseOptions = {}): TextRun[] {
   const runs: TextRun[] = [];
 
   // Tokenizer: tách thành các đoạn [normal, marker, content, marker, normal...]
@@ -23,18 +29,18 @@ export function parseTextRuns(text: string, base: { bold?: boolean } = {}): Text
     // Text trước marker
     if (match.index > lastIndex) {
       const before = text.slice(lastIndex, match.index);
-      if (before) runs.push(new TextRun({ text: before, bold: base.bold }));
+      if (before) runs.push(new TextRun({ text: before, font: base.font, size: base.size, bold: base.bold }));
     }
 
     if (match[1] !== undefined) {
       // *** bold + italic ***
-      runs.push(new TextRun({ text: match[1], bold: true, italics: true }));
+      runs.push(new TextRun({ text: match[1], font: base.font, size: base.size, bold: true, italics: true }));
     } else if (match[2] !== undefined) {
       // ** bold **
-      runs.push(new TextRun({ text: match[2], bold: true }));
+      runs.push(new TextRun({ text: match[2], font: base.font, size: base.size, bold: true }));
     } else if (match[3] !== undefined) {
       // * italic *
-      runs.push(new TextRun({ text: match[3], bold: base.bold, italics: true }));
+      runs.push(new TextRun({ text: match[3], font: base.font, size: base.size, bold: base.bold, italics: true }));
     }
 
     lastIndex = match.index + match[0].length;
@@ -43,9 +49,9 @@ export function parseTextRuns(text: string, base: { bold?: boolean } = {}): Text
   // Text sau marker cuối
   if (lastIndex < text.length) {
     const remaining = text.slice(lastIndex);
-    if (remaining) runs.push(new TextRun({ text: remaining, bold: base.bold }));
+    if (remaining) runs.push(new TextRun({ text: remaining, font: base.font, size: base.size, bold: base.bold }));
   }
 
   // Text rỗng hoặc toàn dấu * -> vẫn phải có 1 run để Paragraph hợp lệ
-  return runs.length > 0 ? runs : [new TextRun({ text: "", bold: base.bold })];
+  return runs.length > 0 ? runs : [new TextRun({ text: "", font: base.font, size: base.size, bold: base.bold })];
 }

@@ -75,6 +75,25 @@ export const logger = pino({
   // Đè bộ serialize `err` mặc định: bản gốc chép mọi thuộc tính của error, kéo
   // theo `requestBodyValues` của APICallError = system prompt + hội thoại + ảnh
   // base64 ra thẳng file log. Xem safe-error-serializer.ts để biết chi tiết.
+  // Tự động che dấu các trường nhạy cảm chống rò rỉ token/mật khẩu ra log
+  redact: {
+    paths: [
+      "password",
+      "secret",
+      "token",
+      "apiKey",
+      "*.password",
+      "*.secret",
+      "*.token",
+      "*.apiKey",
+      "*.zpw_sek",
+      "*.encrypted",
+      "headers.cookie",
+      "headers.authorization",
+      "requestBodyValues",
+    ],
+    censor: "[REDACTED]",
+  },
   serializers: { err: serializeErrorSafely },
   transport: {
     targets: env.LOG_FILE_ENABLED ? [consoleTarget, fileTarget] : [consoleTarget],

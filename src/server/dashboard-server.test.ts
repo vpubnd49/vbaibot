@@ -49,6 +49,9 @@ describe("dashboard-server", () => {
     const res = await app.request("/api/health");
     assert.equal(res.status, 200);
     assert.equal(res.headers.get("cache-control"), "no-store");
+    assert.equal(res.headers.get("x-content-type-options"), "nosniff");
+    assert.equal(res.headers.get("x-frame-options"), "DENY");
+    assert.equal(res.headers.get("referrer-policy"), "strict-origin-when-cross-origin");
   });
 
   it("chưa login -> 401 mọi API", async () => {

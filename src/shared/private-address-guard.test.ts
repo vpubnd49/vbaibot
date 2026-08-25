@@ -1,8 +1,37 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { hostnameToAddress, isPublicAddress } from "./private-address-guard.js";
+import { hostnameToAddress, isBlockedHostname, isPublicAddress } from "./private-address-guard.js";
 
 describe("private-address-guard", () => {
+  it("chặn các hostname nội bộ, localhost aliases và DNS bypass", () => {
+    const blockedHosts = [
+      "localhost",
+      "test.localhost",
+      "app.local",
+      "server.internal",
+      "router.lan",
+      "router.home.arpa",
+      "127.0.0.1.nip.io",
+      "app.sslip.io",
+      "localtest.me",
+      "vcap.me",
+      "lvh.me",
+      "metadata.google.internal",
+      "instance-data",
+      "2130706433",
+      "0177.0.0.1",
+      "0x7f.0.0.1",
+      "0x7f000001",
+    ];
+
+    for (const host of blockedHosts) {
+      assert.equal(isBlockedHostname(host), true, `${host} phải bị chặn`);
+    }
+
+    assert.equal(isBlockedHostname("google.com"), false);
+    assert.equal(isBlockedHostname("vnexpress.net"), false);
+    assert.equal(isBlockedHostname("8.8.8.8"), false);
+  });
   it("cho phép IPv4 public", () => {
     for (const ip of ["8.8.8.8", "1.1.1.1", "203.113.190.1", "13.107.42.14", "99.83.190.102"]) {
       assert.equal(isPublicAddress(ip), true, `${ip} phải là public`);

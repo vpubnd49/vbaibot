@@ -60,6 +60,45 @@ describe("shouldRespond", () => {
     assert.equal(shouldRespond(makeAccount(), msg).respond, true);
   });
 
+  it("nhận tin chỉ có file tài liệu đính kèm, không có chữ", () => {
+    const msg = makeMessage({
+      text: "",
+      files: [{ fileName: "Cau 3-sua.docx", extension: ".docx", url: "https://example.com/file" }],
+    });
+    assert.equal(shouldRespond(makeAccount(), msg).respond, true);
+  });
+
+  it("nhận diện @mention qua chuỗi text khớp với label tài khoản khi Zalo thiếu metadata UID", () => {
+    const account = makeAccount({ label: "Châu Phiên Bản Số" });
+    const msg = makeMessage({
+      isGroup: true,
+      threadType: ThreadType.Group,
+      mentionsMe: false,
+      text: "Anh châu đọc file bạn linh gửi và cho ý kiến nhé @Châu Phiên Bản Số",
+    });
+    assert.equal(shouldRespond(account, msg).respond, true);
+  });
+
+  it("nhận diện gọi bot khi người dùng gõ ANH CHAU, A CHAU, a chau, anh chau không cần @", () => {
+    const account = makeAccount({ label: "Châu Phiên Bản Số" });
+    for (const text of [
+      "ANH CHAU",
+      "A CHAU",
+      "a chau",
+      "anh chau",
+      "anh chau doc file giup em voi",
+      "A Chau cho y kien nhe",
+    ]) {
+      const msg = makeMessage({
+        isGroup: true,
+        threadType: ThreadType.Group,
+        mentionsMe: false,
+        text,
+      });
+      assert.equal(shouldRespond(account, msg).respond, true, `Thất bại với câu: "${text}"`);
+    }
+  });
+
   it("bỏ qua group khi account tắt trả lời group", () => {
     const account = makeAccount({ respondToGroups: false });
     const msg = makeMessage({ isGroup: true, threadType: ThreadType.Group, mentionsMe: true });

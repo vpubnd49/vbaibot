@@ -82,6 +82,8 @@ describe("buildSystemPrompt ghép luật theo tool đang bật", () => {
     const tat = persona.buildSystemPrompt(agent, msg, undefined, {
       disabledTools: [
         "create_word_document",
+        "create_admin_document",
+        "review_admin_document",
         "create_excel_file",
         "create_text_document",
         "create_powerpoint",
