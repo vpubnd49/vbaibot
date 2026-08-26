@@ -14,6 +14,7 @@ import {
   TableShell,
 } from "../shared/ui-bits";
 import { SessionDetailDrawer } from "./session-detail-drawer";
+import { BroadcastModal } from "./broadcast-modal";
 
 export function SessionsPage({ accounts }: { accounts: AccountInfo[] }) {
   const [items, setItems] = useState<ThreadItem[]>([]);
@@ -22,6 +23,7 @@ export function SessionsPage({ accounts }: { accounts: AccountInfo[] }) {
   const [accountFilter, setAccountFilter] = useState("");
   const [page, setPage] = useState(0);
   const [openThread, setOpenThread] = useState<ThreadItem | null>(null);
+  const [showBroadcast, setShowBroadcast] = useState(false);
 
   const showAccountColumn = accounts.length > 1;
 
@@ -49,6 +51,16 @@ export function SessionsPage({ accounts }: { accounts: AccountInfo[] }) {
         icon={IconChat}
         title="Sessions"
         subtitle="Mỗi thread (chat riêng / nhóm) là một session, ngữ cảnh giữ trong SQLite"
+        aside={
+          <button
+            type="button"
+            onClick={() => setShowBroadcast(true)}
+            className="inline-flex items-center gap-2 rounded-xl bg-zalo-600 px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-zalo-700 transition-colors"
+          >
+            <span>📢</span>
+            <span>Gửi thông báo</span>
+          </button>
+        }
       />
 
       <ListToolbar
@@ -134,6 +146,14 @@ export function SessionsPage({ accounts }: { accounts: AccountInfo[] }) {
           thread={openThread}
           onClose={() => setOpenThread(null)}
           onDoiDuLieu={reload}
+        />
+      )}
+
+      {showBroadcast && (
+        <BroadcastModal
+          accounts={accounts}
+          initialAccountId={accountFilter}
+          onClose={() => setShowBroadcast(false)}
         />
       )}
     </div>

@@ -290,6 +290,20 @@ function runMigrations(): void {
       PRIMARY KEY (provider, cache_key_hash)
     );
     CREATE INDEX IF NOT EXISTS idx_research_cache_expires ON research_cache (expires_at);
+
+    -- Lịch sử gửi thông báo / cập nhật tính năng đến các nhóm / user
+    CREATE TABLE IF NOT EXISTS broadcast_logs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      account_id TEXT NOT NULL,
+      thread_id TEXT NOT NULL,
+      thread_name TEXT NOT NULL,
+      message TEXT NOT NULL,
+      status TEXT NOT NULL,
+      error TEXT,
+      created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+    );
+    CREATE INDEX IF NOT EXISTS idx_broadcast_logs_thread ON broadcast_logs (account_id, thread_id);
+    CREATE INDEX IF NOT EXISTS idx_broadcast_logs_created ON broadcast_logs (created_at DESC);
   `);
 
   // Tool CHẠY LỖI: AI SDK để chúng ở content dạng tool-error, không vào

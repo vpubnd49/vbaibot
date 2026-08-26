@@ -394,6 +394,37 @@ export const api = {
       ),
   },
 
+  broadcast: {
+    targets: (params?: {
+      accountId?: string;
+      q?: string;
+      type?: "all" | "group" | "direct";
+      botEnabledOnly?: boolean;
+      activeWithinDays?: number;
+    }) => {
+      const p = new URLSearchParams();
+      if (params?.accountId) p.set("accountId", params.accountId);
+      if (params?.q) p.set("q", params.q);
+      if (params?.type) p.set("type", params.type);
+      if (params?.botEnabledOnly) p.set("botEnabledOnly", "true");
+      if (params?.activeWithinDays) p.set("activeWithinDays", String(params.activeWithinDays));
+      return request<{ targets: BroadcastTargetItem[] }>(`/api/broadcast/targets?${p.toString()}`);
+    },
+    templates: () =>
+      request<{ templates: BroadcastTemplateItem[] }>("/api/broadcast/templates"),
+    send: (payload: { accountId: string; threadIds: string[]; message: string }) =>
+      request<{ ok: boolean; result: BroadcastSendResult }>("/api/broadcast/send", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      }),
+    history: (accountId?: string, limit?: number) => {
+      const p = new URLSearchParams();
+      if (accountId) p.set("accountId", accountId);
+      if (limit) p.set("limit", String(limit));
+      return request<{ items: BroadcastLogItem[] }>(`/api/broadcast/history?${p.toString()}`);
+    },
+  },
+
   provider: () => request<ProviderSettings>("/api/provider"),
   // `baseUrl: null` = XÓA base URL đang lưu; bỏ trường đi = giữ nguyên. Phải
   // Omit trước rồi mới khai lại: giao với `Partial<ProviderSettings>` thì
@@ -677,3 +708,48 @@ export type ScheduledJobRunItem = {
   startedAt: string;
   finishedAt: string | null;
 };
+
+// ===== Broadcast Types =====
+
+export type BroadcastTargetItem = {
+  accountId: string;
+  threadId: string;
+  threadType: number; // 0 = Direct User, 1 = Group
+  displayName: string;
+  botEnabled: boolean;
+  messageCount: number;
+  lastMessageAt: string | null;
+};
+
+export type BroadcastTemplateItem = {
+  id: string;
+  title: string;
+  description: string;
+  content: string;
+};
+
+export type BroadcastSendDetail = {
+  threadId: string;
+  threadName: string;
+  success: boolean;
+  error?: string;
+};
+
+export type BroadcastSendResult = {
+  total: number;
+  succeeded: number;
+  failed: number;
+  details: BroadcastSendDetail[];
+};
+
+export type BroadcastLogItem = {
+  id: number;
+  accountId: string;
+  threadId: string;
+  threadName: string;
+  message: string;
+  status: string;
+  error: string | null;
+  createdAt: string;
+};
+

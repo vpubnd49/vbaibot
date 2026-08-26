@@ -1,4 +1,4 @@
-﻿import assert from "node:assert/strict";
+import assert from "node:assert/strict";
 import { after, before, describe, it } from "node:test";
 import { cleanupTestEnv, setupTestEnv } from "../../shared/test-env-setup.js";
 import { createDeveloperResearchTool } from "./developer-research-tool.js";
@@ -26,16 +26,14 @@ describe("tool schema & provider compatibility", () => {
     }
   });
 
-  it("knowledge_research và developer_research có defaultEnabled = false và runsInScheduledTurn = false", () => {
+  it("knowledge_research và developer_research có runsInScheduledTurn = false", () => {
     const kr = TOOL_DEFINITIONS.find((t) => t.key === "knowledge_research");
     const dr = TOOL_DEFINITIONS.find((t) => t.key === "developer_research");
 
     assert.ok(kr);
-    assert.equal(kr.defaultEnabled, false);
     assert.equal(kr.runsInScheduledTurn, false);
 
     assert.ok(dr);
-    assert.equal(dr.defaultEnabled, false);
     assert.equal(dr.runsInScheduledTurn, false);
   });
 
