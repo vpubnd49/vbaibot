@@ -12,6 +12,7 @@ import {
   IconGear,
   IconGrid,
   IconLogout,
+  IconMegaphone,
   IconMoon,
   IconSignal,
   IconSun,
@@ -33,6 +34,7 @@ const SECTIONS: { title: string; items: { to: string; label: string; icon: IconF
     title: "Hội thoại",
     items: [
       { to: "/sessions", label: "Sessions", icon: IconChat },
+      { to: "/broadcast", label: "Thông báo", icon: IconMegaphone },
       { to: "/contacts", label: "Contacts", icon: IconUsers },
       { to: "/schedule", label: "Lịch hẹn", icon: IconClock },
     ],

@@ -113,6 +113,13 @@ export const IconMessage = (p: IconProps) => (
   </svg>
 );
 
+export const IconMegaphone = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="m3 11 18-5v12L3 13v-2Z" />
+    <path d="M11.6 16.8a3 3 0 1 1-5.8-1.6" />
+  </svg>
+);
+
 export const IconBot = (p: IconProps) => (
   <svg {...base(p)}>
     <rect x="4.5" y="8" width="15" height="11" rx="2.5" />

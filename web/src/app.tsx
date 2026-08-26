@@ -16,6 +16,7 @@ import { KnowledgePage } from "./pages/knowledge-page";
 import { OverviewPage } from "./pages/overview-page";
 import { SchedulePage } from "./pages/schedule-page";
 import { SessionsPage } from "./pages/sessions-page";
+import { BroadcastPage } from "./pages/broadcast-page";
 import { LogsPage } from "./pages/logs-page";
 import { TracePage } from "./pages/trace-page";
 import { TuningPage } from "./pages/tuning-page";
@@ -115,6 +116,7 @@ function DashboardShell() {
           <Routes>
             <Route path="/" element={<OverviewPage />} />
             <Route path="/sessions" element={<SessionsPage accounts={accounts} />} />
+            <Route path="/broadcast" element={<BroadcastPage accounts={accounts} />} />
             <Route path="/schedule" element={<SchedulePage accounts={accounts} />} />
             <Route path="/contacts" element={<ContactsPage accounts={accounts} />} />
             <Route path="/memory" element={<MemoryPage accounts={accounts} />} />
