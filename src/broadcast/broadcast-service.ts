@@ -32,17 +32,23 @@ Chào anh/chị, hệ thống vừa hoàn tất nâng cấp bổ sung các bộ 
 ✨ *Anh/chị chỉ cần gắn thẻ @Châu Phiên Bản Số và đặt câu hỏi để trải nghiệm ngay nhé!*`,
   },
   {
-    id: "research_tools_only",
-    title: "🔬 Bộ Công cụ Tra cứu & Nghiên cứu mới",
-    description: "Thông báo ngắn gọn về năng lực tra cứu học thuật Wikipedia, arXiv, PubMed, GitHub, Stack Overflow",
-    content: `🔬 **CẬP NHẬT: BỘ CÔNG CỤ NGHIÊN CỨU & TRA CỨU CHUYÊN SÂU**
+    id: "research_tools_infographic",
+    title: "🔬 Bộ 8 Tính năng Tra cứu & Nghiên cứu (Theo ảnh)",
+    description: "Bản tin 8 nhóm tính năng: Web, URL, Wikipedia, arXiv, Scholar, GitHub, Stack Overflow, Hacker News",
+    content: `🌟 **BỘ TÍNH NĂNG: TRA CỨU & NGHIÊN CỨU CHUYÊN SÂU — TRỢ LÝ SỐ AI**
 
-Hệ thống bot AI vừa được tích hợp thêm 2 bộ công cụ nghiên cứu mạnh mẽ:
+Hệ thống vừa cập nhật toàn diện <cam>**8 kênh tra cứu tri thức & kỹ thuật**</cam> có trích dẫn nguồn chuẩn xác:
 
-- 📚 **Nghiên cứu Học thuật**: Tra cứu bách khoa Wikipedia, bài báo khoa học arXiv, cơ sở dữ liệu y sinh PubMed/NCBI, trích dẫn Semantic Scholar & mã định danh DOI Crossref.
-- 💻 **Nghiên cứu Kỹ thuật**: Tra cứu kho mã nguồn mở GitHub, giải pháp sửa lỗi lập trình Stack Overflow và thảo luận công nghệ Hacker News.
+1. 🌐 **Tìm kiếm Web (Web Search)**: Tìm dữ liệu mới nhất trên internet kịp thời, chuẩn xác.
+2. 📄 **Đọc nội dung URL (Web Fetch)**: Bóc tách và đọc nội dung trực tiếp từ đường link trang web.
+3. 📖 **Wikipedia (Bách khoa toàn thư)**: Tra cứu nhanh định nghĩa, khái niệm, nhân vật, lịch sử.
+4. ⚛️ **arXiv (Preprint Khoa học & AI)**: Kho bài báo tiền ấn phẩm công nghệ, AI & khoa học quốc tế.
+5. 🎓 **Học thuật Scholar (Peer-Review)**: Tra cứu bài báo y sinh PubMed, Semantic Scholar & định danh DOI Crossref.
+6. 🐙 **Kho mã nguồn GitHub**: Tra cứu thư viện, framework mở, kho mã nguồn & issues kỹ thuật.
+7. 🛠️ **Sửa lỗi Stack Overflow**: Giải pháp sửa lỗi lập trình (Bug fix & Coding Solutions) có đánh giá cao.
+8. 📰 **Hacker News (Xu hướng công nghệ)**: Tin tức công nghệ mới, startup & thảo luận chuyên sâu.
 
-Dữ liệu tra cứu luôn được chuẩn hóa, trích dẫn nguồn gốc và đối chiếu mốc thời gian rõ ràng! 🚀`,
+✨ <xanh>*Đa nguồn tin cậy • Trả lời nhanh chóng • Nghiên cứu chuyên sâu • Chuẩn xác & Minh bạch!*</xanh>`,
   },
   {
     id: "maintenance",
