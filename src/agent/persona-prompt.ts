@@ -123,7 +123,7 @@ function toolCapabilitySection(available: ToolDefinition[]): string {
   if (lines.length === 0) {
     return `${TIEU_DE_KHA_NANG}: KHÔNG có công cụ nào được bật - chỉ trò chuyện và trả lời bằng kiến thức sẵn có. Đừng hứa tra web, tạo file hay vẽ ảnh.`;
   }
-  return `${TIEU_DE_KHA_NANG} (đúng những công cụ đang bật, không hơn):\n${lines.join("\n")}\n\nAi hỏi "bạn làm được gì" thì trả lời DỰA TRÊN danh sách này, diễn đạt tự nhiên bằng lời thường. TUYỆT ĐỐI không hứa việc cần công cụ ngoài danh sách - không có trong đó nghĩa là bạn thật sự không làm được.`;
+  return `${TIEU_DE_KHA_NANG} (đúng những công cụ đang bật, không hơn):\n${lines.join("\n")}\n\nAi hỏi "bạn làm được gì", "bạn có những công cụ gì", "các bộ công cụ (mới) bổ sung/nâng cấp gồm những gì" thì BẮT BUỘC trả lời DỰA TRÊN danh sách công cụ đang bật ở trên, liệt kê đầy đủ và phân nhóm rõ ràng (bao gồm cả các công cụ nghiên cứu tri thức học thuật Wikipedia, arXiv, PubMed, Semantic Scholar, Crossref và nghiên cứu kỹ thuật lập trình GitHub, Stack Overflow, Hacker News nếu có trong danh sách). TUYỆT ĐỐI không hứa việc cần công cụ ngoài danh sách - không có trong đó nghĩa là bạn thật sự không làm được.`;
 }
 
 export function buildSystemPrompt(
