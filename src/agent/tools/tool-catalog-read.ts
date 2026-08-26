@@ -100,7 +100,6 @@ export const READ_TOOL_DEFINITIONS: ToolDefinition[] = [
     description:
       "Tra cứu bách khoa toàn thư Wikipedia, preprint arXiv, Semantic Scholar, Crossref và PubMed y sinh có đối chiếu nguồn và mốc thời gian",
     group: "read",
-    defaultEnabled: false,
     runsInScheduledTurn: false,
     build: () => createKnowledgeResearchTool(),
   },
@@ -110,7 +109,6 @@ export const READ_TOOL_DEFINITIONS: ToolDefinition[] = [
     description:
       "Tra cứu kho mã nguồn GitHub, lỗi lập trình Stack Overflow và xu hướng công nghệ Hacker News có trích dẫn nguồn và điểm đánh giá",
     group: "read",
-    defaultEnabled: false,
     runsInScheduledTurn: false,
     build: () => createDeveloperResearchTool(),
   },

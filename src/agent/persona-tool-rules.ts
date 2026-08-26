@@ -159,19 +159,23 @@ const RULES_TRA_CUU: PersonaRule[] = [
   },
   {
     tools: ["knowledge_research"],
-    text: `- TRA CỨU TRI THỨC & NGHIÊN CỨU HỌC THUẬT (knowledge_research):
-  + Bách khoa toàn thư, khái niệm, nhân vật, lịch sử, thuật ngữ khoa học -> knowledge_research (source: "wikipedia").
-  + Preprint khoa học, mã arXiv ID (ví dụ: '2401.12345', 'transformer reasoning') -> knowledge_research (source: "arxiv").
-  + Bài báo khoa học, y sinh, nghiên cứu lâm sàng, trích dẫn học thuật, DOI/PMID -> knowledge_research (source: "auto" hoặc "pubmed" / "semantic_scholar" / "crossref").
-  + Khi người dùng cần đối chiếu nghiên cứu, trích dẫn đầy đủ tác giả, năm, DOI, URL và trạng thái công bố.`,
+    text: `- BỘ CÔNG CỤ NGHIÊN CỨU TRI THỨC & HỌC THUẬT CHUYÊN SÂU (knowledge_research):
+  + Tích hợp 5 nguồn dữ liệu học thuật và bách khoa uy tín:
+    1. Bách khoa toàn thư Wikipedia (tiếng Việt & tiếng Anh tự động).
+    2. Kho lưu trữ bài báo tiền ấn phẩm arXiv (tra cứu theo từ khóa hoặc mã arXiv ID như '2401.12345').
+    3. Cơ sở dữ liệu khoa học Semantic Scholar (metadata, trích dẫn, tác giả, năm công bố).
+    4. Hệ thống đăng ký định danh DOI và cơ quan xuất bản Crossref.
+    5. Cơ sở dữ liệu y sinh, lâm sàng và mã PMID trên PubMed / NCBI.
+  + Khi người dùng hỏi về khái niệm, nhân vật, lịch sử, bài báo khoa học, y tế - y sinh, mã DOI, arXiv ID, PMID hoặc đối chiếu nghiên cứu -> BẮT BUỘC dùng knowledge_research.`,
   },
   {
     tools: ["developer_research"],
-    text: `- TRA CỨU MÃ NGUỒN & KỸ THUẬT LẬP TRÌNH (developer_research):
-  + Kho mã nguồn mở, framework, thư viện, Issues thảo luận trên GitHub -> developer_research (source: "github").
-  + Mã lỗi lập trình, bug fix, giải pháp kỹ thuật, thông báo lỗi (TypeError, CORS, NullPointer...) -> developer_research (source: "stackoverflow").
-  + Xu hướng công nghệ, startup, bài viết và thảo luận kỹ sư trên Hacker News -> developer_research (source: "hacker_news").
-  + Luôn trích dẫn repo chính thức, số vote/stars, giấy phép bản quyền (CC BY-SA cho Stack Overflow) và đường link thảo luận gốc.`,
+    text: `- BỘ CÔNG CỤ NGHIÊN CỨU KỸ THUẬT & LẬP TRÌNH CHUYÊN SÂU (developer_research):
+  + Tích hợp 3 nguồn kỹ thuật & mã nguồn hàng đầu thế giới:
+    1. GitHub (tra cứu kho mã nguồn mở, repo, framework, thư viện và Issues thảo luận).
+    2. Stack Overflow (tra cứu giải pháp xử lý lỗi lập trình, bug fix, câu hỏi giải thuật, tuân thủ bản quyền CC BY-SA 4.0).
+    3. Hacker News (tra cứu tin tức công nghệ, bài viết chuyên sâu của kỹ sư và xu hướng startup công nghệ mới).
+  + Khi người dùng hỏi về mã lỗi lập trình (CORS, TypeError, NullPointer...), thư viện/repo GitHub, hoặc xu hướng công nghệ -> BẮT BUỘC dùng developer_research.`,
   },
   {
     tools: ["web_search"],
