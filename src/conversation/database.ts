@@ -278,6 +278,18 @@ function runMigrations(): void {
       updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
       PRIMARY KEY (account_id, thread_id, day_key)
     );
+
+    -- Cache cho các provider tra cứu / nghiên cứu kiến thức & lập trình
+    CREATE TABLE IF NOT EXISTS research_cache (
+      provider TEXT NOT NULL,
+      cache_key_hash TEXT NOT NULL,
+      response_json TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      expires_at TEXT NOT NULL,
+      stale_until TEXT,
+      PRIMARY KEY (provider, cache_key_hash)
+    );
+    CREATE INDEX IF NOT EXISTS idx_research_cache_expires ON research_cache (expires_at);
   `);
 
   // Tool CHẠY LỖI: AI SDK để chúng ở content dạng tool-error, không vào
@@ -343,6 +355,39 @@ function runMigrations(): void {
   // phải ngay lần đầu (bất biến "chưa từng gửi được thì không coi là đã
   // chạy"). Mặc định 0 để mọi job cũ coi như chưa từng thử hỏng lần nào.
   addColumnIfMissing("scheduled_jobs", "delivery_attempts", "INTEGER NOT NULL DEFAULT 0");
+
+  // Migration: các tool mới mang tính thử nghiệm (defaultEnabled: false) tự động
+  // thêm vào disabled_tools của account & agent hiện hữu
+  try {
+    const defaultDisabled = ["knowledge_research", "developer_research"];
+    const accounts = db.prepare("SELECT id, disabled_tools FROM accounts").all() as Array<{ id: string; disabled_tools: string }>;
+    for (const acc of accounts) {
+      let list: string[] = [];
+      try { list = JSON.parse(acc.disabled_tools); } catch { /* ignore */ }
+      const toAdd = defaultDisabled.filter((k) => !list.includes(k));
+      if (toAdd.length > 0) {
+        db.prepare("UPDATE accounts SET disabled_tools = ? WHERE id = ?").run(
+          JSON.stringify([...list, ...toAdd]),
+          acc.id,
+        );
+      }
+    }
+
+    const agents = db.prepare("SELECT id, disabled_tools FROM agents").all() as Array<{ id: string; disabled_tools: string }>;
+    for (const ag of agents) {
+      let list: string[] = [];
+      try { list = JSON.parse(ag.disabled_tools); } catch { /* ignore */ }
+      const toAdd = defaultDisabled.filter((k) => !list.includes(k));
+      if (toAdd.length > 0) {
+        db.prepare("UPDATE agents SET disabled_tools = ? WHERE id = ?").run(
+          JSON.stringify([...list, ...toAdd]),
+          ag.id,
+        );
+      }
+    }
+  } catch {
+    // Bỏ qua nếu DB chưa khởi tạo xong
+  }
 }
 
 function addColumnIfMissing(table: string, column: string, definition: string): void {

@@ -124,6 +124,19 @@ const envSchema = z.object({
   // bot) thì đẩy URL qua Jina Reader - đo thực tế cứu được giavang.doji.vn và
   // vnexpress. Đánh đổi: chậm hơn nhiều và URL đi qua bên thứ ba, tắt được ở đây.
   WEB_FETCH_FALLBACK_ENABLED: z.preprocess(emptyToUndefined, z.stringbool().default(true)),
+  JINA_API_KEY: z.string().default(""),
+
+  // ===== Cấu hình tra cứu tri thức & nghiên cứu (knowledge_research / developer_research) =====
+  RESEARCH_MAX_RESULTS: z.coerce.number().int().min(1).max(10).default(5),
+  RESEARCH_MAX_OUTPUT_CHARS: z.coerce.number().int().min(2000).max(30_000).default(12_000),
+  RESEARCH_PROVIDER_TIMEOUT_MS: z.coerce.number().int().min(2000).max(30_000).default(8000),
+  RESEARCH_TOTAL_DEADLINE_MS: z.coerce.number().int().min(4000).max(60_000).default(12_000),
+  RESEARCH_CACHE_ENABLED: z.preprocess(emptyToUndefined, z.stringbool().default(true)),
+  RESEARCH_CONTACT_EMAIL: z.string().default(""),
+  SEMANTIC_SCHOLAR_API_KEY: z.string().default(""),
+  GITHUB_TOKEN: z.string().default(""),
+  NCBI_API_KEY: z.string().default(""),
+  STACKAPPS_KEY: z.string().default(""),
 
   // Model chính có đọc được ảnh không. auto = tự hỏi router qua GET {baseUrl}/models
   // (9Router trả capabilities.vision cho từng model; endpoint khác không có field

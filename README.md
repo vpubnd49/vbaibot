@@ -38,7 +38,9 @@ là dữ liệu, không phải mệnh lệnh.
 | Công cụ | Làm gì |
 |---|---|
 | `web_search` | Tìm web theo chuỗi nguồn (Brave -> DuckDuckGo). DuckDuckGo không cần key |
-| `web_fetch` | Đọc 1 URL công khai. Chặn IP nội bộ và metadata cloud (chống SSRF) |
+| `web_fetch` | Đọc 1 URL công khai. Chặn IP nội bộ và metadata cloud (chống SSRF), hỗ trợ Jina Reader |
+| `knowledge_research` | Nghiên cứu tri thức chuyên sâu & học thuật (Wikipedia, arXiv, Semantic Scholar, Crossref, PubMed) |
+| `developer_research` | Tra cứu kỹ thuật & lập trình (GitHub repos/issues, Stack Overflow solutions, Hacker News trends) |
 | `read_image` | Nhìn kỹ lại ảnh với câu hỏi cụ thể: đếm số lượng, đọc chữ nhỏ, soi chi tiết |
 | `create_image` | Vẽ ảnh AI mới, hoặc **SỬA ảnh người dùng vừa gửi** - phần còn lại giữ nguyên từng pixel |
 | `create_word_document` | Soạn .docx (tiêu đề, đoạn văn, bảng, hai cột) rồi gửi thẳng trong chat |

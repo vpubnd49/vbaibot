@@ -9,7 +9,14 @@ import { TOOL_DEFINITIONS, type ToolContext, type ToolDefinition } from "./tool-
  * ngưỡng 200 dòng. Re-export lại để mọi nơi import từ "tool-registry.js" (hoặc
  * gián tiếp qua "index.js") như cũ, không phải sửa call site nào khác.
  */
-export { TOOL_DEFINITIONS, TOOL_KEYS, type ToolContext, type ToolDefinition, type ToolGroup } from "./tool-catalog.js";
+export {
+  TOOL_DEFINITIONS,
+  TOOL_KEYS,
+  DEFAULT_DISABLED_TOOL_KEYS,
+  type ToolContext,
+  type ToolDefinition,
+  type ToolGroup,
+} from "./tool-catalog.js";
 
 /**
  * Hai lớp cùng quyết định một tool có được cấp hay không.

@@ -22,13 +22,80 @@ const TOO_LITTLE_TEXT = 200;
 
 const log = createLogger("web-fetch");
 
+const ALLOWED_MIME_TYPES = new Set([
+  "text/html",
+  "application/xhtml+xml",
+  "text/plain",
+  "text/xml",
+  "application/xml",
+  "application/json",
+  "text/markdown",
+  "text/csv",
+]);
+
+const SENSITIVE_QUERY_PARAMS = new Set([
+  "token",
+  "access_token",
+  "auth",
+  "api_key",
+  "apikey",
+  "secret",
+  "signature",
+  "sig",
+  "key",
+  "code",
+  "credential",
+  "password",
+  "pwd",
+]);
+
+/** Kiểm tra buffer xem có phải binary (chứa null byte \0) không */
+function isBinaryBuffer(buf: Buffer): boolean {
+  const checkLen = Math.min(buf.length, 512);
+  for (let i = 0; i < checkLen; i++) {
+    if (buf[i] === 0) return true;
+  }
+  return false;
+}
+
+/** Chặn gửi URL chứa token/auth/userinfo sang dịch vụ bên thứ ba */
+export function isSafeForExternalReader(rawUrl: string): boolean {
+  try {
+    const u = new URL(rawUrl);
+    if (u.protocol !== "http:" && u.protocol !== "https:") return false;
+    if (u.username || u.password) return false;
+    for (const key of u.searchParams.keys()) {
+      if (SENSITIVE_QUERY_PARAMS.has(key.toLowerCase())) return false;
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 type FetchedPage = { text: string; title: string; via: "truc-tiep" | "jina-reader" };
 
 /** Tự fetch: nhanh, riêng tư, miễn phí. Hỏng thì trả null để rơi xuống lưới đỡ. */
 async function fetchDirect(url: string): Promise<FetchedPage | null> {
   try {
     const file = await downloadFromPublicUrl(url, { maxBytes: MAX_HTML_BYTES });
-    const isHtml = file.mediaType.includes("html") || file.mediaType === "application/octet-stream";
+    const mime = file.mediaType.toLowerCase();
+
+    // Từ chối nội dung binary rõ ràng (ảnh, video, zip...)
+    if (mime.startsWith("image/") || mime.startsWith("video/") || mime.startsWith("audio/")) {
+      log.debug({ url, mime }, "Bỏ qua file binary");
+      return null;
+    }
+
+    // Với octet-stream hoặc type lạ, kiểm tra byte đầu xem có phải binary không
+    if (!ALLOWED_MIME_TYPES.has(mime) && !mime.includes("html") && !mime.includes("text") && !mime.includes("xml")) {
+      if (isBinaryBuffer(file.data)) {
+        log.debug({ url, mime }, "Nội dung sniff thấy binary, bỏ qua");
+        return null;
+      }
+    }
+
+    const isHtml = mime.includes("html") || mime === "application/xhtml+xml" || (!ALLOWED_MIME_TYPES.has(mime) && file.data.toString("utf-8", 0, 100).includes("<html"));
     const raw = file.data.toString("utf-8");
     const text = isHtml ? htmlToReadableText(raw) : raw.trim();
     if (text.length < TOO_LITTLE_TEXT) {
@@ -60,12 +127,20 @@ export function createWebFetchTool() {
     }),
     execute: async ({ url }) => {
       const maxChars = getTuning("WEB_FETCH_MAX_CHARS");
+      const fetchSettings = getFetchSettings();
 
       // Đọc lại mỗi lượt - bật/tắt bậc 2 trên dashboard có hiệu lực ngay
       let page = await fetchDirect(url);
-      if (!page && getFetchSettings().fallbackEnabled) {
-        const jina = await fetchViaJinaReader(url, { maxChars });
-        if (jina) page = { ...jina, via: "jina-reader" };
+      if (!page && fetchSettings.fallbackEnabled) {
+        if (isSafeForExternalReader(url)) {
+          const jina = await fetchViaJinaReader(url, {
+            maxChars,
+            apiKey: fetchSettings.jinaApiKey || undefined,
+          });
+          if (jina) page = { ...jina, via: "jina-reader" };
+        } else {
+          log.debug({ url }, "URL chứa thông tin nhạy cảm/userinfo, bỏ qua Jina Reader fallback");
+        }
       }
 
       if (!page) {

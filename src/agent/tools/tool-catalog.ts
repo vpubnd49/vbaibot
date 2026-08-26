@@ -17,3 +17,7 @@ export type { ToolContext, ToolDefinition, ToolGroup } from "./tool-catalog-type
 export const TOOL_DEFINITIONS: ToolDefinition[] = [...READ_TOOL_DEFINITIONS, ...ACTION_TOOL_DEFINITIONS];
 
 export const TOOL_KEYS = TOOL_DEFINITIONS.map((t) => t.key);
+
+export const DEFAULT_DISABLED_TOOL_KEYS = TOOL_DEFINITIONS.filter(
+  (t) => t.defaultEnabled === false,
+).map((t) => t.key);

@@ -282,7 +282,7 @@ export const api = {
       method: "PATCH",
       body: JSON.stringify(update),
     }),
-  updateFetchSettings: (update: { fallbackEnabled?: boolean }) =>
+  updateFetchSettings: (update: { fallbackEnabled?: boolean; jinaApiKey?: string }) =>
     request<{ ok: true; fetch: FetchSettings }>("/api/tools/fetch", {
       method: "PATCH",
       body: JSON.stringify(update),
@@ -448,7 +448,11 @@ export type SearchSettings = {
   hasBraveApiKey: boolean;
 };
 
-export type FetchSettings = { fallbackEnabled: boolean };
+export type FetchSettings = {
+  fallbackEnabled: boolean;
+  jinaApiKeyMasked: string;
+  hasJinaApiKey: boolean;
+};
 
 export type ReactionIcon = { key: string; emoji: string; label: string };
 

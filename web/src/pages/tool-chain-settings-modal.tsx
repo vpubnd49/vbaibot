@@ -30,6 +30,7 @@ export function ToolChainSettingsModal({
   const [braveOn, setBraveOn] = useState(search.provider === "brave");
   const [apiKey, setApiKey] = useState("");
   const [jinaOn, setJinaOn] = useState(fetchSettings.fallbackEnabled);
+  const [jinaApiKey, setJinaApiKey] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const { confirm, confirmDialog } = useConfirmDialog();
@@ -49,7 +50,10 @@ export function ToolChainSettingsModal({
         });
         onSaved({ search: res.search });
       } else {
-        const res = await api.updateFetchSettings({ fallbackEnabled: jinaOn });
+        const res = await api.updateFetchSettings({
+          fallbackEnabled: jinaOn,
+          ...(jinaApiKey.trim() ? { jinaApiKey: jinaApiKey.trim() } : {}),
+        });
         onSaved({ fetch: res.fetch });
       }
       onClose();
@@ -87,6 +91,26 @@ export function ToolChainSettingsModal({
     }
   }
 
+  async function clearJinaKey() {
+    const ok = await confirm({
+      title: "Xóa API key Jina Reader?",
+      message: "Jina Reader sẽ chạy với hạn ngạch miễn phí công khai.",
+    });
+    if (!ok) return;
+    setSaving(true);
+    setError("");
+    try {
+      const res = await api.updateFetchSettings({ jinaApiKey: "" });
+      setJinaApiKey("");
+      onSaved({ fetch: res.fetch });
+      onClose();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setSaving(false);
+    }
+  }
+
   return (
     <>
     <ToolModalShell
@@ -103,6 +127,16 @@ export function ToolChainSettingsModal({
               className={`mr-auto ${modalButton.danger}`}
             >
               Xóa key Brave
+            </button>
+          )}
+          {!isSearch && fetchSettings.hasJinaApiKey && (
+            <button
+              type="button"
+              onClick={clearJinaKey}
+              disabled={saving}
+              className={`mr-auto ${modalButton.danger}`}
+            >
+              Xóa key Jina
             </button>
           )}
           <button type="button" onClick={onClose} className={modalButton.cancel}>
@@ -184,7 +218,33 @@ export function ToolChainSettingsModal({
             description="Dùng khi bậc 1 hỏng hoặc ra quá ít chữ: render được trang JavaScript, qua được một phần chặn bot. Chậm hơn nhiều và URL đi qua dịch vụ bên thứ ba."
             enabled={jinaOn}
             onToggle={() => setJinaOn((v) => !v)}
-          />
+          >
+            <label className="block text-[13px] font-medium text-ink" htmlFor="jina-key">
+              API key (tùy chọn)
+              <span className="ml-2 font-normal text-ink-soft">
+                (hiện tại: {fetchSettings.jinaApiKeyMasked || "chưa có"})
+              </span>
+            </label>
+            <SecretInput
+              id="jina-key"
+              value={jinaApiKey}
+              onChange={setJinaApiKey}
+              placeholder={fetchSettings.hasJinaApiKey ? "Để trống nếu giữ key cũ" : "Dán Jina key vào đây (tùy chọn)"}
+              className="mt-1.5"
+            />
+            <p className="mt-1.5 text-[12px] leading-[1.6] text-ink-soft">
+              Lấy API key tại{" "}
+              <a
+                href="https://jina.ai/reader/"
+                target="_blank"
+                rel="noreferrer"
+                className="text-zalo-600 hover:underline"
+              >
+                jina.ai/reader
+              </a>{" "}
+              để tăng giới hạn RPM/RPD.
+            </p>
+          </ChainStep>
         </>
       )}
 

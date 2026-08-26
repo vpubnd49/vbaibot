@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { z } from "zod";
 import { TOOL_DEFINITIONS } from "../../agent/tools/index.js";
 import {
-  getFetchSettings,
+  getFetchSettingsForApi,
   getSearchSettingsForApi,
   updateFetchSettings,
   updateSearchSettings,
@@ -20,6 +20,7 @@ const searchUpdateSchema = z.object({
 
 const fetchUpdateSchema = z.object({
   fallbackEnabled: z.boolean().optional(),
+  jinaApiKey: z.string().optional(),
 });
 
 /**
@@ -47,7 +48,7 @@ export const toolRoutes = new Hono()
         };
       }),
       search: getSearchSettingsForApi(),
-      fetch: getFetchSettings(),
+      fetch: getFetchSettingsForApi(),
     }),
   )
 
@@ -77,7 +78,13 @@ export const toolRoutes = new Hono()
       return c.json({ error: "Dữ liệu không hợp lệ", issues: parsed.error.issues }, 400);
     }
 
-    const fetchSettings = updateFetchSettings(parsed.data);
-    log.info(fetchSettings, "Đổi cấu hình web fetch từ dashboard");
-    return c.json({ ok: true, fetch: fetchSettings });
+    updateFetchSettings(parsed.data);
+    log.info(
+      {
+        fallbackEnabled: parsed.data.fallbackEnabled,
+        changedKey: parsed.data.jinaApiKey !== undefined,
+      },
+      "Đổi cấu hình web fetch từ dashboard",
+    );
+    return c.json({ ok: true, fetch: getFetchSettingsForApi() });
   });

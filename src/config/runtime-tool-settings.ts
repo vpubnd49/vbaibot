@@ -101,22 +101,56 @@ export function getSearchSettingsForApi() {
 // ===== web_fetch: chuỗi 2 tầng, tầng tự tải không tắt được =====
 
 const FETCH_FALLBACK_KEY = "fetch_fallback_enabled";
+const FETCH_JINA_KEY = "fetch_jina_api_key";
 
 export type FetchSettings = {
   /** Bậc 2 (Jina Reader) - bậc 1 tự tải luôn bật, không có công tắc */
   fallbackEnabled: boolean;
+  /** API key Jina Reader để tăng quota/rate-limit */
+  jinaApiKey: string;
 };
+
+export function getJinaApiKey(): string {
+  const stored = read(FETCH_JINA_KEY);
+  if (stored) {
+    try {
+      return decryptSecret(stored);
+    } catch {
+      return (env as unknown as Record<string, string>).JINA_API_KEY ?? "";
+    }
+  }
+  return (env as unknown as Record<string, string>).JINA_API_KEY ?? "";
+}
 
 export function getFetchSettings(): FetchSettings {
   const stored = read(FETCH_FALLBACK_KEY);
-  // Chưa đặt trong DB thì theo env; đặt rồi thì DB thắng
-  if (stored === undefined) return { fallbackEnabled: env.WEB_FETCH_FALLBACK_ENABLED };
-  return { fallbackEnabled: stored === "true" };
+  const fallbackEnabled = stored === undefined ? env.WEB_FETCH_FALLBACK_ENABLED : stored === "true";
+  const jinaApiKey = getJinaApiKey();
+  return { fallbackEnabled, jinaApiKey };
 }
 
-export function updateFetchSettings(update: Partial<FetchSettings>): FetchSettings {
+export type FetchSettingsUpdate = {
+  fallbackEnabled?: boolean;
+  /** Bỏ trống = giữ key hiện tại; chuỗi rỗng tường minh = xóa key */
+  jinaApiKey?: string;
+};
+
+export function updateFetchSettings(update: FetchSettingsUpdate): FetchSettings {
   if (update.fallbackEnabled !== undefined) {
     setStmt.run(FETCH_FALLBACK_KEY, String(update.fallbackEnabled));
   }
+  if (update.jinaApiKey !== undefined) {
+    if (update.jinaApiKey === "") delStmt.run(FETCH_JINA_KEY);
+    else setStmt.run(FETCH_JINA_KEY, encryptSecret(update.jinaApiKey));
+  }
   return getFetchSettings();
+}
+
+export function getFetchSettingsForApi() {
+  const settings = getFetchSettings();
+  return {
+    fallbackEnabled: settings.fallbackEnabled,
+    jinaApiKeyMasked: maskSecret(settings.jinaApiKey),
+    hasJinaApiKey: Boolean(settings.jinaApiKey),
+  };
 }

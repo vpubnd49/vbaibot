@@ -14,6 +14,9 @@ import { createWebSearchTool } from "./web-search-tool.js";
 import { createReadDocumentTool } from "./read-document-tool.js";
 import { createAdminDivisionTool } from "./admin-division-tool.js";
 
+import { createKnowledgeResearchTool } from "./knowledge-research-tool.js";
+import { createDeveloperResearchTool } from "./developer-research-tool.js";
+
 /**
  * Nhóm "read" của catalog tool - tra cứu, không tác động ra ngoài. Tách khỏi
  * `tool-catalog.ts` (đúng nếp tách theo NHÓM đã bàn ở phase 04) để không file
@@ -90,6 +93,26 @@ export const READ_TOOL_DEFINITIONS: ToolDefinition[] = [
     group: "read",
     hasSettings: true,
     build: () => createWebFetchTool(),
+  },
+  {
+    key: "knowledge_research",
+    label: "Nghiên cứu tri thức & học thuật",
+    description:
+      "Tra cứu bách khoa toàn thư Wikipedia, preprint arXiv, Semantic Scholar, Crossref và PubMed y sinh có đối chiếu nguồn và mốc thời gian",
+    group: "read",
+    defaultEnabled: false,
+    runsInScheduledTurn: false,
+    build: () => createKnowledgeResearchTool(),
+  },
+  {
+    key: "developer_research",
+    label: "Nghiên cứu kỹ thuật & lập trình",
+    description:
+      "Tra cứu kho mã nguồn GitHub, lỗi lập trình Stack Overflow và xu hướng công nghệ Hacker News có trích dẫn nguồn và điểm đánh giá",
+    group: "read",
+    defaultEnabled: false,
+    runsInScheduledTurn: false,
+    build: () => createDeveloperResearchTool(),
   },
   {
     key: "read_image",

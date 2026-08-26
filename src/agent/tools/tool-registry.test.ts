@@ -216,6 +216,8 @@ describe("tool-registry", () => {
     "propose_shared_knowledge",
     "finance_tracker",
     "tag_member",
+    "knowledge_research",
+    "developer_research",
   ];
 
   it("isolated:true (lượt theo lịch) loại đủ tool kể cả khi hạ tầng/cấu hình đã sẵn sàng", () => {
