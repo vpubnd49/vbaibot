@@ -31,10 +31,9 @@ export function createVoiceSummaryTool(ctx: {
 }) {
   return tool({
     description:
-      "Tạo và gửi TIN NHẮN THOẠI dạng podcast 2 người thảo luận (giọng Bắc chuẩn) trực tiếp trong chat Zalo. " +
-      "BẮT BUỘC GỌI TOOL NÀY khi người dùng yêu cầu bất kỳ câu nào như: " +
-      "\"xuất file âm thanh\", \"xuất file âm thanh giọng nói\", \"xuất âm thanh\", \"xuất giọng nói\", \"đọc tóm tắt\", \"xuất audio\", \"làm podcast\", \"đọc lại cho nghe\", \"nghe giọng nói\", \"tin nhắn thoại\". " +
-      "Tool này sẽ tự động viết kịch bản hội thoại 2 host (Anh và Chị) và tạo file âm thanh gửi vào Zalo.",
+      "Tạo và gửi TIN NHẮN THOẠI dạng PODCAST 2 người đọc/thảo luận tóm tắt văn bản (giọng Bắc chuẩn). " +
+      "CHỈ DÙNG CHO: \"đọc tóm tắt\", \"làm podcast\", \"đọc văn bản cho nghe\", \"tin nhắn thoại đọc báo cáo\". " +
+      "TUYỆT ĐỐI KHÔNG DÙNG CHO BÀI HÁT, CA KHÚC, SÁNG TÁC NHẠC (mọi yêu cầu bài hát, ca khúc, xuất file mp3 bài hát, hát cho nghe BẮT BUỘC dùng tool create_music).",
     inputSchema: z.object({
       content: z
         .string()

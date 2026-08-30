@@ -16,7 +16,9 @@ import type { ToolContext } from "./index.js";
 
 export function createMusicTool(ctx: ToolContext, generate = generateMusic) {
   return tool({
-    description: "Sáng tác bài nhạc từ mô tả (thể loại, tâm trạng, nhạc cụ). Có thể tạo nhạc có lời hoặc chỉ nhạc nền (instrumental). Gửi file MP3 trực tiếp vào cuộc trò chuyện.\nBẮT BUỘC GỌI TOOL NÀY khi người dùng yêu cầu: \"tạo nhạc\", \"sáng tác bài hát\", \"làm nhạc\", \"beat nhạc\", \"nhạc nền\", \"tạo bài hát\".",
+    description:
+      "Sáng tác bài hát hoàn chỉnh (có giọng hát và hòa âm phối khí) hoặc tạo bài hát từ bản phổ nhạc. " +
+      "BẮT BUỘC GỌI TOOL NÀY khi người dùng yêu cầu: \"tạo nhạc\", \"sáng tác bài hát\", \"làm bài hát\", \"xuất ra file mp3\", \"xuất file mp3\", \"xuất file âm thanh bài hát\", \"hát bài này cho tôi nghe\", \"xuất bài hát\", \"hát bài này\", \"làm nhạc\".",
     inputSchema: z.object({
       mode: z.enum(["tu_ban_pho", "sang_tac_moi", "tao_beat_nhac"]).describe("Chế độ: 'tu_ban_pho' = Đọc bản phổ nhạc từ ảnh gửi kèm; 'sang_tac_moi' = Tự sáng tác lời & nhạc từ ý tưởng/văn bản; 'tao_beat_nhac' = Chỉ tạo nhạc nền không lời"),
       prompt: z.string().min(1).max(3000).describe("Mô tả nội dung, chủ đề hoặc yêu cầu sáng tác"),
