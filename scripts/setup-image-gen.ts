@@ -1,14 +1,23 @@
-import { updateImageSettings, isImageGenConfigured } from "../src/config/runtime-image-settings.js";
+import { updateMusicSettings, isMusicGenConfigured } from "../src/config/runtime-music-settings.js";
+import { updateVideoSettings, isVideoGenConfigured } from "../src/config/runtime-video-settings.js";
 
-const settings = updateImageSettings({
-  baseUrl: "https://9router.flowgiare.com/v1",
-  model: "cx/gpt-5.5-image",
-  apiKey: "sk-906c221b9f63be63-u7zpys-6ab593e0",
+const key = process.argv[2] || process.env.MUSIC_GEN_API_KEY || "";
+
+if (!key) {
+  console.error("Vui long truyen key qua tham so: npx tsx scripts/setup-image-gen.ts <KEY>");
+  process.exit(1);
+}
+
+const musicSettings = updateMusicSettings({
+  apiKey: key,
+  model: "lyria-3-clip-preview",
 });
 
-console.log("Image Gen Settings:", {
-  baseUrl: settings.baseUrl,
-  model: settings.model,
-  configured: isImageGenConfigured(settings),
+const videoSettings = updateVideoSettings({
+  apiKey: key,
+  model: "veo-3.0-generate-preview",
 });
-console.log("✅ Image generation configured successfully!");
+
+console.log("Music Configured:", isMusicGenConfigured(musicSettings));
+console.log("Video Configured:", isVideoGenConfigured(videoSettings));
+console.log("✅ Configured API Key for Music & Video successfully!");
