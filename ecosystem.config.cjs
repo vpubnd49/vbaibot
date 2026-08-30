@@ -8,7 +8,7 @@ module.exports = {
   apps: [
     {
       name: "vbaibot",
-      script: "dist/index.js",
+      script: "dist/src/index.js",
       cwd: "./",
       instances: 1,
       exec_mode: "fork",
