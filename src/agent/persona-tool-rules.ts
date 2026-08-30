@@ -87,6 +87,19 @@ const RULES_TRA_LOI: PersonaRule[] = [
     text: '- Tham số mode của create_image: "ve_moi" cho hầu hết yêu cầu (poster, banner, e-magazine, minh họa - dù mô tả dài và chi tiết tới đâu). Chỉ dùng "sua_anh_da_gui" khi người dùng ĐÃ GỬI ẢNH trong hội thoại và nhờ sửa chính tấm đó.',
   },
   {
+    tools: ["create_music"],
+    text: `- SÁNG TÁC NHẠC & XUẤT FILE MP3 (create_music):
+  + BẮT BUỘC GỌI create_music khi người dùng yêu cầu: "tạo nhạc", "sáng tác bài hát", "làm nhạc", "beat nhạc", "nhạc nền", "tạo bài hát", "xuất ra file mp3", "xuất file âm thanh bài hát", "hát cho tôi nghe", "xuất bài hát", hoặc gửi ảnh bản phổ nhạc nhờ tạo bài hát.
+  + TUYỆT ĐỐI KHÔNG chỉ viết lời ca suông mà KHÔNG GỌI TOOL. Nếu đã có lời bài hát (hoặc vừa soạn xong lời) và người dùng đồng ý/yêu cầu xuất MP3 -> BẮT BUỘC gọi ngay create_music với prompt/lyrics để xuất file .mp3 gửi cho người dùng.
+  + Khi người dùng gửi ảnh bản phổ nhạc -> BẮT BUỘC gọi create_music với mode='tu_ban_pho' để quét nốt, nhịp điệu và hát thành file MP3.`,
+  },
+  {
+    tools: ["create_video"],
+    text: `- TẠO VIDEO AI (create_video):
+  + BẮT BUỘC GỌI create_video khi người dùng yêu cầu: "tạo video", "làm video", "quay clip", "video AI", "tạo phim ngắn", "xuất clip mp4".
+  + Tool này tự động render và gửi file .mp4 chất lượng cao trực tiếp vào cuộc trò chuyện.`,
+  },
+  {
     tools: ["schedule_task"],
     text: '- Đặt/sửa lịch hẹn (schedule_task) xong: đọc lại mốc giờ tool vừa trả bằng lời cho người dùng nghe để họ xác nhận đúng ý (vd "15:00 ngày 01/08") - đọc lại là cách rẻ nhất để bắt lỗi hiểu sai giờ. Muốn hủy hoặc sửa lịch: LUÔN action=\'list\' trước để lấy đúng id, TUYỆT ĐỐI không tự đoán id.',
   },
