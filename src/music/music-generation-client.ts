@@ -59,7 +59,7 @@ export async function generateMusic(
     },
   };
 
-  const isGoogleDirect = apiKey.startsWith("AIza") || !settings.baseUrl;
+  const isGoogleDirect = apiKey.startsWith("AIza") || apiKey.startsWith("AQ.") || !settings.baseUrl;
   const url = isGoogleDirect
     ? `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`
     : `${(settings.baseUrl || "").replace(/\/+$/, "")}/models/${model}:generateContent`;
