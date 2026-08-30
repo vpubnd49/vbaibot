@@ -330,6 +330,23 @@ const envSchema = z.object({
   // Tên host trong podcast
   TTS_HOST_MALE_NAME: z.string().default("Anh"),
   TTS_HOST_FEMALE_NAME: z.string().default("Chị"),
+
+  // Tool tạo nhạc AI (Google Lyria 3). Tái sử dụng Gemini API key đã có: nếu
+  // LLM provider là google thì không cần set riêng MUSIC_GEN_API_KEY.
+  MUSIC_GEN_API_KEY: z.string().default(""),
+  MUSIC_GEN_MODEL: z.string().default("lyria-3-clip-preview"),
+  // Trần nhạc mỗi giờ mỗi thread. Mỗi bài tốn ~10-30 giây chờ + quota Gemini.
+  MUSIC_GEN_MAX_PER_HOUR: z.coerce.number().int().min(1).max(100).default(5),
+  // Trần thời gian tạo nhạc. Lyria clip thường xong trong 30 giây, nhưng bài
+  // dài (lyria-3-pro, 3 phút) có thể mất lâu hơn.
+  MUSIC_GEN_TIMEOUT_MS: z.coerce.number().int().min(30_000).max(600_000).default(120_000),
+
+  // Tool tạo video AI (Google Veo). Tái sử dụng Gemini API key.
+  VIDEO_GEN_API_KEY: z.string().default(""),
+  VIDEO_GEN_MODEL: z.string().default("veo-3.0-generate-preview"),
+  // Video tốn nhất cả chi phí lẫn thời gian: 5 giây video mất 30-120 giây chờ.
+  VIDEO_GEN_MAX_PER_HOUR: z.coerce.number().int().min(1).max(100).default(3),
+  VIDEO_GEN_TIMEOUT_MS: z.coerce.number().int().min(30_000).max(1_800_000).default(600_000),
 });
 
 const parsed = envSchema.safeParse(process.env);

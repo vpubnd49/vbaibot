@@ -108,6 +108,18 @@ export const TUNING_GROUPS: TuningGroup[] = [
     hint: "Số ảnh mỗi giờ và thời gian chờ nhà cung cấp.",
   },
   {
+    id: "music",
+    title: "Tạo nhạc",
+    navHint: "Sáng tác nhạc bằng AI",
+    hint: "Số bài mỗi giờ và thời gian chờ. Dùng Google Lyria, tái sử dụng Gemini API key.",
+  },
+  {
+    id: "video",
+    title: "Tạo video",
+    navHint: "Tạo video ngắn bằng AI",
+    hint: "Số clip mỗi giờ và thời gian chờ. Dùng Google Veo, tái sử dụng Gemini API key.",
+  },
+  {
     id: "sending",
     title: "Gửi tin trên Zalo",
     navHint: "Cấu hình gửi tin nhắn",
@@ -420,6 +432,46 @@ const TUNING_BY_KEY = {
     label: "Mức chi tiết khi vẽ",
     hint: 'Đo A/B cùng prompt: "Cao" ra ảnh giàu chi tiết hơn hẳn mà không chậm hơn, đổi lại nhà cung cấp thường tính phí cao hơn. Hạ xuống "Vừa" nếu thấy tốn. Hai mức cuối là của dòng dall-e.',
     options: ["auto", "low", "medium", "high", "standard", "hd"],
+  },
+
+  // --- Tạo video ---
+  VIDEO_GEN_MAX_PER_HOUR: {
+    kind: "number",
+    group: "video",
+    label: "Số video mỗi giờ",
+    hint: "Trần số video tạo trong một giờ.",
+    min: 1,
+    max: 100,
+    unit: "video",
+  },
+  VIDEO_GEN_TIMEOUT_MS: {
+    kind: "number",
+    group: "video",
+    label: "Trần thời gian mỗi video",
+    hint: "Chặn trên cho cả lần tạo video. Phải đủ lớn để chờ Veo tạo xong (thường vài phút).",
+    min: 30_000,
+    max: 1_800_000,
+    unit: "ms",
+  },
+
+  // --- Tạo nhạc ---
+  MUSIC_GEN_MAX_PER_HOUR: {
+    kind: "number",
+    group: "music",
+    label: "Số bài nhạc mỗi giờ",
+    hint: "Mỗi bài tốn quota Gemini API. Bot đọc tin người lạ nên đây là hàng phòng thủ chống đốt quota.",
+    min: 1,
+    max: 100,
+    unit: "bài",
+  },
+  MUSIC_GEN_TIMEOUT_MS: {
+    kind: "number",
+    group: "music",
+    label: "Trần thời gian tạo nhạc",
+    hint: "Lyria clip thường xong trong 30 giây. Bài dài (3 phút) có thể mất lâu hơn.",
+    min: 30_000,
+    max: 600_000,
+    unit: "ms",
   },
 
   // --- Gửi tin ---

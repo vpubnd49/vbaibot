@@ -32,6 +32,16 @@ export function ghiChuDaGuiAnh(soAnh: number, caption?: string): string {
   return ghep(caption, soAnh > 1 ? `[đã gửi ${soAnh} ảnh]` : "[đã gửi ảnh]");
 }
 
+/** Tin gửi kèm file nhạc do bot tạo */
+export function ghiChuDaGuiNhac(caption?: string): string {
+  return ghep(caption, "[đã gửi file nhạc AI]");
+}
+
+/** Tin gửi kèm video do bot tạo */
+export function ghiChuDaGuiVideo(caption?: string): string {
+  return ghep(caption, "[đã gửi video AI]");
+}
+
 /**
  * Tin nhắn thuần chữ do tool gửi (vd `tag_member`, câu "đang vẽ ảnh...").
  *

@@ -1,10 +1,14 @@
 import { getTuning } from "../../config/runtime-tuning-settings.js";
 import { isImageGenConfigured } from "../../config/runtime-image-settings.js";
 import { isTtsConfigured } from "../../config/runtime-tts-settings.js";
+import { isMusicGenConfigured } from "../../config/runtime-music-settings.js";
+import { isVideoGenConfigured } from "../../config/runtime-video-settings.js";
 import { createAddReactionTool } from "./add-reaction-tool.js";
 import { createExcelFileTool, createWordDocumentTool, createPowerpointTool } from "./create-document-tools.js";
 import { createTextDocumentTool } from "./create-text-document-tool.js";
 import { createImageTool } from "./create-image-tool.js";
+import { createMusicTool } from "./create-music-tool.js";
+import { createVideoTool } from "./create-video-tool.js";
 import { createVoiceSummaryTool } from "./create-voice-tool.js";
 import { createScheduleTaskTool } from "./schedule-task-tool.js";
 import { createSaveMemoryTool } from "./save-memory-tool.js";
@@ -115,6 +119,28 @@ export const ACTION_TOOL_DEFINITIONS: ToolDefinition[] = [
     // hàng trăm tin chủ động/ngày mà trần không bao giờ chặn được.
     runsInScheduledTurn: false,
     build: (ctx) => createImageTool(ctx),
+  },
+  {
+    key: "create_music",
+    label: "Tạo nhạc AI",
+    description: "Sáng tác nhạc từ mô tả (có lời hoặc nhạc nền) rồi gửi file MP3 luôn",
+    group: "action",
+    hasSettings: true,
+    available: () => isMusicGenConfigured(),
+    unavailableHint: "Cấu hình Gemini API key (hoặc dùng provider Google) để dùng tool tạo nhạc",
+    runsInScheduledTurn: false,
+    build: (ctx) => createMusicTool(ctx),
+  },
+  {
+    key: "create_video",
+    label: "Tạo video AI",
+    description: "Tạo video ngắn (5-8 giây) từ mô tả rồi gửi file MP4 luôn",
+    group: "action",
+    hasSettings: true,
+    available: () => isVideoGenConfigured(),
+    unavailableHint: "Cấu hình Gemini API key (hoặc dùng provider Google) để dùng tool tạo video",
+    runsInScheduledTurn: false,
+    build: (ctx) => createVideoTool(ctx),
   },
   {
     key: "tag_member",
