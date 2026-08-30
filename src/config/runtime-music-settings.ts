@@ -1,10 +1,12 @@
 import { db } from "../conversation/database.js";
+import { env } from "./env.js";
 import { decryptSecret, encryptSecret } from "./secret-cipher.js";
 import { getEffectiveLlmSettings } from "./runtime-llm-settings.js";
 
 export type MusicGenSettings = {
   apiKey: string;
   model: string;
+  baseUrl?: string;
   maxDurationSec: number;
   timeoutMs?: number;
 };
@@ -35,10 +37,13 @@ function readApiKey(): string {
       // Ignore decryption failure
     }
   }
-  // Fallback: Tự động dùng API key từ cấu hình LLM đang hoạt động
+  if (env.MUSIC_GEN_API_KEY) {
+    return env.MUSIC_GEN_API_KEY;
+  }
+  // Fallback: Tự động dùng API key từ cấu hình LLM đang hoạt động (kể cả router proxy)
   try {
     const llm = getEffectiveLlmSettings();
-    if (llm.apiKey && (llm.provider === "google" || llm.apiKey.startsWith("AIza"))) {
+    if (llm.apiKey) {
       return llm.apiKey;
     }
   } catch {
@@ -50,7 +55,8 @@ function readApiKey(): string {
 export function getMusicSettings(): MusicGenSettings {
   return {
     apiKey: readApiKey(),
-    model: read(KEYS.model) ?? "lyria-3-clip-preview",
+    model: read(KEYS.model) ?? env.MUSIC_GEN_MODEL,
+    baseUrl: (read("music_gen_base_url") ?? env.LLM_BASE_URL ?? "").replace(/\/$/, ""),
     maxDurationSec: 180,
   };
 }

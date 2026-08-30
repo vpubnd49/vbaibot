@@ -59,15 +59,23 @@ export async function generateMusic(
     },
   };
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  const isGoogleDirect = apiKey.startsWith("AIza") || !settings.baseUrl;
+  const url = isGoogleDirect
+    ? `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`
+    : `${(settings.baseUrl || "").replace(/\/+$/, "")}/models/${model}:generateContent`;
+
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+  if (!isGoogleDirect) {
+    headers["Authorization"] = `Bearer ${apiKey}`;
+  }
 
   let response: Response;
   try {
     response = await fetchImpl(url, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers,
       body: JSON.stringify(payload),
       signal: AbortSignal.timeout(timeoutMs),
     });

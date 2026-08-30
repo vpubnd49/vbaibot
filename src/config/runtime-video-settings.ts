@@ -6,6 +6,7 @@ import { getEffectiveLlmSettings } from "./runtime-llm-settings.js";
 export type VideoGenSettings = {
   apiKey: string;
   model: string;
+  baseUrl?: string;
 };
 
 const KEYS = {
@@ -39,7 +40,7 @@ function readApiKey(): string {
   }
   try {
     const llm = getEffectiveLlmSettings();
-    if (llm.apiKey && (llm.provider === "google" || llm.apiKey.startsWith("AIza"))) {
+    if (llm.apiKey) {
       return llm.apiKey;
     }
   } catch {
@@ -52,6 +53,7 @@ export function getVideoSettings(): VideoGenSettings {
   return {
     model: read(KEYS.model) ?? (env.VIDEO_GEN_MODEL || "veo-3.0-generate-preview"),
     apiKey: readApiKey(),
+    baseUrl: (read("video_gen_base_url") ?? env.LLM_BASE_URL ?? "").replace(/\/$/, ""),
   };
 }
 
