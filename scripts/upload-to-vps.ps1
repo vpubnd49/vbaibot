@@ -21,7 +21,7 @@ ssh -p $VpsPort "$VpsUser@$VpsHost" "bash $RemoteDir/scripts/deploy-to-vps.sh"
 
 Write-Host "=== 5. Dong bo du lieu data va database len VPS ===" -ForegroundColor Cyan
 scp -P $VpsPort -r data "$VpsUser@${VpsHost}:$RemoteDir/"
-ssh -p $VpsPort "$VpsUser@$VpsHost" "pm2 restart zaloagent"
+ssh -p $VpsPort "$VpsUser@$VpsHost" "pm2 restart vbaibot"
 
 Write-Host "HOAN TAT TRIEN KHAI LEN VPS!" -ForegroundColor Green
 Write-Host "Truy cap Dashboard tai: https://vbaibot.chauphienbanso.com" -ForegroundColor Yellow

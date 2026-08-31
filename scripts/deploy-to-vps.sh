@@ -22,7 +22,7 @@ fi
 
 # Cài đặt pnpm và PM2
 sudo corepack enable || true
-sudo npm install -g pnpm pm2
+sudo npm install -g pnpm pm2 --force
 
 echo "=== 2. Thiết lập thư mục ứng dụng tại $APP_DIR ==="
 sudo mkdir -p /var/www
@@ -90,8 +90,8 @@ echo "=== 6. Cấp phát SSL HTTPS qua Certbot ==="
 sudo certbot --nginx -d "$DOMAIN" --non-interactive --agree-tos --register-unsafely-without-email || echo "Bỏ qua certbot nếu DNS chưa trỏ về IP VPS"
 
 echo "=== 7. Khởi chạy Zaloagent với PM2 ==="
-pm2 delete zaloagent 2>/dev/null || true
-pm2 start "pnpm start" --name "zaloagent"
+pm2 delete vbaibot 2>/dev/null || true
+pm2 start "pnpm start" --name "vbaibot"
 pm2 save
 sudo env PATH=$PATH:/usr/bin pm2 startup systemd -u $USER --hp $HOME || true
 
