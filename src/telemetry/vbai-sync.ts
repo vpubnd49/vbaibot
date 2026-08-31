@@ -4,7 +4,7 @@
  */
 
 const VBAI_INGEST_URL = process.env.VBAI_INGEST_URL || "https://vbai.tracuu.lamdong.vn/api/telemetry/vbaibot-ingest";
-const VBAI_SYNC_SECRET = process.env.VBAI_SYNC_SECRET || "vbai-zalo-sync-secret-key-2026-ld";
+const VBAI_SYNC_SECRET = process.env.VBAI_SYNC_SECRET;
 
 export type VbaiSyncPayload = {
   userPrompt: string;
@@ -20,6 +20,10 @@ export async function syncTurnToVBAI(payload: VbaiSyncPayload): Promise<void> {
   const { userPrompt, modelResponse, senderId, timestamp } = payload;
   
   if (!userPrompt || !modelResponse || userPrompt.trim().length < 8 || modelResponse.trim().length < 40) {
+    return;
+  }
+
+  if (!VBAI_SYNC_SECRET) {
     return;
   }
 

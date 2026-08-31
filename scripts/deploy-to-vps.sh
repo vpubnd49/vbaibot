@@ -5,9 +5,11 @@
 
 set -e
 
-DOMAIN="vbaibot.chauphienbanso.com"
-APP_DIR="/var/www/zaloagent"
-PORT=3900
+DOMAIN="${DOMAIN:?Set DOMAIN before deploying}"
+APP_DIR="${APP_DIR:-/var/www/zaloagent}"
+PORT="${DASHBOARD_PORT:-3900}"
+CREDENTIALS_ENCRYPTION_KEY="${CREDENTIALS_ENCRYPTION_KEY:?Set CREDENTIALS_ENCRYPTION_KEY before deploying}"
+DASHBOARD_PASSWORD="${DASHBOARD_PASSWORD:?Set DASHBOARD_PASSWORD before deploying}"
 
 echo "=== 1. Cập nhật hệ thống & Cài đặt Nginx, Certbot, Node.js ==="
 sudo apt-get update -y
@@ -45,11 +47,11 @@ LOG_LEVEL=info
 LOG_FILE_ENABLED=true
 LOG_FILE_KEEP_DAYS=14
 
-DASHBOARD_PORT=3900
+DASHBOARD_PORT=$PORT
 DASHBOARD_BEHIND_PROXY=true
 
-CREDENTIALS_ENCRYPTION_KEY=f9c254f8cea4ed1cb03a3276044c8080e7e2a769514e9c40316bc88b75aeeeb3
-DASHBOARD_PASSWORD=admin123456
+CREDENTIALS_ENCRYPTION_KEY=$CREDENTIALS_ENCRYPTION_KEY
+DASHBOARD_PASSWORD=$DASHBOARD_PASSWORD
 EOF
     echo "Đã tạo file .env mới trên VPS."
 fi
@@ -91,7 +93,7 @@ sudo certbot --nginx -d "$DOMAIN" --non-interactive --agree-tos --register-unsaf
 
 echo "=== 7. Khởi chạy Zaloagent với PM2 ==="
 pm2 delete vbaibot 2>/dev/null || true
-pm2 start "pnpm start" --name "vbaibot"
+pm2 start ecosystem.config.cjs --env production
 pm2 save
 sudo env PATH=$PATH:/usr/bin pm2 startup systemd -u $USER --hp $HOME || true
 
