@@ -441,6 +441,12 @@ export const api = {
     request<{ ok: boolean; reply?: string; error?: string }>("/api/provider/test", {
       method: "POST",
     }),
+  kie: () => request<KieSettings>("/api/provider/kie"),
+  updateKie: (update: Partial<KieSettings> & { apiKey?: string }) =>
+    request<KieSettings & { ok: true }>("/api/provider/kie", {
+      method: "PATCH",
+      body: JSON.stringify(update),
+    }),
 };
 
 export type ManagedAccount = {
@@ -553,6 +559,16 @@ export type SharedKnowledgeItem = {
   createdAt: string;
   approvedAt: string | null;
   expiresAt: string | null;
+};
+
+export type KieSettings = {
+  baseUrl: string;
+  apiKeyMasked: string;
+  hasApiKey: boolean;
+  imageModel: string;
+  videoModel: string;
+  musicModel: string;
+  configured: boolean;
 };
 
 export type ProviderSettings = {

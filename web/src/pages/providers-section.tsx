@@ -2,6 +2,8 @@ import { SecretInput } from "../shared/secret-input";
 import { SelectMenu } from "../shared/select-menu";
 import { BASE_URL_PRESETS, laUrlGemini, timPreset, TU_NHAP } from "./llm-base-url-presets";
 import { useProviderForm } from "./use-provider-form";
+import { useEffect, useState } from "react";
+import { api, type KieSettings } from "../dashboard-api-client";
 
 /**
  * Form nhà cung cấp LLM. Trước đây là một trang riêng trên sidebar; giờ là nội
@@ -14,6 +16,15 @@ import { useProviderForm } from "./use-provider-form";
 export function ProvidersSection() {
   const { settings, form, setForm, doiProvider, status, busy, save, test, reset, confirmDialog } =
     useProviderForm();
+  const [kie, setKie] = useState<KieSettings | null>(null);
+  const [kieForm, setKieForm] = useState({ baseUrl: "", apiKey: "", imageModel: "", videoModel: "", musicModel: "" });
+  const [kieStatus, setKieStatus] = useState<string>("");
+  useEffect(() => { api.kie().then((s) => { setKie(s); setKieForm({ baseUrl: s.baseUrl, apiKey: "", imageModel: s.imageModel, videoModel: s.videoModel, musicModel: s.musicModel }); }).catch(() => undefined); }, []);
+  async function saveKie() {
+    setKieStatus("");
+    try { const s = await api.updateKie({ ...kieForm, apiKey: kieForm.apiKey || undefined }); setKie(s); setKieForm({ ...kieForm, apiKey: "" }); setKieStatus("Đã lưu cấu hình KIE"); }
+    catch { setKieStatus("Lưu cấu hình KIE thất bại"); }
+  }
 
   if (!settings) return <p className="text-[13px] text-ink-soft">Đang tải...</p>;
 
@@ -151,6 +162,18 @@ export function ProvidersSection() {
         </div>
       </div>
       {confirmDialog}
+      {kie && (
+        <div className="mt-8 space-y-4 border-t border-line pt-6">
+          <div><h3 className="text-[15px] font-semibold text-ink">Provider phụ: KIE.ai</h3><p className="mt-1 text-[12px] text-ink-soft">Lưu một key dùng cho model tạo ảnh, video và nhạc. Key được mã hóa và không hiển thị đầy đủ.</p></div>
+          <input className="gc-input w-full" value={kieForm.baseUrl} onChange={(e) => setKieForm({ ...kieForm, baseUrl: e.target.value })} placeholder="Base URL KIE" />
+          <SecretInput id="kie-api-key" value={kieForm.apiKey} onChange={(apiKey) => setKieForm({ ...kieForm, apiKey })} placeholder={`Bỏ trống để giữ key (${kie.apiKeyMasked})`} />
+          <input className="gc-input w-full" value={kieForm.imageModel} onChange={(e) => setKieForm({ ...kieForm, imageModel: e.target.value })} placeholder="Model tạo ảnh" />
+          <input className="gc-input w-full" value={kieForm.videoModel} onChange={(e) => setKieForm({ ...kieForm, videoModel: e.target.value })} placeholder="Model tạo video" />
+          <input className="gc-input w-full" value={kieForm.musicModel} onChange={(e) => setKieForm({ ...kieForm, musicModel: e.target.value })} placeholder="Model tạo nhạc" />
+          <button onClick={saveKie} className="rounded-lg bg-zalo-500 px-4 py-2 text-[14px] font-medium text-white">Lưu provider KIE</button>
+          {kieStatus && <p className="text-[13px] text-emerald-600">{kieStatus}</p>}
+        </div>
+      )}
     </div>
   );
 }
