@@ -1,13 +1,3 @@
-/**
- * Client KIE dành riêng cho Suno v5.5.
- *
- * Suno dùng endpoint KHÁC so với image/video:
- *   Tạo:  POST /api/v1/generate
- *   Poll: GET  /api/v1/generate/record-info?taskId=xxx
- *
- * Response format cũng khác — trả về audio URLs trực tiếp.
- */
-
 import { createLogger } from "./logger.js";
 
 const log = createLogger("kie-music");
@@ -16,166 +6,76 @@ function normalizeBase(raw: string): string {
   return raw.replace(/\/+$/, "").replace(/\/api\/v1\/?$/, "");
 }
 
-export type KieMusicSettings = {
-  baseUrl: string;
-  apiKey: string;
-};
-
+export type KieMusicSettings = { baseUrl: string; apiKey: string };
 export type KieMusicParams = {
-  model: string;
-  prompt: string;
-  title?: string;
-  style?: string;
-  lyrics?: string;
-  customMode: boolean;
-  instrumental: boolean;
-  callBackUrl?: string;
+  model: string; prompt: string; title?: string; style?: string; lyrics?: string;
+  customMode: boolean; instrumental: boolean; callBackUrl?: string;
 };
+export type KieMusicResult = { taskId: string; state: string; audioUrls: string[]; failMsg?: string };
 
-export type KieMusicResult = {
-  taskId: string;
-  state: string;
-  audioUrls: string[];
-  failMsg?: string;
-};
-
-// ---------- createTask ----------
-
-export async function createKieMusicTask(
-  settings: KieMusicSettings,
-  params: KieMusicParams,
-  fetchImpl: typeof fetch = fetch,
-): Promise<string> {
+export async function createKieMusicTask(settings: KieMusicSettings, params: KieMusicParams, fetchImpl: typeof fetch = fetch): Promise<string> {
   const url = `${normalizeBase(settings.baseUrl)}/api/v1/generate`;
-  const body: Record<string, unknown> = {
-    model: params.model,
-    prompt: params.prompt,
-    customMode: params.customMode,
-    instrumental: params.instrumental,
-  };
+  const body: Record<string, unknown> = { model: params.model, prompt: params.prompt, customMode: params.customMode, instrumental: params.instrumental };
   if (params.title) body.title = params.title;
   if (params.style) body.style = params.style;
   if (params.lyrics) body.lyrics = params.lyrics;
   if (params.callBackUrl) body.callBackUrl = params.callBackUrl;
-
-  const res = await fetchImpl(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${settings.apiKey}`,
-    },
-    body: JSON.stringify(body),
-  });
-
-  if (!res.ok) {
-    const errText = await res.text().catch(() => "");
-    throw new Error(`KIE music tạo task thất bại: HTTP ${res.status} ${errText.slice(0, 300)}`);
-  }
-
-  const json = (await res.json()) as { code?: number; msg?: string; data?: { taskId?: string } };
-  if (!json.data?.taskId) {
-    throw new Error(`KIE music lỗi: ${json.msg ?? "không có taskId"}`);
-  }
-
+  const res = await fetchImpl(url, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${settings.apiKey}` }, body: JSON.stringify(body) });
+  if (!res.ok) throw new Error(`KIE music tạo task thất bại: HTTP ${res.status} ${(await res.text().catch(() => "")).slice(0, 300)}`);
+  const json = await res.json() as { code?: number; msg?: string; data?: { taskId?: string } };
+  if (!json.data?.taskId) throw new Error(`KIE music lỗi: ${json.msg ?? "không có taskId"}`);
   log.info({ taskId: json.data.taskId, model: params.model }, "Đã tạo KIE music task");
   return json.data.taskId;
 }
 
-// ---------- pollTask ----------
-
 const DEFAULT_POLL_INTERVAL_MS = 5_000;
-
-export async function pollKieMusicUntilDone(
-  settings: KieMusicSettings,
-  taskId: string,
-  timeoutMs: number,
-  fetchImpl: typeof fetch = fetch,
-  pollIntervalMs = DEFAULT_POLL_INTERVAL_MS,
-): Promise<KieMusicResult> {
+export async function pollKieMusicUntilDone(settings: KieMusicSettings, taskId: string, timeoutMs: number, fetchImpl: typeof fetch = fetch, pollIntervalMs = DEFAULT_POLL_INTERVAL_MS): Promise<KieMusicResult> {
   const deadline = Date.now() + timeoutMs;
   const url = `${normalizeBase(settings.baseUrl)}/api/v1/generate/record-info?taskId=${encodeURIComponent(taskId)}`;
-
   while (Date.now() < deadline) {
     await sleep(pollIntervalMs);
-
-    const res = await fetchImpl(url, {
-      headers: { Authorization: `Bearer ${settings.apiKey}` },
-      signal: AbortSignal.timeout(30_000),
-    });
-
+    const res = await fetchImpl(url, { headers: { Authorization: `Bearer ${settings.apiKey}` }, signal: AbortSignal.timeout(30_000) });
     if (!res.ok) {
       const body = await res.text().catch(() => "");
-      if (res.status === 401 || res.status === 403 || res.status === 404) {
-        throw new Error(`KIE music poll thất bại: HTTP ${res.status} ${body.slice(0, 200)}`);
-      }
-      log.warn({ taskId, status: res.status }, "KIE music poll HTTP lỗi, thử lại");
-      continue;
+      if ([401, 403, 404].includes(res.status)) throw new Error(`KIE music poll thất bại: HTTP ${res.status} ${body.slice(0, 200)}`);
+      log.warn({ taskId, status: res.status }, "KIE music poll HTTP lỗi, thử lại"); continue;
     }
-
-    const json = (await res.json()) as {
-      code?: number;
-      data?: {
-        taskId?: string;
-        status?: string;
-        state?: string;
-        data?: Array<{ audio_url?: string; audioUrl?: string; source_audio_url?: string; sourceAudioUrl?: string; title?: string; status?: string }>;
-        response?: unknown;
-        result?: unknown;
-        failMsg?: string;
-      };
-    };
-
-    // Suno có thể dùng "status" hoặc "state" — xử lý cả hai
+    const json = await res.json() as { data?: { status?: string; state?: string; data?: unknown; response?: unknown; result?: unknown; failMsg?: string } };
     const state = String(json.data?.status ?? json.data?.state ?? "unknown");
     const upperState = state.toUpperCase();
-
-    if (upperState === "SUCCESS" || upperState === "COMPLETE") {
-      const audioUrls = (json.data?.data ?? [])
-        .flatMap((item) => [item.audio_url, item.audioUrl, item.source_audio_url, item.sourceAudioUrl])
-        .filter((u): u is string => Boolean(u));
-
-      // Một số response KIE đặt danh sách kết quả ở response/result thay vì data.
-      const nested = (json.data?.response ?? json.data?.result) as
-        | { audio_url?: string; audioUrl?: string; audio_urls?: string[]; audioUrls?: string[] }
-        | undefined;
-      if (audioUrls.length === 0 && nested) {
-        audioUrls.push(
-          ...(nested.audioUrls ?? nested.audio_urls ?? [nested.audioUrl, nested.audio_url].filter((u): u is string => Boolean(u))),
-        );
-      }
-
+    if (["SUCCESS", "COMPLETE", "COMPLETED"].includes(upperState)) {
+      const audioUrls: string[] = [];
+      collectAudioUrls(json.data, audioUrls);
       log.info({ taskId, state, urls: audioUrls.length }, "KIE music task hoàn thành");
       return { taskId, state, audioUrls };
     }
-
-    if (upperState === "FAILED" || upperState === "FAIL") {
-      const failMsg = json.data?.failMsg ?? "Tạo nhạc thất bại";
-      log.warn({ taskId, failMsg }, "KIE music task thất bại");
-      return { taskId, state, audioUrls: [], failMsg };
-    }
-
-    // PENDING, PROCESSING, etc. → tiếp tục poll
+    if (["FAILED", "FAIL", "ERROR"].includes(upperState)) return { taskId, state, audioUrls: [], failMsg: json.data?.failMsg ?? "Tạo nhạc thất bại" };
     log.debug({ taskId, state }, "KIE music task đang xử lý");
   }
-
   throw new Error(`KIE music task quá lâu (hơn ${Math.round(timeoutMs / 1000)} giây) nên đã dừng`);
 }
 
-// ---------- download ----------
-
-export async function downloadKieMusicResult(
-  url: string,
-  fetchImpl: typeof fetch = fetch,
-): Promise<Buffer> {
+export async function downloadKieMusicResult(url: string, fetchImpl: typeof fetch = fetch): Promise<Buffer> {
   const res = await fetchImpl(url, { signal: AbortSignal.timeout(60_000) });
-  if (!res.ok) {
-    throw new Error(`Tải file nhạc KIE thất bại: HTTP ${res.status}`);
-  }
+  if (!res.ok) throw new Error(`Tải file nhạc KIE thất bại: HTTP ${res.status}`);
   return Buffer.from(await res.arrayBuffer());
 }
 
-// ---------- helpers ----------
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+function collectAudioUrls(value: unknown, output: string[], fieldName = ""): void {
+  if (typeof value === "string") {
+    const isAudioField = /audio|music|sound|stream|source/i.test(fieldName);
+    const hasAudioExtension = /\.(mp3|wav|m4a|aac|flac|ogg)(?:[?#]|$)/i.test(value);
+    if (/^https?:\/\//i.test(value) && (isAudioField || hasAudioExtension)) output.push(value);
+    return;
+  }
+  if (Array.isArray(value)) {
+    for (const item of value) collectAudioUrls(item, output, fieldName);
+    return;
+  }
+  if (value && typeof value === "object") {
+    for (const [key, item] of Object.entries(value as Record<string, unknown>)) {
+      collectAudioUrls(item, output, key);
+    }
+  }
 }
+function sleep(ms: number): Promise<void> { return new Promise((resolve) => setTimeout(resolve, ms)); }
