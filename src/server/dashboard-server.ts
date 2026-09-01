@@ -100,6 +100,11 @@ export function buildDashboardApp(): Hono {
   // được, file tự dọn sau 7 ngày.
   app.route("/voice", voiceRoutes);
 
+  // KIE/Suno gọi callback từ bên ngoài, không có cookie dashboard. Route này
+  // phải đứng trước middleware auth; payload chỉ được dùng để ghi trạng thái,
+  // kết quả vẫn lấy qua polling có xác thực bằng API key.
+  app.route("/api/kie-callback", kieCallbackRoutes);
+
   app.post("/api/auth/login", async (c) => {
     const ip = resolveClientIp(c);
     if (!allowLoginAttempt(ip)) {
@@ -196,7 +201,6 @@ export function buildDashboardApp(): Hono {
   app.route("/api/logs", logRoutes);
   app.route("/api/schedule", scheduleRoutes);
   app.route("/api/broadcast", broadcastRoutes);
-  app.route("/api/kie-callback", kieCallbackRoutes);
 
   // API không khớp route nào phải trả JSON 404, không được rơi xuống SPA
   // fallback bên dưới (client fetch JSON mà nhận HTML thì lỗi rất khó đọc)
