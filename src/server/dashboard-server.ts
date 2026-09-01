@@ -133,6 +133,11 @@ export function buildDashboardApp(): Hono {
 
   // Mọi API sau điểm này yêu cầu session hợp lệ
   app.use("/api/*", async (c, next) => {
+    // Callback từ KIE là server-to-server, không có cookie dashboard.
+    if (new URL(c.req.url).pathname === "/api/kie-callback" ||
+        new URL(c.req.url).pathname === "/api/kie-callback/") {
+      return next();
+    }
     if (!verifySessionToken(getCookie(c, SESSION_COOKIE))) {
       return c.json({ error: "Chưa đăng nhập" }, 401);
     }
