@@ -1,6 +1,6 @@
 import { tool } from "ai";
 import { z } from "zod";
-import { isImageGenConfigured } from "../../config/runtime-image-settings.js";
+import { getKieImageConfig, isImageGenConfigured } from "../../config/runtime-image-settings.js";
 import { loadStoredImage } from "../../conversation/media-store.js";
 import { generateImage } from "../../images/image-generation-client.js";
 import { checkImageRateLimit } from "../../images/image-rate-limit.js";
@@ -85,7 +85,7 @@ export function createImageTool(ctx: ToolContext, generate = generateImage) {
     execute: async ({ mode, prompt, imageIndex, transparentBackground, caption }) => {
       const threadKey = `${ctx.account.id}:${ctx.message.threadId}`;
 
-      if (!isImageGenConfigured()) {
+      if (!isImageGenConfigured() && !getKieImageConfig()) {
         return ketQuaLoi(
           "Tool vẽ ảnh chưa cấu hình (thiếu base URL, model hoặc API key). Nói thật với người dùng là chưa vẽ được.",
         );

@@ -339,7 +339,7 @@ const envSchema = z.object({
   MUSIC_GEN_MAX_PER_HOUR: z.coerce.number().int().min(1).max(100).default(5),
   // Trần thời gian tạo nhạc. Lyria clip thường xong trong 30 giây, nhưng bài
   // dài (lyria-3-pro, 3 phút) có thể mất lâu hơn.
-  MUSIC_GEN_TIMEOUT_MS: z.coerce.number().int().min(30_000).max(600_000).default(120_000),
+  MUSIC_GEN_TIMEOUT_MS: z.coerce.number().int().min(30_000).max(600_000).default(300_000),
 
   // Tool tạo video AI (Google Veo). Tái sử dụng Gemini API key.
   VIDEO_GEN_API_KEY: z.string().default(""),

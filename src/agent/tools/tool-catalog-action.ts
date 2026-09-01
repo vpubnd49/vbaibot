@@ -1,8 +1,8 @@
 import { getTuning } from "../../config/runtime-tuning-settings.js";
-import { isImageGenConfigured } from "../../config/runtime-image-settings.js";
+import { isImageGenConfigured, getKieImageConfig } from "../../config/runtime-image-settings.js";
 import { isTtsConfigured } from "../../config/runtime-tts-settings.js";
-import { isMusicGenConfigured } from "../../config/runtime-music-settings.js";
-import { isVideoGenConfigured } from "../../config/runtime-video-settings.js";
+import { isMusicGenConfigured, getKieMusicConfig } from "../../config/runtime-music-settings.js";
+import { isVideoGenConfigured, getKieVideoConfig } from "../../config/runtime-video-settings.js";
 import { createAddReactionTool } from "./add-reaction-tool.js";
 import { createExcelFileTool, createWordDocumentTool, createPowerpointTool } from "./create-document-tools.js";
 import { createTextDocumentTool } from "./create-text-document-tool.js";
@@ -111,7 +111,7 @@ export const ACTION_TOOL_DEFINITIONS: ToolDefinition[] = [
     description: "Vẽ ảnh mới hoặc sửa ảnh người dùng vừa gửi (đổi màu, xóa vật thể, đổi phong cách) rồi gửi luôn",
     group: "action",
     hasSettings: true,
-    available: () => isImageGenConfigured(),
+    available: () => isImageGenConfigured() || getKieImageConfig() !== null,
     unavailableHint: "Bấm Settings để cấu hình endpoint + model vẽ ảnh",
     // Cùng lý do runsInScheduledTurn:false của send_file - gửi 2 tin ("đang
     // vẽ..." rồi ảnh) thẳng qua enqueueSend, né trần ngày. Nặng nhất trong
@@ -126,7 +126,7 @@ export const ACTION_TOOL_DEFINITIONS: ToolDefinition[] = [
     description: "Sáng tác nhạc từ mô tả (có lời hoặc nhạc nền) rồi gửi file MP3 luôn",
     group: "action",
     hasSettings: true,
-    available: () => isMusicGenConfigured(),
+    available: () => isMusicGenConfigured() || getKieMusicConfig() !== null,
     unavailableHint: "Cấu hình Gemini API key (hoặc dùng provider Google) để dùng tool tạo nhạc",
     runsInScheduledTurn: false,
     build: (ctx) => createMusicTool(ctx),
@@ -137,7 +137,7 @@ export const ACTION_TOOL_DEFINITIONS: ToolDefinition[] = [
     description: "Tạo video ngắn (5-8 giây) từ mô tả rồi gửi file MP4 luôn",
     group: "action",
     hasSettings: true,
-    available: () => isVideoGenConfigured(),
+    available: () => isVideoGenConfigured() || getKieVideoConfig() !== null,
     unavailableHint: "Cấu hình Gemini API key (hoặc dùng provider Google) để dùng tool tạo video",
     runsInScheduledTurn: false,
     build: (ctx) => createVideoTool(ctx),

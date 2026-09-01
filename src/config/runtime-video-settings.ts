@@ -2,6 +2,7 @@ import { db } from "../conversation/database.js";
 import { env } from "./env.js";
 import { decryptSecret, encryptSecret } from "./secret-cipher.js";
 import { getEffectiveLlmSettings } from "./runtime-llm-settings.js";
+import { getKieSettings } from "./runtime-kie-settings.js";
 
 export type VideoGenSettings = {
   apiKey: string;
@@ -76,4 +77,17 @@ export function updateVideoSettings(update: VideoGenSettingsUpdate): VideoGenSet
     else setStmt.run(KEYS.apiKey, encryptSecret(update.apiKey));
   }
   return getVideoSettings();
+}
+
+/**
+ * KIE ưu tiên: trả cấu hình KIE cho video nếu KIE đã đủ.
+ */
+export function getKieVideoConfig(): import("../video/kie-video-adapter.js").KieVideoConfig | null {
+  try {
+    const kie = getKieSettings();
+    if (kie.baseUrl && kie.apiKey && kie.videoModel) {
+      return { baseUrl: kie.baseUrl, apiKey: kie.apiKey, model: kie.videoModel };
+    }
+  } catch { /* bỏ qua */ }
+  return null;
 }

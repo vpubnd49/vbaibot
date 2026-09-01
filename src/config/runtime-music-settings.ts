@@ -2,6 +2,7 @@ import { db } from "../conversation/database.js";
 import { env } from "./env.js";
 import { decryptSecret, encryptSecret } from "./secret-cipher.js";
 import { getEffectiveLlmSettings } from "./runtime-llm-settings.js";
+import { getKieSettings } from "./runtime-kie-settings.js";
 
 export type MusicGenSettings = {
   apiKey: string;
@@ -80,4 +81,17 @@ export function updateMusicSettings(update: MusicGenSettingsUpdate): MusicGenSet
     else setStmt.run(KEYS.apiKey, encryptSecret(update.apiKey));
   }
   return getMusicSettings();
+}
+
+/**
+ * KIE ưu tiên: trả cấu hình KIE cho nhạc nếu KIE đã đủ.
+ */
+export function getKieMusicConfig(): import("../music/kie-music-adapter.js").KieMusicConfig | null {
+  try {
+    const kie = getKieSettings();
+    if (kie.baseUrl && kie.apiKey && kie.musicModel) {
+      return { baseUrl: kie.baseUrl, apiKey: kie.apiKey, model: kie.musicModel };
+    }
+  } catch { /* bỏ qua */ }
+  return null;
 }

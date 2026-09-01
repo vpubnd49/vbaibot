@@ -24,11 +24,30 @@ export function createWebSearchTool() {
     execute: async ({ query }) => {
       // Cấu hình đọc lại mỗi lượt - đổi provider trên dashboard có hiệu lực ngay.
       // Provider duckduckgo thì không truyền key Brave để chain bỏ qua nó luôn.
-      const settings = getSearchSettings();
-      const results = await searchWeb(query, {
-        maxResults: getTuning("WEB_SEARCH_MAX_RESULTS"),
-        braveApiKey: settings.provider === "brave" ? settings.braveApiKey : undefined,
-      });
+const settings = getSearchSettings();
+       const results = await searchWeb(query, {
+         maxResults: getTuning("WEB_SEARCH_MAX_RESULTS"),
+         braveApiKey: settings.provider === "brave" ? settings.braveApiKey : undefined,
+         // Xếp nguồn cơ quan nhà nước và báo chí chính thống lên trước; vẫn giữ
+         // nguồn khác để đối chiếu khi câu hỏi không có nguồn chính thức.
+         preferredDomains: [
+           "chinhphu.vn",
+           "xaydungchinhsach.chinhphu.vn",
+           "baochinhphu.vn",
+           "moj.gov.vn",
+           "vanban.chinhphu.vn",
+           "quochoi.vn",
+           "congbao.chinhphu.vn",
+           "thuvienphapluat.vn",
+           "baolamdong.vn",
+           "lamdong.gov.vn",
+           "nhandan.vn",
+           "qdnd.vn",
+           "cand.com.vn",
+           "vietnamnet.vn",
+           "vnexpress.net",
+         ],
+       });
 
       if (results.length === 0) {
         return ketQuaLoi(

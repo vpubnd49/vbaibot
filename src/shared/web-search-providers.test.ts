@@ -53,6 +53,29 @@ describe("parseDdgHtml + unwrapDdgRedirect", () => {
   });
 });
 
+describe("prioritizeSearchResults", () => {
+  it("đưa nguồn chính thống Việt Nam lên trước mà giữ thứ tự trong cùng hạng", () => {
+    const results = [
+      { title: "Quốc tế", url: "https://example.com/a", snippet: "" },
+      { title: "Báo", url: "https://vnexpress.net/a", snippet: "" },
+      { title: "Chính phủ", url: "https://vanban.chinhphu.vn/a", snippet: "" },
+      { title: "Ưu tiên", url: "https://baolamdong.vn/a", snippet: "" },
+    ];
+    assert.deepEqual(
+      providers.prioritizeSearchResults(results, ["baolamdong.vn"]),
+      [results[3], results[2], results[0], results[1]],
+    );
+  });
+
+  it("không nhận diện domain giả nằm trong path", () => {
+    const results = [
+      { title: "Giả", url: "https://example.com/chinhphu.vn", snippet: "" },
+      { title: "Thật", url: "https://chinhphu.vn/a", snippet: "" },
+    ];
+    assert.equal(providers.prioritizeSearchResults(results, ["chinhphu.vn"])[0], results[1]);
+  });
+});
+
 describe("searchWeb - chuỗi provider", () => {
   it("không có key Brave: đi thẳng DuckDuckGo bằng POST form (GET bị challenge)", async () => {
     const calls: { url: string; method?: string; body?: string }[] = [];

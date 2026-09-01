@@ -1,6 +1,6 @@
 import { tool } from "ai";
 import { z } from "zod";
-import { isMusicGenConfigured } from "../../config/runtime-music-settings.js";
+import { getKieMusicConfig, isMusicGenConfigured } from "../../config/runtime-music-settings.js";
 import { generateMusic } from "../../music/music-generation-client.js";
 import { checkMusicRateLimit } from "../../music/music-rate-limit.js";
 import { enqueueSend } from "../../middleware/rate-limiter.js";
@@ -30,7 +30,7 @@ export function createMusicTool(ctx: ToolContext, generate = generateMusic) {
     execute: async ({ mode, prompt, imageIndex, vocalType, style, caption }) => {
       const threadKey = `${ctx.account.id}:${ctx.message.threadId}`;
 
-      if (!isMusicGenConfigured()) {
+      if (!isMusicGenConfigured() && !getKieMusicConfig()) {
         return ketQuaLoi("Tool tạo nhạc chưa cấu hình API key. Nói thật với người dùng là chưa tạo nhạc được.");
       }
 

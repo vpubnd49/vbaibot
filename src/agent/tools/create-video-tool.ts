@@ -1,6 +1,6 @@
 import { tool } from "ai";
 import { z } from "zod";
-import { isVideoGenConfigured } from "../../config/runtime-video-settings.js";
+import { getKieVideoConfig, isVideoGenConfigured } from "../../config/runtime-video-settings.js";
 import { generateVideo } from "../../video/video-generation-client.js";
 import { checkVideoRateLimit } from "../../video/video-rate-limit.js";
 import { enqueueSend } from "../../middleware/rate-limiter.js";
@@ -25,7 +25,7 @@ export function createVideoTool(ctx: ToolContext, generate = generateVideo) {
     execute: async ({ prompt, aspectRatio, durationSec, caption }) => {
       const threadKey = `${ctx.account.id}:${ctx.message.threadId}`;
 
-      if (!isVideoGenConfigured()) {
+      if (!isVideoGenConfigured() && !getKieVideoConfig()) {
         return ketQuaLoi("Tool tạo video chưa cấu hình API key. Nói thật với người dùng là chưa tạo được.");
       }
 

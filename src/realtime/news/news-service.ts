@@ -86,6 +86,18 @@ export async function fetchNewsArticles(
       const searchResults = await searchWeb(`${baseQuery} ${siteFilter}`, {
         maxResults: 6,
         fetchFn,
+        preferredDomains: [
+          "baolamdong.vn",
+          "lamdong.gov.vn",
+          "chinhphu.vn",
+          "nhandan.vn",
+          "qdnd.vn",
+          "cand.com.vn",
+          "vietnamnet.vn",
+          "vneconomy.vn",
+          "mic.gov.vn",
+          "mps.gov.vn",
+        ],
       });
 
       for (const r of searchResults) {

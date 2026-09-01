@@ -25,7 +25,36 @@ export type SearchOptions = {
   maxResults: number;
   braveApiKey?: string;
   fetchFn?: typeof fetch;
+  /** Domain ưu tiên ở đầu kết quả; không loại bỏ các nguồn khác. */
+  preferredDomains?: readonly string[];
 };
+
+function domainOf(url: string): string {
+  try {
+    return new URL(url).hostname.toLowerCase().replace(/^www\\./, "");
+  } catch {
+    return "";
+  }
+}
+
+/**
+ * Xếp nguồn chính thống lên trước, nhưng vẫn giữ đủ kết quả để agent có thể
+ * đối chiếu. So khớp theo hostname để không bị lừa bởi chuỗi trong path/query.
+ */
+export function prioritizeSearchResults(results: SearchResult[], preferredDomains: readonly string[] = []): SearchResult[] {
+  const preferred = preferredDomains.map((d) => d.toLowerCase().replace(/^www\\./, "").replace(/^\\./, ""));
+  const score = (result: SearchResult): number => {
+    const domain = domainOf(result.url);
+    if (preferred.some((d) => domain === d || domain.endsWith(`.${d}`))) return 3;
+    if (domain.endsWith(".gov.vn") || domain.endsWith(".gov") || domain.endsWith(".edu.vn") || domain.endsWith(".edu")) return 2;
+    if (domain.endsWith(".vn")) return 1;
+    return 0;
+  };
+  return results
+    .map((result, index) => ({ result, index }))
+    .sort((a, b) => score(b.result) - score(a.result) || a.index - b.index)
+    .map(({ result }) => result);
+}
 
 /**
  * DDG bọc link kết quả qua trang redirect: /l/?uddg=<url-encoded>&rut=...
@@ -112,7 +141,7 @@ export async function searchWeb(query: string, opts: SearchOptions): Promise<Sea
   if (opts.braveApiKey) {
     try {
       const results = await searchBrave(query, opts);
-      if (results.length > 0) return results;
+      if (results.length > 0) return prioritizeSearchResults(results, opts.preferredDomains);
       log.debug({ query }, "Brave không có kết quả - thử DuckDuckGo");
     } catch (err) {
       log.warn({ err }, "Brave search lỗi - rơi về DuckDuckGo");
@@ -120,7 +149,8 @@ export async function searchWeb(query: string, opts: SearchOptions): Promise<Sea
   }
 
   try {
-    return await searchDuckDuckGo(query, opts);
+    const results = await searchDuckDuckGo(query, opts);
+    return prioritizeSearchResults(results, opts.preferredDomains);
   } catch (err) {
     log.warn({ err }, "DuckDuckGo search lỗi");
     return [];

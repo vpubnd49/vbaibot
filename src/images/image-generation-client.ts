@@ -1,7 +1,8 @@
-import { getImageSettings, isImageGenConfigured, type ImageGenSettings } from "../config/runtime-image-settings.js";
+import { getImageSettings, getKieImageConfig, isImageGenConfigured, type ImageGenSettings } from "../config/runtime-image-settings.js";
 import { readImageFromSseStream } from "./read-image-sse-stream.js";
 import { LoiVeHutAnh } from "./image-retry-policy.js";
 import { getTuning } from "../config/runtime-tuning-settings.js";
+import { generateImageViaKie } from "./kie-image-adapter.js";
 
 /**
  * Gọi endpoint OpenAI-compatible `/v1/images/generations` để vẽ hoặc SỬA ảnh.
@@ -74,8 +75,16 @@ export async function generateImage(
   settings: ImageGenSettings = getImageSettings(),
   fetchImpl: typeof fetch = fetch,
 ): Promise<GeneratedImage> {
-  if (!isImageGenConfigured(settings)) {
-    throw new Error("Tool vẽ ảnh chưa cấu hình đủ base URL + model + API key");
+  // KIE code path: khi Image Gen riêng chưa cấu hình nhưng KIE provider đã có
+  const kieConfig = getKieImageConfig();
+  if (kieConfig) {
+    return generateImageViaKie(params, kieConfig, fetchImpl);
+  }
+
+  // Re-check KIE here as well because callers may invoke the client directly,
+  // bypassing the tool-level configuration guard.
+  if (!isImageGenConfigured(settings) && !getKieImageConfig()) {
+    throw new Error("Tool vẽ ảnh chưa cấu hình đủ base URL + model + API key hoặc KIE");
   }
 
   // Nền trong suốt bắt buộc PNG - JPEG không có kênh alpha nên nền sẽ ra đen

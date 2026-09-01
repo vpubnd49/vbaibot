@@ -1,5 +1,6 @@
-import { getMusicSettings, isMusicGenConfigured } from "../config/runtime-music-settings.js";
+import { getMusicSettings, getKieMusicConfig, isMusicGenConfigured } from "../config/runtime-music-settings.js";
 import { getTuning } from "../config/runtime-tuning-settings.js";
+import { generateMusicViaKie } from "./kie-music-adapter.js";
 
 export type GenerateMusicParams = {
   prompt: string;
@@ -21,6 +22,12 @@ export async function generateMusic(
   settings = getMusicSettings(),
   fetchImpl = fetch
 ): Promise<GeneratedMusic> {
+  // KIE code path: khi Music Gen riêng chưa cấu hình nhưng KIE provider đã có
+  const kieConfig = getKieMusicConfig();
+  if (kieConfig) {
+    return generateMusicViaKie(params, kieConfig, fetchImpl);
+  }
+
   if (!isMusicGenConfigured(settings)) {
     throw new Error("Chưa cấu hình API key cho tính năng tạo nhạc");
   }

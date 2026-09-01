@@ -1,5 +1,6 @@
-import { getVideoSettings, isVideoGenConfigured } from "../config/runtime-video-settings.js";
+import { getVideoSettings, getKieVideoConfig, isVideoGenConfigured } from "../config/runtime-video-settings.js";
 import { getTuning } from "../config/runtime-tuning-settings.js";
+import { generateVideoViaKie } from "./kie-video-adapter.js";
 
 export type GenerateVideoParams = {
   prompt: string;
@@ -17,6 +18,12 @@ export async function generateVideo(
   settings = getVideoSettings(),
   fetchImpl = globalThis.fetch
 ): Promise<GeneratedVideo> {
+  // KIE code path: khi Video Gen riêng chưa cấu hình nhưng KIE provider đã có
+  const kieConfig = getKieVideoConfig();
+  if (kieConfig) {
+    return generateVideoViaKie(params, kieConfig, fetchImpl);
+  }
+
   if (!isVideoGenConfigured(settings)) {
     throw new Error("Chưa cấu hình API key để tạo video");
   }

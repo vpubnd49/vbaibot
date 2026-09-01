@@ -1,6 +1,8 @@
 import { db } from "../conversation/database.js";
 import { env } from "./env.js";
 import { decryptSecret, encryptSecret, maskSecret } from "./secret-cipher.js";
+import type { KieImageConfig } from "../images/kie-image-adapter.js";
+import { getKieSettings } from "./runtime-kie-settings.js";
 
 /**
  * Cấu hình tool vẽ ảnh, sửa được từ modal Settings của dòng tool trên trang
@@ -94,6 +96,10 @@ export function clearImageSettings(): ImageGenSettings {
 /** Dạng an toàn trả về dashboard - không bao giờ lộ key đầy đủ */
 export function getImageSettingsForApi() {
   const settings = getImageSettings();
+  // `configured` là trạng thái hiệu lực của create_image, không chỉ của
+  // endpoint OpenAI-compatible riêng. KIE được cấu hình ở Providers nhưng
+  // vẫn là backend hợp lệ cho cùng tool.
+  const kieConfigured = getKieImageConfig() !== null;
   return {
     baseUrl: settings.baseUrl,
     model: settings.model,
@@ -101,6 +107,22 @@ export function getImageSettingsForApi() {
     // Cờ riêng vì apiKeyMasked KHÔNG BAO GIỜ rỗng (trống thì ra "chưa cấu
     // hình") - UI không thể suy ra "có key hay không" từ chuỗi mask
     hasApiKey: Boolean(settings.apiKey),
-    configured: isImageGenConfigured(settings),
+    configured: isImageGenConfigured(settings) || kieConfigured,
   };
+}
+
+/**
+ * Trả về cấu hình KIE cho ảnh NẾU KIE đã có đủ baseUrl + apiKey + imageModel.
+ * KIE luôn được ưu tiên khi đã cấu hình — vì người dùng chủ ý chọn provider.
+ */
+export function getKieImageConfig(): KieImageConfig | null {
+  try {
+    const kie = getKieSettings();
+    if (kie.baseUrl && kie.apiKey && kie.imageModel) {
+      return { baseUrl: kie.baseUrl, apiKey: kie.apiKey, model: kie.imageModel };
+    }
+  } catch {
+    // runtime-kie-settings chưa có hoặc lỗi → bỏ qua
+  }
+  return null;
 }
