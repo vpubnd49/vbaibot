@@ -37,7 +37,9 @@ export async function generateMusicViaKie(
   const hasLyrics = Boolean(params.lyrics);
   const isInstrumental = params.instrumental ?? false;
 
-  const timeoutMs = getTuning("MUSIC_GEN_TIMEOUT_MS");
+  // Tạo từ bản phổ thường cần nhiều thời gian hơn do Suno sinh đầy đủ bản phối.
+  // 10 phút là trần cấu hình hiện tại; không để lượt hợp lệ bị cắt ở 5 phút.
+  const timeoutMs = Math.max(getTuning("MUSIC_GEN_TIMEOUT_MS"), 600_000);
 
   log.info({ model: modelId, instrumental: isInstrumental, customMode: hasLyrics }, "Bắt đầu tạo nhạc qua KIE");
 
