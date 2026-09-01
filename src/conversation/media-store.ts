@@ -91,6 +91,11 @@ export async function persistBatchImages(
 
 const MAX_DOC_BYTES = 25 * 1024 * 1024; // 25MB max for document files
 
+function normalizeExtension(extension: string | undefined, fileName: string): string {
+  const raw = (extension || path.extname(fileName) || ".docx").trim().toLowerCase();
+  return raw.startsWith(".") ? raw : `.${raw}`;
+}
+
 export type PersistableFileMessage = {
   threadId: string;
   msgId: string;
@@ -112,7 +117,7 @@ export async function persistBatchFiles(
         const downloaded = await downloadFromPublicUrl(file.url, { maxBytes: MAX_DOC_BYTES });
         if (!downloaded) continue;
         const safeName = sanitizeSegment(path.basename(file.fileName, path.extname(file.fileName)));
-        const ext = file.extension || path.extname(file.fileName) || ".docx";
+        const ext = normalizeExtension(file.extension, file.fileName);
         const relPath = [
           "media",
           sanitizeSegment(accountId),

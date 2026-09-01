@@ -1,6 +1,4 @@
 import { z } from "zod";
-import { PPTX_THEME_NAMES } from "./render-pptx-themes.js";
-
 /**
  * Schema nội dung trình chiếu PowerPoint - hợp đồng giữa MODEL và renderer.
  *
@@ -74,7 +72,9 @@ export const pptxSlideSchema = z.discriminatedUnion("type", [
 
 export type PptxSlide = z.infer<typeof pptxSlideSchema>;
 
-export const pptxThemeSchema = z.enum(PPTX_THEME_NAMES).optional().describe(
+// Một số provider (đặc biệt Google) yêu cầu enum có literal string tĩnh trong schema.
+// Giữ registry làm nguồn runtime nhưng khai báo enum tường minh cho JSON Schema ổn định.
+export const pptxThemeSchema = z.enum(["navy", "blue", "green", "burgundy", "slate", "teal"]).optional().describe(
   "Tông màu: navy (trang trọng, mặc định) · blue (tài chính) · " +
     "green (nông nghiệp, môi trường) · burgundy (pháp lý) · " +
     "slate (kỹ thuật) · teal (y tế, giáo dục)",

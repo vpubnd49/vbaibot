@@ -35,6 +35,9 @@ RUN pnpm prune --prod
 # Stage 2: Production Runtime
 FROM node:22-alpine AS runner
 
+# pdftoppm dùng cho OCR PDF scan; cài ở runtime vì builder không chạy OCR.
+RUN apk add --no-cache poppler-utils
+
 # Thiết lập môi trường Production
 ENV NODE_ENV=production
 ENV PORT=3000

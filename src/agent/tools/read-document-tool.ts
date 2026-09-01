@@ -9,6 +9,7 @@ import { ketQuaLoi } from "./tool-failure-result.js";
 import { wrapUntrustedContent } from "./wrap-untrusted-content.js";
 import { readDocument, isSupportedDocument } from "../../documents/document-reader.js";
 import { assertSafePathInside } from "../../shared/path-security-guard.js";
+import { getTuning } from "../../config/runtime-tuning-settings.js";
 
 /**
  * Trần số file gần đây agent chọn được qua fileIndex.
@@ -95,7 +96,7 @@ export function collectRecentFilePaths(ctx: ToolContext): string[] {
 
 export function createReadDocumentTool(ctx: ToolContext) {
   return tool({
-    description: "Đọc nội dung text từ file tài liệu (PDF, Word, Excel, CSV, TXT, MD) đã nhận trong hội thoại",
+    description: "Đọc nội dung text từ file tài liệu (PDF, Word, Excel XLS/XLSX, CSV, TXT, MD) đã nhận trong hội thoại",
     inputSchema: z.object({
       fileIndex: z.coerce
         .number()
@@ -122,8 +123,12 @@ export function createReadDocumentTool(ctx: ToolContext) {
       try {
         const absPath = assertSafePathInside(rawAbsPath, dataDir);
         const doc = await readDocument(absPath);
+        const maxChars = getTuning("DOCUMENT_READ_MAX_CHARS");
+        const text = doc.text.length > maxChars
+          ? `${doc.text.slice(0, maxChars)}\n[...đã cắt bớt nội dung do vượt giới hạn ${maxChars} ký tự]`
+          : doc.text;
         const header = `[Nội dung file tài liệu: ${path.basename(relPath)} (${doc.fileType})]\n`;
-        return wrapUntrustedContent(`${header}${doc.text}`, path.basename(relPath));
+        return wrapUntrustedContent(`${header}${text}`, path.basename(relPath));
       } catch (err) {
         return ketQuaLoi(`Lỗi khi đọc file tài liệu ${path.basename(relPath)}: ${String(err)}`);
       }

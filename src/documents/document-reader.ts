@@ -131,12 +131,11 @@ export async function readDocument(filePath: string): Promise<DocumentContent> {
         text = [headers, body, footers].filter(Boolean).join('\n\n');
         break;
       }
-      case '.xlsx':
-      case '.xls': {
+      case '.xlsx': {
         const ExcelJS = (await import('exceljs')).default;
         const workbook = new ExcelJS.Workbook();
         await workbook.xlsx.readFile(filePath);
-        
+
         workbook.eachSheet((worksheet, _sheetId) => {
           text += `--- Sheet: ${worksheet.name} ---\n`;
           worksheet.eachRow((row, _rowNumber) => {
@@ -146,6 +145,16 @@ export async function readDocument(filePath: string): Promise<DocumentContent> {
           });
           text += '\n';
         });
+        break;
+      }
+      case '.xls': {
+        // ExcelJS chỉ hỗ trợ OOXML (.xlsx), không đọc được BIFF8 .xls.
+        const xlsModule: any = await import('xlsx');
+        const workbook = xlsModule.read(fs.readFileSync(filePath), { type: 'buffer', cellText: true, cellDates: true });
+        for (const sheetName of workbook.SheetNames as string[]) {
+          const sheet = workbook.Sheets[sheetName];
+          text += `--- Sheet: ${sheetName} ---\n${xlsModule.utils.sheet_to_csv(sheet, { FS: '\\t', RS: '\\n' })}\n`;
+        }
         break;
       }
       case '.csv':
