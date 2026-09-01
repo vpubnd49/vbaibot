@@ -38,7 +38,7 @@ export async function parseSheetMusic(image: { base64: string; mediaType: string
 2. Tác giả/Nhạc sĩ (Composer)
 3. Nhịp điệu (Time Signature, ví dụ: 2/4, 3/4, 4/4...)
 4. Tốc độ/Sắc thái (Tempo/Mood, ví dụ: Vừa phải, Hào hứng, Chậm buồn...)
-5. Toàn bộ lời bài hát (Lyrics): chép lại chính xác lời ca, phân chia thành các đoạn bằng thẻ [Verse 1], [Chorus], [Verse 2]... nếu nhận diện được cấu trúc.
+5. Toàn bộ lời bài hát (Lyrics): chép lại nguyên văn 100% lời ca nhìn thấy; không tự ý sửa, thêm, bớt, lặp hoặc diễn giải. Chỉ thêm thẻ [Verse 1], [Chorus], [Verse 2]... nếu không làm thay đổi bất kỳ nội dung lời nào. Không chèn lời giới thiệu, chỉ dẫn, spoken word, adlibs hoặc vocal ngoài bản phổ; [Intro] và [Outro] nếu không có lời phải để trống.
 6. Gợi ý phong cách âm nhạc (Style tags): Dựa trên sắc thái bài hát, gợi ý các từ khóa phong cách bằng tiếng Anh (ví dụ: Vietnamese pop, energetic, piano, acoustic guitar...).
 
 Trả về kết quả dưới định dạng JSON với các trường:

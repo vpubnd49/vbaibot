@@ -37,9 +37,6 @@ export async function generateMusicViaKie(
   const hasLyrics = Boolean(params.lyrics);
   const isInstrumental = params.instrumental ?? false;
 
-  // KIE/Suno tách prompt mô tả và lyrics; không thay prompt bằng toàn bộ lời bài hát.
-  const prompt = params.prompt;
-
   const timeoutMs = getTuning("MUSIC_GEN_TIMEOUT_MS");
 
   log.info({ model: modelId, instrumental: isInstrumental, customMode: hasLyrics }, "Bắt đầu tạo nhạc qua KIE");
@@ -47,11 +44,12 @@ export async function generateMusicViaKie(
   const taskId = await createKieMusicTask(
     { baseUrl: config.baseUrl, apiKey: config.apiKey },
     {
-      model: modelId,
-      prompt,
-      title: params.title,
-      style: style || undefined,
-      customMode: hasLyrics,
+       model: modelId,
+       prompt: `${params.prompt}\n\nChỉ hát đúng 100% lyrics được cung cấp. Không thêm, sửa, lặp, cắt hoặc đảo lời. Intro chỉ instrumental, không hát/nói; vào câu đầu tự nhiên. Cấm spoken word, narration, voice-over, adlibs, vocalise, chant và mọi vocal ngoài lyrics. Sau câu cuối chỉ nhạc instrumental rồi fade out.`,
+       title: params.title,
+       style: style || undefined,
+       lyrics: params.lyrics,
+       customMode: hasLyrics,
       instrumental: isInstrumental,
       // Suno/KIE yêu cầu callbackUrl khi tạo task, dù kết quả vẫn được polling.
       callBackUrl: "https://vbaibot.chauphienbanso.com/api/kie-callback",
