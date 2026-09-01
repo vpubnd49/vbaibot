@@ -35,6 +35,7 @@ import { tuningRoutes } from "./routes/tuning-routes.js";
 import { visionRoutes } from "./routes/vision-routes.js";
 import { voiceRoutes } from "./routes/voice-routes.js";
 import { broadcastRoutes } from "./routes/broadcast-routes.js";
+import { kieCallbackRoutes } from "./routes/kie-callback-routes.js";
 
 const log = createLogger("dashboard-server");
 const SESSION_COOKIE = "dashboard_session";
@@ -195,6 +196,7 @@ export function buildDashboardApp(): Hono {
   app.route("/api/logs", logRoutes);
   app.route("/api/schedule", scheduleRoutes);
   app.route("/api/broadcast", broadcastRoutes);
+  app.route("/api/kie-callback", kieCallbackRoutes);
 
   // API không khớp route nào phải trả JSON 404, không được rơi xuống SPA
   // fallback bên dưới (client fetch JSON mà nhận HTML thì lỗi rất khó đọc)

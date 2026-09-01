@@ -53,7 +53,8 @@ export async function generateMusicViaKie(
       style: style || undefined,
       customMode: hasLyrics,
       instrumental: isInstrumental,
-      // Callback không dùng vì ứng dụng chủ động polling; tránh gửi URL production không tồn tại.
+      // Suno/KIE yêu cầu callbackUrl khi tạo task, dù kết quả vẫn được polling.
+      callBackUrl: "https://vbaibot.chauphienbanso.com/api/kie-callback",
     },
     fetchImpl,
   );
