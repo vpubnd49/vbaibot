@@ -37,11 +37,8 @@ export async function generateMusicViaKie(
   const hasLyrics = Boolean(params.lyrics);
   const isInstrumental = params.instrumental ?? false;
 
-  let prompt = params.prompt;
-  if (hasLyrics && params.lyrics) {
-    // customMode: true → prompt là lyrics
-    prompt = params.lyrics;
-  }
+  // KIE/Suno tách prompt mô tả và lyrics; không thay prompt bằng toàn bộ lời bài hát.
+  const prompt = params.prompt;
 
   const timeoutMs = getTuning("MUSIC_GEN_TIMEOUT_MS");
 
@@ -56,7 +53,7 @@ export async function generateMusicViaKie(
       style: style || undefined,
       customMode: hasLyrics,
       instrumental: isInstrumental,
-      callBackUrl: "https://vbaibot.chauphienbanso.com/api/kie-callback", // KIE yêu cầu bắt buộc; ta dùng polling nên callback chỉ để thoả API
+      // Callback không dùng vì ứng dụng chủ động polling; tránh gửi URL production không tồn tại.
     },
     fetchImpl,
   );

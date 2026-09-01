@@ -55,6 +55,7 @@ export async function createKieMusicTask(
   };
   if (params.title) body.title = params.title;
   if (params.style) body.style = params.style;
+  if (params.lyrics) body.lyrics = params.lyrics;
   if (params.callBackUrl) body.callBackUrl = params.callBackUrl;
 
   const res = await fetchImpl(url, {
@@ -125,7 +126,7 @@ export async function pollKieMusicUntilDone(
     };
 
     // Suno có thể dùng "status" hoặc "state" — xử lý cả hai
-    const state = json.data?.status ?? json.data?.state ?? "unknown";
+    const state = String(json.data?.status ?? json.data?.state ?? "unknown");
     const upperState = state.toUpperCase();
 
     if (upperState === "SUCCESS" || upperState === "COMPLETE") {

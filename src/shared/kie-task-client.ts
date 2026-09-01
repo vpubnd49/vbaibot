@@ -112,9 +112,10 @@ export async function pollKieTaskUntilDone(
       };
     };
 
-    const state = json.data?.state ?? "unknown";
+    const rawState = String(json.data?.state ?? "unknown");
+    const state = rawState.toLowerCase();
 
-    if (state === "success") {
+    if (state === "success" || state === "complete" || state === "completed") {
       let resultUrls: string[] = [];
       if (json.data?.resultJson) {
         try {
@@ -134,7 +135,7 @@ export async function pollKieTaskUntilDone(
       return { taskId, state, resultUrls };
     }
 
-    if (state === "fail") {
+    if (state === "fail" || state === "failed" || state === "error") {
       const failMsg = json.data?.failMsg ?? "Không rõ lý do";
       log.warn({ taskId, failCode: json.data?.failCode, failMsg }, "KIE task thất bại");
       return {
