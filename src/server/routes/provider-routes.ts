@@ -26,7 +26,10 @@ const log = createLogger("provider-routes");
 const oRong = (v: unknown) => (typeof v === "string" && v.trim() === "" ? undefined : v);
 
 const updateSchema = z.object({
-  provider: z.enum(LLM_PROVIDER_KINDS).optional(),
+  provider: z.preprocess(
+    (value) => (value === "gemini" ? "google" : value),
+    z.enum(LLM_PROVIDER_KINDS).optional(),
+  ),
   // `null` = XÓA base URL đang lưu (dashboard gửi khi đổi sang nhà cung cấp gọi
   // thẳng hãng). Khác hẳn bỏ trống, vốn nghĩa là giữ nguyên - xem
   // `LlmSettingsUpdate.baseUrl`. `oRong` vẫn biến chuỗi rỗng thành undefined để

@@ -34,6 +34,13 @@ const log = createLogger("llm-settings");
 
 const KEYS = ["llm_provider", "llm_base_url", "llm_model", "llm_api_key"] as const;
 
+/** Gemini là tên hiển thị/legacy; AI SDK và runtime dùng canonical provider "google". */
+function chuanHoaProvider(value: string | undefined): LlmProviderKind | undefined {
+  if (value === "gemini") return "google";
+  if (value === "openai-compatible" || value === "anthropic" || value === "google") return value;
+  return undefined;
+}
+
 const getStmt = db.prepare("SELECT value FROM runtime_settings WHERE key = ?");
 const setStmt = db.prepare(`
   INSERT INTO runtime_settings (key, value, updated_at)
@@ -87,7 +94,7 @@ export function getEffectiveLlmSettings(): LlmSettings {
   const key = giaiMaAnToan(encryptedApiKey);
 
   return {
-    provider: (provider as LlmSettings["provider"]) ?? env.LLM_PROVIDER,
+    provider: chuanHoaProvider(provider) ?? chuanHoaProvider(env.LLM_PROVIDER) ?? "openai-compatible",
     baseUrl: baseUrl ?? env.LLM_BASE_URL,
     model: model ?? env.LLM_MODEL,
     apiKey: key.hong ? "" : (key.value ?? env.LLM_API_KEY),

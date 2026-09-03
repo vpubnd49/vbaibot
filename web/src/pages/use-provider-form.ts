@@ -14,7 +14,7 @@ export type TrangThai = { tone: "green" | "red"; text: string } | null;
 export function useProviderForm() {
   const [settings, setSettings] = useState<ProviderSettings | null>(null);
   const [form, setForm] = useState<ProviderForm>({
-    provider: "openai-compatible",
+    provider: "google",
     baseUrl: "",
     model: "",
     apiKey: "",
