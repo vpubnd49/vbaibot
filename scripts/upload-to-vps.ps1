@@ -4,7 +4,7 @@ param (
     [string]$VpsHost = "202.92.7.138",
     [int]$VpsPort = 24700,
     [string]$VpsUser = "root",
-    [string]$RemoteDir = "/var/www/zaloagent"
+    [string]$RemoteDir = "/var/www/vbaibot"
 )
 
 Write-Host "=== 1. Tao thu muc tren VPS ===" -ForegroundColor Cyan
