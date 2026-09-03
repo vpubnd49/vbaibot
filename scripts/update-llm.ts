@@ -2,15 +2,22 @@ import { updateLlmSettings, getEffectiveLlmSettings } from "../src/config/runtim
 import { resolveLanguageModel } from "../src/agent/llm-provider.js";
 import { streamText } from "ai";
 import { chayStream } from "../src/agent/stream-text-result.js";
+import type { LlmProviderKind } from "../src/config/llm-provider-kind.js";
 
 async function main() {
-  console.log("Cấu hình model mới...");
-  updateLlmSettings({
-    provider: "openai-compatible",
-    baseUrl: "https://9router.flowgiare.com/v1",
-    model: "gemini-3.7-flash-high",
-    apiKey: "sk-906c221b9f63be63-u7zpys-6ab593e0",
-  });
+  const provider = process.env.LLM_PROVIDER;
+  const baseUrl = process.env.LLM_BASE_URL;
+  const model = process.env.LLM_MODEL;
+  const apiKey = process.env.LLM_API_KEY;
+
+  if (!provider || !model || !apiKey || (provider === "openai-compatible" && !baseUrl)) {
+    throw new Error(
+      "Thiếu cấu hình. Đặt LLM_PROVIDER, LLM_MODEL, LLM_API_KEY và LLM_BASE_URL nếu dùng openai-compatible.",
+    );
+  }
+
+  console.log("Cấu hình model mới vào runtime_settings...");
+  updateLlmSettings({ provider: provider as LlmProviderKind, baseUrl, model, apiKey });
 
   const effective = getEffectiveLlmSettings();
   console.log("Cấu hình hiệu lực:", {
