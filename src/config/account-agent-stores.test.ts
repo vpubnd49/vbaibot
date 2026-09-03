@@ -34,12 +34,12 @@ describe("agent-store", () => {
 
     const updated = agents.updateAgent("tu-van", {
       persona: "Bạn là tư vấn viên khóa học",
-      modelProvider: "anthropic",
-      modelName: "claude-sonnet-5",
+      modelProvider: "google",
+      modelName: "gemini-3.8-flash",
       maxSteps: 4,
     });
     assert.equal(updated?.persona, "Bạn là tư vấn viên khóa học");
-    assert.equal(updated?.modelProvider, "anthropic");
+    assert.equal(updated?.modelProvider, "google");
     assert.equal(updated?.maxSteps, 4);
   });
 

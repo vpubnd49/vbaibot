@@ -110,19 +110,6 @@ describe("classifyModelVision", () => {
     assert.equal(calls, 1);
   });
 
-  it("provider anthropic luôn vision, không gọi /models", async () => {
-    let calls = 0;
-    const fetcher = async () => {
-      calls++;
-      return routerPayload;
-    };
-    // Anthropic phải là provider ĐANG HIỆU LỰC. Khai qua override trong khi cấu
-    // hình chung là router thì override bị bỏ qua (chống rò khóa API), nên đây
-    // đặt thẳng vào cấu hình chung.
-    llmStore.updateLlmSettings({ provider: "anthropic", model: "claude-opus-5" });
-    assert.equal(await detection.classifyModelVision(undefined, fetcher), "vision");
-    assert.equal(calls, 0);
-  });
 
   it("modelReadsImages: chỉ no-vision mới là false", async () => {
     const fetcher = async () => routerPayload;
@@ -152,29 +139,29 @@ describe("markModelNoVision - cache âm của reactive fallback", () => {
     assert.equal(await detection.classifyModelVision(undefined, fetcher), "vision");
   });
 
-  it("đường anthropic không bao giờ bị đánh dấu (mọi model Claude đều có vision)", async () => {
-    // Anthropic phải là provider ĐANG HIỆU LỰC, không chỉ là thứ agent khai:
+  it("đường google không bao giờ bị đánh dấu (Gemini đọc được ảnh)", async () => {
+    // Google phải là provider ĐANG HIỆU LỰC, không chỉ là thứ agent khai:
     // agent khai provider lệch cấu hình chung thì override bị bỏ qua lúc dựng
     // client (chống rò khóa API), nên lượt thật vẫn chạy trên provider chung.
-    llmStore.updateLlmSettings({ provider: "anthropic", model: "claude-opus-5" });
-    detection.markModelNoVision({ modelName: "claude-opus-5" });
+    llmStore.updateLlmSettings({ provider: "google", model: "gemini-3.8-flash" });
+    detection.markModelNoVision({ modelName: "gemini-3.8-flash" });
     assert.equal(
-      await detection.classifyModelVision({ modelName: "claude-opus-5" }, async () => routerPayload),
+      await detection.classifyModelVision({ modelName: "gemini-3.8-flash" }, async () => routerPayload),
       "vision",
     );
   });
 
-  it("agent KHAI anthropic nhưng cấu hình chung là router: phân loại theo model THẬT, không theo lời khai", async () => {
+  it("agent KHAI google nhưng cấu hình chung là router: phân loại theo model THẬT, không theo lời khai", async () => {
     // Bất biến đi kèm chốt chặn rò khóa API (`doiProviderAnToan`). Đọc override
-    // thô thì đường tắt `provider === "anthropic"` trả "vision" ngay, bot đính
-    // pixel vì tưởng đang chạy Claude, trong khi lượt thật đi tới model router
+    // thô thì đường tắt `provider === "google"` trả "vision" ngay, bot đính
+    // pixel vì tưởng đang chạy Gemini, trong khi lượt thật đi tới model router
     // có thể mù ảnh.
     //
     // Đặt model chung thành model router KHÔNG có vision để tách bạch hai khả
     // năng: honour lời khai -> "vision"; phân loại theo model thật -> "no-vision".
     llmStore.updateLlmSettings({ provider: "openai-compatible", model: "ds/deepseek-v4-pro" });
     const kq = await detection.classifyModelVision(
-      { modelProvider: "anthropic", modelName: "claude-opus-5" },
+      { modelProvider: "google", modelName: "gemini-3.8-flash" },
       async () => routerPayload,
     );
     assert.equal(kq, "no-vision", "override provider lệch không được cấp đường tắt vision");

@@ -37,7 +37,7 @@ const KEYS = ["llm_provider", "llm_base_url", "llm_model", "llm_api_key"] as con
 /** Gemini là tên hiển thị/legacy; AI SDK và runtime dùng canonical provider "google". */
 function chuanHoaProvider(value: string | undefined): LlmProviderKind | undefined {
   if (value === "gemini") return "google";
-  if (value === "openai-compatible" || value === "anthropic" || value === "google") return value;
+  if (value === "openai-compatible" || value === "google") return value;
   return undefined;
 }
 

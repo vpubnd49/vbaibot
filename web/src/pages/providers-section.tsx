@@ -40,8 +40,6 @@ export function ProvidersSection() {
           {/* "Kiểu kết nối" chứ không phải "Provider": ô này chọn GIAO THỨC,
               không chọn hãng. Mọi hãng nói giao thức OpenAI (DeepSeek, Kimi,
               Qwen, OpenRouter, Ollama...) đều đi nhánh đầu; hai nhánh dưới dành
-              cho API GỐC của Anthropic và Google, vốn khác hình dạng.
-
               Gemini phải đi nhánh riêng chứ không đi lớp giả OpenAI của Google:
               lớp giả làm rơi `thought_signature` nên mọi lượt gọi tool ăn 400.
               Xem `llm-base-url-presets.ts`. */}
@@ -54,7 +52,6 @@ export function ProvidersSection() {
             value={form.provider}
             options={[
               { value: "openai-compatible", label: "OpenAI-compatible" },
-              { value: "anthropic", label: "Anthropic" },
               { value: "google", label: "Google (Gemini)" },
             ]}
             onChange={doiProvider}

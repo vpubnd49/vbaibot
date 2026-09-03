@@ -8,7 +8,7 @@ let database: typeof import("../conversation/database.js");
 
 before(async () => {
   dataDir = setupTestEnv({
-    LLM_PROVIDER: "anthropic",
+    LLM_PROVIDER: "google",
     LLM_MODEL: "env-model",
     LLM_BASE_URL: "https://env.test/v1",
     LLM_API_KEY: "sk-env-key-123456",
@@ -25,7 +25,7 @@ after(() => {
 describe("runtime-llm-settings", () => {
   it("chưa có override thì trả nguyên cấu hình env", () => {
     const s = settings.getEffectiveLlmSettings();
-    assert.equal(s.provider, "anthropic");
+    assert.equal(s.provider, "google");
     assert.equal(s.model, "env-model");
     assert.equal(s.apiKey, "sk-env-key-123456");
     assert.equal(s.hasOverride, false);
@@ -78,7 +78,7 @@ describe("runtime-llm-settings", () => {
 /**
  * Base URL chỉ có nghĩa với `openai-compatible`. Không phân biệt được "giữ
  * nguyên" với "xóa" thì URL của nhà cũ nằm lại trong DB vĩnh viễn: đổi sang
- * Anthropic/Google rồi quay lại là thấy endpoint của hãng đã bỏ hiện lại trong
+ * Google rồi quay lại là thấy endpoint của hãng đã bỏ hiện lại trong
  * ô, đọc ra như dashboard hỏng. Người dùng đã báo đúng ca này 06/08/2026.
  */
 describe("updateLlmSettings - phân biệt giữ nguyên với xóa base URL", () => {

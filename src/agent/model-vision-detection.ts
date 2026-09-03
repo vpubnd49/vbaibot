@@ -110,16 +110,16 @@ async function lookupFromRouter(
 /**
  * Reactive fallback gọi khi provider TỪ CHỐI ảnh bằng lỗi 4xx: ghi nhớ model
  * đang hiệu lực không đọc được ảnh để các lượt sau đi thẳng describe/blind.
- * Đường gọi thẳng hãng (Anthropic, Google) không bao giờ bị đánh dấu - Claude
- * và Gemini đều đọc được ảnh, lỗi 4xx ở đó là chuyện khác (ảnh quá cỡ, request
- * hỏng), đánh dấu chỉ gây hại. Đã dính thật với Gemini: một lỗi 400 vì thiếu
- * thought_signature bị quy cho ảnh, và model đọc ảnh được vẫn bị coi là mù.
+ * Đường gọi thẳng hãng (Google) không bao giờ bị đánh dấu - Gemini đọc được ảnh,
+ * lỗi 4xx ở đó là chuyện khác (ảnh quá cỡ, request hỏng), đánh dấu chỉ gây hại.
+ * Đã dính thật với Gemini: một lỗi 400 vì thiếu thought_signature bị quy cho ảnh,
+ * và model đọc ảnh được vẫn bị coi là mù.
  */
 export function markModelNoVision(override?: ModelOverride): void {
   const base = getEffectiveLlmSettings();
   // Qua `modelHieuLuc` chứ không đọc override thô: agent khai provider lệch thì
   // override đã bị bỏ qua lúc dựng client, nên lượt thật chạy trên provider
-  // chung. Đọc thô ở đây sẽ thoát sớm vì tưởng đang chạy Anthropic, cache âm
+  // chung. Đọc thô ở đây sẽ thoát sớm vì tưởng đang chạy Google, cache âm
   // không bao giờ được ghi, và reactive fallback đâm lại đường pixel MỖI lượt -
   // mỗi lượt tốn hai lần gọi model.
   const { provider, model } = modelHieuLuc(override);
@@ -148,7 +148,7 @@ export async function classifyModelVision(
 
   const base = getEffectiveLlmSettings();
   // Cùng lý do với markModelNoVision: phải là model THẬT SỰ chạy, không phải
-  // model agent khai. Đọc thô thì agent khai `anthropic` sẽ được coi là đọc
+  // model agent khai. Đọc thô thì agent khai `google` sẽ được coi là đọc
   // được ảnh và bot đính pixel, trong khi lượt thật đi tới model router có thể mù.
   const { provider, model } = modelHieuLuc(override);
 

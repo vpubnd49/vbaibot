@@ -25,8 +25,8 @@ export function setupTestEnv(overrides: Record<string, string> = {}): string {
     LOG_FILE_ENABLED: "false",
     DATA_DIR: dataDir,
 
-    // anthropic để khỏi cần LLM_BASE_URL; test không gọi LLM thật
-    LLM_PROVIDER: "anthropic",
+    // google để khỏi cần LLM_BASE_URL; test không gọi LLM thật
+    LLM_PROVIDER: "google",
     LLM_API_KEY: "test-key",
     LLM_MODEL: "test-model",
     LLM_MAX_STEPS: "8",

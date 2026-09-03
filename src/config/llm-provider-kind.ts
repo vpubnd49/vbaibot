@@ -10,7 +10,7 @@
  * tầng agent đều import được mà không tạo phụ thuộc ngược.
  */
 
-export const LLM_PROVIDER_KINDS = ["openai-compatible", "anthropic", "google"] as const;
+export const LLM_PROVIDER_KINDS = ["openai-compatible", "google"] as const;
 
 export type LlmProviderKind = (typeof LLM_PROVIDER_KINDS)[number];
 
@@ -26,5 +26,5 @@ export function laLlmProviderKind(giaTri: unknown): giaTri is LlmProviderKind {
  * không (không - đường đó là API riêng của 9Router).
  */
 export function laGoiThangHang(provider: LlmProviderKind): boolean {
-  return provider === "anthropic" || provider === "google";
+  return provider === "google";
 }

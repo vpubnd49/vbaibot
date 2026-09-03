@@ -10,9 +10,9 @@ const DA_LUU: CauHinhDaLuu = {
 
 describe("oTheoNhaCungCap", () => {
   it("đổi sang nhà cung cấp KHÁC thì dọn sạch cả hai ô", () => {
-    // Ca người dùng báo 06/08/2026: đang lưu Google, chọn Anthropic mà ô Model
+    // Ca người dùng báo 06/08/2026: đang lưu Google, chọn OpenAI-compatible mà ô Model
     // vẫn là gemini-3.5-flash-lite. Bấm Lưu là bot chết ở lượt kế tiếp.
-    assert.deepEqual(oTheoNhaCungCap("anthropic", DA_LUU), { baseUrl: "", model: "" });
+    assert.deepEqual(oTheoNhaCungCap("openai-compatible", DA_LUU), { baseUrl: "", model: "" });
     assert.deepEqual(oTheoNhaCungCap("openai-compatible", DA_LUU), { baseUrl: "", model: "" });
   });
 
@@ -33,8 +33,8 @@ describe("baseUrlKhiLuu", () => {
     // undefined ở đây nghĩa là "giữ nguyên", nên URL của nhà cũ sẽ nằm lại
     // trong DB và hiện lại lúc quay về - đúng thứ người dùng thấy là lỗi
     assert.equal(baseUrlKhiLuu("google", ""), null);
-    assert.equal(baseUrlKhiLuu("anthropic", ""), null);
-    assert.equal(baseUrlKhiLuu("anthropic", "https://con-sot.test/v1"), null);
+    assert.equal(baseUrlKhiLuu("google", ""), null);
+    assert.equal(baseUrlKhiLuu("google", "https://con-sot.test/v1"), null);
   });
 
   it("openai-compatible có nhập URL thì gửi đúng URL đó", () => {

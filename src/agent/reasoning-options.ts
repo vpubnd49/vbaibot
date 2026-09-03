@@ -40,11 +40,10 @@ export const ROUTER_PROVIDER_OPTIONS_KEY = "llmRouter";
 /**
  * providerOptions cho generateText theo provider + mức effort.
  * - openai-compatible: `reasoning_effort` chuẩn OpenAI - 9Router truyền tiếp
- *   cho upstream (Anthropic/OpenAI đều hiểu qua translation của router)
- * - anthropic trực tiếp: adaptive thinking + effort (Claude 4.6+/5); model cũ
- *   không nhận "xhigh" thì hạ mức trong env
- * - "off": anthropic tắt hẳn thinking; openai-compatible bỏ tham số (mỗi router
- *   một kiểu giá trị "tắt", bỏ hẳn là an toàn nhất)
+ *   cho upstream (OpenAI/DeepSeek đều hiểu qua translation của router)
+ * - google: thinkingConfig theo 4 nấc Gemini
+ * - "off": openai-compatible bỏ tham số (mỗi router một kiểu giá trị "tắt",
+ *   bỏ hẳn là an toàn nhất); google dùng "minimal"
  */
 /**
  * Mức nghĩ của Gemini chỉ có 4 nấc: minimal / low / medium / high.
@@ -64,11 +63,6 @@ export function reasoningProviderOptions(
   provider: ProviderKind,
   effort: ReasoningEffort,
 ): ReasoningOptions | undefined {
-  if (provider === "anthropic") {
-    if (effort === "off") return { anthropic: { thinking: { type: "disabled" } } };
-    return { anthropic: { thinking: { type: "adaptive" }, effort } };
-  }
-
   if (provider === "google") {
     return { google: { thinkingConfig: { thinkingLevel: mucNghiCuaGoogle(effort) } } };
   }

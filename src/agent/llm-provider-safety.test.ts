@@ -52,25 +52,25 @@ describe("doiProviderAnToan", () => {
 
   it("override provider LỆCH bị bỏ qua - đây là chốt chặn rò khóa", () => {
     const r = provider.doiProviderAnToan({ provider: "openai-compatible" as const, model: "gpt-combo" }, {
-      modelProvider: "anthropic" as never,
-      modelName: "claude-opus-5",
+      modelProvider: "google" as never,
+      modelName: "gemini-3.8-flash",
     });
     assert.equal(r.provider, "openai-compatible", "TUYỆT ĐỐI không được đổi sang provider không có khóa");
   });
 
   it("bị bỏ qua thì model cũng rơi về chung - tên model chọn CHO provider kia sẽ 400 ở đây", () => {
     const r = provider.doiProviderAnToan({ provider: "openai-compatible" as const, model: "gpt-combo" }, {
-      modelProvider: "anthropic" as never,
-      modelName: "claude-opus-5",
+      modelProvider: "google" as never,
+      modelName: "gemini-3.8-flash",
     });
     assert.equal(r.model, "gpt-combo");
   });
 
-  it("chiều ngược lại cũng chặn: chung là anthropic, agent khai router", () => {
-    const r = provider.doiProviderAnToan({ provider: "anthropic" as const, model: "claude-opus-5" }, {
+  it("chiều ngược lại cũng chặn: chung là google, agent khai router", () => {
+    const r = provider.doiProviderAnToan({ provider: "google" as const, model: "gemini-3.8-flash" }, {
       modelProvider: "openai-compatible" as never,
     });
-    assert.equal(r.provider, "anthropic");
+    assert.equal(r.provider, "google");
   });
 
   it("modelProvider null (đã bỏ override) không kích hoạt nhánh chặn", () => {
@@ -82,9 +82,9 @@ describe("doiProviderAnToan", () => {
 });
 
 /**
- * Google là nhà cung cấp thứ ba, thêm 06/08/2026. Chốt chặn rò khóa phải phủ
- * nó y như hai nhà kia - thêm provider mà quên nới chốt chặn là đúng kiểu lỗi
- * chỉ lộ ra khi có người thật cấu hình lệch.
+ * Google là nhà cung cấp thứ hai (gọi thẳng hãng). Chốt chặn rò khóa phải phủ
+ * nó y như openai-compatible - thêm provider mà quên nới chốt chặn là đúng kiểu
+ * lỗi chỉ lộ ra khi có người thật cấu hình lệch.
  */
 describe("doiProviderAnToan - google", () => {
   const GOOGLE = { provider: "google" as const, model: "gemini-3.5-flash-lite" };

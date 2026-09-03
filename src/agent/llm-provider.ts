@@ -1,4 +1,4 @@
-import { createAnthropic } from "@ai-sdk/anthropic";
+
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import type { LanguageModel } from "ai";
@@ -17,7 +17,7 @@ import { getTuning } from "../config/runtime-tuning-settings.js";
 
 const log = createLogger("llm-provider");
 
-// Chỉ bọc cho đường router proxy - Anthropic trực tiếp không có bug này
+// Chỉ bọc cho đường router proxy - Google trực tiếp không có bug này
 const sanitizingFetch = createSanitizingFetch({
   onSanitized: () =>
     log.warn("Router trả JSON dính đuôi SSE 'data: [DONE]' - đã cắt bỏ (bug 9Router, nên fix tận gốc)"),
@@ -27,18 +27,18 @@ const sanitizingFetch = createSanitizingFetch({
  * Chốt chặn rò khóa API: chỉ nhận override provider khi TRÙNG provider chung.
  *
  * `apiKey` và `baseUrl` luôn lấy từ cấu hình chung (per-agent key chưa có). Nên
- * một agent khai `modelProvider: "anthropic"` trong khi cấu hình chung là router
- * sẽ khiến `createAnthropic({ apiKey: <khóa router> })` gửi khóa của router
- * thành header `x-api-key` tới `api.anthropic.com` - vừa lộ credential sang bên
+ * một agent khai `modelProvider: "google"` trong khi cấu hình chung là router
+ * sẽ khiến `createGoogleGenerativeAI({ apiKey: <khóa router> })` gửi khóa của
+ * router tới `generativelanguage.googleapis.com` - vừa lộ credential sang bên
  * thứ ba vừa làm bot câm vì 401.
  *
  * Chặn ở ĐÂY chứ không chỉ ở giao diện hay ở biên API, vì đây là chỗ duy nhất
  * mọi đường đều đi qua: bản ghi lệch đã nằm sẵn trong DB (sửa tay từ trước), một
  * route mới quên kiểm, hay lỗi tải cấu hình làm giao diện không kịp khóa ô chọn.
  *
- * Bỏ luôn `modelName` khi từ chối provider: tên model được chọn CHO provider kia
- * (vd `claude-opus-5` cho Anthropic), gửi sang router chỉ nhận 400. Rơi hẳn về
- * cấu hình chung mới là trạng thái chạy được.
+ * Bỏ luôn `modelName` khi từ chối provider: tên model được chọn CHO provider kia,
+ * gửi sang router chỉ nhận 400. Rơi hẳn về cấu hình chung mới là trạng thái
+ * chạy được.
  */
 export function doiProviderAnToan<P extends string>(
   base: { provider: P; model: string },
@@ -66,7 +66,7 @@ export type ModelOverride = {
  * Chọn model theo thứ tự ưu tiên: override của agent (não) -> runtime_settings
  * (dashboard) -> env. Gọi mỗi lượt agent nên đổi từ UI có hiệu lực ngay.
  * - openai-compatible: router proxy (9Router, LiteLLM, OpenRouter...) qua base URL
- * - anthropic: gọi thẳng API Anthropic
+ * - google: gọi thẳng API Google (Gemini)
  * API key/base URL luôn lấy từ cấu hình chung (per-agent key là chuyện sau).
  */
 export function resolveLanguageModel(
@@ -136,12 +136,7 @@ export function resolveLanguageModel(
       });
       return provider(settings.model);
     }
-    case "anthropic": {
-      // Gọi thẳng Anthropic thì header phiên vô nghĩa (không có router đọc),
-      // nhưng gửi kèm cũng vô hại và giữ hành vi đồng nhất giữa 2 nhánh.
-      const provider = createAnthropic({ apiKey: settings.apiKey, headers: sessionHeaders });
-      return provider(settings.model);
-    }
+
     case "google": {
       // PHẢI đi provider riêng của Google, KHÔNG dùng shim OpenAI của họ qua
       // `openai-compatible`. Gemini 3 trả kèm mỗi function call một

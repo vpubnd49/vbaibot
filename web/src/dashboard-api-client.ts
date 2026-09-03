@@ -5,7 +5,7 @@
  * Dashboard build riêng, không import được module backend - thêm nhà cung cấp
  * mới thì phải sửa cả hai chỗ.
  */
-export type LlmProviderKind = "openai-compatible" | "anthropic" | "google" | "gemini";
+export type LlmProviderKind = "openai-compatible" | "google" | "gemini";
 
 export class ApiError extends Error {
   constructor(

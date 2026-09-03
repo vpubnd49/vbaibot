@@ -1,7 +1,7 @@
 /**
  * Base URL dựng sẵn cho các nhà cung cấp nói giao thức OpenAI.
  *
- * Vì sao cần: ô "Kiểu kết nối" chỉ có 2 lựa chọn (OpenAI-compatible / Anthropic)
+ * Vì sao cần: ô "Kiểu kết nối" chỉ có 2 lựa chọn (OpenAI-compatible / Google Gemini)
  * nên nhìn vào tưởng bot chỉ chạy được 2 hãng. Thật ra mọi endpoint nói giao
  * thức OpenAI đều dùng được - thiếu mỗi việc người dùng phải tự đi tra URL.
  *
