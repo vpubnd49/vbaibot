@@ -96,7 +96,7 @@ export function collectRecentFilePaths(ctx: ToolContext): string[] {
 
 export function createReadDocumentTool(ctx: ToolContext) {
   return tool({
-    description: "Đọc nội dung text từ file tài liệu (PDF, Word, Excel XLS/XLSX, CSV, TXT, MD) đã nhận trong hội thoại",
+    description: "Đọc nội dung text từ file tài liệu (PDF, Word, Excel XLS/XLSX, CSV, TXT, MD, ảnh scan/chụp JPG/PNG/...) đã nhận trong hội thoại",
     inputSchema: z.object({
       fileIndex: z.coerce
         .number()

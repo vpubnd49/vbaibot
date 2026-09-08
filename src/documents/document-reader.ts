@@ -69,7 +69,10 @@ export type DocumentContent = {
   fileType: string;
 };
 
-const SUPPORTED_EXTENSIONS = ['.pdf', '.docx', '.doc', '.xlsx', '.xls', '.csv', '.txt', '.md'] as const;
+const SUPPORTED_EXTENSIONS = [
+  '.pdf', '.docx', '.doc', '.xlsx', '.xls', '.csv', '.txt', '.md',
+  '.jpg', '.jpeg', '.png', '.bmp', '.tiff', '.tif', '.heic', '.webp',
+] as const;
 export type SupportedExtension = typeof SUPPORTED_EXTENSIONS[number];
 
 export function isSupportedDocument(filePath: string): boolean {
@@ -163,6 +166,18 @@ export async function readDocument(filePath: string): Promise<DocumentContent> {
         text = fs.readFileSync(filePath, 'utf-8');
         break;
       }
+      case '.jpg':
+      case '.jpeg':
+      case '.png':
+      case '.bmp':
+      case '.tiff':
+      case '.tif':
+      case '.heic':
+      case '.webp': {
+        pageCount = 1;
+        text = await ocrScannedImage(filePath, ext);
+        break;
+      }
       default:
         text = `Lỗi: Định dạng file ${ext} không được hỗ trợ.`;
     }
@@ -181,16 +196,63 @@ export async function readDocument(filePath: string): Promise<DocumentContent> {
   };
 }
 
-// ─── PDF Scan Auto-OCR ───────────────────────────────────────────────────────
+// ─── Document OCR Shared ─────────────────────────────────────────────────────
 
-/** Số trang tối đa sẽ tự động OCR — tránh quá tải token & timeout */
-const MAX_OCR_PAGES = 10;
-
-/** Prompt OCR chuyên biệt cho trang tài liệu hành chính */
+/** Prompt OCR chuyên biệt cho trang tài liệu hành chính / văn bản scan */
 const OCR_PROMPT =
   'Trích xuất NGUYÊN VĂN, ĐẦY ĐỦ toàn bộ chữ, số, bảng biểu, tiêu đề, chức danh ' +
   'và nơi nhận trên trang tài liệu này sang tiếng Việt. GIỮ NGUYÊN cấu trúc ' +
   'đánh số (Điều, Khoản, Điểm, Chương), thụt dòng và thứ tự. Không tóm tắt, không bỏ sót.';
+
+// ─── Image Scan Auto-OCR ─────────────────────────────────────────────────────
+
+/** Map phần mở rộng ảnh sang MIME type */
+const IMAGE_MEDIA_TYPES: Record<string, string> = {
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.png': 'image/png',
+  '.webp': 'image/webp',
+  '.bmp': 'image/bmp',
+  '.tiff': 'image/tiff',
+  '.tif': 'image/tiff',
+  '.heic': 'image/heic',
+};
+
+/**
+ * Tự động OCR file ảnh scan/chụp gửi dưới dạng document:
+ * Đọc file → base64 → vision sidecar (askAboutImage) → text trích xuất.
+ */
+async function ocrScannedImage(filePath: string, ext: string): Promise<string> {
+  // Lazy import vision sidecar — tránh circular dependency
+  const { isSidecarConfigured: checkSidecar } = await import('../config/runtime-vision-settings.js');
+  const visionModule = await import('../agent/vision-sidecar.js');
+
+  if (!checkSidecar()) {
+    return `[File ảnh scan/chụp (${ext}) chưa thể trích xuất nội dung do hệ thống chưa cấu hình AI nhận diện hình ảnh (Vision Sidecar).]`;
+  }
+
+  const mediaType = IMAGE_MEDIA_TYPES[ext] || 'image/jpeg';
+  const imgBuffer = fs.readFileSync(filePath);
+  const sidecarImage = {
+    base64: imgBuffer.toString('base64'),
+    mediaType,
+  };
+
+  try {
+    log.info({ filePath, ext, mediaType }, 'Bắt đầu OCR file ảnh tài liệu scan');
+    const ocrText = await visionModule.askAboutImage(sidecarImage, OCR_PROMPT);
+    return ocrText.trim() || '[Ảnh scan không có chữ hoặc chữ quá mờ không nhận dạng được.]';
+  } catch (err) {
+    const errMsg = err instanceof Error ? err.message : String(err);
+    log.warn({ filePath, err }, 'OCR file ảnh scan thất bại');
+    return `[Lỗi khi nhận diện chữ từ file ảnh scan: ${errMsg}]`;
+  }
+}
+
+// ─── PDF Scan Auto-OCR ───────────────────────────────────────────────────────
+
+/** Số trang tối đa sẽ tự động OCR — tránh quá tải token & timeout */
+const MAX_OCR_PAGES = 10;
 
 /**
  * Tự động OCR file PDF scan: pdftoppm → PNG → vision sidecar → text.

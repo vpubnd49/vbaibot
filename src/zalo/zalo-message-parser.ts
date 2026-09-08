@@ -45,7 +45,10 @@ export function describeForHistory(msg: ParsedMessage): string {
   return `${msg.text}${imageNote}${fileNote}`.trim() || "[tài liệu/ảnh]";
 }
 
-const SUPPORTED_DOC_EXTS = [".pdf", ".docx", ".xlsx", ".csv", ".txt", ".md", ".doc", ".xls"];
+const SUPPORTED_DOC_EXTS = [
+  ".pdf", ".docx", ".xlsx", ".csv", ".txt", ".md", ".doc", ".xls",
+  ".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".tif", ".heic", ".webp",
+];
 
 function extractFileCandidate(obj: any): IncomingFile | null {
   if (!obj) return null;
