@@ -68,6 +68,7 @@ export function createAdminDocumentTool(ctx: Ctx) {
       "QUY TẮC BÔI ĐỎ TỪ ĐÃ SỬA KHI RÀ SOÁT / SỬA LỖI: Khi người dùng nhờ rà soát, sửa lỗi chính tả, biên tập lại văn bản, " +
       "BẮT BUỘC trong các đoạn văn của 'document.sections' phải dùng thẻ `<red>từ đã sửa</red>` (hoặc `~~từ sai~~ <red>từ đúng</red>`) " +
       "để bôi đỏ nổi bật tất cả các từ đã sửa trong file Word (.docx) xuất ra cho người dùng dễ nhìn thấy.\n" +
+      "Hỗ trợ các thẻ định dạng inline: `<b>đậm</b>` (hoặc `**đậm**`), `<i>nghiêng</i>` (hoặc `*nghiêng*`), `<u>gạch chân</u>`, `~~gạch bỏ~~`, `<red>bôi đỏ</red>` (hoặc `<green>`, `<blue>`). Tuyệt đối không gõ sai cú pháp thẻ như `<b1.`.\n" +
       "Tự động định dạng Quốc hiệu, Tiêu ngữ, Căn cứ pháp lý in nghiêng, thụt đầu dòng 1cm, số trang đỉnh trang, khối ký và nơi nhận chuẩn 100%.",
     inputSchema: z.object({
       fileName: z.string().min(1).describe('Tên file .docx, ví dụ: "to-trinh-phe-duyet-du-toan.docx"'),

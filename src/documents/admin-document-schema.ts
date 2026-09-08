@@ -67,7 +67,8 @@ export const adminSectionSchema = z.object({
     .describe(
       "Các đoạn văn xuôi trong mục (tự động thụt đầu dòng 1cm). " +
       "QUY TẮC BÔI ĐỎ KHI HIỆU ĐÍNH / SỬA LỖI: BẮT BUỘC dùng thẻ `<red>từ đã sửa</red>` (hoặc `~~từ sai~~ <red>từ đúng</red>`) " +
-      "để bôi đỏ toàn bộ các từ/cụm từ đã được chỉnh sửa trong file Word cho người dùng dễ kiểm tra đối chiếu!"
+      "để bôi đỏ toàn bộ các từ/cụm từ đã được chỉnh sửa trong file Word cho người dùng dễ kiểm tra đối chiếu! " +
+      "Hỗ trợ các thẻ inline: `<b>đậm</b>`, `<i>nghiêng</i>`, `<u>gạch chân</u>`, `~~gạch bỏ~~`, `<red>bôi đỏ</red>`."
     ),
   items: z
     .array(z.string().min(1))
