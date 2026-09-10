@@ -68,7 +68,7 @@ function makeContext(threadId: string, batch: ParsedMessage[]): ToolContext {
 /** Gọi execute của tool (kiểu Tool của AI SDK không lộ execute gọn) */
 async function run(
   toolInstance: ReturnType<typeof toolModule.createReadImageTool>,
-  input: { question: string; imageIndex?: number },
+  input: { question: string; imageIndex?: number; imageIndexes?: number[] },
 ): Promise<string> {
   /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
   return (toolInstance as any).execute({ imageIndex: 1, ...input }, {});
@@ -184,3 +184,78 @@ describe("read_image tool", () => {
     assert.match(loi, /đừng đoán/);
   });
 });
+
+describe("read_image batch mode (imageIndexes)", () => {
+  it("imageIndexes=[1,2,3] đọc song song 3 ảnh, trả kết quả ghép đúng thứ tự", async () => {
+    const t = "t-batch";
+    const paths = [
+      writeMediaFile(`media/acc-ri/${t}/p1-0.png`),
+      writeMediaFile(`media/acc-ri/${t}/p2-0.png`),
+      writeMediaFile(`media/acc-ri/${t}/p3-0.png`),
+    ];
+    const batch = [
+      batchMsg(t, paths.map((p) => ({ url: `http://x/${p}`, localPath: p }))),
+    ];
+
+    let callCount = 0;
+    const instance = toolModule.createReadImageTool(makeContext(t, batch), async (_image, question) => {
+      callCount++;
+      return `Dữ liệu bảng ảnh ${callCount}: STT | Tên | ${question}`;
+    });
+
+    const answer = await run(instance, { question: "trích xuất bảng", imageIndexes: [1, 2, 3] });
+    assert.equal(callCount, 3, "phải gọi sidecar 3 lần");
+    assert.match(answer, /Đã đọc thành công 3\/3/);
+    assert.match(answer, /\[Ảnh 1\/3/);
+    assert.match(answer, /\[Ảnh 2\/3/);
+    assert.match(answer, /\[Ảnh 3\/3/);
+  });
+
+  it("1 ảnh lỗi trong batch -> ảnh đó báo lỗi, ảnh còn lại vẫn trả kết quả", async () => {
+    const t = "t-batch-err";
+    // Ảnh 1 tồn tại, ảnh 2 đã bị dọn (file không có trên đĩa)
+    const p1 = writeMediaFile(`media/acc-ri/${t}/ok-0.png`);
+    const batch = [
+      batchMsg(t, [
+        { url: "http://x/ok.png", localPath: p1 },
+        { url: "http://x/gone.png", localPath: `media/acc-ri/${t}/gone-0.png` },
+      ]),
+    ];
+
+    const instance = toolModule.createReadImageTool(makeContext(t, batch), async () => "dữ liệu OK");
+
+    const answer = await run(instance, { question: "trích xuất", imageIndexes: [1, 2] });
+    assert.match(answer, /Đọc được 1\/2/);
+    assert.match(answer, /\[Ảnh 1\/2/);
+    assert.match(answer, /dữ liệu OK/);
+    assert.match(answer, /\[Lỗi:/);
+    assert.match(answer, /đã bị dọn/);
+  });
+
+  it("imageIndexes=[] (rỗng) -> fallback về imageIndex", async () => {
+    const t = "t-batch-empty";
+    const relPath = writeMediaFile(`media/acc-ri/${t}/solo-0.png`);
+    const batch = [batchMsg(t, [{ url: "http://x/s.png", localPath: relPath }])];
+
+    let called = false;
+    const instance = toolModule.createReadImageTool(makeContext(t, batch), async () => {
+      called = true;
+      return "kết quả đơn lẻ";
+    });
+
+    const answer = await run(instance, { question: "đọc chữ", imageIndexes: [], imageIndex: 1 });
+    assert.ok(called, "phải gọi sidecar qua single mode");
+    assert.equal(answer, "kết quả đơn lẻ");
+  });
+
+  it("tất cả index vượt quá số ảnh -> báo lỗi gọn", async () => {
+    const t = "t-batch-oob";
+    const relPath = writeMediaFile(`media/acc-ri/${t}/one-0.png`);
+    const batch = [batchMsg(t, [{ url: "http://x/1.png", localPath: relPath }])];
+    const instance = toolModule.createReadImageTool(makeContext(t, batch), async () => "x");
+
+    const answer = await run(instance, { question: "xem ảnh", imageIndexes: [5, 6, 7] });
+    assert.match(loiCuaTool(answer), /chỉ còn 1 ảnh/);
+  });
+});
+

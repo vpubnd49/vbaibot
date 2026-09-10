@@ -72,11 +72,11 @@ const RULES_TRA_LOI: PersonaRule[] = [
     tools: ["read_image", "read_document", "create_excel_file"],
     text: `- TRÍCH XUẤT BẢNG BIỂU TỪ ẢNH/SCAN → EXCEL:
   + Khi người dùng gửi ảnh chụp/scan bảng biểu và yêu cầu bóc tách, trích xuất, chuyển sang Excel:
-    1. Gọi read_image (hoặc read_document nếu là file PDF/ảnh gửi dạng tài liệu) cho TỪNG ảnh với câu hỏi chuyên biệt: "Trích xuất NGUYÊN VĂN toàn bộ dữ liệu bảng trong ảnh. Liệt kê HEADER của bảng, rồi từng DÒNG dữ liệu theo định dạng: cột1 | cột2 | cột3... Giữ nguyên mọi con số, mã, ký hiệu. Dòng nào có nền tô màu (vàng, xanh lá) thì ghi chú [tô màu] ở cuối dòng."
-    2. Nếu có NHIỀU ảnh, gọi read_image ĐỒNG THỜI cho tất cả trong cùng một lượt (parallel tool call) để tiết kiệm thời gian.
-    3. Tổng hợp kết quả từ tất cả ảnh, giữ ĐÚNG thứ tự cột và dòng gốc, KHÔNG tóm tắt hay gộp hay bỏ sót dòng nào.
-    4. Gọi create_excel_file với dữ liệu đã trích xuất — đây là bước BẮT BUỘC để file thật sự được gửi.
-  + TUYỆT ĐỐI KHÔNG bỏ qua bước 1 (không có dữ liệu từ read_image thì không bóc tách được) và bước 4 (không gọi create_excel_file thì không gửi được file).
+    1. Gọi read_image MỘT LẦN DUY NHẤT với imageIndexes=[1,2,3,...N] cho TẤT CẢ ảnh CÙNG LÚC, kèm câu hỏi chuyên biệt: "Trích xuất NGUYÊN VĂN toàn bộ dữ liệu bảng trong ảnh. Liệt kê HEADER của bảng, rồi từng DÒNG dữ liệu theo định dạng: cột1 | cột2 | cột3... Giữ nguyên mọi con số, mã, ký hiệu. Dòng nào có nền tô màu (vàng, xanh lá) thì ghi chú [tô màu] ở cuối dòng."
+    2. Tổng hợp kết quả từ tất cả ảnh, giữ ĐÚNG thứ tự cột và dòng gốc, KHÔNG tóm tắt hay gộp hay bỏ sót dòng nào.
+    3. Gọi create_excel_file với dữ liệu đã trích xuất — đây là bước BẮT BUỘC để file thật sự được gửi.
+  + Quy trình CHỈ CẦN 2 LẦN GỌI TOOL: 1 lần read_image (batch) + 1 lần create_excel_file. TUYỆT ĐỐI KHÔNG gọi read_image từng ảnh riêng lẻ — tốn nhiều bước và dễ vượt trần.
+  + TUYỆT ĐỐI KHÔNG bỏ qua bước 1 (không có dữ liệu từ read_image thì không bóc tách được) và bước 3 (không gọi create_excel_file thì không gửi được file).
   + Ảnh bị xoay ngược, nghiêng, chụp lệch: read_image vẫn đọc được, KHÔNG cần yêu cầu người dùng gửi lại.
   + Khi người dùng yêu cầu chỉ lấy các dòng tô màu: sau bước 1-2 chỉ giữ lại dòng có ghi chú [tô màu], bỏ dòng còn lại, rồi mới gọi create_excel_file.`,
   },

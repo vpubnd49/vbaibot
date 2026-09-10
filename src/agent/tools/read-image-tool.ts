@@ -13,6 +13,11 @@ import { ketQuaLoi } from "./tool-failure-result.js";
  * câu hỏi. Agent tự quyết khi nào mô tả sẵn có không đủ.
  *
  * Chỉ vào schema khi sidecar đã cấu hình (tool-registry `available`).
+ *
+ * BATCH MODE (imageIndexes): đọc NHIỀU ảnh trong 1 lần gọi, song song. Giảm
+ * từ N step xuống 1 step - đặc biệt quan trọng cho trích xuất bảng biểu từ
+ * nhiều ảnh chụp/scan: 7 ảnh × 1 step/ảnh = 7 step đã chạm trần LLM_MAX_STEPS,
+ * còn batch mode chỉ tốn 1 step.
  */
 
 /**
@@ -22,6 +27,9 @@ import { ketQuaLoi } from "./tool-failure-result.js";
  * không tốn gì.
  */
 const RECENT_IMAGE_LIMIT = 10;
+
+/** Trần song song cho sidecar khi batch mode - cùng giá trị với agent-turn-content */
+const SIDECAR_CONCURRENCY = 3;
 
 /**
  * Gom đường dẫn ảnh MỚI NHẤT TRƯỚC: batch của lượt hiện tại (chưa vào DB)
@@ -41,13 +49,49 @@ export function collectRecentImagePaths(ctx: ToolContext): string[] {
   return paths.slice(0, RECENT_IMAGE_LIMIT);
 }
 
+/** Đọc 1 ảnh, trả text hoặc thông báo lỗi */
+async function readSingleImage(
+  relPath: string,
+  question: string,
+  ask: typeof askAboutImage,
+): Promise<{ ok: true; text: string } | { ok: false; reason: string }> {
+  const image = loadStoredImage(relPath);
+  if (!image) {
+    return { ok: false, reason: "Ảnh này đã bị dọn khỏi bộ nhớ (quá hạn lưu trữ), không xem lại được nữa." };
+  }
+  try {
+    const answer = await ask(image, question);
+    return answer ? { ok: true, text: answer } : { ok: false, reason: "Model đọc ảnh không trả lời được câu hỏi này." };
+  } catch (err) {
+    const reason = err instanceof Error ? err.message : String(err);
+    return { ok: false, reason: `Hệ thống đọc ảnh đang lỗi (${reason}).` };
+  }
+}
+
+/** Chạy mảng promise với giới hạn concurrency, GIỮ NGUYÊN thứ tự kết quả */
+async function withConcurrency<T>(tasks: (() => Promise<T>)[], limit: number): Promise<T[]> {
+  const results: T[] = new Array(tasks.length);
+  let next = 0;
+  const run = async (): Promise<void> => {
+    while (next < tasks.length) {
+      const idx = next++;
+      results[idx] = await tasks[idx]!();
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(limit, tasks.length) }, () => run()));
+  return results;
+}
+
 /** `ask` tiêm được để test không chạm mạng thật */
 export function createReadImageTool(ctx: ToolContext, ask = askAboutImage) {
   return tool({
     description:
       "Nhìn kỹ lại ảnh đã nhận trong hội thoại bằng model đọc ảnh, với một câu hỏi cụ thể " +
-      "(đếm số lượng, đọc chữ nhỏ, xác định chi tiết, so sánh màu sắc). " +
-      "Dùng khi mô tả ảnh sẵn có trong hội thoại không đủ chi tiết để trả lời người dùng.",
+      "(đếm số lượng, đọc chữ nhỏ, xác định chi tiết, so sánh màu sắc, trích xuất bảng biểu). " +
+      "Dùng khi mô tả ảnh sẵn có trong hội thoại không đủ chi tiết để trả lời người dùng.\n" +
+      "BATCH MODE: Khi cần đọc NHIỀU ẢNH CÙNG LÚC (trích xuất bảng biểu từ nhiều trang, " +
+      "so sánh nhiều ảnh), dùng imageIndexes=[1,2,3,...] thay vì gọi tool nhiều lần — " +
+      "chỉ tốn 1 bước thay vì N bước, nhanh hơn và tiết kiệm lượt gọi tool.",
     inputSchema: z.object({
       question: z
         .string()
@@ -59,34 +103,72 @@ export function createReadImageTool(ctx: ToolContext, ask = askAboutImage) {
         .min(1)
         .max(RECENT_IMAGE_LIMIT)
         .default(1)
-        .describe("Ảnh thứ mấy tính từ MỚI NHẤT (1 = ảnh mới nhất trong hội thoại)"),
+        .describe("Ảnh thứ mấy tính từ MỚI NHẤT (1 = ảnh mới nhất). Dùng khi chỉ cần đọc 1 ảnh."),
+      imageIndexes: z
+        .array(z.coerce.number().int().min(1).max(RECENT_IMAGE_LIMIT))
+        .optional()
+        .describe(
+          "Danh sách index ảnh cần đọc CÙNG LÚC, vd [1,2,3,4,5]. " +
+          "Khi có tham số này thì imageIndex bị bỏ qua. " +
+          "Dùng cho trích xuất bảng biểu từ nhiều trang ảnh.",
+        ),
     }),
-    execute: async ({ question, imageIndex }) => {
+    execute: async ({ question, imageIndex, imageIndexes }) => {
       const paths = collectRecentImagePaths(ctx);
       if (paths.length === 0) {
         return ketQuaLoi("Không có ảnh nào trong hội thoại gần đây để xem.");
       }
+
+      // ── BATCH MODE ──────────────────────────────────────────────────
+      if (imageIndexes && imageIndexes.length > 0) {
+        // Kiểm tra index hợp lệ
+        const invalid = imageIndexes.filter((idx) => idx > paths.length);
+        if (invalid.length === imageIndexes.length) {
+          return ketQuaLoi(
+            `Hội thoại chỉ còn ${paths.length} ảnh gần đây - tất cả index [${invalid.join(",")}] đều vượt quá.`,
+          );
+        }
+
+        const tasks = imageIndexes.map((idx) => {
+          const relPath = paths[idx - 1];
+          if (!relPath) {
+            return async () =>
+              ({ ok: false as const, reason: `Index ${idx} vượt quá ${paths.length} ảnh gần đây.` });
+          }
+          return () => readSingleImage(relPath, question, ask);
+        });
+
+        const results = await withConcurrency(tasks, SIDECAR_CONCURRENCY);
+        const total = imageIndexes.length;
+        const lines = results.map((r, i) => {
+          const label = `[Ảnh ${i + 1}/${total} (index ${imageIndexes[i]})]`;
+          return r.ok ? `${label}\n${r.text}` : `${label}\n[Lỗi: ${r.reason}]`;
+        });
+
+        const successCount = results.filter((r) => r.ok).length;
+        const summary = successCount === total
+          ? `Đã đọc thành công ${total}/${total} ảnh.`
+          : `Đọc được ${successCount}/${total} ảnh, ${total - successCount} ảnh bị lỗi (xem chi tiết bên dưới).`;
+
+        return `${summary}\n\n${lines.join("\n\n")}`;
+      }
+
+      // ── SINGLE MODE (giữ nguyên hành vi cũ) ────────────────────────
       const relPath = paths[imageIndex - 1];
       if (!relPath) {
         return ketQuaLoi(
           `Hội thoại chỉ còn ${paths.length} ảnh gần đây - imageIndex ${imageIndex} vượt quá.`,
         );
       }
-      const image = loadStoredImage(relPath);
-      if (!image) {
-        return ketQuaLoi("Ảnh này đã bị dọn khỏi bộ nhớ (quá hạn lưu trữ), không xem lại được nữa.");
-      }
-      try {
-        const answer = await ask(image, question);
-        return answer || ketQuaLoi("Model đọc ảnh không trả lời được câu hỏi này.");
-      } catch (err) {
-        // Trả thông báo cho model diễn giải, không throw ra agent loop -
-        // cùng luật với web_search (provider lỗi không được giết cả lượt)
-        const reason = err instanceof Error ? err.message : String(err);
+      const result = await readSingleImage(relPath, question, ask);
+      if (!result.ok) {
         return ketQuaLoi(
-          `Hệ thống đọc ảnh đang lỗi (${reason}). Nói thật với người dùng là chưa xem kỹ được ảnh, đừng đoán nội dung.`,
+          result.reason.includes("đã bị dọn") ? result.reason :
+          `Hệ thống đọc ảnh đang lỗi (${result.reason}). Nói thật với người dùng là chưa xem kỹ được ảnh, đừng đoán nội dung.`,
         );
       }
+      return result.text;
     },
   });
 }
+

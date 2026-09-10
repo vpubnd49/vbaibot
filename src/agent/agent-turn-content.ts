@@ -148,6 +148,36 @@ export async function buildTurnMessages(params: {
   return { messages: tinNhan, imageMode, daCat };
 }
 
+/**
+ * Trần song song cho sidecar: gọi đồng thời tối đa N ảnh. Gemini free endpoint
+ * (mặc định của sidecar) siết nhịp ở ~15 req/min, 3 đồng thời an toàn. Giá trị
+ * cao hơn nhanh hơn nhưng dễ 429 - theo dõi log `vision-sidecar` rồi nâng dần.
+ */
+const SIDECAR_CONCURRENCY = 3;
+
+/** Chạy mảng promise với giới hạn concurrency, GIỮ NGUYÊN thứ tự kết quả */
+async function withConcurrency<T>(tasks: (() => Promise<T>)[], limit: number): Promise<T[]> {
+  const results: T[] = new Array(tasks.length);
+  let next = 0;
+  const run = async (): Promise<void> => {
+    while (next < tasks.length) {
+      const idx = next++;
+      results[idx] = await tasks[idx]!();
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(limit, tasks.length) }, () => run()));
+  return results;
+}
+
+/**
+ * Thông tin đã tải/đọc cho 1 ảnh - trung gian giữa bước tải và bước dựng parts.
+ * Tách ra để bước mô tả sidecar SONG SONG mà vẫn ghép parts đúng thứ tự.
+ */
+type PreparedImage = {
+  downloaded: { base64: string; mediaType: string };
+  cacheKey?: string;
+};
+
 /** Gộp toàn bộ ảnh + text trong batch thành content của 1 lượt user */
 export async function buildCurrentTurnContent(
   batch: ParsedMessage[],
@@ -156,35 +186,49 @@ export async function buildCurrentTurnContent(
   const parts: Exclude<UserContent, string> = [];
   let totalImages = 0;
 
+  // ── Bước 1: Tải ảnh (tuần tự, rẻ vì hầu hết đã persist trên đĩa) ──────
+  const prepared: PreparedImage[] = [];
   for (const msg of batch) {
     for (const image of msg.images) {
       totalImages++;
-      // blind: không tải, không đính - chỉ chèn 1 ghi chú tổng ở dưới
       if (imageMode === "blind") continue;
 
-      // Ảnh đã persist trước đó (message-turn-processor) thì đọc từ đĩa - không
-      // tải lại; persist lỗi thì rơi về tải thẳng từ URL Zalo như cũ
       const stored = image.localPath ? loadStoredImage(image.localPath) : null;
       const downloaded = stored ?? (await downloadImageAsBase64(image.url));
       if (!downloaded) continue;
+      prepared.push({ downloaded, cacheKey: image.localPath });
+    }
+  }
 
-      // describe/hybrid: sidecar mô tả (cache theo localPath)
-      if (imageMode === "describe" || imageMode === "hybrid") {
-        const description = await describeImage({ ...downloaded, cacheKey: image.localPath });
-        if (description) {
-          parts.push({ type: "text", text: `[Mô tả ảnh người dùng vừa gửi: ${description}]` });
-        } else if (imageMode === "describe") {
-          // describe mà không mô tả được = model chính hoàn toàn mù ảnh này
-          parts.push({ type: "text", text: DESCRIBE_FAILED_NOTE });
-        }
-        // hybrid không cần note lỗi: pixel vẫn được đính ngay bên dưới
-      }
+  // ── Bước 2: Mô tả sidecar SONG SONG (chỉ cho describe/hybrid) ─────────
+  // Phải mô tả TRƯỚC rồi mới ghép parts: thứ tự mô tả → pixel phải khớp thứ
+  // tự ảnh gốc, mà song song chạy xong lúc nào thì trả lúc đó. `withConcurrency`
+  // giữ nguyên index nên kết quả ra đúng thứ tự.
+  const needDescribe = imageMode === "describe" || imageMode === "hybrid";
+  const descriptions: (string | null)[] = needDescribe
+    ? await withConcurrency(
+        prepared.map(
+          (img) => () => describeImage({ ...img.downloaded, cacheKey: img.cacheKey }),
+        ),
+        SIDECAR_CONCURRENCY,
+      )
+    : new Array(prepared.length).fill(null);
 
-      if (imageMode === "native" || imageMode === "hybrid") {
-        // Part "file" thay cho "image": kiểu image bị AI SDK v7 đánh dấu
-        // deprecated (in cảnh báo mỗi ảnh) và sẽ xóa ở bản sau
-        parts.push({ type: "file", data: downloaded.base64, mediaType: downloaded.mediaType });
+  // ── Bước 3: Ghép parts ĐÚNG THỨ TỰ ────────────────────────────────────
+  for (let i = 0; i < prepared.length; i++) {
+    const img = prepared[i]!;
+    if (needDescribe) {
+      const description = descriptions[i];
+      if (description) {
+        parts.push({ type: "text", text: `[Mô tả ảnh người dùng vừa gửi: ${description}]` });
+      } else if (imageMode === "describe") {
+        // describe mà không mô tả được = model chính hoàn toàn mù ảnh này
+        parts.push({ type: "text", text: DESCRIBE_FAILED_NOTE });
       }
+      // hybrid không cần note lỗi: pixel vẫn được đính ngay bên dưới
+    }
+    if (imageMode === "native" || imageMode === "hybrid") {
+      parts.push({ type: "file", data: img.downloaded.base64, mediaType: img.downloaded.mediaType });
     }
   }
 
