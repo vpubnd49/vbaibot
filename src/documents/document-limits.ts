@@ -81,11 +81,16 @@ export function checkSpreadsheetLimits(sheets: Sheet[]): LimitCheck {
         `Sheet "${sheet.name}" có ${sheet.rows.length} dòng, vượt trần ${getTuning("DOCUMENT_MAX_ROWS")}.`,
       );
     }
-    const bad = sheet.rows.findIndex((row) => row.length !== sheet.headers.length);
-    if (bad >= 0) {
-      return fail(
-        `Sheet "${sheet.name}" dòng ${bad + 1} có ${sheet.rows[bad]!.length} ô nhưng có ${sheet.headers.length} cột. Mọi dòng phải đủ số ô.`,
-      );
+    // Dòng thiếu/thừa ô so với header: OCR từ ảnh/scan rất hay gặp (ô gộp, cột
+    // bị bỏ). Thay vì reject file thì tự pad ô trống / cắt ô thừa - model đã
+    // cố sức, reject làm nó loop lại đúng lúc sắp hết step.
+    for (const row of sheet.rows) {
+      while (row.length < sheet.headers.length) {
+        row.push({ kind: "text", value: "" });
+      }
+      if (row.length > sheet.headers.length) {
+        row.length = sheet.headers.length;
+      }
     }
     chars += sheet.headers.reduce((sum, h) => sum + h.length, 0);
     for (const row of sheet.rows) {

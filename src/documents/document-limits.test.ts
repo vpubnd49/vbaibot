@@ -90,16 +90,32 @@ describe("checkSpreadsheetLimits", () => {
     assert.match(result.ok === false ? result.reason : "", /3 sheet.*trần 2/);
   });
 
-  it("dòng lệch số cột -> chặn kèm tên sheet", () => {
-    const result = limits.checkSpreadsheetLimits([
-      {
-        name: "Báo giá",
-        headers: ["A", "B"],
-        rows: [[{ kind: "text", value: "x" }]],
-      },
-    ]);
-    assert.equal(result.ok, false);
-    assert.match(result.ok === false ? result.reason : "", /Báo giá.*dòng 1/);
+  it("dòng thiếu ô -> tự pad ô trống cho khớp header (OCR từ ảnh hay gặp)", () => {
+    const s: Sheet = {
+      name: "Báo giá",
+      headers: ["A", "B", "C"],
+      rows: [
+        [{ kind: "text", value: "x" }],                               // thiếu 2 ô
+        [{ kind: "text", value: "a" }, { kind: "text", value: "b" }], // thiếu 1 ô
+      ],
+    };
+    const result = limits.checkSpreadsheetLimits([s]);
+    assert.equal(result.ok, true);
+    // Kiểm tra đã pad đúng
+    assert.equal(s.rows[0]!.length, 3, "dòng 1 phải được pad lên 3 ô");
+    assert.equal(s.rows[1]!.length, 3, "dòng 2 phải được pad lên 3 ô");
+    assert.deepEqual(s.rows[0]![2], { kind: "text", value: "" });
+  });
+
+  it("dòng thừa ô -> cắt bớt cho khớp header", () => {
+    const s: Sheet = {
+      name: "Dữ liệu",
+      headers: ["A", "B"],
+      rows: [[{ kind: "text", value: "x" }, { kind: "text", value: "y" }, { kind: "text", value: "z" }]],
+    };
+    const result = limits.checkSpreadsheetLimits([s]);
+    assert.equal(result.ok, true);
+    assert.equal(s.rows[0]!.length, 2, "dòng thừa 1 ô phải bị cắt về 2");
   });
 });
 
