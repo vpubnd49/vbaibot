@@ -62,6 +62,7 @@ export async function syncThanhtraDocuments(limit = 30): Promise<ThanhtraSyncRes
           const stats = fs.statSync(absPath);
           fileSize = stats.size;
           localPath = relPath;
+          log.debug({ title, file: baseName, kb: Math.round(fileSize / 1024) }, "File PDF đã có trên đĩa - bỏ qua tải lại");
         } else {
           // Tải file PDF về đĩa
           fileSize = await downloadPdfFile(pdfUrl, absPath);
@@ -112,7 +113,7 @@ export async function syncThanhtraDocuments(limit = 30): Promise<ThanhtraSyncRes
  */
 export function startThanhtraSyncTask(): void {
   const run = (): void => {
-    void syncThanhtraDocuments(30).catch((err) => {
+    void syncThanhtraDocuments(200).catch((err) => {
       log.error({ err }, "Đồng bộ Kết luận Thanh tra định kỳ thất bại");
     });
   };

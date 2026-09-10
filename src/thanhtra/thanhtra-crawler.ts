@@ -35,35 +35,61 @@ export function extractPdfUrl(canvasContent: string | undefined): string | null 
 }
 
 /**
- * Tải danh sách bài viết Kết luận thanh tra từ API SharePoint của Cổng tỉnh Lâm Đồng
+ * Tải danh sách bài viết Kết luận thanh tra từ API SharePoint của Cổng tỉnh Lâm Đồng.
+ *
+ * SharePoint REST API giới hạn `$top` tối đa 100 items/request. Khi có nhiều hơn,
+ * response trả kèm `d.__next` chứa URL trang kế (dùng `$skiptoken`). Hàm này tự
+ * phân trang cho đến khi đủ `limit` hoặc hết dữ liệu.
+ *
+ * Tổng số kết luận trên cổng ≈ 128 (tính đến 09/2026), nên `limit=200` đủ lấy toàn bộ.
  */
-export async function fetchThanhtraItems(limit = 30): Promise<ThanhtraRawItem[]> {
-  const top = Math.max(1, Math.min(limit, 100));
-  const sourceUrl = `${SP_ENDPOINT_BASE}?$filter=Title ne 'Home'&$orderby=Modified desc&$select=ID,Title,Description,CanvasContent1,FileRef,Modified,Created&$top=${top}`;
+export async function fetchThanhtraItems(limit = 200): Promise<ThanhtraRawItem[]> {
+  const pageSize = Math.min(limit, 100);
+  let nextUrl: string | null =
+    `${SP_ENDPOINT_BASE}?$filter=Title ne 'Home'&$orderby=Modified desc` +
+    `&$select=ID,Title,Description,CanvasContent1,FileRef,Modified,Created&$top=${pageSize}`;
+  const allItems: ThanhtraRawItem[] = [];
+  let page = 0;
+  const MAX_PAGES = 10; // An toàn: tối đa 1000 items
 
-  try {
-    const res = await fetch(API_PROXY_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json;odata=verbose",
-        "User-Agent": "Mozilla/5.0 (compatible; VBAIBot/1.0)",
-      },
-      body: JSON.stringify({ SourceUrl: sourceUrl }),
-      signal: AbortSignal.timeout(20000),
-    });
+  while (nextUrl && allItems.length < limit && page < MAX_PAGES) {
+    page++;
+    try {
+      const res = await fetch(API_PROXY_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json;odata=verbose",
+          "User-Agent": "Mozilla/5.0 (compatible; VBAIBot/1.0)",
+        },
+        body: JSON.stringify({ SourceUrl: nextUrl }),
+        signal: AbortSignal.timeout(20000),
+      });
 
-    if (!res.ok) {
-      log.warn({ status: res.status }, "Cổng API Thanh tra Lâm Đồng trả mã lỗi");
-      return [];
+      if (!res.ok) {
+        log.warn({ status: res.status, page }, "Cổng API Thanh tra Lâm Đồng trả mã lỗi");
+        break;
+      }
+
+      const data = (await res.json()) as { d?: { results?: ThanhtraRawItem[]; __next?: string } };
+      const items = data?.d?.results || [];
+      allItems.push(...items);
+
+      // SharePoint trả __next URL có domain lamdong.gov.vn nhưng API thật ở w3.lamdong.gov.vn
+      const rawNext = data?.d?.__next;
+      nextUrl =
+        rawNext && items.length > 0
+          ? rawNext.replace("https://lamdong.gov.vn/", "https://w3.lamdong.gov.vn/")
+          : null;
+
+      log.debug({ page, fetched: items.length, total: allItems.length }, "Đã lấy trang kết luận thanh tra");
+    } catch (err) {
+      log.error({ err, page }, "Lỗi khi gọi API danh sách kết luận thanh tra");
+      break;
     }
-
-    const data = (await res.json()) as { d?: { results?: ThanhtraRawItem[] } };
-    return data?.d?.results || [];
-  } catch (err) {
-    log.error({ err }, "Lỗi khi gọi API danh sách kết luận thanh tra");
-    return [];
   }
+
+  return allItems.slice(0, limit);
 }
 
 /**

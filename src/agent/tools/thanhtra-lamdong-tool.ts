@@ -76,12 +76,12 @@ export function createThanhtraLamdongTool({ api, account, message, ghiNhanDaGui 
       }
 
       // 3. Nhánh tìm kiếm (mặc định)
-      let docs = searchThanhtraDocs(keyword, 6);
+      let docs = searchThanhtraDocs(keyword, 20);
 
       // Nếu kho rỗng (lần đầu chạy chưa kịp sync), tự động sync nhanh 10 mục rồi tìm lại
       if (docs.length === 0 && countThanhtraDocs() === 0) {
         await syncThanhtraDocuments(10);
-        docs = searchThanhtraDocs(keyword, 6);
+        docs = searchThanhtraDocs(keyword, 20);
       }
 
       if (docs.length === 0) {
