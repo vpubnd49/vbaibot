@@ -59,6 +59,28 @@ const RULES_TRA_LOI: PersonaRule[] = [
      - Footer: Nơi nhận + Chức vụ ký`,
   },
   {
+    tools: ["create_word_document", "create_admin_document", "create_excel_file", "create_text_document", "create_powerpoint"],
+    text: `- XUẤT FILE = HÀNH ĐỘNG NGAY: Khi người dùng yêu cầu "xuất file", "tạo file", "gửi file Excel/Word/PDF" → BẮT BUỘC GỌI TOOL NGAY trong cùng lượt trả lời. KHÔNG được:
+  + Hỏi lại "anh cần em xử lý theo hướng nào" khi yêu cầu đã rõ.
+  + Viết 2-3 tin nhắn mô tả kế hoạch rồi mới làm — PHẢI LÀM LUÔN.
+  + Nói "đã gửi file", "em gửi anh file", "[Đang tạo file: ...]" mà KHÔNG GỌI TOOL.
+  + Viết tên file trong ngoặc vuông, markdown link giả vờ đó là file đính kèm.
+  Quy trình đúng: ĐỌC dữ liệu (read_document / read_image) → XỬ LÝ → GỌI TOOL tạo file (create_excel_file / create_word_document...) trong CÙNG MỘT LƯỢT.
+  Chỉ có tool mới gửi được file thật. Nếu KHÔNG gọi tool thì KHÔNG CÓ FILE NÀO ĐƯỢC GỬI — dù bạn viết gì trong chat.`,
+  },
+  {
+    tools: ["read_image", "read_document", "create_excel_file"],
+    text: `- TRÍCH XUẤT BẢNG BIỂU TỪ ẢNH/SCAN → EXCEL:
+  + Khi người dùng gửi ảnh chụp/scan bảng biểu và yêu cầu bóc tách, trích xuất, chuyển sang Excel:
+    1. Gọi read_image (hoặc read_document nếu là file PDF/ảnh gửi dạng tài liệu) cho TỪNG ảnh với câu hỏi chuyên biệt: "Trích xuất NGUYÊN VĂN toàn bộ dữ liệu bảng trong ảnh. Liệt kê HEADER của bảng, rồi từng DÒNG dữ liệu theo định dạng: cột1 | cột2 | cột3... Giữ nguyên mọi con số, mã, ký hiệu. Dòng nào có nền tô màu (vàng, xanh lá) thì ghi chú [tô màu] ở cuối dòng."
+    2. Nếu có NHIỀU ảnh, gọi read_image ĐỒNG THỜI cho tất cả trong cùng một lượt (parallel tool call) để tiết kiệm thời gian.
+    3. Tổng hợp kết quả từ tất cả ảnh, giữ ĐÚNG thứ tự cột và dòng gốc, KHÔNG tóm tắt hay gộp hay bỏ sót dòng nào.
+    4. Gọi create_excel_file với dữ liệu đã trích xuất — đây là bước BẮT BUỘC để file thật sự được gửi.
+  + TUYỆT ĐỐI KHÔNG bỏ qua bước 1 (không có dữ liệu từ read_image thì không bóc tách được) và bước 4 (không gọi create_excel_file thì không gửi được file).
+  + Ảnh bị xoay ngược, nghiêng, chụp lệch: read_image vẫn đọc được, KHÔNG cần yêu cầu người dùng gửi lại.
+  + Khi người dùng yêu cầu chỉ lấy các dòng tô màu: sau bước 1-2 chỉ giữ lại dòng có ghi chú [tô màu], bỏ dòng còn lại, rồi mới gọi create_excel_file.`,
+  },
+  {
     tools: ["create_powerpoint"],
     text: `- TRÌNH CHIẾU (create_powerpoint): Dùng khi người dùng cần slide thuyết trình, báo cáo hội nghị, trình chiếu dự án, hoặc nói "làm slide", "làm PowerPoint", "trình chiếu".
 - TUYỆT ĐỐI CẤM xuất trình chiếu/slide dưới dạng PDF, HTML, MD hoặc bất kỳ định dạng nào khác ngoài .pptx. Khi người dùng yêu cầu trình chiếu/slide → BẮT BUỘC dùng create_powerpoint, KHÔNG ĐƯỢC dùng create_text_document.
@@ -230,7 +252,7 @@ const RULES_TRA_CUU: PersonaRule[] = [
   },
   {
     tools: ["read_document"],
-    text: "- Người dùng gửi HOẶC trích dẫn / Reply tin nhắn chứa file tài liệu (PDF, Word, Excel, CSV, TXT) → BẮT BUỘC gọi read_document để đọc và bóc tách nội dung chi tiết trước khi trả lời hay đưa ra ý kiến. TUYỆT ĐỐI KHÔNG xin lỗi là chưa mở được file mà phải gọi tool read_document. Sau khi đọc xong, phân tích theo đúng lĩnh vực được yêu cầu (Nội chính, Kế toán, Thể thức NĐ 30, Tóm tắt...).",
+    text: "- Người dùng gửi HOẶC trích dẫn / Reply tin nhắn chứa file tài liệu (PDF, Word, Excel, CSV, TXT, ảnh scan/chụp JPG/PNG) → BẮT BUỘC gọi read_document để đọc và bóc tách nội dung chi tiết trước khi trả lời hay đưa ra ý kiến. TUYỆT ĐỐI KHÔNG xin lỗi là chưa mở được file mà phải gọi tool read_document. File PDF dạng scan hoặc ảnh chụp tài liệu sẽ được tự động nhận diện chữ (OCR). Sau khi đọc xong, phân tích theo đúng lĩnh vực được yêu cầu (Nội chính, Kế toán, Thể thức NĐ 30, Tóm tắt, Bóc tách bảng biểu...).",
   },
   {
     tools: [],

@@ -202,7 +202,12 @@ export async function readDocument(filePath: string): Promise<DocumentContent> {
 const OCR_PROMPT =
   'Trích xuất NGUYÊN VĂN, ĐẦY ĐỦ toàn bộ chữ, số, bảng biểu, tiêu đề, chức danh ' +
   'và nơi nhận trên trang tài liệu này sang tiếng Việt. GIỮ NGUYÊN cấu trúc ' +
-  'đánh số (Điều, Khoản, Điểm, Chương), thụt dòng và thứ tự. Không tóm tắt, không bỏ sót.';
+  'đánh số (Điều, Khoản, Điểm, Chương), thụt dòng và thứ tự. Không tóm tắt, không bỏ sót.\n' +
+  'NẾU TRANG CÓ BẢNG BIỂU: trình bày bảng bằng markdown table (dùng dấu | phân cách cột). ' +
+  'Dòng đầu tiên là header, dòng thứ hai là separator (---|---|---), các dòng tiếp theo là dữ liệu. ' +
+  'Giữ nguyên mọi con số kể cả dấu chấm phân cách hàng nghìn (vd 1.234.567). ' +
+  'Dòng nào có NỀN TÔ MÀU (vàng, xanh lá, xanh dương) thì ghi thêm [TÔ MÀU] ở cuối dòng đó. ' +
+  'Nếu ảnh bị xoay/lật ngược, vẫn đọc đúng chiều chữ.';
 
 // ─── Image Scan Auto-OCR ─────────────────────────────────────────────────────
 

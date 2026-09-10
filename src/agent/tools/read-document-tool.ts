@@ -96,7 +96,9 @@ export function collectRecentFilePaths(ctx: ToolContext): string[] {
 
 export function createReadDocumentTool(ctx: ToolContext) {
   return tool({
-    description: "Đọc nội dung text từ file tài liệu (PDF, Word, Excel XLS/XLSX, CSV, TXT, MD, ảnh scan/chụp JPG/PNG/...) đã nhận trong hội thoại",
+    description: "Đọc nội dung text từ file tài liệu (PDF, Word, Excel XLS/XLSX, CSV, TXT, MD, ảnh scan/chụp JPG/PNG/...) đã nhận trong hội thoại. " +
+      "File PDF dạng scan hoặc ảnh chụp tài liệu sẽ được tự động nhận diện chữ (OCR), kể cả bảng biểu nhiều cột. " +
+      "Dòng tô màu nền (vàng, xanh lá) sẽ được ghi chú [TÔ MÀU] trong kết quả.",
     inputSchema: z.object({
       fileIndex: z.coerce
         .number()

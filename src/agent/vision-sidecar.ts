@@ -39,6 +39,14 @@ const DESCRIBE_PROMPT =
  */
 const DESCRIBE_MAX_TOKENS = 2048;
 
+/**
+ * Trần token cho `askAboutImage` (tool read_image): cao hơn DESCRIBE vì agent hỏi
+ * câu hỏi CỤ THỂ - đặc biệt trích xuất bảng biểu 10+ cột × 15+ dòng cần ≥3000
+ * token. Tiếng Việt ~2.7 ký tự/token → 4096 ≈ 11.000 ký tự, đủ cho bảng dày nhất.
+ * describeImage giữ 2048 vì ảnh thường (selfie, meme) không cần nhiều hơn.
+ */
+const ASK_MAX_TOKENS = 4096;
+
 export type SidecarImage = {
   base64: string;
   mediaType: string;
@@ -155,11 +163,42 @@ export async function ensureDescriptionsFor(
  * Hỏi sidecar MỘT CÂU CỤ THỂ về ảnh (tool read_image) - khác describeImage:
  * prompt là chính câu hỏi của agent, KHÔNG cache (mỗi câu mỗi khác, mô tả
  * chung đã có cache riêng). Ném lỗi để tool tự diễn giải cho model.
+ *
+ * Dùng ASK_MAX_TOKENS (4096) thay vì DESCRIBE_MAX_TOKENS (2048) vì agent hỏi
+ * câu hỏi cụ thể — đặc biệt trích xuất bảng biểu dày cột cần chép nguyên văn.
  */
+
+/** Caller riêng cho askAboutImage: cùng logic defaultCaller nhưng trần token cao hơn */
+const askDefaultCaller: SidecarCaller = async (settings, image, prompt) => {
+  const provider = createOpenAICompatible({
+    name: "vision-sidecar",
+    baseURL: settings.baseUrl,
+    apiKey: settings.apiKey,
+  });
+  const result = await chayStream((onError) =>
+    streamText({
+      model: provider(settings.model),
+      messages: [
+        {
+          role: "user",
+          content: [
+            { type: "file", data: image.base64, mediaType: image.mediaType },
+            { type: "text", text: prompt },
+          ],
+        },
+      ],
+      maxOutputTokens: ASK_MAX_TOKENS,
+      maxRetries: 1,
+      onError,
+    }),
+  );
+  return { text: result.text.trim(), truncated: result.finishReason === "length" };
+};
+
 export async function askAboutImage(
   image: SidecarImage,
   question: string,
-  call: SidecarCaller = defaultCaller,
+  call: SidecarCaller = askDefaultCaller,
 ): Promise<string> {
   const settings = getVisionSettings();
   if (!isSidecarConfigured(settings)) {
