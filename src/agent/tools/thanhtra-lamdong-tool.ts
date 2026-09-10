@@ -88,25 +88,30 @@ export function createThanhtraLamdongTool({ api, account, message, ghiNhanDaGui 
         return `Không tìm thấy kết luận thanh tra nào phù hợp với từ khóa "${keyword || ""}". Bạn có thể thử tìm từ khóa rộng hơn (ví dụ: tên huyện, xã, năm 2026...).`;
       }
 
-      // Nếu người dùng yêu cầu gửi file và tìm ra đúng 1 kết quả hoặc có yêu cầu gửi
+      // Nếu người dùng yêu cầu gửi file → gửi TẤT CẢ file có sẵn, không chỉ file đầu.
+      // Model gọi tool ĐÚNG 1 LẦN với sendFileToChat=true → tool tự gửi toàn bộ.
+      // Trước đây chỉ gửi docs[0] → model phải gọi riêng lẻ từng ID → tốn step → thiếu file.
       let sendStatusNote = "";
       if (sendFileToChat && docs.length > 0) {
-        const targetDoc = docs[0]!;
-        if (targetDoc.localPath) {
+        const sentFiles: string[] = [];
+        for (const targetDoc of docs) {
+          if (!targetDoc.localPath) continue;
           const absPath = path.resolve(dataDir, targetDoc.localPath);
-          if (fs.existsSync(absPath)) {
-            const caption = `Văn bản Kết luận thanh tra: ${targetDoc.title}`;
-            await guiFileKemCaption(
-              api,
-              `${account.id}:${message.threadId}`,
-              message.threadId,
-              message.threadType,
-              absPath,
-              caption,
-            );
-            ghiNhanDaGui?.(ghiChuDaGuiFile(path.basename(absPath), caption));
-            sendStatusNote = `\n\n✅ ĐÃ GỬI FILE PDF (#${targetDoc.id}: ${path.basename(absPath)}) VÀO CHAT CHO NGƯỜI DÙNG. Model KHÔNG cần gọi thêm send_file.`;
-          }
+          if (!fs.existsSync(absPath)) continue;
+          const caption = `Văn bản Kết luận thanh tra: ${targetDoc.title}`;
+          await guiFileKemCaption(
+            api,
+            `${account.id}:${message.threadId}`,
+            message.threadId,
+            message.threadType,
+            absPath,
+            caption,
+          );
+          ghiNhanDaGui?.(ghiChuDaGuiFile(path.basename(absPath), caption));
+          sentFiles.push(`#${targetDoc.id}: ${path.basename(absPath)}`);
+        }
+        if (sentFiles.length > 0) {
+          sendStatusNote = `\n\n✅ ĐÃ GỬI ${sentFiles.length} FILE PDF VÀO CHAT CHO NGƯỜI DÙNG:\n${sentFiles.map((f) => `- ${f}`).join("\n")}\nModel KHÔNG cần gọi thêm send_file hay gọi tool lần nữa.`;
         }
       }
 
