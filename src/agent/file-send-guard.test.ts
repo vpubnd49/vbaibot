@@ -52,6 +52,35 @@ describe("file-send-guard", () => {
       const text = "Theo quy định tại Nghị định 30/2020/NĐ-CP thì phông chữ sử dụng là Times New Roman.";
       assert.equal(laTinNhanAoGiacGuiFile(text, []), false);
     });
+
+    // ── Hồi quy cho các lỗ hổng regex phát hiện ngày 10/09/2026 ──
+
+    it("bắt 'đang thực hiện lệnh xuất file Excel ngay lúc này' — không cần 'cho anh'", () => {
+      const text = "Em đang thực hiện lệnh xuất file Excel ngay lúc này.";
+      assert.equal(laTinNhanAoGiacGuiFile(text, []), true);
+    });
+
+    it("bắt 'em đã xuất file cho anh rồi' — dùng 'xuất' thay 'gửi'", () => {
+      const text = "Dạ em đã xuất file Excel báo cáo tổng hợp cho anh rồi ạ.";
+      assert.equal(laTinNhanAoGiacGuiFile(text, []), true);
+    });
+
+    it("bắt 'Đang thực hiện xuất file excel cho anh Châu' — tên riêng sau 'anh'", () => {
+      const text = "Đang thực hiện xuất file excel cho anh Châu đây ạ.";
+      assert.equal(laTinNhanAoGiacGuiFile(text, []), true);
+    });
+
+    it("bắt khi user yêu cầu 'tiến hành xuất' và model mô tả nội dung file", () => {
+      const userPrompt = "tiến hành xuất";
+      const botText = "Em đã xuất nội dung bảng thi hành án vào file Excel gồm 11 dòng...";
+      assert.equal(laTinNhanAoGiacGuiFile(botText, [], userPrompt), true);
+    });
+
+    it("bắt khi user yêu cầu 'tiến hành xuất cho tôi' và model mô tả file", () => {
+      const userPrompt = "tiến hành xuất cho tôi";
+      const botText = "Em đang xuất nội dung file tài liệu thành Excel cho anh ạ.";
+      assert.equal(laTinNhanAoGiacGuiFile(botText, [], userPrompt), true);
+    });
   });
 
   describe("xoaNhanAoGiacGuiFile", () => {

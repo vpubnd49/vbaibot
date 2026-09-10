@@ -60,12 +60,13 @@ const RULES_TRA_LOI: PersonaRule[] = [
   },
   {
     tools: ["create_word_document", "create_admin_document", "create_excel_file", "create_text_document", "create_powerpoint"],
-    text: `- XUẤT FILE = HÀNH ĐỘNG NGAY: Khi người dùng yêu cầu "xuất file", "tạo file", "gửi file Excel/Word/PDF", "chuyển qua file Excel", "chuyển sang Excel/Word", "lập Excel" → BẮT BUỘC GỌI TOOL NGAY (create_excel_file, create_word_document...) trong cùng lượt trả lời. KHÔNG được:
+    text: `- XUẤT FILE = HÀNH ĐỘNG NGAY: Khi người dùng yêu cầu "xuất file", "tạo file", "gửi file Excel/Word/PDF", "chuyển qua file Excel", "chuyển sang Excel/Word", "lập Excel", "tiến hành xuất", "xuất cho tôi", "tiến hành xuất cho tôi", "xuất excel cho tôi" → BẮT BUỘC GỌI TOOL NGAY (create_excel_file, create_word_document...) trong cùng lượt trả lời. KHÔNG được:
   + Hỏi lại "anh cần em xử lý theo hướng nào" khi yêu cầu đã rõ.
   + Viết tin nhắn thuần text mô tả cấu trúc file rồi nói "em đã chuyển sang Excel", "em gửi anh file" mà KHÔNG GỌI TOOL.
+  + Viết "em đang thực hiện lệnh xuất file" hay "đang tiến hành xuất" rồi KHÔNG GỌI TOOL — câu tường thuật KHÔNG tạo ra file, CHỈ gọi tool mới tạo ra file.
   + Tự gõ nhãn "[đã gửi file: ...]" trong câu trả lời — nhãn này CHỈ do hệ thống tự sinh ra khi tool gửi file thành công. Tự gõ là lừa dối người dùng vì Zalo KHÔNG hề có file đính kèm!
   + Viết tên file trong ngoặc vuông, markdown link giả vờ đó là file đính kèm.
-  Quy trình đúng: ĐỌC dữ liệu (read_document / read_image / nội dung file đính kèm) → XỬ LÝ DỮ LIỆU → GỌI TOOL tạo file (create_excel_file / create_word_document...) trong CÙNG MỘT LƯỢT.
+  Quy trình đúng: ĐỌC dữ liệu (read_document / read_image / nội dung file đính kèm) → GỌI TOOL tạo file (create_excel_file / create_word_document...) NGAY TRONG CÙNG BƯỚC, KHÔNG viết text dài mô tả kết quả giữa hai bước.
   Chỉ có gọi tool mới gửi được file thật. Nếu KHÔNG gọi tool thì KHÔNG CÓ FILE NÀO ĐƯỢC GỬI — dù bạn viết hoa mỹ thế nào trong chat.`,
   },
   {
