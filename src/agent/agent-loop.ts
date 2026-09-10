@@ -30,7 +30,8 @@ import {
 import { catNguCanhTheoNganSach } from "./trim-context-to-budget.js";
 import { giayChoLai, maHttpCua, phanLoaiLoiProvider } from "./provider-error-classifier.js";
 import { chayStream } from "./stream-text-result.js";
-import { dungTinChenTrongNganSach, taoBoChenTin } from "./mid-turn-injection.js";
+import { dungTinChenTrongNganSach, gopUserContent, taoBoChenTin } from "./mid-turn-injection.js";
+import type { UserContent } from "ai";
 import {
   canLuotChot,
   hitStepLimit,
@@ -312,10 +313,19 @@ export async function runAgentTurn({
    * nhánh chữa TRÀN NGỮ CẢNH lại nhét nguyên 8 khối ảnh base64 trở vào, đúng
    * lượt vừa bị provider từ chối vì quá dài.
    */
-  const ganTinChenVao = async (goc: ModelMessage[]): Promise<ModelMessage[]> =>
-    tinChenDaKeo.length === 0
-      ? goc
-      : [...goc, await dungTinChenTrongNganSach(tinChenDaKeo, imageMode, tranToken)];
+  const ganTinChenVao = async (goc: ModelMessage[]): Promise<ModelMessage[]> => {
+    if (tinChenDaKeo.length === 0) return goc;
+    const tinChen = await dungTinChenTrongNganSach(tinChenDaKeo, imageMode, tranToken);
+    const cuoi = goc[goc.length - 1];
+    if (cuoi && cuoi.role === "user") {
+      const tinHopNhat: ModelMessage = {
+        role: "user",
+        content: gopUserContent(cuoi.content as UserContent, tinChen.content as UserContent),
+      };
+      return [...goc.slice(0, -1), tinHopNhat];
+    }
+    return [...goc, tinChen];
+  };
 
   // `streamText` chứ không phải `generateText`: request non-stream buộc router
   // gom trọn câu trả lời rồi mới gửi byte đầu, mà Cloudflare trước 9Router cắt
@@ -323,7 +333,7 @@ export async function runAgentTurn({
   // Xem `stream-text-result.ts` để biết số đo. Bot vẫn KHÔNG stream chữ xuống
   // Zalo: `gomKetQuaStream` đọc hết stream rồi trả về đúng hình dạng cũ, nên
   // phần còn lại của vòng lặp không đổi một dòng nào.
-  const runOnce = async () => {
+  const runOnce = async (options?: { toolChoice?: "auto" | "none" | "required" }) => {
     // Dựng đầu vào TẠI ĐÂY thay vì gán ngược vào `messages` - xem
     // `ganTinChenVao`. `prepareStep` chỉ chèn phần tin MỚI kéo được, còn bản
     // này gom cả `tinChenDaKeo`, nên hai đường không chồng lên nhau.
@@ -379,6 +389,7 @@ export async function runAgentTurn({
           // đúng điểm chèn goclaw dùng. Bản ghi đè `messages` được AI SDK mang
           // sang các step sau nên chỉ cần chèn một lần.
           prepareStep: ({ messages: tinHienTai }) => chenTinGiuaLuot(tinHienTai),
+          ...(options?.toolChoice ? { toolChoice: options.toolChoice } : {}),
         }),
       ghiLoiStream,
     );
@@ -675,15 +686,17 @@ export async function runAgentTurn({
     );
     lanChay++;
     guard.datLai();
+    // ĐẶC BIỆT: KHÔNG nối `result.response.messages` (câu trả lời ảo giác/hứa suông) vào ngữ cảnh!
+    // Nối câu ảo giác vào prompt sẽ khiến model thấy mâu thuẫn chỉ thị và câm nín (sinh rỗng).
+    // Thay vào đó, thêm lời nhắc dứt khoát và ép `toolChoice: 'required'` để model bắt buộc phải gọi tool.
     messages = [
       ...messages,
-      ...result.response.messages,
       {
         role: "user",
         content: taoTinNhanNhacGoiTool(),
       },
     ];
-    result = await runOnce();
+    result = await runOnce({ toolChoice: "required" });
     lastStepToolCalls = result.steps.at(-1)?.toolCalls.length ?? 0;
   }
 

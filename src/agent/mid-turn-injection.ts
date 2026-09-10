@@ -1,9 +1,16 @@
-import type { ModelMessage, UserContent } from "ai";
+import type { FilePart, ImagePart, ModelMessage, TextPart, UserContent } from "ai";
 import { getTuning } from "../config/runtime-tuning-settings.js";
 import { createLogger } from "../shared/logger.js";
 import type { ParsedMessage } from "../zalo/zalo-message-parser.js";
 import { buildCurrentTurnContent, type ImageContextMode } from "./agent-turn-content.js";
 import { nganSachAnToan, TOKEN_MOI_ANH_THEO_CO, uocLuongTokenTinNhan } from "./token-estimate.js";
+
+/** Gộp hai nội dung user thành một mảng part hợp lệ */
+export function gopUserContent(a: UserContent, b: UserContent): UserContent {
+  const arrA: (TextPart | ImagePart | FilePart)[] = typeof a === "string" ? [{ type: "text", text: a }] : (a as (TextPart | ImagePart | FilePart)[]);
+  const arrB: (TextPart | ImagePart | FilePart)[] = typeof b === "string" ? [{ type: "text", text: b }] : (b as (TextPart | ImagePart | FilePart)[]);
+  return [...arrA, ...arrB];
+}
 
 // Cùng scope với `agent-loop` chứ không đặt scope riêng: đọc log một lượt hỏng
 // là đọc theo dòng thời gian của lượt đó, tách scope chỉ khiến phải ghép tay.
@@ -159,6 +166,16 @@ export function taoBoChenTin(input: {
         { soTin: moi.length, tuNguoi: moi[moi.length - 1]?.senderName },
         "Chèn tin người dùng nhắn thêm vào giữa lượt đang chạy",
       );
+      const cuoi = tinHienTai[tinHienTai.length - 1];
+      if (cuoi && cuoi.role === "user") {
+        const tinHopNhat: ModelMessage = {
+          role: "user",
+          content: gopUserContent(cuoi.content as UserContent, tinChen.content as UserContent),
+        };
+        return {
+          messages: [...tinHienTai.slice(0, -1), tinHopNhat],
+        };
+      }
       return { messages: [...tinHienTai, tinChen] };
     } catch (err) {
       log.error({ err }, "Chèn tin giữa lượt lỗi - bỏ qua, lượt vẫn chạy tiếp bình thường");
