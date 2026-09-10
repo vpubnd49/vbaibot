@@ -1076,3 +1076,28 @@ describe("runAgentTurn - tiêm tin giữa lượt", () => {
     assert.ok(soLanLay > 0, "hiện tại agent-loop KHÔNG tự chặn theo isolated - chặn nằm ở call site");
   });
 });
+
+describe("runAgentTurn - chống ảo giác đã gửi file", () => {
+  it("model trả text tự nhận [đã gửi file: ...] nhưng không gọi tool -> kích hoạt bước ép gọi tool", async () => {
+    let callCount = 0;
+    const { ket, calls } = await chayLuot(
+      [
+        () => {
+          callCount++;
+          return traLoi("Dạ anh Tran, em đã chuyển nội dung sang Excel. [đã gửi file: bao-cao.xlsx]");
+        },
+        () => {
+          callCount++;
+          return traLoi("Dạ em đã hoàn thành.");
+        },
+      ],
+      [{ ...tinNhan(), text: "chuyển qua file excel giúp tôi" }],
+    );
+
+    assert.equal(callCount, 2, "phải chạy thêm 1 bước ép model gọi tool");
+    assert.ok(!ket.text.includes("[đã gửi file: bao-cao.xlsx]"), "nhãn giả mạo phải bị loại bỏ");
+    const lastPrompt = promptText(calls[calls.length - 1]!);
+    assert.ok(lastPrompt.includes("CẢNH BÁO HỆ THỐNG"), "lần gọi 2 phải chứa lời nhắc cảnh báo");
+  });
+});
+

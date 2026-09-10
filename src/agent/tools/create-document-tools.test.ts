@@ -196,14 +196,14 @@ describe("create_excel_file", () => {
     assert.ok(!sent[0]!.fileName.includes(".."), `còn .. trong ${sent[0]!.fileName}`);
   });
 
-  it("dòng lệch số cột -> chặn kèm tên sheet, không gửi", async () => {
+  it("dòng lệch số cột -> tự pad ô trống và gửi thành công (hỗ trợ OCR từ ảnh/PDF)", async () => {
     const result = await run(tools.createExcelFileTool(makeCtx()), {
       fileName: "lech",
       sheets: [
         { name: "Sai cột", headers: ["A", "B"], rows: [[{ kind: "text", value: "x" }]] },
       ],
     });
-    assert.equal(sent.length, 0);
-    assert.match(loiCuaTool(result), /Sai cột.*dòng 1/);
+    assert.equal(sent.length, 1);
+    assert.ok(typeof result === "string" && result.includes("lech.xlsx"));
   });
 });

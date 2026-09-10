@@ -38,6 +38,12 @@ import {
   isEmptyRouterCompletion,
   vuotTranToken,
 } from "./agent-loop-conditions.js";
+import {
+  FILE_SEND_TOOLS,
+  laTinNhanAoGiacGuiFile,
+  taoTinNhanNhacGoiTool,
+  xoaNhanAoGiacGuiFile,
+} from "./file-send-guard.js";
 
 // Re-export để test và mọi call site cũ vẫn import từ "agent-loop.js" như trước
 export { canLuotChot, hitStepLimit, isEmptyRouterCompletion, nhanLyDoDung, vuotTranToken };
@@ -653,7 +659,34 @@ export async function runAgentTurn({
   // `steps.length < maxSteps` - nên điều kiện phải là `canLuotChot` (step cuối
   // còn gọi tool) chứ không phải `hitStepLimit` (đòi thêm đủ step). Dùng nhầm
   // hàm cũ thì lượt dừng vì token gửi thẳng câu tường thuật xuống Zalo.
-  const lastStepToolCalls = result.steps.at(-1)?.toolCalls.length ?? 0;
+  const layAllToolCalls = (r: typeof result) =>
+    r.steps.flatMap((step) => step.toolCalls.map((call) => call.toolName));
+
+  // Chống ảo giác "đã gửi file": model trả text nhận là đã gửi/chuyển file nhưng không gọi tool
+  let lastStepToolCalls = result.steps.at(-1)?.toolCalls.length ?? 0;
+  if (
+    !canLuotChot({ lastStepToolCalls }) &&
+    laTinNhanAoGiacGuiFile(result.text, layAllToolCalls(result), latest.text) &&
+    lanChay < 3
+  ) {
+    log.warn(
+      { text: result.text.slice(0, 150), toolCalls: layAllToolCalls(result), lanChay },
+      "Phát hiện ảo giác 'đã gửi file' nhưng không gọi tool - chạy bước ép gọi tool tạo file",
+    );
+    lanChay++;
+    guard.datLai();
+    messages = [
+      ...messages,
+      ...result.response.messages,
+      {
+        role: "user",
+        content: taoTinNhanNhacGoiTool(),
+      },
+    ];
+    result = await runOnce();
+    lastStepToolCalls = result.steps.at(-1)?.toolCalls.length ?? 0;
+  }
+
   if (canLuotChot({ lastStepToolCalls })) {
     // Nhãn phải kể ĐÚNG một trong BA điều kiện dừng. Bản đầu chỉ có hai nên viết
     // nhị phân "hết step" : "chạm trần token"; guard thêm vào sau, và mọi lần
@@ -697,8 +730,12 @@ export async function runAgentTurn({
     autoCaptureKnowledge(account.id, latest.threadId, result.steps);
   }
 
+  const finalToolCalls = layAllToolCalls(result);
+  const daGoiToolGuiFile = finalToolCalls.some((t) => FILE_SEND_TOOLS.has(t));
+  const textCuoi = daGoiToolGuiFile ? result.text.trim() : xoaNhanAoGiacGuiFile(result.text.trim());
+
   return {
-    text: result.text.trim(),
+    text: textCuoi,
     usage: {
       inputTokens: result.totalUsage.inputTokens ?? 0,
       outputTokens: result.totalUsage.outputTokens ?? 0,
