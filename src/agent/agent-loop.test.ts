@@ -43,9 +43,21 @@ describe("isEmptyRouterCompletion", () => {
     );
   });
 
-  it("text rỗng nhưng CÓ token: model thật sự chọn im lặng - không phải glitch, không retry oan", () => {
+  it("text rỗng + CÓ token + KHÔNG tool call: router mất text (Gemma 4 bug) - phải retry", () => {
     assert.equal(
       loop.isEmptyRouterCompletion({ text: "", toolCallCount: 0, totalTokens: 900 }),
+      true,
+    );
+    // Trường hợp thực tế đo được: 43843 tokens, 1689 output tokens nhưng text = ""
+    assert.equal(
+      loop.isEmptyRouterCompletion({ text: "", toolCallCount: 0, totalTokens: 43843 }),
+      true,
+    );
+  });
+
+  it("token rất thấp (< 100) + text rỗng + không tool call: có thể model chủ ý im - không retry", () => {
+    assert.equal(
+      loop.isEmptyRouterCompletion({ text: "", toolCallCount: 0, totalTokens: 50 }),
       false,
     );
   });

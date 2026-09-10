@@ -23,7 +23,15 @@ export function isEmptyRouterCompletion(input: {
   toolCallCount: number;
   totalTokens: number;
 }): boolean {
-  return !input.text.trim() && input.toolCallCount === 0 && input.totalTokens === 0;
+  if (input.toolCallCount > 0) return false;          // có tool call → hợp lệ
+  if (!input.text.trim() && input.totalTokens === 0)   // truyền thống: 200 + body rỗng
+    return true;
+  // Trường hợp mới (Gemma 4 via 9Router): model sinh token nhưng text rỗng.
+  // Router trả textTokens > 0 mà stream aggregator mất text - đo thật: 1689 tokens,
+  // text = "". Không phải lượt "chỉ thả reaction" vì reaction có tool call.
+  if (!input.text.trim() && input.totalTokens > 100)
+    return true;
+  return false;
 }
 
 /**
