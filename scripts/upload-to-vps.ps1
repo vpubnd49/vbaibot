@@ -17,7 +17,7 @@ Write-Host "=== 3. Chuyen doi dinh dang Unix cho deploy script ===" -ForegroundC
 ssh -p $VpsPort "$VpsUser@$VpsHost" "sed -i 's/\r$//' $RemoteDir/scripts/deploy-to-vps.sh && chmod +x $RemoteDir/scripts/deploy-to-vps.sh"
 
 Write-Host "=== 4. Thuc thi script deploy tren VPS ===" -ForegroundColor Cyan
-ssh -p $VpsPort "$VpsUser@$VpsHost" "cd $RemoteDir && set -a && . ./.env && set +a && export DOMAIN=\"vbaibot.chauphienbanso.com\" && bash scripts/deploy-to-vps.sh"
+ssh -p $VpsPort "$VpsUser@$VpsHost" "cd $RemoteDir && set -a && . ./.env && set +a && export DOMAIN='vbaibot.chauphienbanso.com' && bash scripts/deploy-to-vps.sh"
 
 Write-Host "=== 5. Khoi dong lai ung dung (du lieu VPS duoc giu nguyen) ===" -ForegroundColor Cyan
 ssh -p $VpsPort "$VpsUser@$VpsHost" "pm2 restart vbaibot"
