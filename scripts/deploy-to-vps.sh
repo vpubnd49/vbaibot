@@ -33,8 +33,9 @@ mkdir -p "$APP_DIR"
 
 cd "$APP_DIR"
 
-echo "=== 3. Cài đặt dependencies và Build Web UI ==="
+echo "=== 3. Cài đặt dependencies, Build TypeScript và Web UI ==="
 pnpm install
+pnpm build
 pnpm build:web
 
 echo "=== 4. Cấu hình file .env trên VPS ==="
