@@ -35,6 +35,11 @@ type XuLyLuotOptions = {
    * dòng chữ "[gửi kèm N ảnh]" và ảnh mất hẳn khi URL Zalo hết hạn.
    */
   persistImages?: typeof persistBatchImages;
+  /**
+   * Lưu file tài liệu xuống đĩa. Cùng lý do với `persistImages`: tin chen kèm file
+   * phải được tải và gắn `localPath` trước khi model đọc và trước khi ghi history.
+   */
+  persistFiles?: typeof persistBatchFiles;
 };
 
 /**
@@ -132,14 +137,16 @@ async function xuLyLuot(
   let turnFinished = false;
 
   const luuAnh = options.persistImages ?? persistBatchImages;
-  await persistBatchFiles(config.id, batch);
+  const luuFile = options.persistFiles ?? persistBatchFiles;
+  await luuAnh(config.id, batch);
+  await luuFile(config.id, batch);
 
   /**
    * Tin người dùng nhắn thêm GIỮA lượt, đã được kéo vào ngữ cảnh của model.
    *
    * Mảng do CHỖ NÀY sở hữu, cùng nếp với `trace`: `runAgentTurn` chỉ lo đưa tin
    * vào input cho model, còn mọi hệ quả phụ - ghi history, báo "đã xem", thả
-   * reaction, lưu ảnh - là việc ở đây. Không gom vào đây thì tin chen biến mất
+   * reaction, lưu ảnh/file - là việc ở đây. Không gom vào đây thì tin chen biến mất
    * khỏi history y như ca tin bị bỏ ở trần hàng chờ.
    */
   const tinChen: ParsedMessage[] = [];
@@ -151,12 +158,12 @@ async function xuLyLuot(
     // họ tưởng tin rơi vào khoảng không và gửi lại.
     sendSeenReceipt(api, moi);
     sendAutoReaction(config, api, moi[moi.length - 1]!);
-    // AWAIT chứ không fire-and-forget: `localPath` phải có TRƯỚC khi dựng nội
-    // dung cho model, và trước khi ghi history. Thiếu nó thì history chỉ còn
-    // dòng chữ "[gửi kèm N ảnh]" mà không đường dẫn nào - lượt sau bot không
-    // nạp lại được ảnh, sidecar phải mô tả lại từ đầu mỗi lần vì cache khóa
-    // theo chính `localPath`, và ảnh coi như mất hẳn khi URL Zalo hết hạn.
+    // AWAIT chứ không fire-and-forget: `localPath` của cả ảnh và file tài liệu
+    // phải có TRƯỚC khi dựng nội dung cho model, và trước khi ghi history.
+    // Thiếu nó thì model sẽ tưởng file bị lỗi không tải được, sidecar không nạp
+    // lại được, và history bị mất đường dẫn khi URL Zalo hết hạn.
     await luuAnh(config.id, moi);
+    await luuFile(config.id, moi);
     return moi;
   };
 
@@ -198,10 +205,6 @@ async function xuLyLuot(
   };
 
   try {
-    // Lưu ảnh xuống data/media TRƯỚC lượt agent: agent đọc từ đĩa (khỏi tải 2 lần)
-    // và các lượt sau nạp lại được ảnh này từ history
-    await luuAnh(config.id, batch);
-
     // Chạy agent TRƯỚC khi ghi history: runAgentTurn tự đọc history cũ và tự
     // ghép batch hiện tại vào input - ghi trước sẽ khiến tin mới lặp 2 lần.
     const result = await runAgentTurn({

@@ -4,7 +4,7 @@ import { pruneOldTraces } from "../agent/agent-trace-store.js";
 import { dataDir } from "../config/env.js";
 import { startDailyTask } from "../shared/daily-task-schedule.js";
 import { downloadImage, type DownloadedImage } from "../shared/download-image.js";
-import { downloadFromPublicUrl } from "../shared/safe-remote-download.js";
+import { downloadFromPublicUrl, type DownloadOptions } from "../shared/safe-remote-download.js";
 import { createLogger } from "../shared/logger.js";
 import { estimateImageTokens, readImageSize } from "../zalo/zalo-image-variant.js";
 import { pruneExpiredImageDescriptions } from "./image-description-store.js";
@@ -102,19 +102,25 @@ export type PersistableFileMessage = {
   files?: Array<{ fileName: string; url?: string; extension: string; localPath?: string }>;
 };
 
+export type FileDownloader = (
+  url: string,
+  options: DownloadOptions,
+) => Promise<{ data: Buffer; mediaType: string; fileName: string } | null>;
+
 /**
  * Tải các file tài liệu đính kèm (Word, PDF, Excel, CSV, TXT) về data/media
  */
 export async function persistBatchFiles(
   accountId: string,
   messages: PersistableFileMessage[],
+  download: FileDownloader = downloadFromPublicUrl,
 ): Promise<void> {
   for (const msg of messages) {
     if (!msg.files || msg.files.length === 0) continue;
     for (const [index, file] of msg.files.entries()) {
       if (!file.url || file.localPath) continue;
       try {
-        const downloaded = await downloadFromPublicUrl(file.url, { maxBytes: MAX_DOC_BYTES });
+        const downloaded = await download(file.url, { maxBytes: MAX_DOC_BYTES });
         if (!downloaded) continue;
         const safeName = sanitizeSegment(path.basename(file.fileName, path.extname(file.fileName)));
         const ext = normalizeExtension(file.extension, file.fileName);

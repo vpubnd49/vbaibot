@@ -128,54 +128,51 @@ const noiDungHistory = (): string[] =>
  * Ngoài đời chính lượt agent giữ khoá đó (bộ gộp gọi `processBatch` qua
  * `runOnThreadChain`); ở đây `processBatch` được gọi thẳng nên phải tự dựng.
  */
-async function doTinVaoHangCho(text: string, msgId: string): Promise<() => void> {
+async function doTinVaoHangCho(
+  text: string,
+  msgId: string,
+  extra: Partial<ParsedMessage> = {},
+): Promise<() => void> {
   let nhaKhoa!: () => void;
   const bịChặn = new Promise<void>((resolve) => {
     nhaKhoa = resolve;
   });
   void batcher.runOnThreadChain(THREAD_KEY, () => bịChặn);
 
-  batcher.enqueueMessage(THREAD_KEY, tinNhan(text, msgId), async () => {}, 0);
+  const msg = { ...tinNhan(text, msgId), ...extra };
+  batcher.enqueueMessage(THREAD_KEY, msg, async () => {}, 0);
   await new Promise((r) => setTimeout(r, 10)); // hết cửa sổ gộp -> đỗ lại
   return nhaKhoa;
 }
 
-describe("processBatch - tin nhắn thêm giữa lượt", () => {
-  it("tin chen vào history SAU tin mở đầu, đúng thứ tự người ta đã gửi", async () => {
-    // Model giả chốt luôn ở step đầu. `prepareStep` vẫn chạy trước step đó nên
-    // tin đang đỗ trong hàng chờ vẫn được kéo vào - đúng đường chạy thật.
+describe("tiêm tin nhắn giữa lượt (message-turn-processor wire)", () => {
+  it("người dùng nhắn thêm trong lúc agent đang chạy: tin chen được ghi vào history", async () => {
     const model = new MockLanguageModelV4({
-      doStream: async () =>
-        thanhKetQuaStream(traLoi("Đã ghi nhận cả hai ý") as unknown as KetQuaGenerate),
+      doStream: async () => thanhKetQuaStream(traLoi("đã rõ") as unknown as KetQuaGenerate),
     });
 
-    const nhaKhoa = await doTinVaoHangCho("đổi thành file word nhé", "m2");
+    const nhaKhoa = await doTinVaoHangCho("nhắn thêm giữa chừng", "m2");
 
-    await processor.processBatch(config, api, [tinNhan("soạn giúp mình bài giảng", "m1")], {
+    await processor.processBatch(config, api, [tinNhan("câu hỏi đầu", "m1")], {
       resolveModel: () => model,
     });
     nhaKhoa();
 
     const history = noiDungHistory();
-    const viTriMoDau = history.findIndex((c) => c.includes("soạn giúp mình bài giảng"));
-    const viTriChen = history.findIndex((c) => c.includes("đổi thành file word nhé"));
-
-    assert.ok(viTriMoDau >= 0, "tin mở đầu phải có trong history");
-    assert.ok(
-      viTriChen >= 0,
-      "TIN CHEN PHẢI CÓ TRONG HISTORY - thiếu là bot quên sạch câu người ta vừa nói giữa chừng",
-    );
-    assert.ok(viTriChen > viTriMoDau, "tin chen phải nằm SAU tin mở đầu, đúng thứ tự đã gửi");
+    assert.equal(history.filter((c) => c.includes("câu hỏi đầu")).length, 1, "phải có tin đầu");
+    assert.equal(history.filter((c) => c.includes("nhắn thêm giữa chừng")).length, 1, "phải có tin chen");
+    assert.equal(history.length, 3, "2 tin user + 1 tin assistant");
+    assert.deepEqual(daGui, ["đã rõ"]);
   });
 
-  it("tin chen được báo 'đã xem' như tin thường - không để người gửi tưởng tin rơi vào khoảng không", async () => {
+  it("tin chen cũng được báo ĐÃ XEM xuống Zalo để người nhắn không tưởng tin bị rơi", async () => {
     const model = new MockLanguageModelV4({
-      doStream: async () => thanhKetQuaStream(traLoi("ok") as unknown as KetQuaGenerate),
+      doStream: async () => thanhKetQuaStream(traLoi("xong") as unknown as KetQuaGenerate),
     });
 
-    const nhaKhoa = await doTinVaoHangCho("thêm ý này nữa", "m2");
+    const nhaKhoa = await doTinVaoHangCho("nhắn thêm nè", "m2");
 
-    await processor.processBatch(config, api, [tinNhan("câu hỏi đầu", "m1")], {
+    await processor.processBatch(config, api, [tinNhan("tin 1", "m1")], {
       resolveModel: () => model,
     });
     nhaKhoa();
@@ -207,6 +204,36 @@ describe("processBatch - tin nhắn thêm giữa lượt", () => {
     assert.equal(daLuu.length, 2, `mong 2 lần lưu (batch mở đầu + tin chen), nhận ${daLuu.length}`);
     assert.deepEqual(daLuu[0], ["m1"], "lần đầu là batch mở đầu");
     assert.deepEqual(daLuu[1], ["m2"], "lần hai PHẢI là tin chen");
+  });
+
+  it("file tài liệu của tin chen cũng được lưu xuống đĩa như tin mở đầu", async () => {
+    // Thiếu bước này thì model sẽ thấy `localPath: undefined` và báo lỗi không tải được file,
+    // đồng thời history sẽ mất thông tin file khi URL Zalo hết hạn.
+    const model = new MockLanguageModelV4({
+      doStream: async () => thanhKetQuaStream(traLoi("ok") as unknown as KetQuaGenerate),
+    });
+
+    const daLuuFiles: string[][] = [];
+    const nhaKhoa = await doTinVaoHangCho("xem file này giúp mình", "m2", {
+      files: [{ fileName: "403-bao-cao.pdf", url: "https://example.com/403.pdf", extension: ".pdf" }],
+    });
+
+    await processor.processBatch(
+      config,
+      api,
+      [{ ...tinNhan("câu hỏi đầu", "m1"), files: [{ fileName: "04-bao-cao.pdf", url: "https://example.com/04.pdf", extension: ".pdf" }] }],
+      {
+        resolveModel: () => model,
+        persistFiles: async (_acc, messages) => {
+          daLuuFiles.push(messages.map((m) => m.msgId ?? ""));
+        },
+      },
+    );
+    nhaKhoa();
+
+    assert.equal(daLuuFiles.length, 2, `mong 2 lần lưu file (batch mở đầu + tin chen), nhận ${daLuuFiles.length}`);
+    assert.deepEqual(daLuuFiles[0], ["m1"], "lần đầu là batch mở đầu");
+    assert.deepEqual(daLuuFiles[1], ["m2"], "lần hai PHẢI là tin chen");
   });
 
   it("hàng chờ rỗng thì mọi thứ y như cũ - đối chứng", async () => {
