@@ -6,6 +6,7 @@ import { startScheduler, stopScheduler } from "./scheduler/scheduler-loop.js";
 import { startDashboardServer, stopDashboardServer } from "./server/dashboard-server.js";
 import { createLogger } from "./shared/logger.js";
 import { startTempFileCleanupSchedule } from "./shared/temp-file-store.js";
+import { startThanhtraSyncTask } from "./thanhtra/thanhtra-service.js";
 import { startAllAccounts, stopAllAccounts } from "./zalo/account-manager.js";
 
 // Vòng đời tiến trình cũng cần scope: không có thì badge scope trên trang Logs
@@ -66,6 +67,8 @@ setInterval(() => heartbeatLog.debug("còn sống"), 15 * 60_000).unref();
 startMediaCleanupSchedule();
 // Dọn file tạm mồ côi của tool send_file (process bị kill giữa lượt gửi)
 startTempFileCleanupSchedule();
+// Tự động quét và đồng bộ Kết luận thanh tra tỉnh Lâm Đồng (ngay + mỗi 6h)
+startThanhtraSyncTask();
 
 startDashboardServer();
 startAllAccounts()

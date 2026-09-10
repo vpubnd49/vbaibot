@@ -16,6 +16,7 @@ import { createAdminDivisionTool } from "./admin-division-tool.js";
 
 import { createKnowledgeResearchTool } from "./knowledge-research-tool.js";
 import { createDeveloperResearchTool } from "./developer-research-tool.js";
+import { createThanhtraLamdongTool } from "./thanhtra-lamdong-tool.js";
 
 /**
  * Nhóm "read" của catalog tool - tra cứu, không tác động ra ngoài. Tách khỏi
@@ -23,6 +24,14 @@ import { createDeveloperResearchTool } from "./developer-research-tool.js";
  * catalog nào vượt ngưỡng 200 dòng khi thêm tool mới.
  */
 export const READ_TOOL_DEFINITIONS: ToolDefinition[] = [
+  {
+    key: "thanhtra_lamdong",
+    label: "Kết luận Thanh tra Lâm Đồng",
+    description:
+      "Tra cứu danh sách, tóm tắt và tải file PDF Kết luận thanh tra, Thông báo kết luận của Thanh tra tỉnh Lâm Đồng (nguồn: lamdong.gov.vn)",
+    group: "read",
+    build: (ctx) => createThanhtraLamdongTool(ctx),
+  },
   {
     key: "get_datetime",
     label: "Ngày giờ hiện tại",

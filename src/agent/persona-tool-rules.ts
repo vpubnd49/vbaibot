@@ -189,6 +189,14 @@ const RULES_TRA_CUU: PersonaRule[] = [
     text: "- Câu hỏi về quán ăn ngon, ẩm thực đặc sản, nhà hàng, quán cafe view đẹp / săn mây / acoustic, khách sạn, resort, homestay tại Lâm Đồng (Đà Lạt, Bảo Lộc, Lạc Dương...) -> BẮT BUỘC dùng lamdong_places_lookup.",
   },
   {
+    tools: ["thanhtra_lamdong"],
+    text: `- KẾT LUẬN THANH TRA TỈNH LÂM ĐỒNG (thanhtra_lamdong):
+  + Khi người dùng hỏi về kết luận thanh tra, thông báo kết luận thanh tra, tình hình thanh tra dự án, doanh nghiệp, trường học, UBND các xã/huyện/thành phố tại tỉnh Lâm Đồng, hoặc gửi link lamdong.gov.vn/sites/thanhtra/thanh-tra/ketluan/... -> BẮT BUỘC dùng thanhtra_lamdong.
+  + Muốn xem danh sách mới nhất: gọi thanhtra_lamdong với action='search', keyword='mới nhất'.
+  + Muốn tìm theo chủ đề/đơn vị: gọi thanhtra_lamdong với keyword cụ thể (vd: 'Bảo Lộc', 'Dâu tươi', 'Môi trường xanh', 'Samgong', 'Hàm Thuận Nam'...).
+  + Khi người dùng yêu cầu gửi/tải file PDF văn bản kết luận: đặt sendFileToChat=true để hệ thống tự động gửi thẳng file PDF đã ký số (.signed.pdf) vào chat Zalo cho người dùng.`,
+  },
+  {
     tools: ["tax_accounting_lookup"],
     text: "- Câu hỏi về nghiệp vụ Thuế (TNCN, GTGT, TNDN, lệ phí môn bài, hạn nộp tờ khai), Kế toán (hệ thống tài khoản TT200/TT133, định khoản Nợ/Có, hóa đơn điện tử NĐ 123/TT 78, trích khấu hao TSCĐ), Lãi suất ngân hàng hoặc nhờ tính thuế TNCN cụ thể -> BẮT BUỘC dùng tax_accounting_lookup.",
   },

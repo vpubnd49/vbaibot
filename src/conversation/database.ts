@@ -304,6 +304,20 @@ function runMigrations(): void {
     );
     CREATE INDEX IF NOT EXISTS idx_broadcast_logs_thread ON broadcast_logs (account_id, thread_id);
     CREATE INDEX IF NOT EXISTS idx_broadcast_logs_created ON broadcast_logs (created_at DESC);
+
+    -- Văn bản Kết luận thanh tra tỉnh Lâm Đồng (Cổng TTĐT lamdong.gov.vn)
+    CREATE TABLE IF NOT EXISTS thanhtra_documents (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT NOT NULL,
+      description TEXT NOT NULL DEFAULT '',
+      file_ref TEXT NOT NULL UNIQUE,
+      pdf_url TEXT,
+      local_path TEXT,
+      file_size INTEGER DEFAULT 0,
+      modified_at TEXT,
+      created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+    );
+    CREATE INDEX IF NOT EXISTS idx_thanhtra_docs_modified ON thanhtra_documents (modified_at DESC);
   `);
 
   // Tool CHẠY LỖI: AI SDK để chúng ở content dạng tool-error, không vào
