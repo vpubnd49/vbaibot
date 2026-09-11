@@ -11,6 +11,7 @@ const AUDIO_MIME_BY_EXT: Record<string, string> = {
   ".opus": "audio/opus",
   ".flac": "audio/flac",
   ".amr": "audio/amr",
+  ".webm": "audio/webm",
 };
 
 export type SpeechToTextResult = {

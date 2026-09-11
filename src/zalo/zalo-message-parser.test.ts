@@ -137,6 +137,20 @@ describe("parseIncomingMessage", () => {
     assert.match(describeForHistory(msg), /file ghi âm/);
   });
 
+  it("nhận diện file ghi âm WebM từ Zalo", () => {
+    const msg = parseIncomingMessage("acc-test", SELF_ID, {
+      threadId: "voice-webm",
+      data: {
+        msgType: "voice",
+        content: { fileName: "ghi-am.webm", url: "https://files.zalo.test/ghi-am.webm", mimeType: "audio/webm" },
+        uidFrom: "user-1",
+      },
+    });
+    assert.equal(msg.files?.[0]?.isAudio, true);
+    assert.equal(msg.files?.[0]?.extension, ".webm");
+    assert.equal(msg.files?.[0]?.mimeType, "audio/webm");
+  });
+
   it("nhận diện audio qua MIME dù không có phần mở rộng", () => {
     const msg = parseIncomingMessage("acc-test", SELF_ID, {
       threadId: "voice-2",

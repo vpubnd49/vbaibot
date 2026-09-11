@@ -60,7 +60,7 @@ const SUPPORTED_DOC_EXTS = [
   ".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".tif", ".heic", ".webp",
 ];
 
-const SUPPORTED_AUDIO_EXTS = [".m4a", ".mp3", ".wav", ".aac", ".ogg", ".opus", ".flac", ".amr"];
+const SUPPORTED_AUDIO_EXTS = [".m4a", ".mp3", ".wav", ".aac", ".ogg", ".opus", ".flac", ".amr", ".webm"];
 const AUDIO_MIME_TYPES: Record<string, string> = {
   ".m4a": "audio/mp4",
   ".mp3": "audio/mpeg",
@@ -70,6 +70,7 @@ const AUDIO_MIME_TYPES: Record<string, string> = {
   ".opus": "audio/opus",
   ".flac": "audio/flac",
   ".amr": "audio/amr",
+  ".webm": "audio/webm",
 };
 
 function extractFileCandidate(obj: any): IncomingFile | null {

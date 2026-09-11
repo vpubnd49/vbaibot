@@ -39,6 +39,25 @@ describe("transcribeAudioFile", () => {
     }
   });
 
+  it("dùng MIME audio/webm cho file WebM", async () => {
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = (async (_input, init) => {
+      const body = init?.body as FormData;
+      const file = body.get("file") as File;
+      assert.equal(file.type, "audio/webm");
+      return new Response(JSON.stringify({ text: "nội dung webm" }), { status: 200 });
+    }) as typeof fetch;
+    try {
+      const result = await transcribeAudioFile(audioPath, "ghi-am.webm", {
+        baseUrl: "https://stt.test/v1",
+        apiKey: "test-key",
+      });
+      assert.equal(result?.text, "nội dung webm");
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
   it("ném lỗi có status khi provider trả HTTP lỗi", async () => {
     const originalFetch = globalThis.fetch;
     globalThis.fetch = (async () => new Response("invalid key", { status: 401 })) as typeof fetch;
