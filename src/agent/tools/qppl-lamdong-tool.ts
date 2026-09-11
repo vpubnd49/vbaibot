@@ -187,7 +187,7 @@ export function createQpplLamdongTool({ api, account, message, ghiNhanDaGui }: T
               sendNote +=
                 `\n⚠️ ${dl.failed.length} file tải từ cổng tỉnh thất bại: ${dl.failed.map((f) => f.name).join(", ")}`;
             }
-          } else {
+          } else if (!archiveFiles) {
             // Không có file → cung cấp link trực tuyến
             let fileLinks: QpplFileLink[] = [];
             try { fileLinks = JSON.parse(doc.fileUrls) as QpplFileLink[]; } catch { /* empty */ }
