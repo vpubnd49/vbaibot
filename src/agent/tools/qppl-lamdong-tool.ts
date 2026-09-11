@@ -1,10 +1,8 @@
-import fs from "node:fs";
 import path from "node:path";
 import { tool } from "ai";
 import { z } from "zod";
-import { dataDir } from "../../config/env.js";
 import { searchQpplDocs, getQpplDocById, countQpplDocs } from "../../qppl/qppl-store.js";
-import { syncQpplDocuments, downloadFileForDoc, liveSearchAndUpsert } from "../../qppl/qppl-service.js";
+import { syncQpplDocuments, downloadAllFilesForDoc, liveSearchAndUpsert } from "../../qppl/qppl-service.js";
 import { guiFileKemCaption } from "./send-attachment-with-caption.js";
 import { ghiChuDaGuiFile } from "./sent-by-tool-note.js";
 import type { ToolContext } from "./tool-catalog-types.js";
@@ -70,32 +68,27 @@ export function createQpplLamdongTool({ api, account, message, ghiNhanDaGui }: T
 
         let sendNote = "";
         if (sendFileToChat) {
-          let absPath: string | null = null;
+          // Tải TẤT CẢ file đính kèm
+          const allPaths = await downloadAllFilesForDoc(docId);
 
-          // Kiểm tra file đã tải trên đĩa
-          if (doc.localPath) {
-            const p = path.resolve(dataDir, doc.localPath);
-            if (fs.existsSync(p)) absPath = p;
-          }
-
-          // Chưa có → tải on-demand
-          if (!absPath) {
-            absPath = await downloadFileForDoc(docId);
-          }
-
-          if (absPath && fs.existsSync(absPath)) {
-            const caption = `VB ${doc.loaiVanBan}: ${doc.soKyHieu} - ${doc.trichYeu.slice(0, 80)}`;
-            await guiFileKemCaption(
-              api,
-              `${account.id}:${message.threadId}`,
-              message.threadId,
-              message.threadType,
-              absPath,
-              caption,
-            );
-            ghiNhanDaGui?.(ghiChuDaGuiFile(path.basename(absPath), caption));
+          if (allPaths.length > 0) {
+            const sentNames: string[] = [];
+            for (const absPath of allPaths) {
+              const fileName = path.basename(absPath);
+              const caption = `VB ${doc.loaiVanBan}: ${doc.soKyHieu}\n📎 ${fileName}`;
+              await guiFileKemCaption(
+                api,
+                `${account.id}:${message.threadId}`,
+                message.threadId,
+                message.threadType,
+                absPath,
+                caption,
+              );
+              sentNames.push(fileName);
+            }
+            ghiNhanDaGui?.(ghiChuDaGuiFile(sentNames.join(", "), `VB ${doc.soKyHieu}`));
             sendNote =
-              "\n\n✅ ĐÃ GỬI FILE TRỰC TIẾP VÀO CHAT. Model KHÔNG cần gọi thêm send_file.";
+              `\n\n✅ ĐÃ GỬI ${allPaths.length} FILE TRỰC TIẾP VÀO CHAT. Model KHÔNG cần gọi thêm send_file.`;
           } else {
             // Không có file → cung cấp link trực tuyến
             let fileLinks: QpplFileLink[] = [];
@@ -159,22 +152,22 @@ export function createQpplLamdongTool({ api, account, message, ghiNhanDaGui }: T
       // Gửi file nếu được yêu cầu
       let sendStatusNote = "";
       if (sendFileToChat && docs.length > 0) {
+        // Loại trùng soKyHieu (cùng VB có thể xuất hiện nhiều lần từ search)
+        const seen = new Set<string>();
+        const uniqueDocs = docs.filter((d) => {
+          if (seen.has(d.soKyHieu)) return false;
+          seen.add(d.soKyHieu);
+          return true;
+        });
+        // Giới hạn gửi tối đa 3 VB (mỗi VB có thể có nhiều file)
+        const toSend = uniqueDocs.slice(0, 3);
         const sentFiles: string[] = [];
-        // Giới hạn gửi tối đa 5 file cùng lúc
-        const toSend = docs.slice(0, 5);
+        let totalFilesSent = 0;
         for (const targetDoc of toSend) {
-          let absPath: string | null = null;
-
-          if (targetDoc.localPath) {
-            const p = path.resolve(dataDir, targetDoc.localPath);
-            if (fs.existsSync(p)) absPath = p;
-          }
-          if (!absPath) {
-            absPath = await downloadFileForDoc(targetDoc.id);
-          }
-
-          if (absPath && fs.existsSync(absPath)) {
-            const caption = `VB ${targetDoc.loaiVanBan}: ${targetDoc.soKyHieu}`;
+          const allPaths = await downloadAllFilesForDoc(targetDoc.id);
+          for (const absPath of allPaths) {
+            const fileName = path.basename(absPath);
+            const caption = `VB ${targetDoc.loaiVanBan}: ${targetDoc.soKyHieu}\n📎 ${fileName}`;
             await guiFileKemCaption(
               api,
               `${account.id}:${message.threadId}`,
@@ -183,13 +176,19 @@ export function createQpplLamdongTool({ api, account, message, ghiNhanDaGui }: T
               absPath,
               caption,
             );
-            ghiNhanDaGui?.(ghiChuDaGuiFile(path.basename(absPath), caption));
-            sentFiles.push(`#${targetDoc.id}: ${targetDoc.soKyHieu}`);
+            totalFilesSent++;
+          }
+          if (allPaths.length > 0) {
+            ghiNhanDaGui?.(ghiChuDaGuiFile(
+              allPaths.map((p) => path.basename(p)).join(", "),
+              `VB ${targetDoc.soKyHieu}`,
+            ));
+            sentFiles.push(`#${targetDoc.id}: ${targetDoc.soKyHieu} (${allPaths.length} file)`);
           }
         }
         if (sentFiles.length > 0) {
           sendStatusNote =
-            `\n\n✅ ĐÃ GỬI ${sentFiles.length} FILE VÀO CHAT:\n` +
+            `\n\n✅ ĐÃ GỬI ${totalFilesSent} FILE TỪ ${sentFiles.length} VĂN BẢN VÀO CHAT:\n` +
             sentFiles.map((f) => `- ${f}`).join("\n") +
             "\nModel KHÔNG cần gọi thêm send_file.";
         }

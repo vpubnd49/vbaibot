@@ -135,51 +135,114 @@ export async function liveSearchAndUpsert(
 /**
  * Tải file PDF (ưu tiên) hoặc DOC cho một văn bản.
  *
- * Gọi khi người dùng yêu cầu tải file cụ thể. Kiểm tra localPath trước,
- * nếu đã tải rồi thì bỏ qua. Nếu chưa, tải file đầu tiên (ưu tiên PDF).
- *
- * Trả về đường dẫn tuyệt đối trên đĩa, hoặc null nếu không có link.
+ * @deprecated Dùng {@link downloadAllFilesForDoc} thay thế để tải TẤT CẢ file đính kèm.
+ * Hàm này chỉ giữ lại cho tương thích ngược.
  */
 export async function downloadFileForDoc(docId: number): Promise<string | null> {
-  const doc = getQpplDocById(docId);
-  if (!doc) return null;
+  const results = await downloadAllFilesForDoc(docId);
+  return results.length > 0 ? results[0]! : null;
+}
 
-  // Đã tải rồi → trả về ngay
-  if (doc.localPath) {
-    const absPath = path.resolve(dataDir, doc.localPath);
-    if (fs.existsSync(absPath)) return absPath;
-  }
+function rankFile(name: string): number {
+  const lower = name.toLowerCase();
+  const isSigned = lower.includes("signed");
+  const isPhuLuc =
+    lower.includes("phu luc") ||
+    lower.includes("phụ lục") ||
+    lower.includes("danh muc") ||
+    lower.includes("danh mục") ||
+    lower.includes("to trinh") ||
+    lower.includes("tờ trình") ||
+    lower.includes("phieu trinh") ||
+    lower.includes("phiếu trình") ||
+    lower.includes("dm ");
+  const isMainDoc =
+    lower.includes("quyet dinh") ||
+    lower.includes("quyết định") ||
+    lower.includes("ke hoach") ||
+    lower.includes("kế hoạch") ||
+    lower.includes("thong bao") ||
+    lower.includes("thông báo") ||
+    lower.includes("cong van") ||
+    lower.includes("công văn") ||
+    lower.includes("bao cao") ||
+    lower.includes("báo cáo");
+
+  if (isSigned && !isPhuLuc) return 100;
+  if (isMainDoc && !isPhuLuc) return 90;
+  if (isSigned && isPhuLuc) return 80;
+  if (!isPhuLuc && lower.endsWith(".pdf")) return 70;
+  if (!isPhuLuc) return 60;
+  if (lower.endsWith(".pdf")) return 50;
+  return 40;
+}
+
+/**
+ * Tải TẤT CẢ file đính kèm cho một văn bản.
+ *
+ * Gọi khi người dùng yêu cầu tải file cụ thể. Tải toàn bộ file đính kèm
+ * (PDF, DOC, DOCX, XLSX...) theo thứ tự ưu tiên:
+ * Văn bản chính (đã ký số) → Dự thảo/Word → Phụ lục/Danh mục.
+ *
+ * File đã tải trước đó trên đĩa sẽ không tải lại.
+ * Trả về mảng đường dẫn tuyệt đối trên đĩa. Mảng rỗng nếu không có link.
+ */
+export async function downloadAllFilesForDoc(docId: number): Promise<string[]> {
+  const doc = getQpplDocById(docId);
+  if (!doc) return [];
 
   // Parse file links
   let links: QpplFileLink[];
   try {
     links = JSON.parse(doc.fileUrls) as QpplFileLink[];
   } catch {
-    return null;
+    return [];
   }
-  if (links.length === 0) return null;
+  if (links.length === 0) return [];
 
-  // Ưu tiên PDF, rồi DOC/DOCX
-  const pdfLink = links.find((l) => /\.pdf$/i.test(l.name));
-  const chosen = pdfLink || links[0]!;
+  // Sắp xếp ưu tiên: văn bản chính (signed/quyết định) lên trước, phụ lục/danh mục ra sau
+  const sortedLinks = [...links].sort((a, b) => rankFile(b.name) - rankFile(a.name));
 
   const storageDir = getQpplStorageDir();
-  const ext = path.extname(chosen.name) || ".pdf";
-  const baseName = sanitizeFileName(
-    `${doc.soKyHieu.replace(/\//g, "-")}_${doc.nguon}${ext}`,
-  );
-  const absPath = path.join(storageDir, baseName);
-  const relPath = path.join("qppl", baseName).replace(/\\/g, "/");
+  const downloadedPaths: string[] = [];
+  let totalBytes = 0;
+  const safeSoKyHieu = doc.soKyHieu.replace(/[\/\\:*?"<>|]/g, "-").trim();
 
-  try {
-    const fileSize = await downloadQpplFile(chosen.url, absPath);
-    updateQpplLocalPath(docId, relPath, fileSize);
-    log.info({ docId, file: baseName, bytes: fileSize }, "Đã tải on-demand file VB QPPL");
-    return absPath;
-  } catch (err) {
-    log.warn({ docId, url: chosen.url, err }, "Không tải được file VB QPPL on-demand");
-    return null;
+  for (let i = 0; i < sortedLinks.length; i++) {
+    const link = sortedLinks[i]!;
+    // Giữ tên gốc của file từ cổng tỉnh để người dùng dễ nhận biết (QD chính vs Phụ lục)
+    const cleanOriginalName = sanitizeFileName(link.name);
+    const baseName = sanitizeFileName(`[${safeSoKyHieu}] ${cleanOriginalName}`);
+    const absPath = path.join(storageDir, baseName);
+
+    // File đã tồn tại trên đĩa → bỏ qua tải lại
+    if (fs.existsSync(absPath)) {
+      downloadedPaths.push(absPath);
+      continue;
+    }
+
+    try {
+      const fileSize = await downloadQpplFile(link.url, absPath);
+      totalBytes += fileSize;
+      downloadedPaths.push(absPath);
+      log.debug({ docId, file: baseName, bytes: fileSize, idx: i + 1 }, "Đã tải file VB");
+    } catch (err) {
+      log.warn({ docId, url: link.url, name: link.name, err }, "Không tải được file đính kèm");
+      // Tiếp tục tải các file còn lại
+    }
   }
+
+  // Cập nhật localPath (lưu file đầu tiên - file chính - làm đại diện) và tổng fileSize
+  if (downloadedPaths.length > 0) {
+    const relPath = path.join("qppl", path.basename(downloadedPaths[0]!)).replace(/\\/g, "/");
+    updateQpplLocalPath(docId, relPath, totalBytes);
+    log.info(
+      { docId, total: downloadedPaths.length, ofTotal: links.length, bytes: totalBytes },
+      "Hoàn thành tải file VB QPPL",
+    );
+  }
+
+  return downloadedPaths;
 }
 
 /**

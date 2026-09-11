@@ -170,11 +170,11 @@ export async function searchQpplItemsLive(
 
   for (const nguon of nguons) {
     const cfg = NGUON_CONFIG[nguon];
-    // Tìm trên Số/Ký hiệu, Title, và Trích yếu
-    const filter =
-      `substringof('${escapedKw}',S_x1ed1__x002f_K_x00fd__x0020_hi)` +
-      ` or substringof('${escapedKw}',Title)` +
-      ` or substringof('${escapedKw}',Tr_x00ed_ch_x0020_y_x1ebf_u)`;
+    // SharePoint OData chỉ hỗ trợ substringof trên Title (Single line of text).
+    // Các trường Unicode-encoded khác (Trích yếu, Số/Ký hiệu) là Note/Calculated
+    // nên sẽ bị SharePoint trả lỗi HTTP 400 Bad Request nếu dùng substringof.
+    // Title của văn bản trên SharePoint luôn có dạng: "Trục liên thông: 4480/QĐ-BDD".
+    const filter = `substringof('${escapedKw}',Title)`;
     const url =
       `${cfg.baseUrl}('${encodeURIComponent(cfg.listTitle)}')/items` +
       `?$filter=${encodeURIComponent(filter)}` +
