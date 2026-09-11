@@ -693,7 +693,7 @@ export async function runAgentTurn({
       ...messages,
       {
         role: "user",
-        content: taoTinNhanNhacGoiTool(),
+        content: taoTinNhanNhacGoiTool(latest.text),
       },
     ];
     result = await runOnce({ toolChoice: "required" });

@@ -30,6 +30,8 @@ export const FILE_SEND_TOOLS = new Set([
   "create_image",
   "create_music",
   "create_video",
+  "qppl_lamdong",
+  "thanhtra_lamdong",
 ]);
 
 /** Nhãn giả mạo do model tự gõ nhại theo history */
@@ -113,9 +115,29 @@ export function laTinNhanAoGiacGuiFile(
 }
 
 /**
- * Tạo lời nhắc hệ thống yêu cầu model phải gọi tool tạo file.
+ * Tạo lời nhắc hệ thống yêu cầu model phải gọi tool tạo file hoặc tải file.
  */
-export function taoTinNhanNhacGoiTool(): string {
+export function taoTinNhanNhacGoiTool(userPrompt?: string): string {
+  const p = userPrompt?.toLowerCase() || "";
+  const laYeuCauTaiVB =
+    p.includes("tải") ||
+    p.includes("quyết định") ||
+    p.includes("công văn") ||
+    p.includes("kế hoạch") ||
+    p.includes("thông báo") ||
+    p.includes("văn bản") ||
+    p.includes("qđ") ||
+    p.includes("ubnd");
+
+  if (laYeuCauTaiVB) {
+    return (
+      "CẢNH BÁO HỆ THỐNG: Bạn vừa trả lời nhận là 'đã gửi file' nhưng HOÀN TOÀN CHƯA GỌI CÔNG CỤ NÀO! Người dùng CHƯA nhận được file! " +
+      "Người dùng đang yêu cầu TẢI VĂN BẢN TỈNH LÂM ĐỒNG (Quyết định, Công văn, Kế hoạch, Văn bản chỉ đạo). " +
+      "Bạn BẮT BUỘC PHẢI GỌI CÔNG CỤ `qppl_lamdong` NGAY BÂY GIỜ với tham số `sendFileToChat: true` và `keyword` là số hiệu văn bản (hoặc từ khóa)! " +
+      "TUYỆT ĐỐI KHÔNG ĐƯỢC trả lời bằng văn bản suông hay hứa hẹn mà không gọi công cụ `qppl_lamdong`!"
+    );
+  }
+
   return (
     "CẢNH BÁO HỆ THỐNG: Người dùng đang yêu cầu tạo/xuất tài liệu (file Excel / Word / tài liệu). " +
     "Bạn BẮT BUỘC phải gọi ngay công cụ tạo file tương ứng (create_excel_file, create_word_document, create_admin_document...) " +
@@ -128,9 +150,16 @@ export function taoTinNhanNhacGoiTool(): string {
  * Xóa bỏ các nhãn giả mạo `[đã gửi file: ...]` khỏi văn bản khi không có tool nào chạy.
  */
 export function xoaNhanAoGiacGuiFile(text: string): string {
-  return text
+  let cleaned = text
     .replace(/\[(?:đang|đã)\s+(?:tạo|xuất|gửi)\s+file:[^\]]+\]/gi, "")
     .replace(/\[đã\s+gửi\s+(?:ảnh|video|file\s+nhạc)[^\]]*\]/gi, "")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
+
+  // Nếu text vẫn chứa câu khẳng định đã gửi file trong khi không có tool gửi file nào chạy:
+  if (CAU_DA_GUI_FILE_RE.test(cleaned) || CAU_KHANG_DINH_GUI_FILE_RE.test(cleaned)) {
+    cleaned += "\n\n*(⚠️ Lưu ý: Hệ thống chưa thực hiện được lệnh gửi file đính kèm tự động. Vui lòng nhắn rõ: 'tải văn bản [số hiệu]' để em kích hoạt gửi file cho anh nhé!)*";
+  }
+
+  return cleaned;
 }

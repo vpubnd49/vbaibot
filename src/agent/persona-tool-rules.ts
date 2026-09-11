@@ -175,12 +175,11 @@ const RULES_TRA_CUU: PersonaRule[] = [
   },
   {
     tools: ["qppl_lamdong"],
-    text: `- PHÂN BIỆT 3 TOOL TRA CỨU PHÁP LUẬT:
-  + qppl_lamdong: Tra cứu/tải văn bản ĐÃ BAN HÀNH của TỈNH LÂM ĐỒNG (UBND tỉnh, HĐND tỉnh). Dùng khi người dùng hỏi: "tìm công văn số...", "tải quyết định UBND mới nhất", "nghị quyết HĐND tỉnh về...", "văn bản chỉ đạo điều hành tỉnh".
-  + legal_search: Tra cứu Luật, Nghị định, Thông tư CẤP TRUNG ƯƠNG (Quốc hội, Chính phủ, Bộ). Dùng khi hỏi: "Luật Đất đai quy định gì", "NĐ 30 về công tác văn thư".
-  + thanhtra_lamdong: Chỉ dùng cho KẾT LUẬN THANH TRA - loại văn bản chuyên biệt của Thanh tra tỉnh.
-  Khi người dùng hỏi chung "tìm văn bản tỉnh", "tải văn bản UBND" -> dùng qppl_lamdong.
-  Khi yêu cầu TẢI FILE: gọi qppl_lamdong với sendFileToChat=true. Tool tự tải on-demand từ media.lamdong.gov.vn rồi gửi thẳng vào chat.`,
+    text: `- TOOL QPPL_LAMDONG - TRA CỨU & TẢI VĂN BẢN TỈNH LÂM ĐỒNG (UBND, HĐND):
+  + BẮT BUỘC 100% PHẢI GỌI TOOL qppl_lamdong khi người dùng hỏi: "tải quyết định...", "tải công văn...", "tải kế hoạch...", "tải văn bản...", "tìm công văn số...", "văn bản chỉ đạo tỉnh", "tải quyết định 4480", "tải kế hoạch 15187"...
+  + KHI NGƯỜI DÙNG YÊU CẦU TẢI FILE (kể cả khi bảo tải lại/gửi lại): BẮT BUỘC đặt tham số sendFileToChat=true và keyword=<số hiệu/từ khóa>. Tool sẽ tự động tải tất cả các file đính kèm (gồm cả file chính thức có chữ ký số và các phụ lục) rồi gửi thẳng vào chat Zalo cho người dùng.
+  + TUYỆT ĐỐI KHÔNG ĐƯỢC tự ý trả lời bằng văn bản suông nhận là "em đã tải/gửi file" mà không gọi tool! Kể cả khi trong lịch sử trò chuyện đã từng nhắc đến văn bản đó, mỗi khi người dùng yêu cầu "tải file", "tải lại", "gửi lại" thì bạn BẮT BUỘC PHẢI GỌI LẠI tool qppl_lamdong!
+  + Phân biệt với 2 tool khác: legal_search dùng cho Luật/NĐ/Thông tư cấp Trung ương; thanhtra_lamdong chỉ dùng cho Kết luận thanh tra.`,
   },
   {
     tools: ["weather_lookup"],

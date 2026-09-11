@@ -11,11 +11,10 @@ import type { QpplFileLink, QpplNguon } from "../../qppl/qppl-types.js";
 export function createQpplLamdongTool({ api, account, message, ghiNhanDaGui }: ToolContext) {
   return tool({
     description:
-      "Tra cứu, tìm kiếm và tải file văn bản pháp luật, văn bản chỉ đạo điều hành của tỉnh Lâm Đồng " +
-      "(Công văn, Quyết định, Nghị quyết, Chỉ thị, Báo cáo, Tờ trình...) từ Cổng QPPL tỉnh Lâm Đồng (lamdong.gov.vn). " +
-      "Nguồn: UBND tỉnh (63.000+ VB), HĐND tỉnh (1.500+ VB). " +
-      "Dùng tool này khi người dùng yêu cầu tra cứu/tìm/tải văn bản chỉ đạo, quyết định UBND, nghị quyết HĐND, " +
-      "hoặc hỏi về số hiệu văn bản cụ thể của tỉnh.",
+      "BẮT BUỘC GỌI TOOL NÀY khi người dùng yêu cầu tra cứu, tìm kiếm hoặc TẢI FILE văn bản chỉ đạo điều hành của tỉnh Lâm Đồng " +
+      "(Quyết định UBND/BĐD, Công văn, Kế hoạch, Nghị quyết HĐND, Chỉ thị, Báo cáo, Tờ trình...). " +
+      "KHI NGƯỜI DÙNG YÊU CẦU TẢI FILE (VD: 'tải quyết định 4480', 'tải kế hoạch 15187', 'gửi file quyết định...'): " +
+      "BẮT BUỘC đặt sendFileToChat=true và keyword là số hiệu văn bản để tool tải toàn bộ file đính kèm gửi thẳng vào chat.",
     inputSchema: z.object({
       action: z
         .enum(["search", "get", "sync"])
