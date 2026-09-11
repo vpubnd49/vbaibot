@@ -1,5 +1,29 @@
 import { db } from "../conversation/database.js";
-import type { QpplDoc, QpplNguon } from "./qppl-types.js";
+import type { QpplDoc, QpplFileLink, QpplNguon } from "./qppl-types.js";
+
+function mergeFileUrls(existingJson: string | undefined, incomingJson: string | undefined): string {
+  const parse = (value: string | undefined): QpplFileLink[] => {
+    if (!value) return [];
+    try {
+      const parsed: unknown = JSON.parse(value);
+      return Array.isArray(parsed)
+        ? parsed.filter((item): item is QpplFileLink =>
+            typeof item === "object" && item !== null &&
+            typeof (item as QpplFileLink).url === "string" &&
+            typeof (item as QpplFileLink).name === "string",
+          )
+        : [];
+    } catch {
+      return [];
+    }
+  };
+
+  const merged = new Map<string, QpplFileLink>();
+  for (const link of [...parse(existingJson), ...parse(incomingJson)]) {
+    if (!merged.has(link.url)) merged.set(link.url, link);
+  }
+  return JSON.stringify([...merged.values()]);
+}
 
 type Row = {
   id: number;
@@ -54,6 +78,11 @@ export function upsertQpplDoc(doc: {
   spId?: number | null;
   modifiedAt?: string;
 }): QpplDoc {
+  const existing = doc.spId == null
+    ? undefined
+    : db.prepare("SELECT file_urls FROM qppl_documents WHERE nguon = ? AND sp_id = ?").get(doc.nguon, doc.spId) as { file_urls?: string } | undefined;
+  const mergedFileUrls = mergeFileUrls(existing?.file_urls, doc.fileUrls);
+
   const stmt = db.prepare(`
     INSERT INTO qppl_documents (
       so_ky_hieu, trich_yeu, loai_van_ban, co_quan, linh_vuc, hieu_luc,
@@ -67,7 +96,9 @@ export function upsertQpplDoc(doc: {
       linh_vuc = excluded.linh_vuc,
       hieu_luc = excluded.hieu_luc,
       ngay_ban_hanh = excluded.ngay_ban_hanh,
-      file_urls = CASE WHEN length(excluded.file_urls) > 2 THEN excluded.file_urls ELSE qppl_documents.file_urls END,
+      file_urls = CASE WHEN length(excluded.file_urls) > 2
+                 THEN excluded.file_urls
+                 ELSE qppl_documents.file_urls END,
       local_path = COALESCE(excluded.local_path, qppl_documents.local_path),
       file_size = CASE WHEN excluded.file_size > 0 THEN excluded.file_size ELSE qppl_documents.file_size END,
       modified_at = excluded.modified_at
@@ -83,7 +114,7 @@ export function upsertQpplDoc(doc: {
     doc.hieuLuc ?? "Còn",
     doc.ngayBanHanh ?? null,
     doc.nguon,
-    doc.fileUrls ?? "[]",
+    mergedFileUrls,
     doc.localPath ?? null,
     doc.fileSize ?? 0,
     doc.spId ?? null,

@@ -140,7 +140,7 @@ export async function liveSearchAndUpsert(
  */
 export async function downloadFileForDoc(docId: number): Promise<string | null> {
   const results = await downloadAllFilesForDoc(docId);
-  return results.length > 0 ? results[0]! : null;
+  return results.downloaded.length > 0 ? results.downloaded[0]! : null;
 }
 
 function rankFile(name: string): number {
@@ -185,26 +185,39 @@ function rankFile(name: string): number {
  * Văn bản chính (đã ký số) → Dự thảo/Word → Phụ lục/Danh mục.
  *
  * File đã tải trước đó trên đĩa sẽ không tải lại.
- * Trả về mảng đường dẫn tuyệt đối trên đĩa. Mảng rỗng nếu không có link.
+ * Trả về số file kỳ vọng, các đường dẫn đã tải và từng file thất bại.
  */
-export async function downloadAllFilesForDoc(docId: number): Promise<string[]> {
+export type QpplDownloadFailure = {
+  name: string;
+  url: string;
+  error: string;
+};
+
+export type QpplDownloadResult = {
+  expected: number;
+  downloaded: string[];
+  failed: QpplDownloadFailure[];
+};
+
+export async function downloadAllFilesForDoc(docId: number): Promise<QpplDownloadResult> {
   const doc = getQpplDocById(docId);
-  if (!doc) return [];
+  if (!doc) return { expected: 0, downloaded: [], failed: [] };
 
   // Parse file links
   let links: QpplFileLink[];
   try {
     links = JSON.parse(doc.fileUrls) as QpplFileLink[];
   } catch {
-    return [];
+    return { expected: 0, downloaded: [], failed: [] };
   }
-  if (links.length === 0) return [];
+  if (links.length === 0) return { expected: 0, downloaded: [], failed: [] };
 
   // Sắp xếp ưu tiên: văn bản chính (signed/quyết định) lên trước, phụ lục/danh mục ra sau
   const sortedLinks = [...links].sort((a, b) => rankFile(b.name) - rankFile(a.name));
 
   const storageDir = getQpplStorageDir();
   const downloadedPaths: string[] = [];
+  const failed: QpplDownloadFailure[] = [];
   let totalBytes = 0;
   const safeSoKyHieu = doc.soKyHieu.replace(/[\/\\:*?"<>|]/g, "-").trim();
 
@@ -212,12 +225,16 @@ export async function downloadAllFilesForDoc(docId: number): Promise<string[]> {
     const link = sortedLinks[i]!;
     // Giữ tên gốc của file từ cổng tỉnh để người dùng dễ nhận biết (QD chính vs Phụ lục)
     const cleanOriginalName = sanitizeFileName(link.name);
-    const baseName = sanitizeFileName(`[${safeSoKyHieu}] ${cleanOriginalName}`);
+    // Giữ tên dễ nhận biết nhưng thêm chỉ số khi nhiều URL có cùng tên file.
+    const baseName = sanitizeFileName(
+      `[${safeSoKyHieu}] ${String(i + 1).padStart(2, "0")} ${cleanOriginalName}`,
+    );
     const absPath = path.join(storageDir, baseName);
 
-    // File đã tồn tại trên đĩa → bỏ qua tải lại
-    if (fs.existsSync(absPath)) {
+    // Chỉ bỏ qua file đã có nội dung; file rỗng/hỏng phải được tải lại.
+    if (fs.existsSync(absPath) && fs.statSync(absPath).size > 0) {
       downloadedPaths.push(absPath);
+      totalBytes += fs.statSync(absPath).size;
       continue;
     }
 
@@ -227,6 +244,8 @@ export async function downloadAllFilesForDoc(docId: number): Promise<string[]> {
       downloadedPaths.push(absPath);
       log.debug({ docId, file: baseName, bytes: fileSize, idx: i + 1 }, "Đã tải file VB");
     } catch (err) {
+      const error = err instanceof Error ? err.message : String(err);
+      failed.push({ name: link.name, url: link.url, error });
       log.warn({ docId, url: link.url, name: link.name, err }, "Không tải được file đính kèm");
       // Tiếp tục tải các file còn lại
     }
@@ -242,7 +261,7 @@ export async function downloadAllFilesForDoc(docId: number): Promise<string[]> {
     );
   }
 
-  return downloadedPaths;
+  return { expected: sortedLinks.length, downloaded: downloadedPaths, failed };
 }
 
 /**

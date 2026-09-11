@@ -18,9 +18,35 @@ describe("extractFileUrls", () => {
     assert.deepEqual(extractFileUrls("   "), []);
   });
 
-  it("bỏ qua link không bắt đầu bằng http", () => {
-    const html = `<a href="/relative/path.pdf">test.pdf</a>`;
-    assert.deepEqual(extractFileUrls(html), []);
+  it("chuẩn hóa URL tương đối và protocol-relative", () => {
+    const html =
+      `<a href="/relative/path.pdf">relative.pdf</a>` +
+      `<a href="//media.lamdong.gov.vn/media/protocol.pdf">protocol.pdf</a>`;
+    const links = extractFileUrls(html);
+    assert.equal(links.length, 2);
+    assert.equal(links[0]!.url, "https://lamdong.gov.vn/relative/path.pdf");
+    assert.equal(links[1]!.url, "https://media.lamdong.gov.vn/media/protocol.pdf");
+  });
+
+  it("đọc anchor lồng nhau, href không quote và loại trùng", () => {
+    const html =
+      `<a href=https&#x3A;//media.lamdong.gov.vn/media/a><span>Phụ lục</span><strong>.pdf</strong></a>` +
+      `<a href="https://media.lamdong.gov.vn/media/a#fragment" title="ignored.pdf"></a>`;
+    const links = extractFileUrls(html);
+    assert.equal(links.length, 1);
+    assert.equal(links[0]!.name, "Phụ lục .pdf");
+  });
+
+  it("hỗ trợ Urls dạng JSON array/object và encode nhiều lớp", () => {
+    const urls = JSON.stringify([
+      { url: "https://media.lamdong.gov.vn/media/json.pdf", name: "json.pdf" },
+      { html: `<a href="https&amp;#58;//media.lamdong.gov.vn/media/nested.docx">nested.docx</a>` },
+    ]);
+    const links = extractFileUrls(urls);
+    assert.ok(links.length >= 2);
+    assert.equal(new Set(links.map((link) => link.url)).size, links.length);
+    assert.ok(links.some((link) => link.url.endsWith("json.pdf")));
+    assert.ok(links.some((link) => link.url.endsWith("nested.docx")));
   });
 
   it("xử lý nhiều file PDF + DOC + DOCX", () => {

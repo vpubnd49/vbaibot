@@ -53,7 +53,7 @@ export type QpplRawItem = {
   L_x0129_nh_x0020_V_x1ef1_c?: string;
   Hi_x1ec7_u_x0020_l_x1ef1_c?: string;
   Ng_x01b0__x1edd_i_x0020_k_x00fd_?: string;
-  Urls?: string;
+  Urls?: unknown;
   Modified?: string;
   Created?: string;
   /* eslint-enable @typescript-eslint/naming-convention */

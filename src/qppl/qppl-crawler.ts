@@ -48,28 +48,149 @@ const SP_SELECT_FIELDS = [
  * <a href="https&#58;//media.lamdong.gov.vn/media/yyy">TenFile.doc</a>
  * ```
  *
- * HTML entities (`&#58;` = `:`, `&amp;` = `&`) được unescape trước khi parse.
+ * Hỗ trợ:
+ * - HTML entity thập phân, thập lục phân (`&#x3A;`) và named (`&quot;`, `&apos;`).
+ * - Encode nhiều lớp (`&amp;#58;` → `&#58;` → `:`).
+ * - Anchor có phần tử lồng nhau (`<a ...><span>file.pdf</span></a>`).
+ * - Anchor không có text: lấy tên từ `title`/`aria-label`/`download` hoặc đường dẫn URL.
+ * - `href` không nằm trong dấu quote.
+ * - URL protocol-relative (`//host/path`) và tương đối (resolve từ base lamdong.gov.vn).
+ * - Loại trùng theo URL sau chuẩn hóa (bỏ fragment, lowercase host).
  */
-export function extractFileUrls(urlsHtml: string | undefined): QpplFileLink[] {
-  if (!urlsHtml?.trim()) return [];
 
-  const unescaped = urlsHtml
-    .replace(/&#123;/g, "{")
-    .replace(/&#125;/g, "}")
-    .replace(/&quot;/g, '"')
-    .replace(/&#58;/g, ":")
-    .replace(/&amp;/g, "&");
+const ENTITY_DECODER_RE = /&(?:#[xX]([0-9a-fA-F]+)|#(\d+)|(quot|apos|amp|lt|gt|nbsp));/g;
 
+function decodeHtmlEntities(input: string, maxPasses = 3): string {
+  let current = input;
+  for (let pass = 0; pass < maxPasses; pass++) {
+    let changed = false;
+    current = current.replace(ENTITY_DECODER_RE, (whole, hex: string | undefined, dec: string | undefined, named: string | undefined) => {
+      changed = true;
+      if (hex) return String.fromCodePoint(parseInt(hex, 16));
+      if (dec) return String.fromCodePoint(parseInt(dec, 10));
+      switch (named) {
+        case "quot": return '"';
+        case "apos": return "'";
+        case "amp": return "&";
+        case "lt": return "<";
+        case "gt": return ">";
+        case "nbsp": return " ";
+        default: return whole;
+      }
+    });
+    if (!changed) break;
+  }
+  return current;
+}
+
+const ANCHOR_RE = /<a\b([^>]*)>([\s\S]*?)<\/a>/gi;
+const HREF_RE = /href\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/i;
+const TITLE_RE = /\b(?:title|aria-label)\s*=\s*(?:"([^"]*)"|'([^']*)')/i;
+const DOWNLOAD_RE = /\bdownload\s*=\s*(?:"([^"]*)"|'([^']*)')/i;
+
+function attrValue(re: RegExp, attrs: string): string | undefined {
+  const m = re.exec(attrs);
+  if (!m) return undefined;
+  return (m[1] ?? m[2] ?? m[3] ?? "").trim();
+}
+
+function stripTags(html: string): string {
+  return decodeHtmlEntities(html.replace(/<[^>]*>/g, " ")).replace(/\s+/g, " ").trim();
+}
+
+/** Resolve URL tương đối/protocol-relative về tuyệt đối; trả null nếu không parse được */
+function resolveUrl(raw: string, base: string): string | null {
+  const trimmed = raw.trim().replace(/\s+/g, "");
+  if (!trimmed) return null;
+  try {
+    const u = new URL(trimmed, base);
+    if (u.protocol !== "http:" && u.protocol !== "https:") return null;
+    u.hash = ""; // fragment không phân biệt file
+    return u.toString();
+  } catch {
+    return null;
+  }
+}
+
+/** Tên file dự phòng từ đường dẫn URL (decode percent-encoding) */
+function nameFromUrl(url: string): string {
+  try {
+    const u = new URL(url);
+    const seg = u.pathname.split("/").filter(Boolean).pop() ?? "";
+    const decoded = decodeURIComponent(seg).trim();
+    return decoded || u.hostname;
+  } catch {
+    return "file";
+  }
+}
+
+export function extractFileUrls(rawUrls: unknown): QpplFileLink[] {
+  if (rawUrls === undefined || rawUrls === null) return [];
+
+  // SharePoint/proxy có thể trả Urls là HTML string, JSON string, array hoặc object.
+  // Thu thập mọi string ở các tầng rồi parse HTML/plain URL thống nhất.
+  const rawStrings: string[] = [];
+  const collectStrings = (value: unknown, depth = 0): void => {
+    if (depth > 4 || value === null || value === undefined) return;
+    if (typeof value === "string") {
+      const text = value.trim();
+      if (!text) return;
+      rawStrings.push(text);
+      const decoded = decodeHtmlEntities(text);
+      if (decoded !== text) rawStrings.push(decoded);
+      try {
+        const parsed: unknown = JSON.parse(decoded);
+        if (parsed !== value) collectStrings(parsed, depth + 1);
+      } catch {
+        // Đây là HTML hoặc URL thuần, xử lý ở bước bên dưới.
+      }
+      return;
+    }
+    if (Array.isArray(value)) {
+      for (const item of value) collectStrings(item, depth + 1);
+      return;
+    }
+    if (typeof value === "object") {
+      for (const item of Object.values(value as Record<string, unknown>)) {
+        collectStrings(item, depth + 1);
+      }
+    }
+  };
+  collectStrings(rawUrls);
+
+  const seen = new Set<string>();
   const links: QpplFileLink[] = [];
-  const linkRegex = /href=["']([^"']+)["'][^>]*>([^<]+)/gi;
-  let match: RegExpExecArray | null;
-  while ((match = linkRegex.exec(unescaped)) !== null) {
-    const url = match[1]?.trim();
-    const name = match[2]?.trim();
-    if (url && name && url.startsWith("http")) {
-      links.push({ name, url });
+  const addLink = (href: string, candidateName?: string): void => {
+    const url = resolveUrl(href, "https://lamdong.gov.vn/");
+    if (!url || seen.has(url)) return;
+    const name = candidateName?.trim() || nameFromUrl(url);
+    if (!name) return;
+    seen.add(url);
+    links.push({ name, url });
+  };
+
+  for (const raw of rawStrings) {
+    const unescaped = decodeHtmlEntities(raw);
+    let anchor: RegExpExecArray | null;
+    ANCHOR_RE.lastIndex = 0;
+    while ((anchor = ANCHOR_RE.exec(unescaped)) !== null) {
+      const attrs = anchor[1] ?? "";
+      const href = attrValue(HREF_RE, attrs);
+      if (!href) continue;
+      const text = stripTags(anchor[2] ?? "");
+      const title = attrValue(TITLE_RE, attrs) ?? "";
+      const download = attrValue(DOWNLOAD_RE, attrs) ?? "";
+      addLink(href, text || title || download);
+    }
+
+    // Một số response trả plain URL hoặc JSON object có trường url/href mà không có anchor.
+    if (!/<a\b/i.test(unescaped)) {
+      const plainUrlRe = /(?:https?:\/\/|\/\/|\/)[^\s"'<>]+/gi;
+      let match: RegExpExecArray | null;
+      while ((match = plainUrlRe.exec(unescaped)) !== null) addLink(match[0]);
     }
   }
+
   return links;
 }
 
@@ -219,6 +340,23 @@ export async function searchQpplItemsLive(
  * Tải file từ `media.lamdong.gov.vn` về đĩa.
  * Trả về kích thước file (bytes). Hỗ trợ PDF, DOC, DOCX.
  */
+function looksLikeHtml(buffer: Buffer): boolean {
+  const sample = buffer.subarray(0, 512).toString("utf8").trimStart().toLowerCase();
+  return sample.startsWith("<!doctype html") || sample.startsWith("<html") || sample.includes("đăng nhập") || sample.includes("sign in");
+}
+
+function looksLikeKnownFile(buffer: Buffer, contentType: string): boolean {
+  if (buffer.length === 0) return false;
+  if (looksLikeHtml(buffer)) return false;
+  const type = contentType.toLowerCase();
+  const isPdf = buffer.subarray(0, 5).toString("ascii") === "%PDF-";
+  const isZip = buffer[0] === 0x50 && buffer[1] === 0x4b;
+  const isOle = buffer.subarray(0, 8).equals(Buffer.from([0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1]));
+  if (isPdf || isZip || isOle) return true;
+  return !type.includes("text/html") && !type.includes("application/xhtml");
+}
+
+/** Tải file vào file tạm, xác minh response rồi đổi tên nguyên tử. */
 export async function downloadQpplFile(
   fileUrl: string,
   destPath: string,
@@ -228,6 +366,7 @@ export async function downloadQpplFile(
       "User-Agent":
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)",
     },
+    redirect: "follow",
     signal: AbortSignal.timeout(30000),
   });
 
@@ -237,12 +376,18 @@ export async function downloadQpplFile(
 
   const arrayBuf = await res.arrayBuffer();
   const buffer = Buffer.from(arrayBuf);
+  const contentType = res.headers.get("content-type") || "";
+  if (!looksLikeKnownFile(buffer, contentType)) {
+    throw new Error(`Response không phải file hợp lệ (content-type: ${contentType || "unknown"})`);
+  }
 
   fs.mkdirSync(path.dirname(destPath), { recursive: true });
-  fs.writeFileSync(destPath, buffer);
+  const tempPath = `${destPath}.part`;
+  fs.writeFileSync(tempPath, buffer);
+  fs.renameSync(tempPath, destPath);
 
   log.debug(
-    { url: fileUrl, bytes: buffer.length, dest: path.basename(destPath) },
+    { url: fileUrl, finalUrl: res.url, contentType, bytes: buffer.length, dest: path.basename(destPath) },
     "Đã tải file VB QPPL",
   );
 
