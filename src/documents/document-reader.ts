@@ -70,7 +70,8 @@ export type DocumentContent = {
 };
 
 const SUPPORTED_EXTENSIONS = [
-  '.pdf', '.docx', '.doc', '.xlsx', '.xls', '.csv', '.txt', '.md',
+  '.pdf', '.docx', '.doc', '.xlsx', '.xls', '.ods', '.csv', '.tsv', '.txt', '.md',
+  '.json', '.xml', '.html', '.htm', '.rtf',
   '.jpg', '.jpeg', '.png', '.bmp', '.tiff', '.tif', '.heic', '.webp',
 ] as const;
 export type SupportedExtension = typeof SUPPORTED_EXTENSIONS[number];
@@ -88,78 +89,161 @@ export async function readDocument(filePath: string): Promise<DocumentContent> {
   try {
     switch (ext) {
       case '.pdf': {
-        const pdfModule: any = await import('pdf-parse');
-        const dataBuffer = fs.readFileSync(filePath);
-        if (typeof pdfModule === 'function') {
-          const data = await pdfModule(dataBuffer);
-          text = data.text;
-          pageCount = data.numpages;
-        } else if (typeof pdfModule.default === 'function') {
-          const data = await pdfModule.default(dataBuffer);
-          text = data.text;
-          pageCount = data.numpages;
-        } else if (pdfModule.PDFParse) {
-          const parser = new pdfModule.PDFParse({ data: dataBuffer });
-          const result = await parser.getText();
-          text = result.text;
-          pageCount = result.total;
-          if (typeof parser.destroy === 'function') {
-            await parser.destroy();
+        try {
+          const pdfModule: any = await import('pdf-parse');
+          const dataBuffer = fs.readFileSync(filePath);
+          if (typeof pdfModule === 'function') {
+            const data = await pdfModule(dataBuffer);
+            text = data.text;
+            pageCount = data.numpages;
+          } else if (typeof pdfModule.default === 'function') {
+            const data = await pdfModule.default(dataBuffer);
+            text = data.text;
+            pageCount = data.numpages;
+          } else if (pdfModule.PDFParse) {
+            const parser = new pdfModule.PDFParse({ data: dataBuffer });
+            const result = await parser.getText();
+            text = result.text;
+            pageCount = result.total;
+            if (typeof parser.destroy === 'function') {
+              await parser.destroy();
+            }
           }
-        } else {
-          throw new Error('Module pdf-parse không tương thích với phiên bản hiện tại.');
+        } catch (pdfErr) {
+          log.warn({ filePath, err: pdfErr }, 'pdf-parse không đọc được text, chuyển sang OCR scan');
         }
+
         // PDF scan auto-OCR: chuyển trang thành ảnh rồi gọi vision sidecar đọc
-        if (text.trim().length < 50 && pageCount && pageCount > 0) {
-          const ocrText = await ocrScannedPdf(filePath, pageCount);
-          text = ocrText;
+        if (text.trim().length < 50) {
+          const pages = (pageCount && pageCount > 0) ? pageCount : 10;
+          const ocrText = await ocrScannedPdf(filePath, pages);
+          if (ocrText && ocrText.trim()) {
+            text = ocrText;
+          }
         }
         break;
       }
       case '.docx': {
-        const mammoth = await import('mammoth');
-        const htmlResult = await mammoth.convertToHtml({ path: filePath });
-        text = htmlToStructuredText(htmlResult.value);
+        try {
+          const mammoth = await import('mammoth');
+          const htmlResult = await mammoth.convertToHtml({ path: filePath });
+          text = htmlToStructuredText(htmlResult.value);
+        } catch (docxErr) {
+          // Fallback nếu file thực chất là format .doc cũ đổi tên
+          try {
+            // @ts-expect-error word-extractor lacks ts declarations
+            const WordExtractorMod = await import('word-extractor');
+            const WordExtractor = WordExtractorMod.default || WordExtractorMod;
+            const extractor = new (WordExtractor as any)();
+            const extracted = await extractor.extract(filePath);
+            text = [extracted.getHeaders(), extracted.getBody(), extracted.getFooters()].filter(Boolean).join('\n\n');
+          } catch {
+            throw docxErr;
+          }
+        }
         break;
       }
       case '.doc': {
-        // @ts-expect-error word-extractor lacks ts declarations
-        const WordExtractorMod = await import('word-extractor');
-        const WordExtractor = WordExtractorMod.default || WordExtractorMod;
-        const extractor = new (WordExtractor as any)();
-        const extracted = await extractor.extract(filePath);
-        const body = extracted.getBody() || '';
-        const headers = extracted.getHeaders() || '';
-        const footers = extracted.getFooters() || '';
-        text = [headers, body, footers].filter(Boolean).join('\n\n');
+        try {
+          // @ts-expect-error word-extractor lacks ts declarations
+          const WordExtractorMod = await import('word-extractor');
+          const WordExtractor = WordExtractorMod.default || WordExtractorMod;
+          const extractor = new (WordExtractor as any)();
+          const extracted = await extractor.extract(filePath);
+          const body = extracted.getBody() || '';
+          const headers = extracted.getHeaders() || '';
+          const footers = extracted.getFooters() || '';
+          text = [headers, body, footers].filter(Boolean).join('\n\n');
+        } catch (docErr) {
+          // Fallback nếu file thực chất là OOXML (.docx) đổi tên thành .doc
+          try {
+            const mammoth = await import('mammoth');
+            const htmlResult = await mammoth.convertToHtml({ path: filePath });
+            text = htmlToStructuredText(htmlResult.value);
+          } catch {
+            throw docErr;
+          }
+        }
         break;
       }
       case '.xlsx': {
-        const ExcelJS = (await import('exceljs')).default;
-        const workbook = new ExcelJS.Workbook();
-        await workbook.xlsx.readFile(filePath);
+        try {
+          const ExcelJS = (await import('exceljs')).default;
+          const workbook = new ExcelJS.Workbook();
+          await workbook.xlsx.readFile(filePath);
 
-        workbook.eachSheet((worksheet, _sheetId) => {
-          text += `--- Sheet: ${worksheet.name} ---\n`;
-          worksheet.eachRow((row, _rowNumber) => {
-            text += row.values
-              ? (row.values as any[]).filter(v => v !== undefined && v !== null).join('\t') + '\n'
-              : '\n';
+          workbook.eachSheet((worksheet, _sheetId) => {
+            text += `--- Sheet: ${worksheet.name} ---\n`;
+            worksheet.eachRow((row, _rowNumber) => {
+              text += row.values
+                ? (row.values as any[]).filter(v => v !== undefined && v !== null).join('\t') + '\n'
+                : '\n';
+            });
+            text += '\n';
           });
-          text += '\n';
-        });
+        } catch (xlsxErr) {
+          // Fallback qua xlsx (hỗ trợ cả XLS BIFF8, CSV, HTML table lưu dưới đuôi .xlsx)
+          try {
+            const xlsModule: any = await import('xlsx');
+            const workbook = xlsModule.read(fs.readFileSync(filePath), { type: 'buffer', cellText: true, cellDates: true });
+            for (const sheetName of workbook.SheetNames as string[]) {
+              const sheet = workbook.Sheets[sheetName];
+              text += `--- Sheet: ${sheetName} ---\n${xlsModule.utils.sheet_to_csv(sheet, { FS: '\t', RS: '\n' })}\n`;
+            }
+          } catch {
+            throw xlsxErr;
+          }
+        }
         break;
       }
-      case '.xls': {
-        // ExcelJS chỉ hỗ trợ OOXML (.xlsx), không đọc được BIFF8 .xls.
+      case '.xls':
+      case '.ods': {
         const xlsModule: any = await import('xlsx');
         const workbook = xlsModule.read(fs.readFileSync(filePath), { type: 'buffer', cellText: true, cellDates: true });
         for (const sheetName of workbook.SheetNames as string[]) {
           const sheet = workbook.Sheets[sheetName];
-          text += `--- Sheet: ${sheetName} ---\n${xlsModule.utils.sheet_to_csv(sheet, { FS: '\\t', RS: '\\n' })}\n`;
+          text += `--- Sheet: ${sheetName} ---\n${xlsModule.utils.sheet_to_csv(sheet, { FS: '\t', RS: '\n' })}\n`;
         }
         break;
       }
+      case '.json': {
+        try {
+          const parsed = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+          text = JSON.stringify(parsed, null, 2);
+        } catch {
+          text = fs.readFileSync(filePath, 'utf-8');
+        }
+        break;
+      }
+      case '.xml': {
+        const raw = fs.readFileSync(filePath, 'utf-8');
+        try {
+          const { XMLParser } = await import('fast-xml-parser');
+          const parser = new XMLParser({ ignoreAttributes: false });
+          const parsed = parser.parse(raw);
+          text = JSON.stringify(parsed, null, 2);
+        } catch {
+          text = raw;
+        }
+        break;
+      }
+      case '.html':
+      case '.htm': {
+        const html = fs.readFileSync(filePath, 'utf-8');
+        text = htmlToStructuredText(html);
+        break;
+      }
+      case '.rtf': {
+        const raw = fs.readFileSync(filePath, 'utf-8');
+        text = raw
+          .replace(/\\par[d]?/g, '\n')
+          .replace(/\\tab/g, '\t')
+          .replace(/\\[a-zA-Z0-9\-]+ ?/g, '')
+          .replace(/[{}]/g, '')
+          .trim();
+        break;
+      }
+      case '.tsv':
       case '.csv':
       case '.txt':
       case '.md': {

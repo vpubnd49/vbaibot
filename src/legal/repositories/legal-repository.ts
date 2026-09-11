@@ -222,3 +222,35 @@ export function findLegalDocumentsByTopic(topic = ""): LegalDocument[] {
 
   return results;
 }
+
+export function searchLegalDocumentsByKeywords(query = ""): LegalDocument[] {
+  if (!query) return [];
+  const qNorm = normalizeVietnamese(query);
+  const words = qNorm.split(/[\s,;.-]+/).filter((w) => w.length >= 2);
+  if (words.length === 0) return [];
+
+  const db = loadLegalDatabase();
+  const scored: Array<{ doc: LegalDocument; score: number }> = [];
+
+  for (const doc of db.values()) {
+    const titleNorm = normalizeVietnamese(doc.title);
+    const summaryNorm = normalizeVietnamese(doc.summary);
+    let score = 0;
+
+    if (titleNorm.includes(qNorm)) score += 30;
+    if (summaryNorm.includes(qNorm)) score += 15;
+
+    for (const w of words) {
+      if (titleNorm.includes(w)) score += 3;
+      if (summaryNorm.includes(w)) score += 1;
+    }
+
+    if (score >= 3) {
+      scored.push({ doc, score });
+    }
+  }
+
+  scored.sort((a, b) => b.score - a.score);
+  return scored.slice(0, 5).map((s) => s.doc);
+}
+

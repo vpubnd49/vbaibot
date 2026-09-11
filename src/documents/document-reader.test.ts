@@ -18,31 +18,67 @@ test("Document reader: kiểm tra định dạng và đọc file văn bản", as
   assert.equal(isSupportedDocument("test.bmp"), true);
   assert.equal(isSupportedDocument("test.tiff"), true);
   assert.equal(isSupportedDocument("test.webp"), true);
+  assert.equal(isSupportedDocument("test.doc"), true);
+  assert.equal(isSupportedDocument("test.xls"), true);
+  assert.equal(isSupportedDocument("test.ods"), true);
+  assert.equal(isSupportedDocument("test.json"), true);
+  assert.equal(isSupportedDocument("test.xml"), true);
+  assert.equal(isSupportedDocument("test.html"), true);
+  assert.equal(isSupportedDocument("test.htm"), true);
+  assert.equal(isSupportedDocument("test.rtf"), true);
+  assert.equal(isSupportedDocument("test.tsv"), true);
   assert.equal(isSupportedDocument("test.exe"), false);
   assert.equal(isSupportedDocument("test.zip"), false);
 
-  // Tạo file TXT tạm và đọc
   const tempDir = os.tmpdir();
+
+  // 1. Tạo file TXT tạm và đọc
   const testTxtPath = path.join(tempDir, "test_doc_reader_" + Date.now() + ".txt");
   fs.writeFileSync(testTxtPath, "Nội dung văn bản thử nghiệm ZaloAgent 2026", "utf-8");
-
   const result = await readDocument(testTxtPath);
   assert.equal(result.fileType, ".txt");
   assert.ok(result.text.includes("Nội dung văn bản thử nghiệm"));
   assert.equal(result.truncated, false);
-
-  // Dọn dẹp file TXT
   fs.unlinkSync(testTxtPath);
 
-  // Tạo file ảnh giả lập và kiểm tra readDocument không crash (fallback thông báo khi sidecar chưa cấu hình)
+  // 2. Kiểm tra đọc JSON
+  const testJsonPath = path.join(tempDir, "test_doc_reader_" + Date.now() + ".json");
+  fs.writeFileSync(testJsonPath, JSON.stringify({ name: "ZaloBot", version: "2.0" }), "utf-8");
+  const jsonRes = await readDocument(testJsonPath);
+  assert.equal(jsonRes.fileType, ".json");
+  assert.ok(jsonRes.text.includes("ZaloBot"));
+  fs.unlinkSync(testJsonPath);
+
+  // 3. Kiểm tra đọc XML
+  const testXmlPath = path.join(tempDir, "test_doc_reader_" + Date.now() + ".xml");
+  fs.writeFileSync(testXmlPath, "<root><item>Hóa đơn điện tử</item></root>", "utf-8");
+  const xmlRes = await readDocument(testXmlPath);
+  assert.equal(xmlRes.fileType, ".xml");
+  assert.ok(xmlRes.text.includes("Hóa đơn điện tử"));
+  fs.unlinkSync(testXmlPath);
+
+  // 4. Kiểm tra đọc HTML
+  const testHtmlPath = path.join(tempDir, "test_doc_reader_" + Date.now() + ".html");
+  fs.writeFileSync(testHtmlPath, "<h1>Báo cáo tháng 8</h1><p>Nội dung chi tiết</p>", "utf-8");
+  const htmlRes = await readDocument(testHtmlPath);
+  assert.equal(htmlRes.fileType, ".html");
+  assert.ok(htmlRes.text.includes("Báo cáo tháng 8"));
+  fs.unlinkSync(testHtmlPath);
+
+  // 5. Kiểm tra đọc RTF
+  const testRtfPath = path.join(tempDir, "test_doc_reader_" + Date.now() + ".rtf");
+  fs.writeFileSync(testRtfPath, "{\\rtf1\\ansi\\deff0 {\\fonttbl {\\f0 Courier;}}\\f0\\fs20 Văn bản định dạng RTF\\par}", "utf-8");
+  const rtfRes = await readDocument(testRtfPath);
+  assert.equal(rtfRes.fileType, ".rtf");
+  assert.ok(rtfRes.text.includes("Văn bản định dạng RTF"));
+  fs.unlinkSync(testRtfPath);
+
+  // 6. Tạo file ảnh giả lập và kiểm tra readDocument không crash
   const testImgPath = path.join(tempDir, "test_scan_" + Date.now() + ".jpg");
   fs.writeFileSync(testImgPath, Buffer.from("fake-image-bytes"));
-
   const imgResult = await readDocument(testImgPath);
   assert.equal(imgResult.fileType, ".jpg");
   assert.equal(imgResult.pageCount, 1);
   assert.ok(typeof imgResult.text === "string" && imgResult.text.length > 0);
-
-  // Dọn dẹp file ảnh
   fs.unlinkSync(testImgPath);
 });

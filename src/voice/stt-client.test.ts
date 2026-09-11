@@ -60,14 +60,36 @@ describe("transcribeAudioFile", () => {
     }
   });
 
-  it("ném lỗi có status khi provider trả HTTP lỗi", async () => {
+  it("gọi Google Gemini API khi model bắt đầu bằng gemini hoặc base URL của Google", async () => {
     const originalFetch = globalThis.fetch;
-    globalThis.fetch = (async () => new Response("invalid key", { status: 401 })) as typeof fetch;
-    try {
-      await assert.rejects(
-        () => transcribeAudioFile(audioPath, undefined, { baseUrl: "https://stt.test/v1", apiKey: "test-key" }),
-        /STT HTTP 401: invalid key/,
+    let request: { url: string; init: RequestInit } | undefined;
+    globalThis.fetch = (async (input, init) => {
+      request = { url: String(input), init: init ?? {} };
+      const body = JSON.parse(init?.body as string);
+      assert.ok(body.contents?.[0]?.parts?.[1]?.inlineData?.data);
+      assert.equal(body.contents?.[0]?.parts?.[1]?.inlineData?.mimeType, "audio/mp3");
+      return new Response(
+        JSON.stringify({
+          candidates: [
+            { content: { parts: [{ text: "Nội dung từ Gemini audio" }] } },
+          ],
+        }),
+        { status: 200 },
       );
+    }) as typeof fetch;
+
+    try {
+      const result = await transcribeAudioFile(audioPath, "ghi-am.mp3", {
+        baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai",
+        apiKey: "AQ.fake-key",
+        model: "gemini-2.5-flash",
+      });
+      assert.deepEqual(result, {
+        text: "Nội dung từ Gemini audio",
+        provider: "openai-compatible",
+        model: "gemini-2.5-flash",
+      });
+      assert.ok(request?.url.includes("models/gemini-2.5-flash:generateContent?key=AQ.fake-key"));
     } finally {
       globalThis.fetch = originalFetch;
     }

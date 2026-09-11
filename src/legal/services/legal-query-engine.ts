@@ -5,6 +5,7 @@ import {
   findLegalDocumentByAlias,
   findLegalDocumentsByPartialNumber,
   findLegalDocumentsByTopic,
+  searchLegalDocumentsByKeywords,
 } from "../repositories/legal-repository.js";
 import { resolveDocumentCrossReferences } from "./cross-reference-service.js";
 import type { LegalDocument, LegalQueryResult } from "../domain/types.js";
@@ -121,6 +122,23 @@ export function processLegalQuery(query: string): LegalQueryResult {
           resolutionMethod = "topic_multiple";
         }
         break;
+      }
+    }
+  }
+
+  // Strategy 6: Multi-keyword free-text search across titles and summaries
+  if (!documentMetadata && candidateDocuments.length === 0) {
+    const kwMatches = searchLegalDocumentsByKeywords(trimmedQuery);
+    if (kwMatches.length > 0) {
+      if (kwMatches.length === 1) {
+        effectiveDocNumber = kwMatches[0].documentNumber;
+        documentMetadata = kwMatches[0];
+        resolutionMethod = "keyword_exact";
+      } else {
+        candidateDocuments = kwMatches;
+        effectiveDocNumber = kwMatches[0].documentNumber;
+        documentMetadata = kwMatches[0];
+        resolutionMethod = "keyword_multiple";
       }
     }
   }

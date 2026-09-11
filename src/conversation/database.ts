@@ -7,6 +7,7 @@ import { dataDir } from "../config/env.js";
 
 export const db = new DatabaseSync(path.join(dataDir, "zalo-agent.db"));
 db.exec("PRAGMA journal_mode = WAL;");
+db.exec("PRAGMA busy_timeout = 5000;");
 /**
  * `NORMAL` chứ không phải mặc định `FULL`.
  *

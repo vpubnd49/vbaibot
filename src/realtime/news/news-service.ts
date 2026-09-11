@@ -25,7 +25,10 @@ export async function fetchNewsArticles(
   // 1. Thử cào RSS feeds theo chuyên mục
   if (category === "lam_dong" || category === "tong_hop") {
     // Thử cào RSS từ Báo Lâm Đồng hoặc Cổng TTĐT
-    const ldRss = await crawlRssFeed("https://baolamdong.vn/rss/thoi-su.rss", "Báo Lâm Đồng", 4, fetchFn);
+    let ldRss = await crawlRssFeed("https://baolamdong.vn/rss/thoi-su", "Báo Lâm Đồng", 4, fetchFn);
+    if (ldRss.length === 0) {
+      ldRss = await crawlRssFeed("https://baolamdong.vn/rss/trang-chu", "Báo Lâm Đồng", 4, fetchFn);
+    }
     for (const item of ldRss) {
       articles.push({
         title: item.title,

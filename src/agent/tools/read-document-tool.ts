@@ -68,6 +68,14 @@ export function collectRecentFilePaths(ctx: ToolContext): string[] {
         }
       }
     }
+    if (msg.images) {
+      for (const img of msg.images) {
+        const p = typeof img === "string" ? img : img?.localPath;
+        if (p && isSupportedDocument(p) && !paths.includes(p)) {
+          paths.push(p);
+        }
+      }
+    }
   }
 
   // 2. Dùng SQLite History
@@ -78,6 +86,14 @@ export function collectRecentFilePaths(ctx: ToolContext): string[] {
       for (const file of msg.files) {
         if (file.localPath && isSupportedDocument(file.localPath) && !paths.includes(file.localPath)) {
           paths.push(file.localPath);
+        }
+      }
+    }
+    if (msg.images) {
+      for (const img of msg.images) {
+        const p = typeof img === "string" ? img : img?.localPath;
+        if (p && isSupportedDocument(p) && !paths.includes(p)) {
+          paths.push(p);
         }
       }
     }
@@ -125,6 +141,9 @@ export function createReadDocumentTool(ctx: ToolContext) {
       try {
         const absPath = assertSafePathInside(rawAbsPath, dataDir);
         const doc = await readDocument(absPath);
+        if (doc.text.startsWith("Lỗi khi đọc nội dung file:")) {
+          return ketQuaLoi(doc.text);
+        }
         const maxChars = getTuning("DOCUMENT_READ_MAX_CHARS");
         const text = doc.text.length > maxChars
           ? `${doc.text.slice(0, maxChars)}\n[...đã cắt bớt nội dung do vượt giới hạn ${maxChars} ký tự]`

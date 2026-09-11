@@ -50,8 +50,24 @@ export function createLegalSearchTool() {
       }
 
       if (outputParts.length === 0) {
+        // Kiểm tra thêm CSDL văn bản chỉ đạo / QPPL nếu có
+        try {
+          const { searchQpplDocs } = await import("../../qppl/qppl-store.js");
+          const qpplMatches = searchQpplDocs({ keyword: trimmed, limit: 3 });
+          if (qpplMatches.length > 0) {
+            outputParts.push("=== VĂN BẢN QUY PHẠM PHÁP LUẬT / ĐIỀU HÀNH TƯƠNG ĐỒNG ===");
+            for (const doc of qpplMatches) {
+              outputParts.push(`- Số ký hiệu: ${doc.soKyHieu}\n  Trích yếu: ${doc.trichYeu}\n  Cơ quan: ${doc.coQuanBanHanh}\n  Ngày ban hành: ${doc.ngayBanHanh || "Chưa rõ"}`);
+            }
+          }
+        } catch {
+          // Bỏ qua lỗi phụ
+        }
+      }
+
+      if (outputParts.length === 0) {
         return ketQuaLoi(
-          `Không tìm thấy văn bản pháp luật nào khớp với "${trimmed}". Thử tra theo số hiệu cụ thể hoặc từ khóa chủ đề ngắn gọn.`,
+          `Không tìm thấy văn bản pháp luật nào trong CSDL cục bộ khớp với "${trimmed}". Gợi ý: Hãy sử dụng tool web_search để tra cứu văn bản pháp luật mới nhất từ Cổng TTĐT Chính phủ hoặc Thư viện Pháp luật.`,
         );
       }
 

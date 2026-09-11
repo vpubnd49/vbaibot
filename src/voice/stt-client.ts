@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { env } from "../config/env.js";
+import { getEffectiveLlmSettings } from "../config/runtime-llm-settings.js";
 
 const AUDIO_MIME_BY_EXT: Record<string, string> = {
   ".m4a": "audio/mp4",
@@ -46,9 +47,14 @@ export async function transcribeAudioFile(
   fileName = path.basename(filePath),
   options: SpeechToTextOptions = {},
 ): Promise<SpeechToTextResult | null> {
-  const baseUrl = options.baseUrl ?? env.STT_BASE_URL;
-  const apiKey = options.apiKey ?? env.STT_API_KEY;
-  const model = options.model ?? env.STT_MODEL;
+  const llm = getEffectiveLlmSettings();
+  const defaultBaseUrl = env.STT_BASE_URL || (llm.provider === "google" ? "https://generativelanguage.googleapis.com/v1beta" : llm.baseUrl);
+  const defaultApiKey = env.STT_API_KEY || llm.apiKey;
+  const defaultModel = env.STT_MODEL || (llm.provider === "google" ? "gemini-2.5-flash" : llm.model);
+
+  const baseUrl = options.baseUrl ?? defaultBaseUrl;
+  const apiKey = options.apiKey ?? defaultApiKey;
+  const model = options.model ?? defaultModel;
   const protocol = options.protocol ?? env.STT_PROTOCOL;
   const language = options.language ?? env.STT_LANGUAGE;
   const timeoutMs = options.timeoutMs ?? env.STT_TIMEOUT_MS;
@@ -60,6 +66,47 @@ export async function transcribeAudioFile(
   const extension = path.extname(fileName).toLowerCase();
   const mimeType = AUDIO_MIME_BY_EXT[extension] ?? "application/octet-stream";
   const bytes = fs.readFileSync(filePath);
+
+  const isGemini =
+    baseUrl.includes("generativelanguage.googleapis.com") ||
+    apiKey.startsWith("AQ.") ||
+    apiKey.startsWith("AIza") ||
+    (model.toLowerCase().startsWith("gemini") && options.protocol !== "transcriptions");
+
+  if (isGemini) {
+    const geminiBase = baseUrl.replace(/\/openai\/?$/i, "").replace(/\/+$/, "");
+    const endpoint = `${geminiBase.includes("/v1beta") ? geminiBase : `${geminiBase}/v1beta`}/models/${model}:generateContent?key=${apiKey}`;
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [
+          {
+            parts: [
+              {
+                text: "Chép nguyên văn toàn bộ nội dung file ghi âm bằng tiếng Việt. Chỉ trả về transcript, không tóm tắt, không giải thích, không tự đoán; chỗ không rõ ghi [không rõ].",
+              },
+              {
+                inlineData: {
+                  mimeType: mimeType === "audio/mpeg" ? "audio/mp3" : mimeType,
+                  data: bytes.toString("base64"),
+                },
+              },
+            ],
+          },
+        ],
+      }),
+      signal: AbortSignal.timeout(timeoutMs),
+    });
+    if (!response.ok) throw new Error(`STT HTTP ${response.status}: ${await response.text()}`);
+    const payload = (await response.json()) as {
+      candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+    };
+    const text = payload.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ?? "";
+    if (!text) return null;
+    return { text, provider: "openai-compatible", model };
+  }
+
   const response = protocol === "audio-chat"
     ? await fetch(`${baseUrl.replace(/\/$/, "")}/chat/completions`, {
         method: "POST",
