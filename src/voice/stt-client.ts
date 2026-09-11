@@ -8,10 +8,22 @@ const AUDIO_MIME_BY_EXT: Record<string, string> = {
   ".wav": "audio/wav",
   ".aac": "audio/aac",
   ".ogg": "audio/ogg",
-  ".opus": "audio/opus",
+  ".opus": "audio/ogg",
   ".flac": "audio/flac",
   ".amr": "audio/amr",
   ".webm": "audio/webm",
+};
+
+const AUDIO_FORMAT_BY_EXT: Record<string, string> = {
+  ".m4a": "mp4",
+  ".mp3": "mp3",
+  ".wav": "wav",
+  ".aac": "aac",
+  ".ogg": "ogg",
+  ".opus": "ogg",
+  ".flac": "flac",
+  ".amr": "amr",
+  ".webm": "webm",
 };
 
 export type SpeechToTextResult = {
@@ -49,6 +61,7 @@ export async function transcribeAudioFile(
   form.append("file", new Blob([fs.readFileSync(filePath)], { type: mimeType }), fileName);
   form.append("model", model);
   form.append("language", language);
+  form.append("audio_format", AUDIO_FORMAT_BY_EXT[extension] ?? "");
   form.append("response_format", "json");
   form.append("prompt", "Chép nguyên văn tiếng Việt, giữ dấu, không dịch, không tóm tắt, không thêm nội dung.");
 
