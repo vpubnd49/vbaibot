@@ -19,7 +19,7 @@ export function createVideoTool(ctx: ToolContext, generate = generateVideo) {
     inputSchema: z.object({
       prompt: z.string().min(1).max(2000).describe("Mô tả chi tiết nội dung video cần tạo"),
       aspectRatio: z.enum(["16:9", "9:16", "1:1"]).optional().describe("Tỷ lệ khung hình"),
-      durationSec: z.literal(5).or(z.literal(8)).optional().describe("Thời lượng video (giây)"),
+      durationSec: z.coerce.number().int().optional().describe("Thời lượng video bằng giây (5 hoặc 8)"),
       caption: z.string().optional().describe("Lời nhắn gửi kèm video"),
     }),
     execute: async ({ prompt, aspectRatio, durationSec, caption }) => {
@@ -43,7 +43,8 @@ export function createVideoTool(ctx: ToolContext, generate = generateVideo) {
       }).catch(() => {});
 
       try {
-        const video = await generate({ prompt, aspectRatio, durationSec });
+        const duration = durationSec === 8 ? 8 : (durationSec ? 5 : undefined);
+        const video = await generate({ prompt, aspectRatio, durationSec: duration });
         const fileName = `video-${Date.now()}.mp4`;
         await withNamedTempFile(fileName, video.data, (filePath) =>
           guiFileKemCaption(
