@@ -5,6 +5,9 @@ export type StoredFile = {
   fileName: string;
   localPath?: string;
   extension: string;
+  mimeType?: string;
+  isAudio?: boolean;
+  transcript?: string;
 };
 
 export type StoredMessage = {

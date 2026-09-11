@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { ThreadType } from "zca-js";
-import { parseIncomingMessage } from "./zalo-message-parser.js";
+import { describeForHistory, parseIncomingMessage } from "./zalo-message-parser.js";
 
 // parser không chạm src/config/env.ts nên import tĩnh được bình thường
 
@@ -119,6 +119,31 @@ describe("parseIncomingMessage", () => {
 
     assert.equal(msg.rawData, data);
     assert.equal(msg.msgId, "m42");
+  });
+
+  it("nhận diện file audio và ghi chú lịch sử riêng", () => {
+    const msg = parseIncomingMessage("acc-test", SELF_ID, {
+      threadId: "voice-1",
+      data: {
+        msgType: "voice",
+        content: { fileName: "hop-2026.m4a", url: "https://files.zalo.test/hop-2026.m4a?token=x", mimeType: "audio/mp4" },
+        uidFrom: "user-1",
+      },
+    });
+    assert.equal(msg.files?.length, 1);
+    assert.equal(msg.files?.[0]?.isAudio, true);
+    assert.equal(msg.files?.[0]?.extension, ".m4a");
+    assert.equal(msg.files?.[0]?.mimeType, "audio/mp4");
+    assert.match(describeForHistory(msg), /file ghi âm/);
+  });
+
+  it("nhận diện audio qua MIME dù không có phần mở rộng", () => {
+    const msg = parseIncomingMessage("acc-test", SELF_ID, {
+      threadId: "voice-2",
+      data: { content: { name: "ghi âm", url: "https://files.zalo.test/download?id=2", contentType: "audio/ogg; codecs=opus" }, uidFrom: "user-1" },
+    });
+    assert.equal(msg.files?.[0]?.isAudio, true);
+    assert.equal(msg.files?.[0]?.extension, ".m4a");
   });
 
   it("trích xuất file khi content là chuỗi JSON mã hóa", () => {

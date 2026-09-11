@@ -330,6 +330,12 @@ const envSchema = z.object({
   // Tên host trong podcast
   TTS_HOST_MALE_NAME: z.string().default("Anh"),
   TTS_HOST_FEMALE_NAME: z.string().default("Chị"),
+  // Speech-to-text đầu vào. Để trống thì audio vẫn được lưu và báo chưa cấu hình STT.
+  STT_BASE_URL: z.preprocess(emptyToUndefined, z.string().startsWith("http").optional()),
+  STT_API_KEY: z.string().default(""),
+  STT_MODEL: z.string().default("whisper-1"),
+  STT_LANGUAGE: z.string().default("vi"),
+  STT_TIMEOUT_MS: z.coerce.number().int().min(10_000).max(600_000).default(180_000),
 
   // Tool tạo nhạc AI (Google Lyria 3). Tái sử dụng Gemini API key đã có: nếu
   // LLM provider là google thì không cần set riêng MUSIC_GEN_API_KEY.

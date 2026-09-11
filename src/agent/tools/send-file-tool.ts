@@ -17,14 +17,14 @@ import { ghiChuDaGuiFile } from "./sent-by-tool-note.js";
  * server Zalo trả về lúc login và zca-js tự kiểm (ném lỗi kèm số MB cụ thể).
  * Con số ở đây chỉ để khỏi tải hàng trăm MB rồi mới biết là vô ích.
  */
-const MAX_DOWNLOAD_BYTES = 25 * 1024 * 1024;
+const MAX_DOWNLOAD_BYTES = 200 * 1024 * 1024;
 
 // Chỉ cho gửi file trong data/shared-files (chặn agent đọc file tùy ý trên máy,
 // vd credentials) hoặc tải từ URL http(s) công khai.
 //
 // Nguồn URL do LLM quyết mà LLM đọc tin của người lạ, nên đường tải phải đi qua
 // safe-remote-download: chặn IP nội bộ (SSRF - loopback, 169.254.169.254...) và
-// cắt theo stream khi vượt 25MB. File tạm bị xóa ngay sau khi gửi.
+// cắt theo stream khi vượt 200 MiB. File tạm bị xóa ngay sau khi gửi.
 export function createSendFileTool({ api, account, message, ghiNhanDaGui }: ToolContext) {
   // Ghi history NGAY TRONG hàm gửi để hai nhánh (URL và kho shared-files) không
   // thể quên: tin này không đi qua `deliverChatReply` nên không ai ghi hộ.

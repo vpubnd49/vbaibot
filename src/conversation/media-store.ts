@@ -9,6 +9,7 @@ import { createLogger } from "../shared/logger.js";
 import { estimateImageTokens, readImageSize } from "../zalo/zalo-image-variant.js";
 import { pruneExpiredImageDescriptions } from "./image-description-store.js";
 import { getTuning } from "../config/runtime-tuning-settings.js";
+import { transcribeAudioFile } from "../voice/stt-client.js";
 
 const log = createLogger("media-store");
 const mediaDir = path.join(dataDir, "media");
@@ -89,7 +90,7 @@ export async function persistBatchImages(
   }
 }
 
-const MAX_DOC_BYTES = 25 * 1024 * 1024; // 25MB max for document files
+const MAX_DOC_BYTES = 200 * 1024 * 1024; // 200 MiB max for incoming document/audio files
 
 function normalizeExtension(extension: string | undefined, fileName: string): string {
   const raw = (extension || path.extname(fileName) || ".docx").trim().toLowerCase();
@@ -99,7 +100,15 @@ function normalizeExtension(extension: string | undefined, fileName: string): st
 export type PersistableFileMessage = {
   threadId: string;
   msgId: string;
-  files?: Array<{ fileName: string; url?: string; extension: string; localPath?: string }>;
+  files?: Array<{
+    fileName: string;
+    url?: string;
+    extension: string;
+    mimeType?: string;
+    isAudio?: boolean;
+    transcript?: string;
+    localPath?: string;
+  }>;
 };
 
 export type FileDownloader = (
@@ -134,6 +143,14 @@ export async function persistBatchFiles(
         fs.mkdirSync(path.dirname(absPath), { recursive: true });
         fs.writeFileSync(absPath, downloaded.data);
         file.localPath = relPath;
+        if (file.isAudio) {
+          try {
+            const transcript = await transcribeAudioFile(absPath, file.fileName);
+            if (transcript) file.transcript = transcript.text;
+          } catch (err) {
+            log.warn({ accountId, msgId: msg.msgId, fileName: file.fileName, err }, "Chuyển voice thành text thất bại");
+          }
+        }
 
         log.info(
           {
@@ -158,12 +175,12 @@ export function imagePathsOf(images: { localPath?: string }[]): string[] {
 
 /** Danh sách file đã lưu thành công của 1 tin - để ghi vào cột files */
 export function filePathsOf(
-  files?: Array<{ fileName: string; localPath?: string; extension: string }>,
-): Array<{ fileName: string; localPath?: string; extension: string }> | undefined {
+  files?: Array<{ fileName: string; localPath?: string; extension: string; mimeType?: string; isAudio?: boolean; transcript?: string }>,
+): Array<{ fileName: string; localPath?: string; extension: string; mimeType?: string; isAudio?: boolean; transcript?: string }> | undefined {
   if (!files || files.length === 0) return undefined;
   const valid = files.filter((f) => Boolean(f.localPath));
   return valid.length > 0
-    ? valid.map((f) => ({ fileName: f.fileName, localPath: f.localPath, extension: f.extension }))
+    ? valid.map((f) => ({ fileName: f.fileName, localPath: f.localPath, extension: f.extension, mimeType: f.mimeType, isAudio: f.isAudio, transcript: f.transcript }))
     : undefined;
 }
 

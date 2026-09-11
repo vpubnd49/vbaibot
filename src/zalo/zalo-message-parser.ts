@@ -13,6 +13,9 @@ export type IncomingFile = {
   url?: string;
   fileSize?: number;
   extension: string;
+  mimeType?: string;
+  isAudio?: boolean;
+  transcript?: string;
   /** Đường dẫn file đã lưu trong data/media - có sau khi persist */
   localPath?: string;
 };
@@ -41,14 +44,33 @@ export type ParsedMessage = {
 export function describeForHistory(msg: ParsedMessage): string {
   const imageNote = msg.images.length > 0 ? ` [gửi kèm ${msg.images.length} ảnh]` : "";
   const files = msg.files ?? [];
-  const fileNote = files.length > 0 ? ` [gửi kèm ${files.length} file tài liệu: ${files.map((f) => f.fileName).join(", ")}]` : "";
-  return `${msg.text}${imageNote}${fileNote}`.trim() || "[tài liệu/ảnh]";
+  const audioFiles = files.filter((file) => file.isAudio);
+  const documentFiles = files.filter((file) => !file.isAudio);
+  const audioNote = audioFiles.length > 0
+    ? ` [gửi kèm ${audioFiles.length} file ghi âm: ${audioFiles.map((f) => f.fileName).join(", ")}]`
+    : "";
+  const fileNote = documentFiles.length > 0
+    ? ` [gửi kèm ${documentFiles.length} file tài liệu: ${documentFiles.map((f) => f.fileName).join(", ")}]`
+    : "";
+  return `${msg.text}${imageNote}${audioNote}${fileNote}`.trim() || "[tài liệu/ảnh/ghi âm]";
 }
 
 const SUPPORTED_DOC_EXTS = [
   ".pdf", ".docx", ".xlsx", ".csv", ".txt", ".md", ".doc", ".xls",
   ".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".tif", ".heic", ".webp",
 ];
+
+const SUPPORTED_AUDIO_EXTS = [".m4a", ".mp3", ".wav", ".aac", ".ogg", ".opus", ".flac", ".amr"];
+const AUDIO_MIME_TYPES: Record<string, string> = {
+  ".m4a": "audio/mp4",
+  ".mp3": "audio/mpeg",
+  ".wav": "audio/wav",
+  ".aac": "audio/aac",
+  ".ogg": "audio/ogg",
+  ".opus": "audio/opus",
+  ".flac": "audio/flac",
+  ".amr": "audio/amr",
+};
 
 function extractFileCandidate(obj: any): IncomingFile | null {
   if (!obj) return null;
@@ -91,14 +113,18 @@ function extractFileCandidate(obj: any): IncomingFile | null {
   const extFromUrl = url ? path.extname(url.split("?")[0]!).toLowerCase() : "";
   const ext = extFromFileName || extFromUrl;
 
+  const isAudio = SUPPORTED_AUDIO_EXTS.includes(ext) || String(targetObj.mimeType ?? targetObj.contentType ?? "").toLowerCase().startsWith("audio/") || /voice|audio|record/i.test(`${targetObj.msgType ?? ""} ${targetObj.type ?? ""}`);
   const isDoc = SUPPORTED_DOC_EXTS.includes(ext) || targetObj.msgType === "file" || String(targetObj.type).includes("file");
 
-  if (url && (isDoc || fileName.includes("."))) {
+  if (url && (isAudio || isDoc || fileName.includes("."))) {
+    const resolvedExt = ext || (isAudio ? ".m4a" : ".docx");
     return {
-      fileName: fileName || `file${ext || ".docx"}`,
+      fileName: fileName || `file${resolvedExt}`,
       url,
       fileSize,
-      extension: ext || ".docx",
+      extension: resolvedExt,
+      mimeType: String(targetObj.mimeType ?? targetObj.contentType ?? "") || AUDIO_MIME_TYPES[resolvedExt],
+      isAudio,
     };
   }
 

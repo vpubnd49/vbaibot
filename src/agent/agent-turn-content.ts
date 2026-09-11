@@ -239,7 +239,14 @@ export async function buildCurrentTurnContent(
   for (const msg of batch) {
     const files = msg.files ?? [];
     for (const file of files) {
-      if (file.localPath) {
+      if (file.isAudio) {
+        parts.push({
+          type: "text",
+          text: file.transcript
+            ? `[Nội dung file ghi âm "${file.fileName}" đã chuyển thành văn bản:\n${file.transcript}\n]`
+            : `[Có file ghi âm "${file.fileName}" nhưng chưa chuyển được thành văn bản]`,
+        });
+      } else if (file.localPath) {
         const doc = await loadUploadedDocument(file.localPath, getTuning("DOCUMENT_READ_MAX_CHARS"));
         if (doc && doc.text.trim()) {
           const cutNote = doc.truncated
