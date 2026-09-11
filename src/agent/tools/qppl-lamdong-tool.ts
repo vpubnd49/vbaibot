@@ -1,15 +1,27 @@
+import fs from "node:fs";
 import path from "node:path";
 import { tool } from "ai";
 import { z } from "zod";
 import { searchQpplDocs, getQpplDocById, countQpplDocs } from "../../qppl/qppl-store.js";
-import { syncQpplDocuments, downloadAllFilesForDoc, liveSearchAndUpsert } from "../../qppl/qppl-service.js";
+import { getQpplStorageDir, syncQpplDocuments, downloadAllFilesForDoc, liveSearchAndUpsert } from "../../qppl/qppl-service.js";
+import type { QpplDownloadResult } from "../../qppl/qppl-service.js";
 import { guiFileKemCaption } from "./send-attachment-with-caption.js";
 import { ghiChuDaGuiFile } from "./sent-by-tool-note.js";
 import type { ToolContext } from "./tool-catalog-types.js";
-import type { QpplFileLink, QpplNguon } from "../../qppl/qppl-types.js";
+import type { QpplDoc, QpplFileLink, QpplNguon } from "../../qppl/qppl-types.js";
+import { createQpplArchive } from "../../qppl/qppl-archive.js";
 import { createLogger } from "../../shared/logger.js";
 
 const log = createLogger("qppl-lamdong-tool");
+
+function parseFileLinks(fileUrls: string): QpplFileLink[] {
+  try {
+    const parsed: unknown = JSON.parse(fileUrls);
+    return Array.isArray(parsed) ? parsed as QpplFileLink[] : [];
+  } catch {
+    return [];
+  }
+}
 
 export function createQpplLamdongTool({ api, account, message, ghiNhanDaGui }: ToolContext) {
   return tool({
@@ -50,8 +62,13 @@ export function createQpplLamdongTool({ api, account, message, ghiNhanDaGui }: T
         .optional()
         .default(false)
         .describe("Nếu true, tải file PDF/DOC và gửi thẳng vào chat cho người dùng"),
+      archiveFiles: z
+        .boolean()
+        .optional()
+        .default(false)
+        .describe("Nếu true cùng sendFileToChat, gom toàn bộ file thành một ZIP kèm MANIFEST.csv rồi gửi một lần"),
     }),
-    execute: async ({ action, keyword, loaiVanBan, nguon, docId, sendFileToChat }) => {
+    execute: async ({ action, keyword, loaiVanBan, nguon, docId, sendFileToChat, archiveFiles }) => {
       // === SYNC ===
       if (action === "sync") {
         const target = (nguon as QpplNguon) || "ubnd";
@@ -63,6 +80,65 @@ export function createQpplLamdongTool({ api, account, message, ghiNhanDaGui }: T
         );
       }
 
+      const sendArchive = async (
+        docsToArchive: QpplDoc[],
+        results: Array<{ doc: QpplDoc; download: QpplDownloadResult }>,
+      ): Promise<string> => {
+        const archiveEntries = results.flatMap(({ doc, download }) =>
+          download.downloaded.map((filePath) => ({
+            filePath,
+            entryName: `${doc.ngayBanHanh?.slice(0, 4) || "unknown"}/${doc.soKyHieu.replace(/[\\/:*?"<>|]/g, "-")}/${path.basename(filePath)}`,
+          })),
+        );
+        const manifest = results.flatMap(({ doc, download }) => {
+          const links = parseFileLinks(doc.fileUrls);
+          const rows = links.map((link) => {
+            const localFile = download.downloaded.find((filePath) => path.basename(filePath).includes(path.basename(link.name)));
+            return {
+              documentId: doc.id,
+              soKyHieu: doc.soKyHieu,
+              loaiVanBan: doc.loaiVanBan,
+              ngayBanHanh: doc.ngayBanHanh,
+              trichYeu: doc.trichYeu,
+              fileName: link.name,
+              entryName: localFile ? path.basename(localFile) : "",
+              status: localFile ? "downloaded" as const : "failed" as const,
+              error: download.failed.find((failed) => failed.name === link.name)?.error,
+            };
+          });
+          return rows.length > 0 ? rows : [{
+            documentId: doc.id,
+            soKyHieu: doc.soKyHieu,
+            loaiVanBan: doc.loaiVanBan,
+            ngayBanHanh: doc.ngayBanHanh,
+            trichYeu: doc.trichYeu,
+            fileName: "",
+            entryName: "",
+            status: "failed" as const,
+            error: "Không có file tải thành công",
+          }];
+        });
+        const archivePath = path.join(getQpplStorageDir(), `QPPL_${Date.now()}_${docsToArchive.length}VB.zip`);
+        try {
+          const archive = await createQpplArchive(archivePath, archiveEntries, manifest);
+          const sentCaption = `QPPL Lâm Đồng: ${docsToArchive.length} văn bản, ${archiveEntries.length} file; kèm MANIFEST.csv`;
+          await guiFileKemCaption(
+            api,
+            `${account.id}:${message.threadId}`,
+            message.threadId,
+            message.threadType,
+            archive.path,
+            sentCaption,
+          );
+          ghiNhanDaGui?.(ghiChuDaGuiFile(path.basename(archive.path), "ZIP QPPL"));
+          const failed = results.reduce((sum, item) => sum + item.download.failed.length, 0);
+          return `\n\n✅ ĐÃ GỬI 1 FILE ZIP (${Math.round(archive.bytes / 1024)} KB), gồm ${archiveEntries.length} file từ ${docsToArchive.length} văn bản.\n` +
+            (failed > 0 ? `⚠️ MANIFEST.csv ghi nhận ${failed} file chưa tải được; không được nói là đã đủ toàn bộ.` : "Đã tải đủ các file đã phát hiện.");
+        } finally {
+          try { fs.unlinkSync(archivePath); } catch { /* archive đã được gửi hoặc tạo thất bại */ }
+        }
+      };
+
       // === GET (chi tiết + tải file) ===
       if (action === "get" && docId) {
         const doc = getQpplDocById(docId);
@@ -72,9 +148,12 @@ export function createQpplLamdongTool({ api, account, message, ghiNhanDaGui }: T
         if (sendFileToChat) {
           // Tải TẤT CẢ file đính kèm
           const dl = await downloadAllFilesForDoc(docId);
+          if (archiveFiles) {
+            sendNote = await sendArchive([doc], [{ doc, download: dl }]);
+          }
           const allPaths = dl.downloaded;
 
-          if (allPaths.length > 0) {
+          if (allPaths.length > 0 && !archiveFiles) {
             const sentNames: string[] = [];
             const failedSends: string[] = [];
             for (const absPath of allPaths) {
@@ -185,7 +264,13 @@ export function createQpplLamdongTool({ api, account, message, ghiNhanDaGui }: T
         const sentFiles: string[] = [];
         const failedFiles: string[] = [];
         let totalFilesSent = 0;
-        for (const targetDoc of toSend) {
+        if (archiveFiles) {
+          const archiveResults: Array<{ doc: QpplDoc; download: QpplDownloadResult }> = [];
+          for (const targetDoc of toSend) {
+            archiveResults.push({ doc: targetDoc, download: await downloadAllFilesForDoc(targetDoc.id) });
+          }
+          sendStatusNote = await sendArchive(toSend, archiveResults);
+        } else for (const targetDoc of toSend) {
           const dl = await downloadAllFilesForDoc(targetDoc.id);
           const allPaths = dl.downloaded;
           const sentNamesForDoc: string[] = [];
