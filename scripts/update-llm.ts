@@ -1,4 +1,5 @@
 import { updateLlmSettings, getEffectiveLlmSettings } from "../src/config/runtime-llm-settings.js";
+import { updateVisionSettings, getVisionSettings } from "../src/config/runtime-vision-settings.js";
 import { resolveLanguageModel } from "../src/agent/llm-provider.js";
 import { streamText } from "ai";
 import { chayStream } from "../src/agent/stream-text-result.js";
@@ -18,6 +19,12 @@ async function main() {
 
   console.log("Cấu hình model mới vào runtime_settings...");
   updateLlmSettings({ provider: provider as LlmProviderKind, baseUrl, model, apiKey });
+  updateVisionSettings({
+    mode: "auto",
+    sidecarBaseUrl: baseUrl,
+    sidecarModel: model,
+    sidecarApiKey: apiKey,
+  });
 
   const effective = getEffectiveLlmSettings();
   console.log("Cấu hình hiệu lực:", {
@@ -26,6 +33,7 @@ async function main() {
     model: effective.model,
     hasOverride: effective.hasOverride,
   });
+  console.log("Cấu hình Vision Sidecar:", getVisionSettings());
 
   console.log("Đang kiểm tra kết nối gọi model...");
   try {
