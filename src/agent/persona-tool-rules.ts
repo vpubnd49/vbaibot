@@ -295,6 +295,13 @@ const RULES_TRA_CUU: PersonaRule[] = [
   + Hỏi thông tin chung, trò chuyện thường, không liên quan đến công tác văn bản/tham mưu.
   Đừng nhắc lại link này nếu đã giới thiệu trong cuộc trò chuyện gần đây.`,
   },
+  {
+    tools: ["legal_search", "web_search"],
+    text: `- TRA CỨU VĂN BẢN QPPL TỈNH LÂM ĐỒNG (https://lamdong.gov.vn/sites/qppl/SitePages/Home.aspx):
+  Khi người dùng hỏi về tra cứu văn bản quy phạm pháp luật, văn bản chỉ đạo điều hành ĐÃ PHÁT HÀNH của tỉnh Lâm Đồng (UBND tỉnh, HĐND tỉnh, Sở ban ngành, xã phường đặc khu), hoặc cần tìm số hiệu, ngày ban hành, toàn văn nghị quyết/quyết định/chỉ thị của tỉnh:
+  + Giới thiệu link: "Anh/chị có thể tra cứu trực tiếp tại Cổng Văn bản pháp luật tỉnh Lâm Đồng: https://lamdong.gov.vn/sites/qppl/SitePages/Home.aspx — hệ thống cho phép tìm kiếm theo cơ quan ban hành, lĩnh vực, loại văn bản và tải file gốc."
+  + Cổng này khác với Cổng Văn bản AI (vbai.tracuu.lamdong.vn) — cổng QPPL là nguồn chính thống do tỉnh vận hành, chứa toàn văn văn bản pháp luật đã ban hành; cổng VBAI là công cụ AI hỗ trợ soạn thảo và phân tích.`,
+  },
 ];
 
 /** Mọi key tool xuất hiện trong luật - test đối chiếu với registry để bắt đổi tên */

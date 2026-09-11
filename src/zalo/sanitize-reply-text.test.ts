@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { coDauHieuRoPrompt, lamSachTraLoi } from "./sanitize-reply-text.js";
+import { coDauHieuRoPrompt, lamSachGiuDinhDang, lamSachTraLoi } from "./sanitize-reply-text.js";
 import { DAU_HIEU_RO_PROMPT } from "../agent/prompt-leak-markers.js";
 
 /** Module thuần - không cần setupTestEnv, không cần import động */
@@ -336,5 +336,57 @@ THAT SU
       const ms = Number(process.hrtime.bigint() - t0) / 1e6;
       assert.ok(ms < 500, `${ten}: ${ms.toFixed(0)}ms - biểu thức đang chạy bậc hai`);
     }
+  });
+});
+
+describe("lamSachTraLoi - dọn LaTeX", () => {
+  it("lỗi thật trên Zalo: $ \\rightarrow$ → ký tự mũi tên Unicode", () => {
+    // Ca chính xác từ ảnh chụp: "$ \\rightarrow$ Chọn C. 3-5 từ."
+    assert.equal(sach("$ \\rightarrow$ Chọn C. 3-5 từ."), "→ Chọn C. 3-5 từ.");
+  });
+
+  it("inline math $...$ bóc dấu dollar, giữ nội dung", () => {
+    assert.equal(sach("$x \\times y$"), "x × y");
+    assert.equal(sach("$a \\leq b$"), "a ≤ b");
+  });
+
+  it("block math $$...$$ bóc dấu, giữ nội dung", () => {
+    assert.equal(sach("$$E = mc^2$$"), "E = mc^2");
+  });
+
+  it("ký tự LaTeX NGOÀI dấu dollar cũng được đổi", () => {
+    // Model đôi khi không bọc trong $...$
+    assert.equal(sach("Chọn A \\rightarrow Đáp án đúng"), "Chọn A → Đáp án đúng");
+  });
+
+  it("nhiều ký hiệu LaTeX phổ biến", () => {
+    assert.equal(sach("$\\alpha + \\beta = \\gamma$"), "α + β = γ");
+    assert.equal(sach("$\\pi \\approx 3.14$"), "π ≈ 3.14");
+    assert.equal(sach("$a \\neq b$"), "a ≠ b");
+    assert.equal(sach("$a \\geq b$"), "a ≥ b");
+    assert.equal(sach("$\\pm 5\\%$"), "± 5%");
+    assert.equal(sach("$\\infty$"), "∞");
+    assert.equal(sach("$\\sqrt{2}$"), "√{2}");
+    assert.equal(sach("$a \\cdot b$"), "a · b");
+    assert.equal(sach("$\\ldots$"), "…");
+    assert.equal(sach("$A \\implies B$"), "A ⇒ B");
+    assert.equal(sach("$A \\iff B$"), "A ⇔ B");
+  });
+
+  it("dấu $ tiền tệ KHÔNG bị đụng - không có ký tự LaTeX bên trong", () => {
+    // Trường hợp quan trọng: người ta nói về giá cả
+    assert.equal(sach("Giá $500 và $1000"), "Giá $500 và $1000");
+    assert.equal(sach("Tổng: $45.000"), "Tổng: $45.000");
+  });
+
+  it("dấu $ cách xa nhau không nối thành inline math (trần 200 ký tự)", () => {
+    const dai = `Giá ${"a".repeat(210)} rồi $`;
+    assert.equal(sach(dai), dai, "quá trần thì giữ nguyên");
+  });
+
+  it("đường giữ định dạng (lamSachGiuDinhDang) cũng dọn LaTeX", () => {
+    const r = lamSachGiuDinhDang("$ \\rightarrow$ Chọn C");
+    assert.equal(r.text, "→ Chọn C");
+    assert.ok(r.daSua.includes("LaTeX"));
   });
 });

@@ -177,6 +177,89 @@ function boDongPhanCachBang(text: string, daSua: string[]): string {
  */
 const THE_MAU_RE = /<\/?(?:do|red|cam|orange|vang|yellow|xanh|green|blue|gach|u|underline)>|\[\/?(?:do|red|cam|orange|vang|yellow|xanh|green|blue|gach|u|underline)\]/gi;
 
+/**
+ * Dịch cú pháp LaTeX lọt vào câu trả lời thành ký tự Unicode.
+ *
+ * Model (đặc biệt Gemma4) hay sinh `$ \rightarrow$` hoặc `$x \times y$` khi
+ * trả lời câu hỏi thi trắc nghiệm hoặc toán học. Zalo không render LaTeX nên
+ * người dùng nhận nguyên chuỗi `$ \rightarrow$`. Bước này chạy ở CẢ HAI đường
+ * (xóa markdown và giữ markdown) vì LaTeX không phải markdown.
+ *
+ * Chỉ thay thế KÝ TỰ ĐÃ BIẾT - không cố phân tích toàn bộ cú pháp TeX. Bảng
+ * ánh xạ liệt kê đúng những gì đã lọt trên Zalo thật; bổ sung khi cần.
+ *
+ * TUYẾN TÍNH: `[^$\n]` (lớp phủ định, một lượng từ duy nhất). Trần 200 ký tự
+ * cùng lý do với `LIEN_KET_RE` - cú pháp toán dài hơn thế thì giữ nguyên chứ
+ * không đoán.
+ */
+const LATEX_KY_TU: [RegExp, string][] = [
+  [/\\rightarrow/g, "→"],
+  [/\\Rightarrow/g, "⇒"],
+  [/\\leftarrow/g, "←"],
+  [/\\Leftarrow/g, "⇐"],
+  [/\\leftrightarrow/g, "↔"],
+  [/\\Leftrightarrow/g, "⇔"],
+  [/\\implies/g, "⇒"],
+  [/\\iff/g, "⇔"],
+  [/\\times/g, "×"],
+  [/\\div/g, "÷"],
+  [/\\pm/g, "±"],
+  [/\\neq/g, "≠"],
+  [/\\leq/g, "≤"],
+  [/\\geq/g, "≥"],
+  [/\\approx/g, "≈"],
+  [/\\infty/g, "∞"],
+  [/\\alpha/g, "α"],
+  [/\\beta/g, "β"],
+  [/\\gamma/g, "γ"],
+  [/\\delta/g, "δ"],
+  [/\\pi/g, "π"],
+  [/\\sigma/g, "σ"],
+  [/\\mu/g, "μ"],
+  [/\\sum/g, "∑"],
+  [/\\prod/g, "∏"],
+  [/\\sqrt/g, "√"],
+  [/\\cdot/g, "·"],
+  [/\\ldots/g, "…"],
+  [/\\%/g, "%"],
+  [/\\dots/g, "…"],
+];
+
+/**
+ * Inline math `$...$` - KHÔNG bắt `$$...$$` (block math, xử lý riêng).
+ *
+ * `(?!\d)` sau dấu `$` mở: bỏ qua giá tiền `$500`, `$1000` - kiểu dùng dollar
+ * rất phổ biến trong hội thoại tiếng Việt khi nói về ngoại tệ. Không có cái
+ * này thì `$500 và $1000` bị ghép thành một cụm inline math.
+ */
+const INLINE_MATH_RE = /\$(?!\d)([^$\n]{1,200})\$/g;
+
+/** Block math `$$...$$` - thường trên dòng riêng */
+const BLOCK_MATH_RE = /\$\$([^$]{1,500}?)\$\$/g;
+
+function boLatex(text: string, daSua: string[]): string {
+  if (!text.includes("$") && !text.includes("\\")) return text;
+
+  let ra = text;
+
+  // Bước 1: Thay thế ký tự LaTeX bên trong và bên ngoài dấu $
+  for (const [re, ky] of LATEX_KY_TU) {
+    ra = ra.replace(re, ky);
+  }
+
+  // Bước 2: Gỡ dấu $$ (block math) rồi $ (inline math) - giữ nội dung.
+  // Trim nội dung bắt được: `$ \rightarrow$` thành `$ →$` sau bước 1, bắt được
+  // ` →` (có dấu cách đầu) - trim để ra `→` gọn.
+  ra = ra.replace(BLOCK_MATH_RE, (_m, c: string) => c.trim());
+  ra = ra.replace(INLINE_MATH_RE, (_m, c: string) => c.trim());
+
+  // Bước 3: Dọn khoảng trắng thừa do LaTeX (" →" thay vì "→")
+  ra = ra.replace(/ {2,}/g, " ");
+
+  if (ra !== text) daSua.push("LaTeX");
+  return ra;
+}
+
 function boTheMau(text: string, daSua: string[]): string {
   if (!text.includes("<") && !text.includes("[")) return text;
   const sau = text.replace(THE_MAU_RE, "");
@@ -240,7 +323,8 @@ export function lamSachTraLoi(text: string): KetQuaLamSach {
   // trong khối là code, không phải văn bản để dọn định dạng
   const { than, khoi } = tachKhoiCode(sachNul, daSua);
 
-  let ra = boInlineCode(than, daSua);
+  let ra = boLatex(than, daSua);
+  ra = boInlineCode(ra, daSua);
   ra = boLienKet(ra, daSua);
   ra = boTieuDe(ra, daSua);
   ra = boDam(ra, daSua);
@@ -273,5 +357,7 @@ export function lamSachGiuDinhDang(text: string): KetQuaLamSach {
   const daSua: string[] = [];
   // NUL không phải markdown, là rác - không có lý do gì gửi nó lên Zalo
   const sachNul = text.includes(MOC_KHOI) ? text.split(MOC_KHOI).join("") : text;
-  return { text: boSentinel(sachNul, daSua), daSua, chan: false };
+  // LaTeX không phải markdown - phải dọn ở cả hai đường
+  const sachLatex = boLatex(sachNul, daSua);
+  return { text: boSentinel(sachLatex, daSua), daSua, chan: false };
 }
