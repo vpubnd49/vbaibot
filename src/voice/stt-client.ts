@@ -36,6 +36,7 @@ export type SpeechToTextOptions = {
   baseUrl?: string;
   apiKey?: string;
   model?: string;
+  protocol?: "audio-chat" | "transcriptions";
   language?: string;
   timeoutMs?: number;
 };
@@ -48,6 +49,7 @@ export async function transcribeAudioFile(
   const baseUrl = options.baseUrl ?? env.STT_BASE_URL;
   const apiKey = options.apiKey ?? env.STT_API_KEY;
   const model = options.model ?? env.STT_MODEL;
+  const protocol = options.protocol ?? env.STT_PROTOCOL;
   const language = options.language ?? env.STT_LANGUAGE;
   const timeoutMs = options.timeoutMs ?? env.STT_TIMEOUT_MS;
   if (!baseUrl || !apiKey) return null;
@@ -55,25 +57,48 @@ export async function transcribeAudioFile(
   const fileStats = fs.statSync(filePath);
   if (fileStats.size === 0) throw new Error("Audio rỗng");
   if (fileStats.size > maxAudioBytes) throw new Error("Audio vượt giới hạn 200 MiB");
-  const form = new FormData();
   const extension = path.extname(fileName).toLowerCase();
   const mimeType = AUDIO_MIME_BY_EXT[extension] ?? "application/octet-stream";
-  form.append("file", new Blob([fs.readFileSync(filePath)], { type: mimeType }), fileName);
-  form.append("model", model);
-  form.append("language", language);
-  form.append("audio_format", AUDIO_FORMAT_BY_EXT[extension] ?? "");
-  form.append("response_format", "json");
-  form.append("prompt", "Chép nguyên văn tiếng Việt, giữ dấu, không dịch, không tóm tắt, không thêm nội dung.");
-
-  const response = await fetch(`${baseUrl.replace(/\/$/, "")}/audio/transcriptions`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${apiKey}` },
-    body: form,
-    signal: AbortSignal.timeout(timeoutMs),
-  });
+  const bytes = fs.readFileSync(filePath);
+  const response = protocol === "audio-chat"
+    ? await fetch(`${baseUrl.replace(/\/$/, "")}/chat/completions`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model,
+          temperature: 0,
+          messages: [{
+            role: "user",
+            content: [
+              { type: "text", text: "Chép nguyên văn toàn bộ nội dung file ghi âm bằng tiếng Việt. Chỉ trả về transcript, không tóm tắt, không giải thích, không tự đoán; chỗ không rõ ghi [không rõ]." },
+              { type: "input_audio", input_audio: { data: bytes.toString("base64"), format: AUDIO_FORMAT_BY_EXT[extension] ?? "mp4" } },
+            ],
+          }],
+        }),
+        signal: AbortSignal.timeout(timeoutMs),
+      })
+    : await fetch(`${baseUrl.replace(/\/$/, "")}/audio/transcriptions`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${apiKey}` },
+        body: (() => {
+          const form = new FormData();
+          form.append("file", new Blob([bytes], { type: mimeType }), fileName);
+          form.append("model", model);
+          form.append("language", language);
+          form.append("audio_format", AUDIO_FORMAT_BY_EXT[extension] ?? "");
+          form.append("response_format", "json");
+          form.append("prompt", "Chép nguyên văn tiếng Việt, giữ dấu, không dịch, không tóm tắt, không thêm nội dung.");
+          return form;
+        })(),
+        signal: AbortSignal.timeout(timeoutMs),
+      });
   if (!response.ok) throw new Error(`STT HTTP ${response.status}: ${await response.text()}`);
-  const payload = await response.json() as { text?: unknown };
-  const text = typeof payload.text === "string" ? payload.text.trim() : "";
+  const payload = await response.json() as { text?: unknown; choices?: Array<{ message?: { content?: unknown } }> };
+  const text = typeof payload.text === "string"
+    ? payload.text.trim()
+    : typeof payload.choices?.[0]?.message?.content === "string"
+      ? payload.choices[0].message.content.trim()
+      : "";
   if (!text) return null;
   return { text, provider: "openai-compatible", model };
 }

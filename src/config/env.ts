@@ -334,6 +334,7 @@ const envSchema = z.object({
   STT_BASE_URL: z.preprocess(emptyToUndefined, z.string().startsWith("http").optional()),
   STT_API_KEY: z.string().default(""),
   STT_MODEL: z.string().default("whisper-1"),
+  STT_PROTOCOL: z.enum(["audio-chat", "transcriptions"]).default("audio-chat"),
   STT_LANGUAGE: z.string().default("vi"),
   STT_TIMEOUT_MS: z.coerce.number().int().min(10_000).max(600_000).default(180_000),
 

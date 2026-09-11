@@ -31,6 +31,7 @@ describe("transcribeAudioFile", () => {
         apiKey: "test-key",
         model: "whisper-test",
         language: "vi",
+        protocol: "transcriptions",
       });
       assert.deepEqual(result, { text: "Xin chào tiếng Việt", provider: "openai-compatible", model: "whisper-test" });
       assert.equal(request?.url, "https://stt.test/v1/audio/transcriptions");
@@ -51,6 +52,7 @@ describe("transcribeAudioFile", () => {
       const result = await transcribeAudioFile(audioPath, "ghi-am.webm", {
         baseUrl: "https://stt.test/v1",
         apiKey: "test-key",
+        protocol: "transcriptions",
       });
       assert.equal(result?.text, "nội dung webm");
     } finally {
