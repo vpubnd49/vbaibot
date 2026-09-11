@@ -6,6 +6,8 @@ import {
   listBroadcastTargets,
   sendBroadcastBatch,
 } from "../../broadcast/broadcast-service.js";
+import { getRunningAccountApi } from "../../zalo/account-manager.js";
+import { guiFileKemCaption } from "../../agent/tools/send-attachment-with-caption.js";
 
 /** /api/broadcast - Quản lý thông báo và gửi tin cập nhật đến các nhóm / user Zalo */
 export const broadcastRoutes = new Hono()
@@ -49,6 +51,39 @@ export const broadcastRoutes = new Hono()
     try {
       const result = await sendBroadcastBatch(parsed.data);
       return c.json({ ok: true, result });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      return c.json({ error: message }, 500);
+    }
+  })
+
+  .post("/send-file", async (c) => {
+    const bodySchema = z.object({
+      accountId: z.string().min(1, "Thiếu accountId"),
+      threadId: z.string().min(1, "Thiếu threadId"),
+      filePath: z.string().min(1, "Thiếu filePath"),
+      caption: z.string().optional(),
+    });
+
+    const parsed = bodySchema.safeParse(await c.req.json().catch(() => null));
+    if (!parsed.success) {
+      return c.json({ error: parsed.error.issues[0]?.message ?? "Dữ liệu không hợp lệ" }, 400);
+    }
+
+    const { accountId, threadId, filePath, caption } = parsed.data;
+    const api = getRunningAccountApi(accountId);
+    if (!api) {
+      return c.json({ error: "Tài khoản Zalo chưa kết nối hoặc đang offline" }, 400);
+    }
+
+    const targets = listBroadcastTargets({ accountId });
+    const target = targets.find((t) => t.threadId === threadId);
+    const threadType = target ? target.threadType : 0;
+    const threadKey = `${accountId}:${threadId}`;
+
+    try {
+      await guiFileKemCaption(api, threadKey, threadId, threadType, filePath, caption);
+      return c.json({ ok: true });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       return c.json({ error: message }, 500);

@@ -18,6 +18,7 @@ import { createKnowledgeResearchTool } from "./knowledge-research-tool.js";
 import { createDeveloperResearchTool } from "./developer-research-tool.js";
 import { createThanhtraLamdongTool } from "./thanhtra-lamdong-tool.js";
 import { createQpplLamdongTool } from "./qppl-lamdong-tool.js";
+import { createTranscribeAudioTool } from "./transcribe-audio-tool.js";
 
 /**
  * Nhóm "read" của catalog tool - tra cứu, không tác động ra ngoài. Tách khỏi
@@ -163,5 +164,13 @@ export const READ_TOOL_DEFINITIONS: ToolDefinition[] = [
     description: "Tra cứu đơn vị hành chính 34 tỉnh/thành phố, 3.321 xã/phường/đặc khu theo mô hình 2 cấp. Hỗ trợ tra ngược địa chỉ cũ sang mới",
     group: "read",
     build: () => createAdminDivisionTool(),
+  },
+  {
+    key: "transcribe_audio",
+    label: "Bóc băng âm thanh",
+    description: "Nghe và chuyển đổi file âm thanh/ghi âm (.m4a, .mp3, .wav...) thành văn bản (Speech-to-Text)",
+    group: "read",
+    runsInScheduledTurn: false,
+    build: (ctx) => createTranscribeAudioTool(ctx),
   },
 ];

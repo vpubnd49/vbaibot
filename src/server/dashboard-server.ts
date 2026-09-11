@@ -138,6 +138,10 @@ export function buildDashboardApp(): Hono {
         new URL(c.req.url).pathname === "/api/kie-callback/") {
       return next();
     }
+    const internalSecret = c.req.header("x-internal-secret");
+    if (internalSecret && internalSecret === env.CREDENTIALS_ENCRYPTION_KEY) {
+      return next();
+    }
     if (!verifySessionToken(getCookie(c, SESSION_COOKIE))) {
       return c.json({ error: "Chưa đăng nhập" }, 401);
     }

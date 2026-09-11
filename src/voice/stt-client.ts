@@ -3,6 +3,10 @@ import path from "node:path";
 import { env } from "../config/env.js";
 import { getEffectiveLlmSettings } from "../config/runtime-llm-settings.js";
 import { getGoogleSettings } from "../config/runtime-google-settings.js";
+import { createLogger } from "../shared/logger.js";
+import { canUseFfmpeg, transcribeLongAudio } from "./stt-chunker.js";
+
+const log = createLogger("stt-client");
 
 const AUDIO_MIME_BY_EXT: Record<string, string> = {
   ".m4a": "audio/mp4",
@@ -80,6 +84,14 @@ export async function transcribeAudioFile(
     (model.toLowerCase().startsWith("gemini") && options.protocol !== "transcriptions");
 
   if (isGemini) {
+    if (await canUseFfmpeg()) {
+      try {
+        const longResult = await transcribeLongAudio(filePath, fileName, apiKey, model, baseUrl);
+        if (longResult) return longResult;
+      } catch (err) {
+        log.warn({ err }, "Lỗi khi bóc băng chia đoạn, thử cách đơn lẻ");
+      }
+    }
     const geminiBase = baseUrl.replace(/\/openai\/?$/i, "").replace(/\/+$/, "");
     const endpoint = `${geminiBase.includes("/v1beta") ? geminiBase : `${geminiBase}/v1beta`}/models/${model}:generateContent?key=${apiKey}`;
     const response = await fetch(endpoint, {

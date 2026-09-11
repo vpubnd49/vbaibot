@@ -220,6 +220,7 @@ describe("tool-registry", () => {
     "tag_member",
     "knowledge_research",
     "developer_research",
+    "transcribe_audio",
   ];
 
   it("isolated:true (lượt theo lịch) loại đủ tool kể cả khi hạ tầng/cấu hình đã sẵn sàng", () => {
