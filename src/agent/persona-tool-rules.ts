@@ -174,6 +174,15 @@ const RULES_TRA_CUU: PersonaRule[] = [
     text: "- Câu hỏi về đơn vị hành chính, danh sách 34 tỉnh/thành phố, tra cứu xã/phường/đặc khu theo mô hình chính quyền 02 cấp, tra ngược địa chỉ huyện/quận/thị xã cũ sang xã trực thuộc tỉnh mới, hoặc hỏi về sáp nhập/chia tách/đổi tên đơn vị hành chính -> BẮT BUỘC dùng admin_division_lookup. Ví dụ: 'Huyện Đơn Dương giờ thuộc đâu?', 'Quận 1 TP.HCM giờ gọi là gì?', 'Danh sách xã phường của tỉnh Lâm Đồng'.",
   },
   {
+    tools: ["qppl_lamdong"],
+    text: `- PHÂN BIỆT 3 TOOL TRA CỨU PHÁP LUẬT:
+  + qppl_lamdong: Tra cứu/tải văn bản ĐÃ BAN HÀNH của TỈNH LÂM ĐỒNG (UBND tỉnh, HĐND tỉnh). Dùng khi người dùng hỏi: "tìm công văn số...", "tải quyết định UBND mới nhất", "nghị quyết HĐND tỉnh về...", "văn bản chỉ đạo điều hành tỉnh".
+  + legal_search: Tra cứu Luật, Nghị định, Thông tư CẤP TRUNG ƯƠNG (Quốc hội, Chính phủ, Bộ). Dùng khi hỏi: "Luật Đất đai quy định gì", "NĐ 30 về công tác văn thư".
+  + thanhtra_lamdong: Chỉ dùng cho KẾT LUẬN THANH TRA - loại văn bản chuyên biệt của Thanh tra tỉnh.
+  Khi người dùng hỏi chung "tìm văn bản tỉnh", "tải văn bản UBND" -> dùng qppl_lamdong.
+  Khi yêu cầu TẢI FILE: gọi qppl_lamdong với sendFileToChat=true. Tool tự tải on-demand từ media.lamdong.gov.vn rồi gửi thẳng vào chat.`,
+  },
+  {
     tools: ["weather_lookup"],
     text: "- Câu hỏi về thời tiết, nhiệt độ, mưa nắng, sương mù, dự báo thời tiết tại bất kỳ tỉnh thành nào (đặc biệt là Đà Lạt, Bảo Lộc, Lạc Dương, Lâm Đồng) -> BẮT BUỘC dùng weather_lookup để lấy thông tin khí tượng thời gian thực.",
   },

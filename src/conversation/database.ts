@@ -318,6 +318,28 @@ function runMigrations(): void {
       created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
     );
     CREATE INDEX IF NOT EXISTS idx_thanhtra_docs_modified ON thanhtra_documents (modified_at DESC);
+
+    -- Văn bản QPPL tỉnh Lâm Đồng (UBND + HĐND, từ Cổng lamdong.gov.vn)
+    CREATE TABLE IF NOT EXISTS qppl_documents (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      so_ky_hieu TEXT NOT NULL DEFAULT '',
+      trich_yeu TEXT NOT NULL DEFAULT '',
+      loai_van_ban TEXT NOT NULL DEFAULT '',
+      co_quan TEXT NOT NULL DEFAULT '',
+      linh_vuc TEXT NOT NULL DEFAULT '',
+      hieu_luc TEXT NOT NULL DEFAULT 'Còn',
+      ngay_ban_hanh TEXT,
+      nguon TEXT NOT NULL DEFAULT 'ubnd',
+      file_urls TEXT NOT NULL DEFAULT '[]',
+      local_path TEXT,
+      file_size INTEGER DEFAULT 0,
+      sp_id INTEGER,
+      modified_at TEXT,
+      created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
+      UNIQUE(nguon, sp_id)
+    );
+    CREATE INDEX IF NOT EXISTS idx_qppl_modified ON qppl_documents (modified_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_qppl_nguon ON qppl_documents (nguon, loai_van_ban);
   `);
 
   // Tool CHẠY LỖI: AI SDK để chúng ở content dạng tool-error, không vào

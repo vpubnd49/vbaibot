@@ -17,6 +17,7 @@ import { createAdminDivisionTool } from "./admin-division-tool.js";
 import { createKnowledgeResearchTool } from "./knowledge-research-tool.js";
 import { createDeveloperResearchTool } from "./developer-research-tool.js";
 import { createThanhtraLamdongTool } from "./thanhtra-lamdong-tool.js";
+import { createQpplLamdongTool } from "./qppl-lamdong-tool.js";
 
 /**
  * Nhóm "read" của catalog tool - tra cứu, không tác động ra ngoài. Tách khỏi
@@ -31,6 +32,14 @@ export const READ_TOOL_DEFINITIONS: ToolDefinition[] = [
       "Tra cứu danh sách, tóm tắt và tải file PDF Kết luận thanh tra, Thông báo kết luận của Thanh tra tỉnh Lâm Đồng (nguồn: lamdong.gov.vn)",
     group: "read",
     build: (ctx) => createThanhtraLamdongTool(ctx),
+  },
+  {
+    key: "qppl_lamdong",
+    label: "Văn bản QPPL tỉnh Lâm Đồng",
+    description:
+      "Tra cứu và tải file văn bản chỉ đạo điều hành, QPPL của UBND tỉnh và HĐND tỉnh Lâm Đồng (Công văn, Quyết định, Nghị quyết, Chỉ thị...)",
+    group: "read",
+    build: (ctx) => createQpplLamdongTool(ctx),
   },
   {
     key: "get_datetime",

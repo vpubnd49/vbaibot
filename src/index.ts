@@ -7,6 +7,7 @@ import { startDashboardServer, stopDashboardServer } from "./server/dashboard-se
 import { createLogger } from "./shared/logger.js";
 import { startTempFileCleanupSchedule } from "./shared/temp-file-store.js";
 import { startThanhtraSyncTask } from "./thanhtra/thanhtra-service.js";
+import { startQpplSyncTask } from "./qppl/qppl-service.js";
 import { startAllAccounts, stopAllAccounts } from "./zalo/account-manager.js";
 
 // Vòng đời tiến trình cũng cần scope: không có thì badge scope trên trang Logs
@@ -69,6 +70,8 @@ startMediaCleanupSchedule();
 startTempFileCleanupSchedule();
 // Tự động quét và đồng bộ Kết luận thanh tra tỉnh Lâm Đồng (ngay + mỗi 6h)
 startThanhtraSyncTask();
+// Tự động quét VB QPPL tỉnh Lâm Đồng: UBND + HĐND (ngay + mỗi 6h)
+startQpplSyncTask();
 
 startDashboardServer();
 startAllAccounts()
