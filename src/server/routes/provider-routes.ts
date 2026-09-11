@@ -11,6 +11,7 @@ import {
 } from "../../config/runtime-llm-settings.js";
 import { createLogger } from "../../shared/logger.js";
 import { getKieSettingsForApi, updateKieSettings } from "../../config/runtime-kie-settings.js";
+import { getGoogleSettingsForApi, updateGoogleSettings } from "../../config/runtime-google-settings.js";
 
 const log = createLogger("provider-routes");
 
@@ -63,6 +64,15 @@ export const providerRoutes = new Hono()
     for (const key of allowed) if (typeof body[key] === "string") update[key] = body[key];
     updateKieSettings(update);
     return c.json({ ok: true, ...getKieSettingsForApi() });
+  })
+  .get("/google", (c) => c.json(getGoogleSettingsForApi()))
+  .patch("/google", async (c) => {
+    const body = await c.req.json().catch(() => ({}));
+    const allowed = ["baseUrl", "apiKey", "model"] as const;
+    const update: Record<string, string> = {};
+    for (const key of allowed) if (typeof body[key] === "string") update[key] = body[key];
+    updateGoogleSettings(update);
+    return c.json({ ok: true, ...getGoogleSettingsForApi() });
   })
 
   .get("/", (c) => {

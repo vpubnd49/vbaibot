@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { env } from "../config/env.js";
 import { getEffectiveLlmSettings } from "../config/runtime-llm-settings.js";
+import { getGoogleSettings } from "../config/runtime-google-settings.js";
 
 const AUDIO_MIME_BY_EXT: Record<string, string> = {
   ".m4a": "audio/mp4",
@@ -48,9 +49,14 @@ export async function transcribeAudioFile(
   options: SpeechToTextOptions = {},
 ): Promise<SpeechToTextResult | null> {
   const llm = getEffectiveLlmSettings();
-  const defaultBaseUrl = env.STT_BASE_URL || (llm.provider === "google" ? "https://generativelanguage.googleapis.com/v1beta" : llm.baseUrl);
-  const defaultApiKey = env.STT_API_KEY || llm.apiKey;
-  const defaultModel = env.STT_MODEL || (llm.provider === "google" ? "gemini-2.5-flash" : llm.model);
+  const google = getGoogleSettings();
+  const defaultBaseUrl = google.apiKey
+    ? (google.baseUrl || "https://generativelanguage.googleapis.com/v1beta")
+    : (env.STT_BASE_URL || (llm.provider === "google" ? "https://generativelanguage.googleapis.com/v1beta" : llm.baseUrl));
+  const defaultApiKey = google.apiKey || env.STT_API_KEY || (llm.provider === "google" ? llm.apiKey : "");
+  const defaultModel = google.apiKey
+    ? (google.model || "gemini-2.5-flash")
+    : (env.STT_MODEL || (llm.provider === "google" ? "gemini-2.5-flash" : llm.model));
 
   const baseUrl = options.baseUrl ?? defaultBaseUrl;
   const apiKey = options.apiKey ?? defaultApiKey;

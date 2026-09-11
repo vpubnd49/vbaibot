@@ -1,6 +1,7 @@
 import { db } from "../conversation/database.js";
 import { env } from "./env.js";
 import { decryptSecret, encryptSecret, maskSecret } from "./secret-cipher.js";
+import { getGoogleSettings } from "./runtime-google-settings.js";
 
 /**
  * Cấu hình đọc ảnh (vision), sửa được từ trang Providers trên dashboard,
@@ -62,12 +63,30 @@ export function getVisionSettings(): VisionSettings {
     storedMode === "auto" || storedMode === "on" || storedMode === "off"
       ? storedMode
       : env.LLM_VISION_MODE;
+  const sidecarApiKey = readSidecarApiKey();
+  const sidecarBaseUrl = read(SIDECAR_BASE_URL_KEY) ?? env.VISION_SIDECAR_BASE_URL;
+  const sidecarModel = read(SIDECAR_MODEL_KEY) ?? env.VISION_SIDECAR_MODEL;
+
+  if (!sidecarApiKey && !sidecarBaseUrl) {
+    const google = getGoogleSettings();
+    if (google.apiKey) {
+      return {
+        mode,
+        sidecar: {
+          baseUrl: google.baseUrl || "https://generativelanguage.googleapis.com/v1beta/openai",
+          model: google.model || "gemini-2.5-flash",
+          apiKey: google.apiKey,
+        },
+      };
+    }
+  }
+
   return {
     mode,
     sidecar: {
-      baseUrl: read(SIDECAR_BASE_URL_KEY) ?? env.VISION_SIDECAR_BASE_URL ?? "",
-      model: read(SIDECAR_MODEL_KEY) ?? env.VISION_SIDECAR_MODEL,
-      apiKey: readSidecarApiKey(),
+      baseUrl: sidecarBaseUrl ?? "",
+      model: sidecarModel,
+      apiKey: sidecarApiKey,
     },
   };
 }

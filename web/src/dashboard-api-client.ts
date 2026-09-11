@@ -447,6 +447,12 @@ export const api = {
       method: "PATCH",
       body: JSON.stringify(update),
     }),
+  google: () => request<GoogleSettings>("/api/provider/google"),
+  updateGoogle: (update: { baseUrl?: string; apiKey?: string; model?: string }) =>
+    request<GoogleSettings & { ok: true }>("/api/provider/google", {
+      method: "PATCH",
+      body: JSON.stringify(update),
+    }),
 };
 
 export type ManagedAccount = {
@@ -568,6 +574,14 @@ export type KieSettings = {
   imageModel: string;
   videoModel: string;
   musicModel: string;
+  configured: boolean;
+};
+
+export type GoogleSettings = {
+  baseUrl: string;
+  apiKeyMasked: string;
+  hasApiKey: boolean;
+  model: string;
   configured: boolean;
 };
 
