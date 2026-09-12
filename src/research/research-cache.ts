@@ -51,6 +51,34 @@ const cleanupStmt = db.prepare(`
   WHERE datetime(COALESCE(stale_until, expires_at)) < datetime('now')
 `);
 
+/**
+ * Cache là best-effort: không được làm hỏng kết quả research chỉ vì một writer
+ * khác đang giữ SQLite. `busy_timeout` của connection không luôn đủ khi có
+ * process/test khác dùng cùng DB, nên retry ngắn cho riêng thao tác ghi.
+ */
+function isBusyError(err: unknown): boolean {
+  const message = err instanceof Error ? err.message : String(err);
+  return /database is locked|SQLITE_BUSY|SQLITE_LOCKED/i.test(message);
+}
+
+function sleepSync(ms: number): void {
+  const sab = new SharedArrayBuffer(4);
+  Atomics.wait(new Int32Array(sab), 0, 0, ms);
+}
+
+function runCacheWrite(provider: string, hash: string, response: string, expiresAt: string, staleUntil: string): void {
+  const maxAttempts = 4;
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    try {
+      setStmt.run(provider, hash, response, expiresAt, staleUntil);
+      return;
+    } catch (err) {
+      if (!isBusyError(err) || attempt === maxAttempts) throw err;
+      sleepSync(25 * attempt);
+    }
+  }
+}
+
 export function getResearchCache<T>(
   provider: string,
   key: string,
@@ -98,7 +126,7 @@ export function setResearchCache<T>(
     const expiresAt = new Date(now.getTime() + ttlSeconds * 1000).toISOString();
     const staleUntil = new Date(now.getTime() + (ttlSeconds + staleGraceSeconds) * 1000).toISOString();
 
-    setStmt.run(provider, hash, JSON.stringify(data), expiresAt, staleUntil);
+    runCacheWrite(provider, hash, JSON.stringify(data), expiresAt, staleUntil);
   } catch (err) {
     log.debug({ err, provider }, "Lỗi ghi research cache");
   }

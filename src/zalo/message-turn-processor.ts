@@ -8,7 +8,7 @@ import { appendMessage } from "../conversation/history-store.js";
 import { filePathsOf, imagePathsOf, persistBatchFiles, persistBatchImages } from "../conversation/media-store.js";
 import { layTinDangDo } from "../middleware/message-batcher.js";
 import { maybeSummarizeThread } from "../conversation/thread-summarizer.js";
-import { saveTurnTrace } from "../agent/agent-trace-store.js";
+import { saveTurnTrace, trongGiaoDich } from "../agent/agent-trace-store.js";
 import { traceLuotHong } from "../agent/failed-turn-trace.js";
 import { forLog } from "../agent/agent-step-observer.js";
 import { finishAgentTurn, openAgentTurn } from "../conversation/usage-store.js";
@@ -216,13 +216,19 @@ async function xuLyLuot(
       layTinChen,
       ghiNhanDaGui,
     });
-    finishAgentTurn(turnId, result.usage);
+    // Chốt usage + trace trong CÙNG một giao dịch: hai câu rời nhau thì process
+    // chết ở giữa (PM2 restart, max_memory_restart) để lại row có token thật mà
+    // không có dòng `agent_steps` nào - lượt đó BIẾN MẤT khỏi trang Trace vì
+    // `getRecentTurnsAllThreads` INNER JOIN sang bảng trace.
+    trongGiaoDich(() => {
+      finishAgentTurn(turnId, result.usage);
+      // Trace lưu ở đây chứ không trong agent-loop: chỗ này vốn đã là nơi chốt
+      // usage của lượt, gom một mối cho dễ tìm.
+      if (trace.length > 0) saveTurnTrace(turnId, trace);
+    });
     // Từ đây trở đi lượt đã CHỐT SỔ THẬT. Nhánh catch bên dưới không được chốt
     // lại nữa - xem giải thích ở đó.
     turnFinished = true;
-    // Trace lưu ở đây chứ không trong agent-loop: chỗ này vốn đã là nơi chốt
-    // usage của lượt, gom một mối cho dễ tìm.
-    if (trace.length > 0) saveTurnTrace(turnId, trace);
 
     writeBatchToHistory();
 

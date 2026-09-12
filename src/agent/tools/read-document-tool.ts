@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { tool } from "ai";
+import { createLogger } from "../../shared/logger.js";
 import { z } from "zod";
 import { dataDir } from "../../config/env.js";
 import { getRecentMessages } from "../../conversation/history-store.js";
@@ -15,6 +16,7 @@ import { getTuning } from "../../config/runtime-tuning-settings.js";
  * Trần số file gần đây agent chọn được qua fileIndex.
  */
 const RECENT_FILE_LIMIT = 10;
+const log = createLogger("read-document");
 
 function sanitizeSegment(value: string): string {
   return value.replace(/[^a-zA-Z0-9_-]/g, "_") || "x";
@@ -44,7 +46,8 @@ function scanDiskMediaFiles(accountId: string, threadId: string): string[] {
 
     docFiles.sort((a, b) => b.mtime - a.mtime);
     return docFiles.map((f) => f.relPath);
-  } catch {
+  } catch (err) {
+    log.warn({ accountId, threadId, err }, "Không quét được thư mục file tài liệu gần đây");
     return [];
   }
 }

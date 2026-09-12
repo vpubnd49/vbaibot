@@ -48,14 +48,23 @@ const WMO_DESCRIPTIONS: Record<number, string> = {
 export function findLocation(query: string): LocationCoordinate {
   const normQuery = normalizeVietnamese(query);
 
-  // 1. Tìm khớp chính xác trong alias
+  // 1. Ưu tiên tên cấp tỉnh hiện hành trước các khu vực chi tiết. Nếu không,
+  // alias "Lâm Đồng" của khu vực Đà Lạt đứng đầu sẽ nuốt mất truy vấn tỉnh
+  // Lâm Đồng mới.
+  for (const loc of VIETNAM_LOCATIONS.filter((item) => item.name.startsWith("Tỉnh "))) {
+    if (loc.aliases.some((a) => normQuery.includes(normalizeVietnamese(a)))) {
+      return loc;
+    }
+  }
+
+  // 2. Tìm khớp trong alias địa danh chi tiết
   for (const loc of VIETNAM_LOCATIONS) {
     if (loc.aliases.some((a) => normQuery.includes(normalizeVietnamese(a)))) {
       return loc;
     }
   }
 
-  // 2. Mặc định nếu không tìm thấy: Thành phố Đà Lạt (Lâm Đồng)
+  // 3. Mặc định nếu không tìm thấy: Thành phố Đà Lạt (Lâm Đồng)
   return VIETNAM_LOCATIONS[0]!;
 }
 

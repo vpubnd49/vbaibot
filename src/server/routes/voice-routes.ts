@@ -16,12 +16,15 @@ import { dataDir } from "../../config/env.js";
  */
 export const voiceRoutes = new Hono();
 
+/** accountId đi thẳng vào đường dẫn nên phải chặn cả `..` lẫn ký tự phân cách */
+const ACCOUNT_ID_PATTERN = /^[A-Za-z0-9_-]+$/;
+
 voiceRoutes.get("/:accountId/:filename", (c) => {
   const { accountId, filename } = c.req.param();
 
   // Chống path traversal: chỉ cho phép tên file đơn giản
   const safeName = path.basename(filename);
-  if (safeName !== filename || !safeName.startsWith("voice_")) {
+  if (safeName !== filename || !safeName.startsWith("voice_") || !ACCOUNT_ID_PATTERN.test(accountId)) {
     return c.json({ error: "Tên file không hợp lệ" }, 400);
   }
 
@@ -41,6 +44,8 @@ voiceRoutes.get("/:accountId/:filename", (c) => {
   return c.body(fileBuffer, 200, {
     "Content-Type": contentType,
     "Content-Length": String(fileBuffer.length),
-    "Cache-Control": "public, max-age=86400",
+    // Audio URL hoạt động như bearer token; không để proxy/cache trung gian giữ
+    // lại nội dung hội thoại lâu hơn cần thiết.
+    "Cache-Control": "private, no-store",
   });
 });

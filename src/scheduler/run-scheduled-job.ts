@@ -11,7 +11,7 @@
 import type { API, ThreadType } from "zca-js";
 import { runAgentTurn } from "../agent/agent-loop.js";
 import type { StepTrace } from "../agent/agent-step-trace.js";
-import { saveTurnTrace } from "../agent/agent-trace-store.js";
+import { saveTurnTrace, trongGiaoDich } from "../agent/agent-trace-store.js";
 import type { resolveLanguageModel } from "../agent/llm-provider.js";
 import { getAccount, type AccountConfig } from "../config/account-store.js";
 import { botTimeZone } from "../config/runtime-tuning-settings.js";
@@ -201,8 +201,13 @@ async function runAgentJob(
         isolated: true,
         resolveModel: options.resolveModel,
       });
-      finishAgentTurn(turnId, result.usage);
-      if (trace.length > 0) saveTurnTrace(turnId, trace);
+      // Cùng giao dịch: usage và trace phải cùng sống hoặc cùng chết, nếu không
+      // job có thể để lại row token thật mà không có step nào - và job đó biến
+      // mất khỏi trang Trace vì truy vấn INNER JOIN sang agent_steps.
+      trongGiaoDich(() => {
+        finishAgentTurn(turnId, result.usage);
+        if (trace.length > 0) saveTurnTrace(turnId, trace);
+      });
       turnFinished = true;
 
       const text = result.text.trim();
@@ -260,8 +265,10 @@ async function runAgentJob(
       // NHẤT còn lại sau khi sendAndConclude tự lo hết bookkeeping của nó
       // (Mục 2, vòng 3: sendAndConclude không còn ném lỗi sau khi đã gửi).
       if (!turnFinished) {
-        finishAgentTurn(turnId, { inputTokens: 0, outputTokens: 0, totalTokens: 0, steps: trace.length });
-        if (trace.length > 0) saveTurnTrace(turnId, trace);
+        trongGiaoDich(() => {
+          finishAgentTurn(turnId, { inputTokens: 0, outputTokens: 0, totalTokens: 0, steps: trace.length });
+          if (trace.length > 0) saveTurnTrace(turnId, trace);
+        });
       }
       // Chắc chắn "chưa gửi được" gì - đếm vào delivery_attempts (Finding 1)
       // thay vì markRun ngay.

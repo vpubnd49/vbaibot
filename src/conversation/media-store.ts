@@ -84,7 +84,10 @@ export async function persistBatchImages(
           "Đã lưu ảnh nhận được",
         );
       } catch (err) {
-        log.debug({ accountId, msgId: msg.msgId, err }, "Không lưu được ảnh - bỏ qua");
+        // `warn` chứ không `debug`: terminal production lọc mức info nên lỗi tải
+        // ảnh chỉ nằm trong file log. Một thread hỏng tải toàn bộ ảnh đọc y hệt
+        // một thread không có ảnh, và người vận hành không có gì để lần ra.
+        log.warn({ accountId, msgId: msg.msgId, err }, "Không lưu được ảnh - bỏ qua");
       }
     }
   }
@@ -162,7 +165,9 @@ export async function persistBatchFiles(
           "Đã lưu file tài liệu nhận được",
         );
       } catch (err) {
-        log.debug({ accountId, msgId: msg.msgId, fileName: file.fileName, err }, "Không lưu được file tài liệu - bỏ qua");
+        // Xem lý do ở nhánh ảnh: tải file hỏng mà chỉ log `debug` thì `read_document`
+        // về sau báo "không có file nào" và không ai biết file chưa từng được lưu.
+        log.warn({ accountId, msgId: msg.msgId, fileName: file.fileName, err }, "Không lưu được file tài liệu - bỏ qua");
       }
     }
   }

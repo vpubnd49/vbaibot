@@ -17,6 +17,17 @@ describe("Realtime Services Suite", () => {
 
     const hanoi = findLocation("nhiệt độ tại Hà Nội");
     assert.ok(hanoi.name.includes("Hà Nội"));
+
+    // Sau sắp xếp cấp tỉnh: Bình Thuận và Đắk Nông là các khu vực thuộc
+    // Lâm Đồng mới; Đắk Lắk vẫn là tỉnh độc lập, không được gán nhầm.
+    const lamDong = findLocation("thời tiết tỉnh Lâm Đồng");
+    assert.equal(lamDong.name, "Tỉnh Lâm Đồng");
+    const binhThuan = findLocation("thời tiết Bình Thuận");
+    assert.equal(binhThuan.name, "Tỉnh Lâm Đồng");
+    const dakNong = findLocation("thời tiết Đắk Nông");
+    assert.ok(dakNong.name.includes("Lâm Đồng"));
+    const dakLak = findLocation("thời tiết Đắk Lắk");
+    assert.equal(dakLak.name, "Tỉnh Đắk Lắk");
   });
 
   it("fetchWeather trả về báo cáo thời tiết đầy đủ", async () => {

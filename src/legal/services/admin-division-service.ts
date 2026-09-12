@@ -42,7 +42,18 @@ const dataPath = path.resolve(__dirname, '../data/administrative-divisions-2025.
 function loadData(): AdminData {
   try {
     const fileContent = fs.readFileSync(dataPath, 'utf8');
-    return JSON.parse(fileContent) as AdminData;
+    const parsed = JSON.parse(fileContent) as AdminData;
+    // Dữ liệu triển khai cũ từng có nguy cơ gán nhầm Đắk Lắk vào Lâm Đồng.
+    // Chuẩn hóa ngay khi nạp để mọi API tìm kiếm dùng cùng một sự thật:
+    // Lâm Đồng mới = Lâm Đồng cũ + Bình Thuận + Đắk Nông; Đắk Lắk độc lập.
+    for (const province of parsed.provinces ?? []) {
+      if (normalizeVietnamese(province.name) !== normalizeVietnamese("Tỉnh Lâm Đồng")) continue;
+      province.oldNames = (province.oldNames ?? province.old_names ?? []).filter(
+        (alias) => normalizeVietnamese(alias) !== normalizeVietnamese("Tỉnh Đắk Lắk"),
+      );
+      province.old_names = province.oldNames;
+    }
+    return parsed;
   } catch (error) {
     console.error('Failed to load administrative divisions data:', error);
     return { metadata: {} as any, provinces: [] };

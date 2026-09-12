@@ -8,6 +8,9 @@ import type { ToolContext } from "./index.js";
 import { ketQuaLoi } from "./tool-failure-result.js";
 import { transcribeAudioFile } from "../../voice/stt-client.js";
 import { assertSafePathInside } from "../../shared/path-security-guard.js";
+import { createLogger } from "../../shared/logger.js";
+
+const log = createLogger("transcribe-audio");
 
 const AUDIO_EXTS = new Set([
   ".m4a", ".mp3", ".wav", ".aac", ".ogg", ".opus", ".flac", ".amr", ".webm",
@@ -37,7 +40,8 @@ function scanDiskAudio(accountId: string, threadId: string): Array<{ relPath: st
       });
     }
     return audios.sort((a, b) => b.mtime - a.mtime);
-  } catch {
+  } catch (err) {
+    log.warn({ accountId, threadId, err }, "Không quét được thư mục file audio gần đây");
     return [];
   }
 }

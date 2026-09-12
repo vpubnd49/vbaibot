@@ -85,7 +85,9 @@ const defaultCaller: SidecarCaller = async (settings, image, prompt) => {
         {
           role: "user",
           content: [
-            { type: "file", data: image.base64, mediaType: image.mediaType },
+            // Gemini OpenAI-compatible endpoint expects vision input as `image`,
+            // not generic `file`. Sending `file` caused HTTP 400 in OCR logs.
+            { type: "image", image: image.base64, mediaType: image.mediaType },
             { type: "text", text: prompt },
           ],
         },
@@ -182,7 +184,9 @@ const askDefaultCaller: SidecarCaller = async (settings, image, prompt) => {
         {
           role: "user",
           content: [
-            { type: "file", data: image.base64, mediaType: image.mediaType },
+            // Gemini OpenAI-compatible endpoint expects vision input as `image`,
+            // not generic `file`. Sending `file` caused HTTP 400 in OCR logs.
+            { type: "image", image: image.base64, mediaType: image.mediaType },
             { type: "text", text: prompt },
           ],
         },

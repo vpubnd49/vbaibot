@@ -12,27 +12,54 @@ export type AdminDeptRecord = {
 
 const LAM_DONG_DEPTS: AdminDeptRecord[] = [
   {
+    canonical_name: "Sở Nông nghiệp và Môi trường tỉnh Lâm Đồng",
+    short_name: "Sở Nông nghiệp và Môi trường",
+    resolution_number: "390/NQ-HĐND",
+    resolution_date: "18/02/2025",
+    change_type: "Hợp nhất",
+    old_entities: ["Sở Nông nghiệp và Phát triển nông thôn", "Sở Tài nguyên và Môi trường"],
+    note: "Hợp nhất Sở Nông nghiệp và Phát triển nông thôn với Sở Tài nguyên và Môi trường (hoạt động chính thức từ 01/03/2025).",
+  },
+  {
+    canonical_name: "Sở Khoa học và Công nghệ tỉnh Lâm Đồng",
+    short_name: "Sở Khoa học và Công nghệ",
+    resolution_number: "391/NQ-HĐND",
+    resolution_date: "18/02/2025",
+    change_type: "Hợp nhất",
+    old_entities: ["Sở Khoa học và Công nghệ", "Sở Thông tin và Truyền thông"],
+    note: "Hợp nhất Sở Khoa học và Công nghệ với Sở Thông tin và Truyền thông (hoạt động chính thức từ 01/03/2025).",
+  },
+  {
+    canonical_name: "Sở Nội vụ tỉnh Lâm Đồng",
+    short_name: "Sở Nội vụ",
+    resolution_number: "392/NQ-HĐND",
+    resolution_date: "18/02/2025",
+    change_type: "Tiếp nhận chức năng",
+    old_entities: ["Sở Nội vụ", "Sở Lao động - Thương binh và Xã hội"],
+    note: "Tiếp nhận chức năng quản lý nhà nước về lao động, việc làm, tiền lương và bảo hiểm xã hội từ Sở Lao động - Thương binh và Xã hội.",
+  },
+  {
     canonical_name: "Sở Xây dựng tỉnh Lâm Đồng",
     short_name: "Sở Xây dựng",
-    resolution_number: "390/NQ-HĐND",
+    resolution_number: "393/NQ-HĐND",
     resolution_date: "18/02/2025",
     change_type: "Hợp nhất",
     old_entities: ["Sở Xây dựng", "Sở Giao thông vận tải"],
     note: "Hợp nhất Sở Xây dựng và Sở Giao thông vận tải thành Sở Xây dựng (hoạt động chính thức từ 01/03/2025).",
   },
   {
-    canonical_name: "Sở Nội vụ tỉnh Lâm Đồng",
-    short_name: "Sở Nội vụ",
-    resolution_number: "391/NQ-HĐND",
+    canonical_name: "Sở Tài chính tỉnh Lâm Đồng",
+    short_name: "Sở Tài chính",
+    resolution_number: "394/NQ-HĐND",
     resolution_date: "18/02/2025",
-    change_type: "Tiếp nhận chức năng",
-    old_entities: ["Sở Nội vụ", "Sở Lao động - Thương binh và Xã hội"],
-    note: "Tiếp nhận các chức năng quản lý nhà nước về lao động, việc làm, tiền lương, BHXH từ Sở LĐ-TB&XH.",
+    change_type: "Hợp nhất",
+    old_entities: ["Sở Tài chính", "Sở Kế hoạch và Đầu tư"],
+    note: "Hợp nhất Sở Tài chính và Sở Kế hoạch và Đầu tư thành Sở Tài chính (hoạt động chính thức từ 01/03/2025).",
   },
   {
     canonical_name: "Sở Dân tộc và Tôn giáo tỉnh Lâm Đồng",
     short_name: "Sở Dân tộc và Tôn giáo",
-    resolution_number: "392/NQ-HĐND",
+    resolution_number: "395/NQ-HĐND",
     resolution_date: "18/02/2025",
     change_type: "Thành lập mới trên cơ sở tổ chức lại",
     old_entities: ["Ban Dân tộc", "Sở Nội vụ (phần Tôn giáo)"],
@@ -44,7 +71,7 @@ const TWO_TIER_GOVERNMENT_PRINCIPLE = `
 === NGUYÊN TẮC TỔ CHỨC CHÍNH QUYỀN ĐỊA PHƯƠNG 02 CẤP (LUẬT 72/2025/QH15) ===
 - Toàn quốc tổ chức chính quyền địa phương theo mô hình 02 cấp:
   1. Cấp Tỉnh: Gồm 34 tỉnh, thành phố trực thuộc Trung ương.
-  2. Cấp Xã / Cơ sở: Gồm xã, phường, thị trấn (đơn vị hành chính cấp cơ sở trực tiếp thuộc tỉnh).
+  2. Cấp Xã / Cơ sở: Gồm xã, phường, đặc khu (đơn vị hành chính cấp cơ sở trực tiếp thuộc tỉnh).
 - KHÔNG CÒN CẤP TRUNG GIAN: Toàn quốc đã bỏ hoàn toàn cấp huyện, thị xã, thành phố thuộc tỉnh, quận.
 - VÍ DỤ THỰC TẾ TẠI LÂM ĐỒNG:
   + Không còn cấp hành chính "Thành phố Đà Lạt", "Huyện Đơn Dương", "Huyện Lạc Dương"... làm cấp trung gian.

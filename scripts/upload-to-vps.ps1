@@ -7,6 +7,10 @@ param (
     [string]$RemoteDir = "/var/www/vbaibot"
 )
 
+Write-Host "=== 0. Kiem tra ket noi VPS ===" -ForegroundColor Cyan
+ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new -p $VpsPort "$VpsUser@$VpsHost" "echo connected"
+if ($LASTEXITCODE -ne 0) { throw "Khong ket noi duoc VPS" }
+
 Write-Host "=== 1. Tao thu muc tren VPS ===" -ForegroundColor Cyan
 ssh -p $VpsPort "$VpsUser@$VpsHost" "mkdir -p $RemoteDir"
 
@@ -19,8 +23,11 @@ ssh -p $VpsPort "$VpsUser@$VpsHost" "sed -i 's/\r$//' $RemoteDir/scripts/deploy-
 Write-Host "=== 4. Thuc thi script deploy tren VPS ===" -ForegroundColor Cyan
 ssh -p $VpsPort "$VpsUser@$VpsHost" "cd $RemoteDir && set -a && . ./.env && set +a && export DOMAIN='vbaibot.chauphienbanso.com' && bash scripts/deploy-to-vps.sh"
 
-Write-Host "=== 5. Khoi dong lai ung dung (du lieu VPS duoc giu nguyen) ===" -ForegroundColor Cyan
-ssh -p $VpsPort "$VpsUser@$VpsHost" "pm2 restart vbaibot"
+Write-Host "=== 5. Kiem tra health truoc khi restart ===" -ForegroundColor Cyan
+ssh -p $VpsPort "$VpsUser@$VpsHost" "curl -fsS http://127.0.0.1:3900/api/health"
+
+Write-Host "=== 6. Khoi dong lai ung dung (du lieu VPS duoc giu nguyen) ===" -ForegroundColor Cyan
+ssh -p $VpsPort "$VpsUser@$VpsHost" "pm2 restart vbaibot && sleep 2 && curl -fsS http://127.0.0.1:3900/api/health"
 
 Write-Host "HOAN TAT TRIEN KHAI LEN VPS!" -ForegroundColor Green
 Write-Host "Truy cap Dashboard tai: https://vbaibot.chauphienbanso.com" -ForegroundColor Yellow

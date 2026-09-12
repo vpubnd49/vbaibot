@@ -260,18 +260,14 @@ export const VIETNAM_LOCATIONS: LocationCoordinate[] = [
     aliases: ["khanh hoa", "khánh hòa", "nha trang", "cam ranh"],
   },
   {
-    name: "Tỉnh Ninh Thuận",
-    lat: 11.5643,
-    lon: 108.9950,
-    region: "trung_bo",
-    aliases: ["ninh thuan", "ninh thuận", "phan rang"],
-  },
-  {
-    name: "Tỉnh Bình Thuận",
-    lat: 10.9288,
-    lon: 108.1021,
-    region: "trung_bo",
-    aliases: ["binh thuan", "bình thuận", "phan thiet", "phan thiết", "mui ne", "mũi né"],
+    name: "Tỉnh Lâm Đồng",
+    lat: 11.5753,
+    lon: 108.1429,
+    region: "tay_nguyen",
+    aliases: [
+      "lam dong", "lâm đồng", "binh thuan", "bình thuận", "phan thiet", "phan thiết",
+      "mui ne", "mũi né", "dak nong", "đắk nông", "dak nong cu", "đắk nông cũ",
+    ],
   },
   {
     name: "Tỉnh Đắk Lắk",
@@ -295,7 +291,7 @@ export const VIETNAM_LOCATIONS: LocationCoordinate[] = [
     aliases: ["kon tum", "kontum", "mang den", "măng đen"],
   },
   {
-    name: "Tỉnh Đắk Nông",
+    name: "Tỉnh Lâm Đồng - khu vực Đắk Nông cũ",
     lat: 12.0000,
     lon: 107.6833,
     region: "tay_nguyen",

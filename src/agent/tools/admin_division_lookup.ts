@@ -86,6 +86,17 @@ export function getAdminDivisionData(): AdministrativeData {
     if (fs.existsSync(filePath)) {
       const raw = fs.readFileSync(filePath, "utf-8");
       cachedAdminData = JSON.parse(raw) as AdministrativeData;
+      // Ràng buộc nghiệp vụ cấp tỉnh hiện hành: Lâm Đồng mới chỉ nhận
+      // Lâm Đồng cũ, Bình Thuận và Đắk Nông. Đắk Lắk là tỉnh độc lập (mã 31),
+      // không được để một bản dữ liệu cũ/nhập tay gán nhầm vào mã 34.
+      const lamDong = cachedAdminData.provinces?.find(
+        (p) => normalizeVietnamese(p.name) === normalizeVietnamese("Tỉnh Lâm Đồng"),
+      );
+      if (lamDong) {
+        lamDong.oldNames = (lamDong.oldNames ?? []).filter(
+          (name) => normalizeVietnamese(name) !== normalizeVietnamese("Tỉnh Đắk Lắk"),
+        );
+      }
       log.info(
         {
           filePath,

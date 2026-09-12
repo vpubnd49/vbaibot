@@ -65,7 +65,7 @@ describe("Legal Query Engine", () => {
     const ctx = detectAdminContext("Cơ cấu Sở Xây dựng Lâm Đồng mới năm 2025");
     assert.ok(ctx);
     assert.match(ctx, /Sở Xây dựng/);
-    assert.match(ctx, /390\/NQ-HĐND/);
+    assert.match(ctx, /393\/NQ-HĐND/);
   });
 
   it("xử lý câu hỏi rỗng an toàn", () => {

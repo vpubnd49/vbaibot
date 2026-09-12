@@ -14,6 +14,13 @@ export type RssItem = {
 const USER_AGENT =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36";
 
+const failedFeedUntil = new Map<string, number>();
+const FEED_FAILURE_COOLDOWN_MS = 10 * 60 * 1000;
+
+function feedKey(url: string): string {
+  return url.trim().toLowerCase();
+}
+
 /**
  * Trích xuất các thẻ XML đơn giản từ RSS Feed (Item/Title/Link/PubDate/Description)
  */
@@ -58,6 +65,10 @@ export async function crawlRssFeed(
   maxItems: number = 5,
   fetchFn: typeof fetch = fetch,
 ): Promise<RssItem[]> {
+  const key = feedKey(url);
+  const blockedUntil = failedFeedUntil.get(key) ?? 0;
+  if (blockedUntil > Date.now()) return [];
+
   try {
     const res = await fetchFn(url, {
       headers: {
@@ -72,9 +83,16 @@ export async function crawlRssFeed(
     }
 
     const text = await res.text();
-    return parseRssXml(text, sourceName, maxItems);
+    const items = parseRssXml(text, sourceName, maxItems);
+    if (items.length === 0) {
+      failedFeedUntil.set(key, Date.now() + FEED_FAILURE_COOLDOWN_MS);
+    } else {
+      failedFeedUntil.delete(key);
+    }
+    return items;
   } catch (err) {
-    log.warn({ err, url, sourceName }, "Lỗi khi cào RSS Feed");
+    failedFeedUntil.set(key, Date.now() + FEED_FAILURE_COOLDOWN_MS);
+    log.warn({ err, sourceName }, "Lỗi khi cào RSS Feed; tạm ngưng endpoint 10 phút");
     return [];
   }
 }

@@ -53,4 +53,34 @@ describe("rate-limiter", () => {
     await sleep(10);
     assert.equal(limiter.pendingSendThreadCount(), 0);
   });
+
+  /**
+   * Hồi quy cho khe hở giữa hai ĐOẠN của một câu trả lời dài.
+   *
+   * `sendReplyInParts` await xong đoạn này mới xếp đoạn kế, nên `queues` rỗng
+   * đúng lúc đang chuẩn bị gửi đoạn tiếp - `dangGuiTren` cũ hỏi `queues.has()`
+   * nên trả false, và tin trấn an chen được vào giữa câu trả lời.
+   */
+  it("dangGuiTren vẫn TRUE giữa hai đoạn của cùng một chuỗi reply", async () => {
+    limiter.batDauGuiChuoi("t-chuoi");
+    assert.equal(limiter.dangGuiTren("t-chuoi"), true, "đang trong chuỗi phải coi là đang gửi");
+
+    // Đoạn 1 gửi xong: hàng đợi đã rỗng nhưng chuỗi CHƯA kết thúc
+    await limiter.enqueueSend("t-chuoi", async () => "doan-1");
+    await sleep(10);
+    assert.equal(limiter.pendingSendThreadCount(), 0, "điều kiện tiên quyết: queues đã rỗng");
+    assert.equal(limiter.dangGuiTren("t-chuoi"), true, "khe hở giữa hai đoạn phải được bịt");
+
+    limiter.ketThucGuiChuoi("t-chuoi");
+    assert.equal(limiter.dangGuiTren("t-chuoi"), false, "hết chuỗi thì trả lại trạng thái rảnh");
+  });
+
+  it("đếm chuỗi lồng nhau không tắt sớm khi chuỗi ngoài còn chạy", () => {
+    limiter.batDauGuiChuoi("t-long");
+    limiter.batDauGuiChuoi("t-long");
+    limiter.ketThucGuiChuoi("t-long");
+    assert.equal(limiter.dangGuiTren("t-long"), true, "còn một chuỗi chưa xong thì vẫn đang gửi");
+    limiter.ketThucGuiChuoi("t-long");
+    assert.equal(limiter.dangGuiTren("t-long"), false);
+  });
 });

@@ -24,10 +24,17 @@ export async function fetchNewsArticles(
 
   // 1. Thử cào RSS feeds theo chuyên mục
   if (category === "lam_dong" || category === "tong_hop") {
-    // Thử cào RSS từ Báo Lâm Đồng hoặc Cổng TTĐT
-    let ldRss = await crawlRssFeed("https://baolamdong.vn/rss/thoi-su", "Báo Lâm Đồng", 4, fetchFn);
-    if (ldRss.length === 0) {
-      ldRss = await crawlRssFeed("https://baolamdong.vn/rss/trang-chu", "Báo Lâm Đồng", 4, fetchFn);
+    // RSS cũ của Báo Lâm Đồng thường trả 404/timeout. Thử danh sách endpoint
+    // theo thứ tự; nếu tất cả hỏng thì phần web-search bên dưới vẫn là fallback.
+    const ldFeeds = [
+      ["https://baolamdong.vn/rss/thoi-su", "Báo Lâm Đồng"],
+      ["https://baolamdong.vn/rss/trang-chu", "Báo Lâm Đồng"],
+      ["https://lamdong.gov.vn/rss/tin-tuc-su-kien", "Cổng TTĐT Lâm Đồng"],
+    ] as const;
+    let ldRss = [] as Awaited<ReturnType<typeof crawlRssFeed>>;
+    for (const [url, source] of ldFeeds) {
+      ldRss = await crawlRssFeed(url, source, 4, fetchFn);
+      if (ldRss.length > 0) break;
     }
     for (const item of ldRss) {
       articles.push({

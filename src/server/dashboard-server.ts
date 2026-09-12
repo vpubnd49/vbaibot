@@ -7,6 +7,7 @@ import { Hono, type MiddlewareHandler } from "hono";
 import { getCookie, setCookie } from "hono/cookie";
 import type { CookieOptions } from "hono/utils/cookie";
 import { env } from "../config/env.js";
+import { db } from "../conversation/database.js";
 import { createLogger } from "../shared/logger.js";
 import { resolveClientIp } from "./client-ip.js";
 import {
@@ -90,9 +91,21 @@ export function buildDashboardApp(): Hono {
   app.use("*", setSecurityHeaders);
 
   // Liveness - không auth, không cache (theo healthcheck rules)
+  //
+  // KHÔNG trả `{ok:true}` cố định: DB mở ở module scope, mọi thao tác SQLite đều
+  // đồng bộ trên luồng chính, nên một DB hỏng (đĩa đầy, WAL kẹt) vẫn khiến
+  // endpoint cũ trả 200 - monitor bên ngoài không bao giờ thấy gì. Probe rẻ
+  // (SELECT 1) để trạng thái này lộ ra thành 503.
   app.get("/api/health", (c) => {
     c.header("Cache-Control", "no-store");
-    return c.json({ ok: true });
+    let dbOk = true;
+    try {
+      db.prepare("SELECT 1").get();
+    } catch (err) {
+      dbOk = false;
+      log.error({ err }, "Health check: DB không phản hồi");
+    }
+    return c.json({ ok: dbOk, db: dbOk ? "ok" : "error" }, dbOk ? 200 : 503);
   });
 
   // Voice file server — PHẢI nằm NGOÀI auth vì Zalo server là bên tải file,

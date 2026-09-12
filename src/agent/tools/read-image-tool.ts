@@ -5,6 +5,7 @@ import { loadStoredImage } from "../../conversation/media-store.js";
 import { askAboutImage } from "../vision-sidecar.js";
 import type { ToolContext } from "./index.js";
 import { ketQuaLoi } from "./tool-failure-result.js";
+import type { KetQuaLoiTool } from "./tool-failure-result.js";
 
 /**
  * Tool "nhìn kỹ lại" ảnh - mảnh cuối của hệ vision (pattern read_image của
@@ -54,17 +55,20 @@ async function readSingleImage(
   relPath: string,
   question: string,
   ask: typeof askAboutImage,
-): Promise<{ ok: true; text: string } | { ok: false; reason: string }> {
+): Promise<{ ok: true; text: string } | KetQuaLoiTool> {
   const image = loadStoredImage(relPath);
   if (!image) {
-    return { ok: false, reason: "Ảnh này đã bị dọn khỏi bộ nhớ (quá hạn lưu trữ), không xem lại được nữa." };
+    return ketQuaLoi("Ảnh này đã bị dọn khỏi bộ nhớ (quá hạn lưu trữ), không xem lại được nữa.");
   }
   try {
     const answer = await ask(image, question);
-    return answer ? { ok: true, text: answer } : { ok: false, reason: "Model đọc ảnh không trả lời được câu hỏi này." };
+    // Trả `ketQuaLoi` chứ không phải `{ok:false, reason}`: `laKetQuaLoi` chỉ nhận
+    // hình dạng có trường `loi`, nên object `reason` sẽ lọt qua guard như một
+    // kết quả THÀNH CÔNG - guard đếm sai mà không test nào đỏ.
+    return answer ? { ok: true, text: answer } : ketQuaLoi("Model đọc ảnh không trả lời được câu hỏi này.");
   } catch (err) {
     const reason = err instanceof Error ? err.message : String(err);
-    return { ok: false, reason: `Hệ thống đọc ảnh đang lỗi (${reason}).` };
+    return ketQuaLoi(`Hệ thống đọc ảnh đang lỗi (${reason}).`);
   }
 }
 
@@ -132,8 +136,7 @@ export function createReadImageTool(ctx: ToolContext, ask = askAboutImage) {
         const tasks = imageIndexes.map((idx) => {
           const relPath = paths[idx - 1];
           if (!relPath) {
-            return async () =>
-              ({ ok: false as const, reason: `Index ${idx} vượt quá ${paths.length} ảnh gần đây.` });
+            return async () => ketQuaLoi(`Index ${idx} vượt quá ${paths.length} ảnh gần đây.`);
           }
           return () => readSingleImage(relPath, question, ask);
         });
@@ -142,7 +145,7 @@ export function createReadImageTool(ctx: ToolContext, ask = askAboutImage) {
         const total = imageIndexes.length;
         const lines = results.map((r, i) => {
           const label = `[Ảnh ${i + 1}/${total} (index ${imageIndexes[i]})]`;
-          return r.ok ? `${label}\n${r.text}` : `${label}\n[Lỗi: ${r.reason}]`;
+          return r.ok ? `${label}\n${r.text}` : `${label}\n[Lỗi: ${r.loi}]`;
         });
 
         const successCount = results.filter((r) => r.ok).length;
@@ -163,8 +166,8 @@ export function createReadImageTool(ctx: ToolContext, ask = askAboutImage) {
       const result = await readSingleImage(relPath, question, ask);
       if (!result.ok) {
         return ketQuaLoi(
-          result.reason.includes("đã bị dọn") ? result.reason :
-          `Hệ thống đọc ảnh đang lỗi (${result.reason}). Nói thật với người dùng là chưa xem kỹ được ảnh, đừng đoán nội dung.`,
+          result.loi.includes("đã bị dọn") ? result.loi :
+          `Hệ thống đọc ảnh đang lỗi (${result.loi}). Nói thật với người dùng là chưa xem kỹ được ảnh, đừng đoán nội dung.`,
         );
       }
       return result.text;

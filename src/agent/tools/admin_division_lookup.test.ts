@@ -36,12 +36,19 @@ describe("admin_division_lookup tool", () => {
     assert.ok(resVanDon.communes.some((c) => c.name.includes("Vân Đồn") && c.type === "dac_khu"));
   });
 
-  it("tra cứu sáp nhập tỉnh cũ (Hà Tây, Bình Thuận, Đắk Nông, Hà Giang)", () => {
+  it("tra cứu sáp nhập tỉnh cũ: Bình Thuận và Đắk Nông vào Lâm Đồng, Đắk Lắk độc lập", () => {
     const resBinhThuan = searchAdminDivisions("Bình Thuận");
     assert.ok(
-      resBinhThuan.provinces.some((p) => p.name.includes("Lâm Đồng")),
+      resBinhThuan.provinces.some((p) => p.name === "Tỉnh Lâm Đồng"),
       "Bình Thuận phải trả về tỉnh Lâm Đồng mới",
     );
+
+    const resDakNong = searchAdminDivisions("Đắk Nông");
+    assert.ok(resDakNong.provinces.some((p) => p.name === "Tỉnh Lâm Đồng"));
+
+    const resDakLak = searchAdminDivisions("Đắk Lắk");
+    assert.ok(resDakLak.provinces.some((p) => p.code === "31" && p.name === "Tỉnh Đắk Lắk"));
+    assert.ok(!resDakLak.provinces.some((p) => p.code === "34"));
   });
 
   it("tool execute trả về định dạng markdown mô hình 2 cấp rõ ràng", async () => {

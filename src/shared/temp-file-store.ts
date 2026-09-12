@@ -26,7 +26,7 @@ export async function withTempFile<T>(
   data: Buffer,
   use: (filePath: string) => Promise<T>,
 ): Promise<T> {
-  fs.mkdirSync(tempDir, { recursive: true });
+  fs.mkdirSync(tempDir, { recursive: true, mode: 0o700 });
   const prefix = crypto.randomBytes(6).toString("hex");
   const filePath = path.join(tempDir, `${prefix}-${path.basename(fileName)}`);
   fs.writeFileSync(filePath, data, { mode: 0o600 });
@@ -53,7 +53,7 @@ export async function withNamedTempFile<T>(
   use: (filePath: string) => Promise<T>,
 ): Promise<T> {
   const dir = path.join(tempDir, crypto.randomBytes(6).toString("hex"));
-  fs.mkdirSync(dir, { recursive: true });
+  fs.mkdirSync(dir, { recursive: true, mode: 0o700 });
   const filePath = path.join(dir, path.basename(fileName));
   fs.writeFileSync(filePath, data, { mode: 0o600 });
 

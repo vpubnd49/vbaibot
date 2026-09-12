@@ -19,6 +19,8 @@ export function startListener(
   const log = createLogger(`listener:${accountId}`);
   let stopped = false;
   let reconnectAttempts = 0;
+  let reconnectTimer: ReturnType<typeof setTimeout> | undefined;
+  let reconnectScheduled = false;
 
   api.listener.on("message", (message) => {
     Promise.resolve(onMessage(message)).catch((err) =>
@@ -35,28 +37,41 @@ export function startListener(
     log.error({ error }, "Listener báo lỗi");
   });
 
-  api.listener.onClosed(() => {
-    if (stopped) return;
+  const scheduleReconnect = (): void => {
+    if (stopped || reconnectScheduled) return;
+    reconnectScheduled = true;
     const backoff = Math.min(MAX_RECONNECT_DELAY_MS, 2 ** reconnectAttempts * 1000);
     const delay = backoff + Math.floor(Math.random() * 1000);
     reconnectAttempts += 1;
     log.warn({ attempt: reconnectAttempts, delayMs: delay }, "Listener bị đóng - sẽ kết nối lại");
 
-    setTimeout(() => {
+    reconnectTimer = setTimeout(() => {
+      reconnectTimer = undefined;
+      reconnectScheduled = false;
       if (stopped) return;
       try {
         api.listener.stop(); // đảm bảo state sạch trước khi start lại
         api.listener.start();
       } catch (err) {
-        log.error({ err }, "Reconnect thất bại - chờ lần onClosed kế tiếp");
+        log.error({ err }, "Reconnect thất bại - tự thử lại");
+        // start() có thể ném mà không phát onClosed; tự lập lịch lại để
+        // listener không chết vĩnh viễn sau một lỗi đồng thời.
+        scheduleReconnect();
       }
     }, delay);
-  });
+  };
+
+  api.listener.onClosed(scheduleReconnect);
 
   api.listener.start();
 
   return () => {
     stopped = true;
+    if (reconnectTimer) {
+      clearTimeout(reconnectTimer);
+      reconnectTimer = undefined;
+    }
+    reconnectScheduled = false;
     try {
       api.listener.stop();
     } catch {

@@ -5,6 +5,17 @@ import { getTuning } from "../config/runtime-tuning-settings.js";
 
 const queues = new Map<string, Promise<unknown>>();
 
+/**
+ * Số lượt "đang gửi một chuỗi tin" của mỗi thread, tách hẳn khỏi `queues`.
+ *
+ * Vì sao cần bộ đếm riêng: `sendReplyInParts` xếp hàng TỪNG đoạn một (await
+ * xong đoạn này mới xếp đoạn kế), nên ngay sau khi đoạn 1 gửi xong thì `release`
+ * đã xóa entry khỏi `queues` - trong khi chuỗi tin VẪN CHƯA gửi hết. Một
+ * `dangGuiTren()` hỏi `queues.has()` lúc đó trả `false` đúng vào khe hở mà nó
+ * sinh ra để bịt. Bộ đếm này sống suốt cả chuỗi, không nhấp nháy giữa các đoạn.
+ */
+const dangGuiChuoi = new Map<string, number>();
+
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 function randomSendDelay(): number {
@@ -47,5 +58,26 @@ export function pendingSendThreadCount(): number {
  * bởi một tin không liên quan.
  */
 export function dangGuiTren(threadKey: string): boolean {
-  return queues.has(threadKey);
+  return queues.has(threadKey) || (dangGuiChuoi.get(threadKey) ?? 0) > 0;
+}
+
+/** Đánh dấu bắt đầu/kết thúc một chuỗi reply gồm nhiều đoạn. */
+export function batDauGuiChuoi(threadKey: string): void {
+  dangGuiChuoi.set(threadKey, (dangGuiChuoi.get(threadKey) ?? 0) + 1);
+}
+
+export function ketThucGuiChuoi(threadKey: string): void {
+  const count = (dangGuiChuoi.get(threadKey) ?? 0) - 1;
+  if (count > 0) dangGuiChuoi.set(threadKey, count);
+  else dangGuiChuoi.delete(threadKey);
+}
+
+/** Dùng cho test/observability; không bao gồm queue đơn lẻ. */
+export function pendingReplySequenceCount(): number {
+  return dangGuiChuoi.size;
+}
+
+/** Xóa trạng thái test/runtime khi cần đóng module. */
+export function clearReplySequenceState(): void {
+  dangGuiChuoi.clear();
 }

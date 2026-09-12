@@ -1,5 +1,5 @@
 import type { API, Style, ThreadType } from "zca-js";
-import { enqueueSend } from "../middleware/rate-limiter.js";
+import { batDauGuiChuoi, enqueueSend, ketThucGuiChuoi } from "../middleware/rate-limiter.js";
 import { createLogger } from "../shared/logger.js";
 import { chiaTheoNganSachByte, demDoanBoDinhDang } from "./split-styled-message.js";
 import { getTuning } from "../config/runtime-tuning-settings.js";
@@ -170,17 +170,25 @@ export async function sendReplyInParts(
   }
 
   const delivered: string[] = [];
-  for (const part of parts) {
-    try {
-      await sendOneCoDuongLui(target, part.text, part.styles);
-      delivered.push(part.text);
-    } catch (err) {
-      log.error(
-        { threadId: target.threadId, partIndex: delivered.length + 1, total: parts.length, err },
-        "Gửi tin thất bại",
-      );
-      return { deliveredText: delivered.join("\n"), sentParts: delivered.length, error: err };
+  // Bọc CẢ chuỗi, không chỉ từng đoạn: giữa hai đoạn hàng đợi rỗng nên nếu chỉ
+  // dựa vào `queues.has()` thì câu trấn an / tin phụ chen được vào giữa câu trả
+  // lời đang cắt làm nhiều tin.
+  batDauGuiChuoi(target.threadKey);
+  try {
+    for (const part of parts) {
+      try {
+        await sendOneCoDuongLui(target, part.text, part.styles);
+        delivered.push(part.text);
+      } catch (err) {
+        log.error(
+          { threadId: target.threadId, partIndex: delivered.length + 1, total: parts.length, err },
+          "Gửi tin thất bại",
+        );
+        return { deliveredText: delivered.join("\n"), sentParts: delivered.length, error: err };
+      }
     }
+  } finally {
+    ketThucGuiChuoi(target.threadKey);
   }
 
   return { deliveredText: delivered.join("\n"), sentParts: delivered.length };

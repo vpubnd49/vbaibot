@@ -107,22 +107,78 @@ function doJson<T>(raw: string, macDinh: T): T {
   }
 }
 
+/**
+ * Ghi trace trong MỘT giao dịch.
+ *
+ * Vì sao: trước đây là N câu INSERT riêng lẻ. Step thứ 4 hỏng thì 3 dòng đã
+ * commit, mà caller (`message-turn-processor`) lại gọi `saveTurnTrace` lần nữa
+ * với trace đầy đủ - kết quả là vừa thiếu vừa NHÂN ĐÔI dòng `agent_steps`.
+ * `agent_turns` cũng khóa sổ riêng, nên một lượt có thể có token thật mà không
+ * có step nào, và biến mất khỏi trang Trace (INNER JOIN).
+ *
+ * Giao dịch lồng nhau: `node:sqlite` không hỗ trợ savepoint ở đây, nên nếu
+ * người gọi đã mở giao dịch (`finishAgentTurnAtomic`) thì hàm này chỉ ghi thẳng.
+ */
 export function saveTurnTrace(turnId: number, steps: StepTrace[]): void {
-  for (const s of steps) {
-    insertStmt.run(
-      turnId,
-      s.stepNumber,
-      s.attempt,
-      s.text,
-      s.reasoning,
-      JSON.stringify(s.toolCalls),
-      JSON.stringify(s.toolResults),
-      JSON.stringify(s.toolErrors),
-      s.finishReason,
-      JSON.stringify(s.warnings),
-      s.inputTokens,
-      s.outputTokens,
-    );
+  if (steps.length === 0) return;
+
+  const ghi = (): void => {
+    for (const s of steps) {
+      insertStmt.run(
+        turnId,
+        s.stepNumber,
+        s.attempt,
+        s.text,
+        s.reasoning,
+        JSON.stringify(s.toolCalls),
+        JSON.stringify(s.toolResults),
+        JSON.stringify(s.toolErrors),
+        s.finishReason,
+        JSON.stringify(s.warnings),
+        s.inputTokens,
+        s.outputTokens,
+      );
+    }
+  };
+
+  if (dangTrongGiaoDich) {
+    ghi();
+    return;
+  }
+  trongGiaoDich(ghi);
+}
+
+/**
+ * Cờ chống lồng giao dịch. Cả process dùng CHUNG một connection SQLite, nên
+ * `BEGIN` lồng nhau sẽ ném "cannot start a transaction within a transaction".
+ */
+let dangTrongGiaoDich = false;
+
+/**
+ * Chạy `viec` trong một giao dịch IMMEDIATE.
+ *
+ * Dùng chung cho việc chốt sổ một lượt: `finishAgentTurn` (UPDATE) và
+ * `saveTurnTrace` (INSERT) phải cùng sống hoặc cùng chết, nếu không thì hoặc
+ * mất trace hoặc mất số token thật.
+ */
+export function trongGiaoDich<T>(viec: () => T): T {
+  if (dangTrongGiaoDich) return viec();
+
+  db.exec("BEGIN IMMEDIATE");
+  dangTrongGiaoDich = true;
+  try {
+    const ketQua = viec();
+    db.exec("COMMIT");
+    return ketQua;
+  } catch (err) {
+    try {
+      db.exec("ROLLBACK");
+    } catch {
+      /* giữ nguyên lỗi gốc */
+    }
+    throw err;
+  } finally {
+    dangTrongGiaoDich = false;
   }
 }
 
