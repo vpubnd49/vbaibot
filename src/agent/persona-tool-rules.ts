@@ -78,6 +78,7 @@ const RULES_TRA_LOI: PersonaRule[] = [
     3. Gọi create_excel_file với dữ liệu đã trích xuất — đây là bước BẮT BUỘC để file thật sự được gửi.
   + QUY TẮC ẢNH ĐƠN: Nếu người dùng gửi một ảnh chụp màn hình có đầy đủ một danh sách/bảng (kể cả chỉ nói "đọc ảnh", "bóc danh sách", "xuất cho tôi" mà không nói rõ Excel), phải coi đó là yêu cầu đọc toàn bộ bảng và xuất Excel. Gọi đúng 2 tool: read_image với imageIndexes=[1] rồi create_excel_file; không trả lời mô tả suông, không hỏi lại, không dùng read_document để OCR lại ảnh.
   + Với ảnh đơn, câu hỏi read_image bắt buộc yêu cầu đọc toàn bộ từ đầu đến cuối, giữ nguyên STT/tên/số/ngày/ký hiệu, nhận diện đủ số cột và từng dòng; nếu ảnh là danh sách không có header rõ thì tự đặt header trung tính theo nội dung, không được bỏ dòng.
+  + Với PDF nhiều trang có yêu cầu phạm vi cụ thể (ví dụ trang 3 đến 59), gọi read_document theo từng chunk tối đa 10 trang bằng pageStart/pageEnd, đọc đủ toàn bộ chunk rồi mới tổng hợp và gọi create_excel_file; không được nói đã đọc đủ nếu chưa có kết quả từng chunk.
   + Quy trình CHỈ CẦN 2 LẦN GỌI TOOL: 1 lần read_image (batch) + 1 lần create_excel_file. TUYỆT ĐỐI KHÔNG gọi read_image từng ảnh riêng lẻ — tốn nhiều bước và dễ vượt trần.
   + TUYỆT ĐỐI KHÔNG bỏ qua bước 1 (không có dữ liệu từ read_image thì không bóc tách được) và bước 3 (không gọi create_excel_file thì không gửi được file).
   + Ảnh bị xoay ngược, nghiêng, chụp lệch: read_image vẫn đọc được, KHÔNG cần yêu cầu người dùng gửi lại.

@@ -61,6 +61,12 @@ function stripTags(html: string): string {
   return html.replace(/<[^>]+>/g, '');
 }
 
+export type DocumentReadOptions = {
+  /** Phạm vi trang 1-based, dùng cho PDF scan để chia lượt OCR thành các chunk nhỏ. */
+  pageStart?: number;
+  pageEnd?: number;
+};
+
 export type DocumentContent = {
   text: string;
   pageCount?: number;
@@ -81,7 +87,7 @@ export function isSupportedDocument(filePath: string): boolean {
   return SUPPORTED_EXTENSIONS.includes(ext as SupportedExtension);
 }
 
-export async function readDocument(filePath: string): Promise<DocumentContent> {
+export async function readDocument(filePath: string, options: DocumentReadOptions = {}): Promise<DocumentContent> {
   const ext = path.extname(filePath).toLowerCase() as SupportedExtension;
   let text = '';
   let pageCount: number | undefined;
@@ -116,7 +122,7 @@ export async function readDocument(filePath: string): Promise<DocumentContent> {
         // PDF scan auto-OCR: chuyển trang thành ảnh rồi gọi vision sidecar đọc
         if (text.trim().length < 50) {
           const pages = (pageCount && pageCount > 0) ? pageCount : 10;
-          const ocrText = await ocrScannedPdf(filePath, pages);
+          const ocrText = await ocrScannedPdf(filePath, pages, options.pageStart, options.pageEnd);
           if (ocrText && ocrText.trim()) {
             text = ocrText;
           }
@@ -340,14 +346,16 @@ async function ocrScannedImage(filePath: string, ext: string): Promise<string> {
 
 // ─── PDF Scan Auto-OCR ───────────────────────────────────────────────────────
 
-/** Số trang tối đa sẽ tự động OCR — tránh quá tải token & timeout */
-const MAX_OCR_PAGES = 10;
-
 /**
  * Tự động OCR file PDF scan: pdftoppm → PNG → vision sidecar → text.
  * Fallback nếu pdftoppm không có hoặc sidecar chưa cấu hình.
  */
-async function ocrScannedPdf(filePath: string, totalPages: number): Promise<string> {
+async function ocrScannedPdf(
+  filePath: string,
+  totalPages: number,
+  requestedStart?: number,
+  requestedEnd?: number,
+): Promise<string> {
   // Lazy import vision sidecar — tránh circular dependency
   const { isSidecarConfigured: checkSidecar } = await import('../config/runtime-vision-settings.js');
   const visionModule = await import('../agent/vision-sidecar.js');
@@ -365,14 +373,18 @@ async function ocrScannedPdf(filePath: string, totalPages: number): Promise<stri
       `Hãy gửi ảnh chụp từng trang để bot đọc chi tiết.]`;
   }
 
-  const maxPages = getTuning("DOCUMENT_PDF_OCR_MAX_PAGES");
-  const pagesToOcr = Math.min(totalPages, maxPages);
+  const configuredMaxPages = getTuning("DOCUMENT_PDF_OCR_MAX_PAGES");
+  const startPage = Math.max(1, Math.min(totalPages, requestedStart ?? 1));
+  const requestedLast = requestedEnd ?? totalPages;
+  const endPage = Math.max(startPage, Math.min(totalPages, requestedLast));
+  const pagesToOcr = Math.min(endPage - startPage + 1, configuredMaxPages);
+  const actualEnd = startPage + pagesToOcr - 1;
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'pdf-ocr-'));
 
   try {
     // Chuyển PDF → PNG bằng pdftoppm (200 DPI, đủ nét cho OCR)
-    log.info({ filePath, totalPages, pagesToOcr }, 'Bắt đầu auto-OCR PDF scan');
-    await runPdftoppm(filePath, tmpDir, pagesToOcr);
+    log.info({ filePath, totalPages, pageStart: startPage, pageEnd: actualEnd, pagesToOcr }, 'Bắt đầu auto-OCR PDF scan');
+    await runPdftoppm(filePath, tmpDir, startPage, actualEnd);
 
     // Đọc các file PNG đã render
     const pngFiles = fs.readdirSync(tmpDir)
@@ -404,8 +416,8 @@ async function ocrScannedPdf(filePath: string, totalPages: number): Promise<stri
       }
     }
 
-    const suffix = totalPages > MAX_OCR_PAGES
-      ? `\n\n[Chỉ OCR ${MAX_OCR_PAGES}/${totalPages} trang đầu. Gửi ảnh các trang còn lại nếu cần.]`
+    const suffix = actualEnd < totalPages
+      ? `\n\n[Đã OCR trang ${startPage}-${actualEnd}/${totalPages}. Muốn đọc tiếp, yêu cầu rõ phạm vi trang còn lại.]`
       : '';
 
     return results.join('\n\n') + suffix;
@@ -427,13 +439,14 @@ function checkPdftoppm(): Promise<boolean> {
 }
 
 /** Chạy pdftoppm chuyển PDF → PNG, 200 DPI, giới hạn số trang */
-function runPdftoppm(pdfPath: string, outDir: string, maxPages: number): Promise<void> {
+function runPdftoppm(pdfPath: string, outDir: string, startPage: number, endPage: number): Promise<void> {
   const outPrefix = path.join(outDir, 'page');
   return new Promise((resolve, reject) => {
     execFile('pdftoppm', [
       '-png',           // Xuất PNG
       '-r', '200',      // 200 DPI — cân bằng nét chữ và dung lượng
-      '-l', String(maxPages), // Chỉ render đến trang maxPages
+      '-f', String(startPage), // Bắt đầu từ trang người dùng yêu cầu
+      '-l', String(endPage), // Kết thúc ở trang người dùng yêu cầu
       pdfPath,
       outPrefix,
     ], { timeout: 120_000 }, (err, _stdout, stderr) => {

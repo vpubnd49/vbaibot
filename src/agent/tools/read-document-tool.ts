@@ -117,6 +117,7 @@ export function createReadDocumentTool(ctx: ToolContext) {
   return tool({
     description: "Đọc nội dung text từ file tài liệu (PDF, Word, Excel XLS/XLSX, CSV, TXT, MD, ảnh scan/chụp JPG/PNG/...) đã nhận trong hội thoại. " +
       "File PDF dạng scan hoặc ảnh chụp tài liệu sẽ được tự động nhận diện chữ (OCR), kể cả bảng biểu nhiều cột. " +
+      "Với PDF nhiều trang, có thể đọc theo phạm vi pageStart/pageEnd; nếu người dùng yêu cầu một khoảng dài, phải chia thành các chunk và đọc đủ từng chunk. " +
       "Dòng tô màu nền (vàng, xanh lá) sẽ được ghi chú [TÔ MÀU] trong kết quả.",
     inputSchema: z.object({
       fileIndex: z.coerce
@@ -125,8 +126,10 @@ export function createReadDocumentTool(ctx: ToolContext) {
         .min(0)
         .default(0)
         .describe("Vị trí file tài liệu cần đọc (0 = file mới nhất trong hội thoại, 1 = file kế trước)"),
+      pageStart: z.coerce.number().int().min(1).optional().describe("Trang bắt đầu, tính từ 1; chỉ dùng cho PDF scan"),
+      pageEnd: z.coerce.number().int().min(1).optional().describe("Trang kết thúc, tính từ 1; chỉ dùng cho PDF scan"),
     }),
-    execute: async ({ fileIndex }) => {
+    execute: async ({ fileIndex, pageStart, pageEnd }) => {
       const paths = collectRecentFilePaths(ctx);
       if (paths.length === 0) {
         return ketQuaLoi("Không có file tài liệu nào trong hội thoại gần đây để đọc.");
@@ -143,7 +146,7 @@ export function createReadDocumentTool(ctx: ToolContext) {
 
       try {
         const absPath = assertSafePathInside(rawAbsPath, dataDir);
-        const doc = await readDocument(absPath);
+        const doc = await readDocument(absPath, { pageStart, pageEnd });
         if (doc.text.startsWith("Lỗi khi đọc nội dung file:")) {
           return ketQuaLoi(doc.text);
         }
