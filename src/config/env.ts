@@ -388,3 +388,13 @@ if (env.HISTORY_MAX_MESSAGES_PER_THREAD < env.HISTORY_CONTEXT_LIMIT) {
 
 export const dataDir = path.resolve(env.DATA_DIR);
 fs.mkdirSync(dataDir, { recursive: true });
+
+/**
+ * Thư mục lưu file xuất (OCR export, batch export...).
+ * Tạo tự động khi import để tool có thể ghi file ngay mà không cần kiểm tra trước.
+ */
+export function getExportsDir(): string {
+  const dir = path.join(dataDir, "exports");
+  fs.mkdirSync(dir, { recursive: true });
+  return dir;
+}
