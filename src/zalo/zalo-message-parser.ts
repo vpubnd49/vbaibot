@@ -20,6 +20,18 @@ export type IncomingFile = {
   localPath?: string;
 };
 
+/** Zalo gửi thư mục (zCloud Folder) */
+export type IncomingZaloFolder = {
+  /** Tên thư mục, vd: "DS" */
+  name: string;
+  /** URL tải về (link zCloud) */
+  downloadUrl?: string;
+  /** Kích thước tổng (byte) */
+  totalSize?: number;
+  /** Số file bên trong (nếu biết) */
+  fileCount?: number;
+};
+
 export type ParsedMessage = {
   accountId: string;
   threadId: string;
@@ -30,6 +42,8 @@ export type ParsedMessage = {
   text: string;
   images: IncomingImage[];
   files?: IncomingFile[];
+  /** Thư mục Zalo (zCloud) người dùng gửi */
+  folders?: IncomingZaloFolder[];
   msgId: string;
   cliMsgId: string;
   isSelf: boolean;
@@ -52,7 +66,10 @@ export function describeForHistory(msg: ParsedMessage): string {
   const fileNote = documentFiles.length > 0
     ? ` [gửi kèm ${documentFiles.length} file tài liệu: ${documentFiles.map((f) => f.fileName).join(", ")}]`
     : "";
-  return `${msg.text}${imageNote}${audioNote}${fileNote}`.trim() || "[tài liệu/ảnh/ghi âm]";
+  const folderNote = (msg.folders ?? []).length > 0
+    ? ` [gửi thư mục Zalo: ${msg.folders!.map((f) => `"${f.name}"${f.totalSize ? ` (${Math.round(f.totalSize / 1024 / 1024)} MB)` : ""}`).join(", ")} — anh/chị cần gửi lại từng file ảnh hoặc nén thành ZIP để bot đọc được]`
+    : "";
+  return `${msg.text}${imageNote}${audioNote}${fileNote}${folderNote}`.trim() || "[tài liệu/ảnh/ghi âm]";
 }
 
 const SUPPORTED_DOC_EXTS = [
@@ -192,6 +209,34 @@ export function parseIncomingMessage(
     }
   }
 
+  // ── Phát hiện Zalo Folder (zCloud) ──────────────────────────────────────
+  // Khi user gửi cả thư mục qua Zalo, payload có:
+  // - msgType chứa "folder" hoặc
+  // - parsedContent.fileType === "folder" hoặc
+  // - parsedContent.type === "folder"
+  const folders: IncomingZaloFolder[] = [];
+  const isFolder =
+    msgType.toLowerCase().includes("folder") ||
+    String(parsedContent?.fileType ?? "").toLowerCase() === "folder" ||
+    String(parsedContent?.type ?? "").toLowerCase() === "folder" ||
+    String(data.fileType ?? "").toLowerCase() === "folder" ||
+    (parsedContent && typeof parsedContent === "object" && "folderId" in parsedContent);
+
+  if (isFolder && parsedContent && typeof parsedContent === "object") {
+    const pc = parsedContent as any;
+    const folderName =
+      String(pc.title ?? pc.name ?? pc.fileName ?? pc.folderName ?? pc.description ?? "Thư mục").trim() || "Thư mục";
+    const downloadUrl =
+      String(pc.href ?? pc.url ?? pc.fileUrl ?? pc.link ?? pc.downloadUrl ?? "").trim() || undefined;
+    const totalSize =
+      typeof pc.size === "number" ? pc.size :
+      typeof pc.fileSize === "number" ? pc.fileSize :
+      typeof pc.totalSize === "number" ? pc.totalSize : undefined;
+    const fileCount = typeof pc.fileCount === "number" ? pc.fileCount : undefined;
+
+    folders.push({ name: folderName, downloadUrl, totalSize, fileCount });
+  }
+
   const mentions = Array.isArray(data.mentions) ? data.mentions : [];
   const mentionsMe = mentions.some((m: any) => String(m?.uid) === selfId);
 
@@ -205,6 +250,7 @@ export function parseIncomingMessage(
     text,
     images,
     files,
+    folders: folders.length > 0 ? folders : undefined,
     msgId: String(data.msgId ?? ""),
     cliMsgId: String(data.cliMsgId ?? ""),
     isSelf: Boolean(message?.isSelf),

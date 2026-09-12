@@ -227,7 +227,6 @@ export const ACTION_TOOL_DEFINITIONS: ToolDefinition[] = [
     available: () => isSidecarConfigured(),
     unavailableHint: "Cần cấu hình Vision Sidecar (Vision AI) trong Settings để dùng tool OCR hàng loạt này",
     runsInScheduledTurn: false,
-    defaultEnabled: false,  // Mặc định tắt — bật khi cần trong Dashboard
     build: (ctx) => createOcrFolderToFileTool(ctx),
   },
 ];
