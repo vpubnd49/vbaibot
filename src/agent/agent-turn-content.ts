@@ -247,20 +247,35 @@ export async function buildCurrentTurnContent(
             : `[Có file ghi âm "${file.fileName}" nhưng chưa chuyển được thành văn bản]`,
         });
       } else if (file.localPath) {
-        const doc = await loadUploadedDocument(file.localPath, getTuning("DOCUMENT_READ_MAX_CHARS"));
-        if (doc && doc.text.trim()) {
-          const cutNote = doc.truncated
-            ? ` (đã cắt bớt ${doc.text.length}/${doc.originalLength} ký tự do vượt trần)`
-            : "";
+        const ext = path.extname(file.localPath).toLowerCase();
+
+        // ZIP: KHONG doc noi dung truc tiep — bao LLM goi tool ocr_folder_to_file
+        if (ext === ".zip") {
           parts.push({
             type: "text",
-            text: `[Nội dung file tài liệu "${file.fileName}"${cutNote}:\n${doc.text}\n]`,
+            text:
+              `[File ZIP "${file.fileName}" đã được lưu thành công trên hệ thống. ` +
+              `File này chứa nhiều ảnh/tài liệu bên trong (chưa giải nén). ` +
+              `BẠN PHẢI GỌI NGAY tool ocr_folder_to_file với source="recent_files" để giải nén và đọc nội dung. ` +
+              `TUYỆT ĐỐI KHÔNG nói "không đọc được ZIP" hay "không có công cụ giải nén" — tool đã xử lý được hoàn toàn. ` +
+              `Nếu người dùng muốn xuất Excel: gọi ocr_folder_to_file(source="recent_files", outputFormat="excel", sortBy="score_desc").]`,
           });
         } else {
-          parts.push({
-            type: "text",
-            text: `[Có file tài liệu đính kèm "${file.fileName}" nhưng không trích xuất được nội dung]`,
-          });
+          const doc = await loadUploadedDocument(file.localPath, getTuning("DOCUMENT_READ_MAX_CHARS"));
+          if (doc && doc.text.trim()) {
+            const cutNote = doc.truncated
+              ? ` (đã cắt bớt ${doc.text.length}/${doc.originalLength} ký tự do vượt trần)`
+              : "";
+            parts.push({
+              type: "text",
+              text: `[Nội dung file tài liệu "${file.fileName}"${cutNote}:\n${doc.text}\n]`,
+            });
+          } else {
+            parts.push({
+              type: "text",
+              text: `[Có file tài liệu đính kèm "${file.fileName}" nhưng không trích xuất được nội dung]`,
+            });
+          }
         }
       } else {
         parts.push({
