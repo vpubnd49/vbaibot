@@ -208,9 +208,16 @@ const askDefaultCaller: SidecarCaller = async (settings, image, prompt) => {
 };
 
 /**
+ * Model chuyên dụng cho batch OCR ảnh bảng biểu.
+ * Dùng model mạnh hơn sidecar mặc định để đảm bảo chất lượng OCR tối đa.
+ */
+const BATCH_OCR_MODEL = "omni/antigravity/gemini-3.8-flash-high";
+
+/**
  * Caller chuyên dụng cho batch OCR:
  * - KHÔNG thêm Vietnamese wrapper ("Trả lời câu hỏi sau về ảnh bằng tiếng Việt...")
  * - Token cao nhất (BATCH_OCR_MAX_TOKENS = 8192)
+ * - Dùng BATCH_OCR_MODEL thay vì model sidecar mặc định
  *
  * Khác askDefaultCaller: askDefaultCaller thêm wrapper TV làm phình response,
  * dẫn đến truncate JSON. Caller này tránh vấn đề đó hoàn toàn.
@@ -223,7 +230,7 @@ const batchOcrCaller: SidecarCaller = async (settings, image, prompt) => {
   });
   const result = await chayStream((onError) =>
     streamText({
-      model: provider(settings.model),
+      model: provider(BATCH_OCR_MODEL),
       messages: [
         {
           role: "user",
