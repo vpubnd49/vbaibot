@@ -14,8 +14,9 @@ import { getTuning } from "../../config/runtime-tuning-settings.js";
 
 /**
  * Trần số file gần đây agent chọn được qua fileIndex.
+ * Để 300 để đủ cho batch OCR toàn bộ ảnh trong hội thoại (vd 57 ảnh điểm thi).
  */
-const RECENT_FILE_LIMIT = 10;
+const RECENT_FILE_LIMIT = 300;
 const log = createLogger("read-document");
 
 function sanitizeSegment(value: string): string {

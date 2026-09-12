@@ -1,12 +1,3 @@
-/**
- * ocr-folder-to-file-tool.ts
- * Tool agent: nhan folder/files → batch OCR → xuat Excel/Word/CSV/PDF/TXT → gui Zalo.
- *
- * Source co the la:
- *   - "folder"       : duong dan thu muc (phai nam trong SAFE_ROOTS)
- *   - "recent_files" : index file tu hoi thoai hien tai (giong read_document)
- *   - "shared_files" : ten file trong data/shared-files/
- */
 import { tool } from "ai";
 import { z } from "zod";
 import fs from "node:fs";
@@ -24,11 +15,12 @@ import { withNamedTempFile } from "../../shared/temp-file-store.js";
 import { guiFileKemCaption } from "./send-attachment-with-caption.js";
 import { ghiChuDaGuiFile } from "./sent-by-tool-note.js";
 import { ketQuaLoi } from "./tool-failure-result.js";
+import { getRecentMessages } from "../../conversation/history-store.js";
 import type { ToolContext } from "./index.js";
 
 const log = createLogger("ocr-folder-to-file");
 
-// Thu muc duoc phep doc — them "bosung" va "shared-files"
+// Thu muc duoc phep doc
 const SAFE_ROOTS = [
   path.resolve(dataDir),
   path.resolve("bosung"),
@@ -43,7 +35,50 @@ function isSafePath(targetPath: string): boolean {
   );
 }
 
-/** Deliver file Buffer qua Zalo giong pattern create-document-tools.ts */
+/** Extend co gioi han 300 anh (cho batch OCR toan bo anh trong hoi thoai) */
+function collectAllRecentImagePaths(ctx: ToolContext): string[] {
+  const IMAGE_EXTS = new Set([".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".tif", ".heic", ".webp"]);
+  const paths: string[] = [];
+
+  // 1. Tu batch hien tai
+  for (let i = ctx.batch.length - 1; i >= 0; i--) {
+    const msg = ctx.batch[i] as any;
+    for (const img of (msg.images ?? [])) {
+      const p = typeof img === "string" ? img : img?.localPath;
+      if (p && IMAGE_EXTS.has(path.extname(p).toLowerCase()) && !paths.includes(p)) paths.push(p);
+    }
+  }
+
+  // 2. Tu SQLite history (lay tat ca, khong gioi han)
+  const history = getRecentMessages(ctx.account.id, ctx.message.threadId, 200);
+  for (let i = history.length - 1; i >= 0; i--) {
+    const msg = history[i] as any;
+    for (const img of (msg.images ?? [])) {
+      const p = typeof img === "string" ? img : img?.localPath;
+      if (p && IMAGE_EXTS.has(path.extname(p).toLowerCase()) && !paths.includes(p)) paths.push(p);
+    }
+  }
+
+  // 3. Fallback: quet dia media/<accountId>/<threadId>/
+  const sanitize = (s: string) => s.replace(/[^a-zA-Z0-9_-]/g, "_") || "x";
+  const mediaDir = path.join(dataDir, "media", sanitize(ctx.account.id), sanitize(ctx.message.threadId));
+  if (fs.existsSync(mediaDir)) {
+    try {
+      const entries = fs.readdirSync(mediaDir, { withFileTypes: true });
+      const imgs = entries
+        .filter(e => e.isFile() && IMAGE_EXTS.has(path.extname(e.name).toLowerCase()))
+        .map(e => ({ p: path.join(mediaDir, e.name), mtime: fs.statSync(path.join(mediaDir, e.name)).mtimeMs }))
+        .sort((a, b) => b.mtime - a.mtime);
+      for (const { p } of imgs) {
+        if (!paths.includes(p)) paths.push(p);
+      }
+    } catch { /* bo qua */ }
+  }
+
+  return paths.slice(0, 300);
+}
+
+/** Deliver file Buffer qua Zalo */
 async function deliverFile(
   ctx: Pick<ToolContext, "api" | "account" | "message" | "ghiNhanDaGui">,
   fileName: string,
@@ -62,95 +97,99 @@ async function deliverFile(
 export function createOcrFolderToFileTool(ctx: ToolContext) {
   return tool({
     description:
-      "Doc hang loat file (anh JPG/PNG, PDF text/scan, Word, Excel) tu thu muc hoac danh sach file, " +
-      "tu dong OCR bang Gemini Vision neu can, trich xuat noi dung va xuat ket qua thanh file Excel/Word/CSV/PDF/TXT roi gui cho nguoi dung. " +
-      "Dung cho: bang diem thi nhieu trang, ho so scan, bao cao nhieu file, thu muc anh tai lieu. " +
-      "BATCH MODE: xu ly ca thu muc (source=folder) hoac nhieu file trong hoi thoai (source=recent_files). " +
-      "Table mode: trich xuat bang bieu JSON → xuat Excel/CSV dep. " +
-      "Text mode: noi dung van ban → xuat Word/PDF/TXT.",
+      "[DUNG KHI NGUOI DUNG GUI NHIEU ANH HOAC YEU CAU DOC NHIEU FILE] " +
+      "Doc hang loat file (anh JPG/PNG, PDF scan, PDF text, Word, Excel) roi OCR bang Vision AI " +
+      "va xuat ket qua thanh file Excel/Word/CSV/PDF/TXT roi gui ngay cho nguoi dung. " +
+      "GOI NGAY sau khi nguoi dung gui nhieu anh va nho 'doc', 'xuat', 'bang diem', 'danh sach'. " +
+      "Khi user gui ANH qua Zalo → source='recent_images' (lay TAT CA anh trong hoi thoai). " +
+      "Khi user gui FILE PDF/Word/Excel → source='recent_files'. " +
+      "Khi biet duong dan thu muc server → source='folder'. " +
+      "QUAN TRONG: KHONG doc tung anh mot bang read_image, phai dung tool nay de batch OCR tat ca cung luc.",
     inputSchema: z.object({
-      // ── INPUT ──
-      source: z.enum(["folder", "recent_files", "shared_files"]).describe(
-        "Nguon file: folder=tu thu muc, recent_files=file vua gui trong hoi thoai, shared_files=kho shared-files",
+      source: z.enum(["folder", "recent_files", "recent_images", "shared_files"]).describe(
+        "Nguon file: recent_images=TAT CA anh da gui trong hoi thoai (dung cho anh Zalo), " +
+        "recent_files=file tai lieu da gui (PDF/Word/Excel), " +
+        "folder=duong dan thu muc tren server, shared_files=kho shared-files",
       ),
       folderPath: z.string().optional().describe(
-        "Duong dan thu muc can xu ly (chi khi source=folder). Vi du: bosung/DS",
+        "Duong dan thu muc (chi khi source=folder). Vi du: bosung/DS",
       ),
       fileExtensions: z.array(z.string()).optional().describe(
-        "Chi xu ly cac dinh dang nay, vi du [\".jpg\",\".png\"]. Bo trong = tat ca dinh dang ho tro.",
+        "Chi xu ly dinh dang nay, vi du [\".jpg\",\".png\"]. Bo trong = tat ca.",
       ),
       fileIndexes: z.array(z.coerce.number().int().min(0)).optional().describe(
-        "Index cac file trong hoi thoai (chi khi source=recent_files). 0=moi nhat.",
+        "Index cu the (tuy chon). Bo trong = lay TAT CA file/anh.",
       ),
-
-      // ── OCR CONFIG ──
       ocrMode: z.enum(["table", "text", "auto"]).default("auto").describe(
-        "table=trich bang bieu JSON (diem thi, danh sach...), text=van ban thuan, auto=tu nhan biet",
+        "table=trich bang bieu JSON (diem thi, danh sach so lieu), text=van ban thuan, auto=tu nhan biet",
       ),
-      customPrompt: z.string().optional().describe(
-        "Prompt tuy chinh cho Vision OCR (tuy chon, bo trong = dung prompt mac dinh theo mode)",
-      ),
+      customPrompt: z.string().optional().describe("Prompt tuy chinh cho Vision OCR"),
       sortBy: z.enum(["score_desc", "score_asc", "name_asc", "none"]).default("none").describe(
-        "Sap xep ket qua: score_desc=tong diem cao→thap (cho bang diem thi), none=giu nguyen thu tu",
+        "Sap xep: score_desc=cao xuong thap (cho bang diem thi), none=giu thu tu",
       ),
-      sortColumn: z.string().optional().describe(
-        "Ten cot dung de sap xep (mac dinh: tong_diem). Vi du: diem_viet, tong_diem",
-      ),
-      dedupKey: z.string().optional().describe(
-        "Ten cot dung de loai trung (vi du: so_bao_danh). Bo trong = khong loai trung.",
-      ),
-
-      // ── OUTPUT ──
+      sortColumn: z.string().optional().describe("Ten cot sap xep (mac dinh: tong_diem)"),
+      dedupKey: z.string().optional().describe("Ten cot loai trung (vi du: so_bao_danh)"),
       outputFormat: z.enum(["excel", "word", "csv", "pdf", "txt"]).describe(
-        "Dinh dang file dau ra: excel=xlsx dep voi mau sac, word=docx A4, csv=bang phang, pdf=tai lieu, txt=van ban",
+        "excel=xlsx dep, word=docx A4, csv=bang phang, pdf, txt",
       ),
-      outputFileName: z.string().optional().describe(
-        "Ten file dau ra (tu dong dat ten neu bo trong)",
-      ),
+      outputFileName: z.string().optional().describe("Ten file dau ra (tu dong dat neu bo trong)"),
       caption: z.string().optional().describe("Loi nhan gui kem file"),
     }),
 
-    execute: async ({ source, folderPath, fileExtensions, fileIndexes, ocrMode, customPrompt, sortBy, sortColumn, dedupKey, outputFormat, outputFileName, caption }) => {
-      // Rate limit
+    execute: async ({ source, folderPath, fileExtensions, fileIndexes, ocrMode, customPrompt,
+                      sortBy, sortColumn, dedupKey, outputFormat, outputFileName, caption }) => {
       const rate = checkDocumentRateLimit(`${ctx.account.id}:${ctx.message.threadId}`);
       if (!rate.ok) return ketQuaLoi(rate.reason);
 
-      // Lay danh sach file theo source
-      let filePaths: string[] = [];
+      // ── Xac dinh nguon file ───────────────────────────────────────────────
 
       if (source === "folder") {
-        if (!folderPath) return ketQuaLoi("Vui long cung cap duong dan thu muc (folderPath).");
+        if (!folderPath) return ketQuaLoi("Vui long cung cap folderPath.");
         const absFolder = path.isAbsolute(folderPath) ? folderPath : path.resolve(folderPath);
-        if (!isSafePath(absFolder)) {
-          return ketQuaLoi(`Thu muc "${folderPath}" khong nam trong vung duoc phep truy cap.`);
-        }
+        if (!isSafePath(absFolder)) return ketQuaLoi(`Thu muc "${folderPath}" khong nam trong vung duoc phep.`);
         if (!fs.existsSync(absFolder)) return ketQuaLoi(`Thu muc "${folderPath}" khong ton tai.`);
-        // batch-ocr-engine se tu doc thu muc
-        const ocrSource = { kind: "folder" as const, folderPath: absFolder, extensions: fileExtensions };
-        return runOcr(ctx, ocrSource, { mode: ocrMode, prompt: customPrompt, sortBy, sortColumn, dedupKey },
-          outputFormat, outputFileName, caption, deliverFile);
+        return runOcr(ctx, { kind: "folder", folderPath: absFolder, extensions: fileExtensions },
+          { mode: ocrMode, prompt: customPrompt, sortBy, sortColumn, dedupKey },
+          outputFormat, outputFileName, caption);
+      }
+
+      if (source === "recent_images") {
+        // Lay TAT CA anh da gui (khong gioi han so luong)
+        const imagePaths = collectAllRecentImagePaths(ctx);
+        if (imagePaths.length === 0) {
+          return ketQuaLoi("Khong tim thay anh nao trong hoi thoai. Hay gui anh roi thu lai.");
+        }
+        log.info({ count: imagePaths.length }, "Batch OCR recent_images");
+        return runOcr(ctx, { kind: "files", filePaths: imagePaths },
+          { mode: ocrMode, prompt: customPrompt, sortBy, sortColumn, dedupKey },
+          outputFormat, outputFileName, caption);
       }
 
       if (source === "recent_files") {
         const allPaths = collectRecentFilePaths(ctx);
         if (allPaths.length === 0) return ketQuaLoi("Khong co file nao trong hoi thoai gan day.");
-        const idxList = fileIndexes ?? [0];
-        filePaths = idxList.map(i => allPaths[i]).filter((p): p is string => !!p);
-        if (filePaths.length === 0) return ketQuaLoi(`Khong tim thay file tai cac index da chon.`);
-      } else if (source === "shared_files") {
-        const sharedDir = path.join(dataDir, "shared-files");
-        filePaths = (fileIndexes ?? []).map(i => path.join(sharedDir, String(i))).filter(p => fs.existsSync(p));
-        if (filePaths.length === 0) return ketQuaLoi("Khong tim thay file trong shared-files.");
+        const filePaths = fileIndexes?.length
+          ? fileIndexes.map(i => allPaths[i]).filter((p): p is string => !!p)
+          : allPaths; // Lay tat ca neu khong chi ro index
+        if (filePaths.length === 0) return ketQuaLoi("Khong tim thay file tai index da chon.");
+        log.info({ count: filePaths.length }, "Batch OCR recent_files");
+        return runOcr(ctx, { kind: "files", filePaths },
+          { mode: ocrMode, prompt: customPrompt, sortBy, sortColumn, dedupKey },
+          outputFormat, outputFileName, caption);
       }
 
-      const ocrSource = { kind: "files" as const, filePaths };
-      return runOcr(ctx, ocrSource, { mode: ocrMode, prompt: customPrompt, sortBy, sortColumn, dedupKey },
-        outputFormat, outputFileName, caption, deliverFile);
+      // shared_files
+      const sharedDir = path.join(dataDir, "shared-files");
+      const filePaths = (fileIndexes ?? []).map(i => path.join(sharedDir, String(i))).filter(p => fs.existsSync(p));
+      if (filePaths.length === 0) return ketQuaLoi("Khong tim thay file trong shared-files.");
+      return runOcr(ctx, { kind: "files", filePaths },
+        { mode: ocrMode, prompt: customPrompt, sortBy, sortColumn, dedupKey },
+        outputFormat, outputFileName, caption);
     },
   });
 }
 
-// ── Runner ─────────────────────────────────────────────────────────────────────
+// ── Runner ────────────────────────────────────────────────────────────────────
 
 async function runOcr(
   ctx: ToolContext,
@@ -159,7 +198,6 @@ async function runOcr(
   outputFormat: string,
   outputFileName: string | undefined,
   caption: string | undefined,
-  deliver: typeof deliverFile,
 ): Promise<string | ReturnType<typeof ketQuaLoi>> {
   try {
     const { rows, text, stats } = await batchOcr(ocrSource, {
@@ -172,54 +210,52 @@ async function runOcr(
       dedupKey: ocrCfg.dedupKey,
     });
 
-    if (stats.totalFiles === 0) return ketQuaLoi("Khong tim thay file nao hop le de xu ly.");
+    if (stats.totalFiles === 0) return ketQuaLoi("Khong tim thay file hop le de xu ly.");
 
-    const ts = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 16);
-    const baseName = outputFileName?.replace(/\.[a-z]+$/i, "") ?? `OCR_Export_${ts}`;
+    const ts = new Date().toISOString().slice(0, 16).replace(/[T:]/g, "-");
+    const baseName = (outputFileName ?? `OCR_${ts}`).replace(/\.[a-z]+$/i, "");
 
     let data: Buffer;
     let ext: string;
-    let summary: string;
 
     if (outputFormat === "excel") {
-      if (rows.length === 0) return ketQuaLoi(`OCR xong ${stats.processedFiles} file nhung khong trich xuat duoc bang bieu. Thu dung ocrMode=text.`);
-      data = await renderXlsxFromRows(rows, {
-        sheetName: "Ket qua OCR",
-        title: baseName,
-        sortColumn: ocrCfg.sortColumn,
-      });
+      if (rows.length === 0) {
+        return ketQuaLoi(
+          `OCR xong ${stats.processedFiles} file nhung khong trich xuat duoc bang du lieu. ` +
+          `Thu ocrMode=text hoac xem lai chat luong anh. ${stats.failedFiles > 0 ? `Loi: ${stats.failedFiles} file.` : ""}`,
+        );
+      }
+      data = await renderXlsxFromRows(rows, { title: baseName, sortColumn: ocrCfg.sortColumn });
       ext = "xlsx";
-      summary = `${rows.length} dong du lieu tu ${stats.processedFiles} file`;
     } else if (outputFormat === "csv") {
-      if (rows.length === 0) return ketQuaLoi(`Khong co bang bieu de xuat CSV. Thu outputFormat=txt.`);
+      if (rows.length === 0) return ketQuaLoi("Khong co bang bieu de xuat CSV.");
       data = renderCsvFromRows(rows);
       ext = "csv";
-      summary = `${rows.length} dong`;
     } else if (outputFormat === "word") {
-      const pages = text ? [{ filename: "OCR", text }] : rows.map((r, i) => ({ filename: `Dong ${i + 1}`, text: Object.entries(r).map(([k, v]) => `${k}: ${v}`).join("\n") }));
+      const pages = text
+        ? [{ filename: "OCR", text }]
+        : rows.map((r, i) => ({ filename: `Muc ${i + 1}`, text: Object.entries(r).map(([k, v]) => `${k}: ${v ?? ""}`).join("\n") }));
       data = await renderDocxFromPages(pages, { title: baseName });
       ext = "docx";
-      summary = `${stats.processedFiles} file → ${pages.length} trang`;
     } else if (outputFormat === "pdf") {
       const sections = text
         ? [{ title: baseName, paragraphs: text.split("\n").filter(l => l.trim()) }]
-        : rows.map((r, i) => ({ title: `Dong ${i + 1}`, paragraphs: Object.entries(r).map(([k, v]) => `${k}: ${v}`) }));
+        : rows.map((r, i) => ({ title: `Muc ${i + 1}`, paragraphs: Object.entries(r).map(([k, v]) => `${k}: ${v ?? ""}`) }));
       data = renderPdf(baseName, sections);
       ext = "pdf";
-      summary = `${stats.processedFiles} file → PDF`;
     } else {
-      // txt
-      const content = text || rows.map(r => Object.values(r).join("\t")).join("\n");
-      data = Buffer.from(content, "utf-8");
+      data = Buffer.from(text || rows.map(r => Object.values(r).join("\t")).join("\n"), "utf-8");
       ext = "txt";
-      summary = `${stats.processedFiles} file`;
     }
 
     const fileName = `${baseName}.${ext}`;
-    const captionText = caption ?? `OCR xong: ${summary}. Xu ly ${stats.processedFiles}/${stats.totalFiles} file (${Math.round(stats.durationMs / 1000)}s).`;
-    return deliver(ctx, fileName, data, captionText);
+    const captionFinal = caption ??
+      `OCR xong: ${rows.length > 0 ? rows.length + " dong du lieu" : stats.processedFiles + " file"}. ` +
+      `Xu ly ${stats.processedFiles}/${stats.totalFiles} file (${Math.round(stats.durationMs / 1000)}s).`;
+
+    return deliverFile(ctx, fileName, data, captionFinal);
   } catch (err) {
     log.error({ err }, "ocr_folder_to_file that bai");
-    return ketQuaLoi(`Loi khi xu ly OCR: ${err instanceof Error ? err.message : String(err)}`);
+    return ketQuaLoi(`Loi OCR: ${err instanceof Error ? err.message : String(err)}`);
   }
 }
