@@ -1,3 +1,4 @@
+import path from "node:path";
 import type { ModelMessage, UserContent } from "ai";
 import { isSidecarConfigured } from "../config/runtime-vision-settings.js";
 import type { StoredMessage } from "../conversation/history-store.js";
