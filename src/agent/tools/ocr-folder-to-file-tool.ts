@@ -153,25 +153,29 @@ export function createOcrFolderToFileTool(ctx: ToolContext) {
       }
 
       if (source === "recent_images") {
-        // Lay TAT CA anh da gui (khong gioi han so luong)
-        const imagePaths = collectAllRecentImagePaths(ctx);
-        if (imagePaths.length === 0) {
+        // Thu thap TAT CA anh da gui trong hoi thoai (khong gioi han so luong)
+        const rawPaths = collectAllRecentImagePaths(ctx);
+        if (rawPaths.length === 0) {
           return ketQuaLoi("Khong tim thay anh nao trong hoi thoai. Hay gui anh roi thu lai.");
         }
-        log.info({ count: imagePaths.length }, "Batch OCR recent_images");
+        // Convert relative → absolute
+        const imagePaths = rawPaths.map(p => path.isAbsolute(p) ? p : path.join(dataDir, p));
+        log.info({ count: imagePaths.length, sample: imagePaths[0] }, "Batch OCR recent_images");
         return runOcr(ctx, { kind: "files", filePaths: imagePaths },
           { mode: ocrMode, prompt: customPrompt, sortBy, sortColumn, dedupKey },
           outputFormat, outputFileName, caption);
       }
 
       if (source === "recent_files") {
-        const allPaths = collectRecentFilePaths(ctx);
-        if (allPaths.length === 0) return ketQuaLoi("Khong co file nao trong hoi thoai gan day.");
+        const rawPaths = collectRecentFilePaths(ctx);
+        if (rawPaths.length === 0) return ketQuaLoi("Khong co file nao trong hoi thoai gan day.");
+        // Convert relative → absolute (scanDiskMediaFiles trả relative path)
+        const allPaths = rawPaths.map(p => path.isAbsolute(p) ? p : path.join(dataDir, p));
         const filePaths = fileIndexes?.length
           ? fileIndexes.map(i => allPaths[i]).filter((p): p is string => !!p)
           : allPaths; // Lay tat ca neu khong chi ro index
         if (filePaths.length === 0) return ketQuaLoi("Khong tim thay file tai index da chon.");
-        log.info({ count: filePaths.length }, "Batch OCR recent_files");
+        log.info({ count: filePaths.length, sample: filePaths[0] }, "Batch OCR recent_files");
         return runOcr(ctx, { kind: "files", filePaths },
           { mode: ocrMode, prompt: customPrompt, sortBy, sortColumn, dedupKey },
           outputFormat, outputFileName, caption);
