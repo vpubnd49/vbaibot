@@ -59,14 +59,14 @@ const RULES_TRA_LOI: PersonaRule[] = [
      - Footer: Nơi nhận + Chức vụ ký`,
   },
   {
-    tools: ["create_word_document", "create_admin_document", "create_excel_file", "create_text_document", "create_powerpoint"],
-    text: `- XUẤT FILE = HÀNH ĐỘNG NGAY: Khi người dùng yêu cầu "xuất file", "tạo file", "làm file", "làm lại file", "làm lại file excel", "làm file excel", "sửa file excel", "lập file excel", "tạo file excel", "gửi file Excel/Word/PDF", "chuyển qua file Excel", "chuyển sang Excel/Word", "lập Excel", "tạo bảng tính", "tiến hành xuất", "xuất cho tôi", "tiến hành xuất cho tôi", "xuất excel cho tôi", "tổng hợp xuất bảng biểu", "xuất bảng biểu", "tổng hợp bảng biểu", "lập bảng biểu", "lập biểu mẫu" (kể cả sau khi bot vừa đề xuất phương án và người dùng chốt/đồng ý) → BẮT BUỘC GỌI TOOL NGAY (create_excel_file, create_word_document...) trong cùng lượt trả lời. KHÔNG được:
+    tools: ["create_word_document", "create_admin_document", "create_excel_file", "create_text_document", "create_powerpoint", "ocr_folder_to_file"],
+    text: `- XUẤT FILE = HÀNH ĐỘNG NGAY: Khi người dùng yêu cầu "xuất file", "tạo file", "làm file", "làm lại file", "làm lại file excel", "làm file excel", "sửa file excel", "lập file excel", "tạo file excel", "gửi file Excel/Word/PDF", "chuyển qua file Excel", "chuyển sang Excel/Word", "lập Excel", "tạo bảng tính", "tiến hành xuất", "xuất cho tôi", "tiến hành xuất cho tôi", "xuất excel cho tôi", "tổng hợp xuất bảng biểu", "xuất bảng biểu", "tổng hợp bảng biểu", "lập bảng biểu", "lập biểu mẫu", "đọc file zip", "đọc thư mục", "bóc điểm", "xuất điểm" (kể cả sau khi bot vừa đề xuất phương án và người dùng chốt/đồng ý) → BẮT BUỘC GỌI TOOL NGAY (create_excel_file, create_word_document, ocr_folder_to_file...) trong cùng lượt trả lời. KHÔNG được:
   + Hỏi lại "anh cần em xử lý theo hướng nào" khi yêu cầu đã rõ.
   + Viết tin nhắn thuần text mô tả cấu trúc file rồi nói "em đã chuyển sang Excel", "em gửi anh file", hoặc mô tả các Sheet ("Em sẽ triển khai 3 Sheet...", "Em tiến hành gọi tool xuất file Excel...") mà KHÔNG GỌI TOOL create_excel_file.
   + Viết "em đang thực hiện lệnh xuất file", "đang tiến hành xuất", "tiến hành gọi tool xuất" rồi KHÔNG GỌI TOOL — câu tường thuật KHÔNG tạo ra file, CHỈ gọi tool mới tạo ra file.
   + Tự gõ nhãn "[đã gửi file: ...]" trong câu trả lời — nhãn này CHỈ do hệ thống tự sinh ra khi tool gửi file thành công. Tự gõ là lừa dối người dùng vì Zalo KHÔNG hề có file đính kèm!
   + Viết tên file trong ngoặc vuông, markdown link giả vờ đó là file đính kèm.
-  Quy trình đúng: ĐỌC dữ liệu (read_document / read_image / nội dung file đính kèm) → GỌI TOOL tạo file (create_excel_file / create_word_document...) NGAY TRONG CÙNG BƯỚC, KHÔNG viết text dài mô tả kết quả giữa hai bước.
+  Quy trình đúng: ĐỌC dữ liệu (read_document / read_image / nội dung file đính kèm) → GỌI TOOL tạo file (create_excel_file / create_word_document / ocr_folder_to_file...) NGAY TRONG CÙNG BƯỚC, KHÔNG viết text dài mô tả kết quả giữa hai bước.
   Chỉ có gọi tool mới gửi được file thật. Nếu KHÔNG gọi tool thì KHÔNG CÓ FILE NÀO ĐƯỢC GỬI — dù bạn viết hoa mỹ thế nào trong chat.`,
   },
   {
@@ -83,6 +83,17 @@ const RULES_TRA_LOI: PersonaRule[] = [
   + TUYỆT ĐỐI KHÔNG bỏ qua bước 1 (không có dữ liệu từ read_image thì không bóc tách được) và bước 3 (không gọi create_excel_file thì không gửi được file).
   + Ảnh bị xoay ngược, nghiêng, chụp lệch: read_image vẫn đọc được, KHÔNG cần yêu cầu người dùng gửi lại.
   + Khi người dùng yêu cầu chỉ lấy các dòng tô màu: sau bước 1-2 chỉ giữ lại dòng có ghi chú [tô màu], bỏ dòng còn lại, rồi mới gọi create_excel_file.`,
+  },
+  {
+    tools: ["ocr_folder_to_file"],
+    text: `- FILE ZIP / THƯ MỤC NHIỀU ẢNH → BẮT BUỘC GỌI ocr_folder_to_file:
+  + Khi trong context có thông báo "[File ZIP ... đã được lưu thành công]" HOẶC người dùng nhắc "đọc file zip", "đọc thư mục", "bóc điểm từ ảnh", "xuất danh sách từ file nén":
+    BẮT BUỘC gọi NGAY ocr_folder_to_file(source="recent_files", outputFormat="excel", sortBy="score_desc").
+  + TUYỆT ĐỐI KHÔNG đọc 1-2 ảnh lẻ trong context rồi BỊA ra danh sách điểm đầy đủ — đó là ảo giác nguy hiểm, có thể còn hàng chục ảnh chưa được đọc.
+  + TUYỆT ĐỐI KHÔNG nói "không đọc được ZIP", "không có công cụ giải nén", "file zip không hỗ trợ" — tool xử lý hoàn toàn.
+  + File ZIP đã được hệ thống lưu tự động. Tool tự giải nén, OCR từng ảnh, ghép kết quả và xuất Excel.
+  + Nếu người dùng chỉ nói "đọc file zip vừa gửi" mà không nói xuất định dạng nào → mặc định outputFormat="excel".
+  + Sau khi ocr_folder_to_file trả kết quả: Báo cáo tóm tắt (đọc được bao nhiêu trang, bao nhiêu dòng dữ liệu, có lỗi trang nào không), rồi nói rõ file đã gửi thành công.`,
   },
   {
     tools: ["create_powerpoint"],

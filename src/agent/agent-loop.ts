@@ -45,6 +45,7 @@ import {
   taoTinNhanNhacGoiTool,
   xoaNhanAoGiacGuiFile,
 } from "./file-send-guard.js";
+import { getFailedActions, guardFailedActionReply } from "./action-result-guard.js";
 
 // Re-export để test và mọi call site cũ vẫn import từ "agent-loop.js" như trước
 export { canLuotChot, hitStepLimit, isEmptyRouterCompletion, nhanLyDoDung, vuotTranToken };
@@ -783,7 +784,9 @@ export async function runAgentTurn({
 
   const finalToolCalls = layAllToolCalls(result);
   const daGoiToolGuiFile = finalToolCalls.some((t) => FILE_SEND_TOOLS.has(t));
-  const textCuoi = daGoiToolGuiFile ? result.text.trim() : xoaNhanAoGiacGuiFile(result.text.trim());
+  const failedActions = getFailedActions(result.steps);
+  const textKhongAoGiac = daGoiToolGuiFile ? result.text.trim() : xoaNhanAoGiacGuiFile(result.text.trim());
+  const textCuoi = guardFailedActionReply(textKhongAoGiac, failedActions);
 
   return {
     text: textCuoi,

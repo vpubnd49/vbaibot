@@ -47,6 +47,14 @@ const DESCRIBE_MAX_TOKENS = 2048;
  */
 const ASK_MAX_TOKENS = 4096;
 
+/**
+ * Trần token cho batch OCR (ocr_folder_to_file): cao hơn ASK vì bảng biểu dày
+ * nhiều hàng-cột cần chép nguyên văn JSON. Không có Vietnamese wrapper nên toàn
+ * bộ ngân sách dành cho JSON output.
+ * 8192 token ÷ ~1 token/char ASCII = ~8000 chars JSON — đủ cho bảng 20 hàng × 12 cột.
+ */
+const BATCH_OCR_MAX_TOKENS = 8192;
+
 export type SidecarImage = {
   base64: string;
   mediaType: string;
@@ -198,6 +206,63 @@ const askDefaultCaller: SidecarCaller = async (settings, image, prompt) => {
   );
   return { text: result.text.trim(), truncated: result.finishReason === "length" };
 };
+
+/**
+ * Caller chuyên dụng cho batch OCR:
+ * - KHÔNG thêm Vietnamese wrapper ("Trả lời câu hỏi sau về ảnh bằng tiếng Việt...")
+ * - Token cao nhất (BATCH_OCR_MAX_TOKENS = 8192)
+ *
+ * Khác askDefaultCaller: askDefaultCaller thêm wrapper TV làm phình response,
+ * dẫn đến truncate JSON. Caller này tránh vấn đề đó hoàn toàn.
+ */
+const batchOcrCaller: SidecarCaller = async (settings, image, prompt) => {
+  const provider = createOpenAICompatible({
+    name: "vision-sidecar",
+    baseURL: settings.baseUrl,
+    apiKey: settings.apiKey,
+  });
+  const result = await chayStream((onError) =>
+    streamText({
+      model: provider(settings.model),
+      messages: [
+        {
+          role: "user",
+          content: [
+            // Giữ type: "image" vì Gemini OpenAI-compat endpoint yêu cầu,
+            // dù AI SDK warn deprecated. type: "file" gây HTTP 400.
+            { type: "image", image: image.base64, mediaType: image.mediaType },
+            { type: "text", text: prompt },
+          ],
+        },
+      ],
+      maxOutputTokens: BATCH_OCR_MAX_TOKENS,
+      maxRetries: 1,
+      onError,
+    }),
+  );
+  return { text: result.text.trim(), truncated: result.finishReason === "length" };
+};
+
+/**
+ * Gọi Vision API trực tiếp cho batch OCR — KHÔNG thêm Vietnamese wrapper.
+ *
+ * Dùng thay cho askAboutImage trong batch-ocr-engine:
+ *   askAboutImage(image, prompt) → bọc wrapper TV → model output TV+JSON → truncate
+ *   callVisionForBatchOcr(b64, mime, prompt) → prompt thẳng → JSON only → không truncate
+ *
+ * Ném lỗi (không trả null) để caller tự log và đếm failedFiles.
+ */
+export async function callVisionForBatchOcr(
+  b64: string,
+  mime: string,
+  prompt: string,
+): Promise<{ text: string; truncated: boolean }> {
+  const settings = getVisionSettings();
+  if (!isSidecarConfigured(settings)) {
+    throw new Error("Vision sidecar chua cau hinh — thieu baseUrl, model hoac apiKey");
+  }
+  return batchOcrCaller(settings.sidecar, { base64: b64, mediaType: mime }, prompt);
+}
 
 export async function askAboutImage(
   image: SidecarImage,

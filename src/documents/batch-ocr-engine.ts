@@ -124,16 +124,17 @@ async function withConcurrency<T>(tasks: (() => Promise<T>)[], limit: number): P
 // ── Vision call with retry ────────────────────────────────────────────────────
 
 async function callVision(b64: string, mime: string, prompt: string, _maxTokens: number, retries = 3): Promise<string> {
-  const { askAboutImage } = await import("../agent/vision-sidecar.js");
-  const image = { base64: b64, mediaType: mime };
+  const { callVisionForBatchOcr } = await import("../agent/vision-sidecar.js");
   for (let i = 0; i < retries; i++) {
     try {
-      // QUAN TRONG: askAboutImage(image, question) — KHONG truyen maxTokens
-      // tham so thu 3 la SidecarCaller (function), khong phai so.
-      return await (askAboutImage as any)(image, prompt);
+      const { text, truncated } = await callVisionForBatchOcr(b64, mime, prompt);
+      if (truncated) {
+        log.warn({ attempt: i + 1, mime, chars: text.length }, "callVision: response bi truncate - JSON co the bi cat");
+      }
+      return text;
     } catch (err) {
       const msg = String(err);
-      log.warn({ attempt: i + 1, mime, promptLen: prompt.length, err: msg }, "callVision: lan thu co loi");
+      log.warn({ attempt: i + 1, mime, err: msg }, "callVision: lan thu co loi");
       const retry = msg.includes("429") || msg.includes("rate") || msg.includes("503");
       if (!retry || i === retries - 1) throw err;
       await new Promise(r => setTimeout(r, Math.pow(2, i) * 1000));
@@ -156,9 +157,28 @@ function parseViNumber(s: string | unknown): number | null {
 export function parseTableContent(content: string): OcrRow[] | null {
   const s = content.replace(/^```[\w]*\r?\n?/m, "").replace(/\r?\n?```$/m, "").trim();
   const m = s.match(/\[[\s\S]*\]/);
-  if (!m) return null;
+  let jsonStr = m ? m[0] : null;
+
+  // Recovery cho JSON bi cat (truncated: true): thu dong array thu cong
+  if (!jsonStr) {
+    const start = s.indexOf("[");
+    if (start >= 0) {
+      // Bo phan cuoi bi cat (object chua dong) roi dong array
+      const partial = s.slice(start).replace(/,?\s*\{[^}]*$/, "").trimEnd();
+      const fixed = partial.endsWith("]") ? partial : partial + "]";
+      try {
+        const arr = JSON.parse(fixed);
+        if (Array.isArray(arr) && arr.length > 0) {
+          log.warn({ recoveredRows: arr.length, originalLen: s.length }, "parseTableContent: recovery tu JSON bi cat");
+          jsonStr = fixed;
+        }
+      } catch { /* khong phuc hoi duoc */ }
+    }
+    if (!jsonStr) return null;
+  }
+
   try {
-    const arr = JSON.parse(m[0]);
+    const arr = JSON.parse(jsonStr);
     if (!Array.isArray(arr) || arr.length === 0) return [];
     // Normalize: chuyen so string → number
     return arr.map((row: Record<string, unknown>) => {
