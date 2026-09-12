@@ -97,14 +97,13 @@ async function deliverFile(
 export function createOcrFolderToFileTool(ctx: ToolContext) {
   return tool({
     description:
-      "[DUNG KHI NGUOI DUNG GUI NHIEU ANH HOAC YEU CAU DOC NHIEU FILE] " +
-      "Doc hang loat file (anh JPG/PNG, PDF scan, PDF text, Word, Excel) roi OCR bang Vision AI " +
-      "va xuat ket qua thanh file Excel/Word/CSV/PDF/TXT roi gui ngay cho nguoi dung. " +
-      "GOI NGAY sau khi nguoi dung gui nhieu anh va nho 'doc', 'xuat', 'bang diem', 'danh sach'. " +
-      "Khi user gui ANH qua Zalo → source='recent_images' (lay TAT CA anh trong hoi thoai). " +
-      "Khi user gui FILE PDF/Word/Excel → source='recent_files'. " +
-      "Khi biet duong dan thu muc server → source='folder'. " +
-      "QUAN TRONG: KHONG doc tung anh mot bang read_image, phai dung tool nay de batch OCR tat ca cung luc.",
+      "[GỌI NGAY khi user gửi ZIP, nhiều ảnh, hoặc yêu cầu đọc/xuất từ file/thư mục] " +
+      "Tool này ĐỌC ĐƯỢC: ảnh JPG/PNG/TIFF/HEIC, PDF (text + scan), DOCX, XLSX, CSV, TXT, và ĐẶC BIỆT là file ZIP (tự giải nén, đọc tất cả bên trong). " +
+      "TUYỆT ĐỐI KHÔNG tự nói 'không đọc được ZIP' hoặc 'không có công cụ giải nén' — GỌI TOOL NÀY với source=recent_files là xong. " +
+      "Sau khi đọc xong, tự động xuất file Excel/Word/CSV/PDF/TXT và gửi cho người dùng. " +
+      "Khi user gửi FILE ZIP → source='recent_files' (tool tự giải nén). " +
+      "Khi user gửi ẢNH qua Zalo → source='recent_images'. " +
+      "Khi biết đường dẫn thư mục trên server → source='folder'.",
     inputSchema: z.object({
       source: z.enum(["folder", "recent_files", "recent_images", "shared_files"]).describe(
         "Nguon file: recent_images=TAT CA anh da gui trong hoi thoai (dung cho anh Zalo), " +

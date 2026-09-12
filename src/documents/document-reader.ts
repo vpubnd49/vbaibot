@@ -79,6 +79,7 @@ const SUPPORTED_EXTENSIONS = [
   '.pdf', '.docx', '.doc', '.xlsx', '.xls', '.ods', '.csv', '.tsv', '.txt', '.md',
   '.json', '.xml', '.html', '.htm', '.rtf',
   '.jpg', '.jpeg', '.png', '.bmp', '.tiff', '.tif', '.heic', '.webp',
+  '.zip',  // ZIP chứa nhiều file — batch-ocr-engine tự giải nén
 ] as const;
 export type SupportedExtension = typeof SUPPORTED_EXTENSIONS[number];
 
