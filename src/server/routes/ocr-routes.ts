@@ -34,8 +34,8 @@ function getOcrUploadDir(): string {
 
 // Kích thước tối đa 1 file: 100 MB
 const MAX_FILE_BYTES = 100 * 1024 * 1024;
-// Số file tối đa 1 session: 200
-const MAX_FILES_PER_SESSION = 200;
+// Không giới hạn số file (xử lý theo yêu cầu người dùng)
+const MAX_FILES_PER_SESSION = 10_000;
 
 // Ext được phép upload (bao gồm .zip để upload thư mục nén)
 const ALLOWED_EXTS = new Set([

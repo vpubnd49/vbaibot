@@ -38,6 +38,7 @@ import { voiceRoutes } from "./routes/voice-routes.js";
 import { broadcastRoutes } from "./routes/broadcast-routes.js";
 import { kieCallbackRoutes } from "./routes/kie-callback-routes.js";
 import { ocrRoutes } from "./routes/ocr-routes.js";
+import { getOcrPortalHtml } from "./routes/ocr-portal-html.js";
 
 const log = createLogger("dashboard-server");
 const SESSION_COOKIE = "dashboard_session";
@@ -163,6 +164,14 @@ export function buildDashboardApp(): Hono {
   });
 
   app.get("/api/auth/me", (c) => c.json({ ok: true }));
+
+  // OCR Upload Portal — trang HTML drag-drop thư mục đa định dạng
+  // Đặt NGAY sau auth middleware để được bảo vệ
+  app.get("/ocr", (c) => {
+    c.header("Content-Type", "text/html; charset=utf-8");
+    c.header("Cache-Control", "no-store");
+    return c.body(getOcrPortalHtml());
+  });
 
   /**
    * Đổi mật khẩu. BẮT BUỘC nhập lại mật khẩu hiện tại dù đã đăng nhập: cookie
