@@ -65,6 +65,7 @@
     "docx": "^9.7.1",
     "exceljs": "^4.4.0",
     "fast-xml-parser": "^5.11.0",
+    "fflate": "^0.8.3",
     "hono": "^4.12.32",
     "image-size": "^2.0.2",
     "luxon": "^3.7.2",

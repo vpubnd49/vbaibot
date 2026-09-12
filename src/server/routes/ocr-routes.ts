@@ -1,4 +1,4 @@
-﻿/**
+/**
  * ocr-routes.ts
  * API endpoints cho tính năng OCR hàng loạt file qua Dashboard:
  *
@@ -37,10 +37,11 @@ const MAX_FILE_BYTES = 100 * 1024 * 1024;
 // Số file tối đa 1 session: 200
 const MAX_FILES_PER_SESSION = 200;
 
-// Ext được phép upload
+// Ext được phép upload (bao gồm .zip để upload thư mục nén)
 const ALLOWED_EXTS = new Set([
   ".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".tif", ".heic", ".webp",
   ".pdf", ".docx", ".doc", ".xlsx", ".xls", ".ods", ".csv", ".txt", ".md",
+  ".zip",  // Thư mục nén — batch-ocr-engine tự giải nén khi OCR
 ]);
 
 function sanitizeName(name: string): string {

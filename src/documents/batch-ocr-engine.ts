@@ -1,4 +1,4 @@
-﻿/**
+/**
  * batch-ocr-engine.ts
  * Core engine OCR hang loat: PDF text/scan, anh, Word, Excel → text hoac bang JSON.
  * Tai su dung vision-sidecar va document-reader hien co.
@@ -12,6 +12,7 @@ import path from "node:path";
 import os from "node:os";
 import { execFile } from "node:child_process";
 import { createLogger } from "../shared/logger.js";
+import { extractZipFile, isZipFile, cleanupZipTemp } from "./zip-extractor.js";
 
 const log = createLogger("batch-ocr-engine");
 
@@ -58,10 +59,12 @@ export type OcrStats = {
 
 const IMAGE_EXTS = new Set([".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".tif", ".heic", ".webp"]);
 const DOC_EXTS   = new Set([".pdf", ".docx", ".doc", ".xlsx", ".xls", ".ods", ".csv", ".txt", ".md"]);
-const ALL_EXTS   = new Set([...IMAGE_EXTS, ...DOC_EXTS]);
+const ALL_EXTS   = new Set([...IMAGE_EXTS, ...DOC_EXTS, ".zip"]);
 
 function isSupported(filePath: string, extensions?: string[]): boolean {
   const ext = path.extname(filePath).toLowerCase();
+  // ZIP duoc chap nhan nhu la container — chay magic bytes check
+  if (ext === ".zip" || isZipFile(filePath)) return true;
   if (extensions?.length) return extensions.includes(ext);
   return ALL_EXTS.has(ext);
 }
@@ -276,7 +279,39 @@ async function processFile(fp: string, cfg: OcrConfig): Promise<OcrPageResult[]>
   const ext = path.extname(fp).toLowerCase();
   if (IMAGE_EXTS.has(ext)) return processImageFile(fp, cfg);
   if (ext === ".pdf")       return processPdfFile(fp, cfg);
+  // ZIP: giai nen va xu ly tung file ben trong
+  if (ext === ".zip" || isZipFile(fp)) {
+    return processZipFile(fp, cfg);
+  }
   return processDocFile(fp);
+}
+
+/**
+ * Giai nen file ZIP roi OCR toan bo file ben trong.
+ * Sau khi xong don sach thu muc tam.
+ */
+async function processZipFile(fp: string, cfg: OcrConfig): Promise<OcrPageResult[]> {
+  let tempDir: string | undefined;
+  try {
+    const { filePaths, tempDir: td, skippedCount } = extractZipFile(fp);
+    tempDir = td;
+    if (filePaths.length === 0) {
+      log.warn({ fp, skippedCount }, "ZIP khong co file hop le nao");
+      return [{ filePath: fp, error: `ZIP khong chua file hop le (bo qua: ${skippedCount} file)` }];
+    }
+    log.info({ fp, count: filePaths.length }, "ZIP: bat dau OCR cac file ben trong");
+    const results: OcrPageResult[] = [];
+    // Xu ly noi tiep (concurrency da duoc quan ly o tang ngoai)
+    for (const innerFile of filePaths) {
+      const pages = await processFile(innerFile, cfg);
+      results.push(...pages);
+    }
+    return results;
+  } catch (err) {
+    return [{ filePath: fp, error: `Loi xu ly ZIP: ${String(err)}` }];
+  } finally {
+    if (tempDir) cleanupZipTemp(tempDir);
+  }
 }
 
 // ── Collect files ─────────────────────────────────────────────────────────────
