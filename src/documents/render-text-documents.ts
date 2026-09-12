@@ -148,3 +148,39 @@ export function renderTextDocument(
   const contentBuffer = Buffer.from(outputContent, "utf8");
   return Buffer.concat([UTF8_BOM, contentBuffer]);
 }
+
+/**
+ * Xuất OcrRow[] thành CSV UTF-8 BOM chuẩn — Excel mở không lỗi font tiếng Việt.
+ * Sử dụng sau khi batch-ocr-engine trả về rows[] (mode: table).
+ *
+ * @param rows    Mảng OcrRow từ batchOcr()
+ * @param columns Thứ tự cột muốn xuất (tự detect nếu không truyền)
+ */
+export function renderCsvFromRows(
+  rows: Record<string, string | number | null>[],
+  columns?: string[],
+): Buffer {
+  if (rows.length === 0) return Buffer.concat([UTF8_BOM, Buffer.from("(Khong co du lieu)\n", "utf8")]);
+
+  // Auto detect columns tu 20 dong dau
+  const cols = columns ?? (() => {
+    const seen = new Set<string>();
+    for (const r of rows.slice(0, 20)) for (const k of Object.keys(r)) seen.add(k);
+    return [...seen];
+  })();
+
+  const escapeCell = (v: string | number | null): string => {
+    const s = v === null || v === undefined ? "" : String(v);
+    // Neu co dau phay, xuat phat, xuong dong, ngoac kep → bao bang ngoac kep
+    if (s.includes(",") || s.includes('"') || s.includes("\n") || s.includes("\r")) {
+      return `"${s.replace(/"/g, '""')}"`;
+    }
+    return s;
+  };
+
+  const header = cols.map(escapeCell).join(",");
+  const dataLines = rows.map(row => cols.map(c => escapeCell(row[c] ?? null)).join(","));
+  const csv = [header, ...dataLines].join("\r\n") + "\r\n";
+
+  return Buffer.concat([UTF8_BOM, Buffer.from(csv, "utf8")]);
+}

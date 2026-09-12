@@ -3,6 +3,7 @@ import { isImageGenConfigured, getKieImageConfig } from "../../config/runtime-im
 import { isTtsConfigured } from "../../config/runtime-tts-settings.js";
 import { isMusicGenConfigured, getKieMusicConfig } from "../../config/runtime-music-settings.js";
 import { isVideoGenConfigured, getKieVideoConfig } from "../../config/runtime-video-settings.js";
+import { isSidecarConfigured } from "../../config/runtime-vision-settings.js";
 import { createAddReactionTool } from "./add-reaction-tool.js";
 import { createExcelFileTool, createWordDocumentTool, createPowerpointTool } from "./create-document-tools.js";
 import { createTextDocumentTool } from "./create-text-document-tool.js";
@@ -18,7 +19,9 @@ import { createFinanceTrackerTool } from "./finance-tracker-tool.js";
 import { createProposeKnowledgeTool } from "./propose-knowledge-tool.js";
 import { createAdminDocumentTool } from "./create-admin-document-tool.js";
 import { reviewAdminDocumentTool } from "./review-admin-document-tool.js";
+import { createOcrFolderToFileTool } from "./ocr-folder-to-file-tool.js";
 import type { ToolDefinition } from "./tool-catalog-types.js";
+
 
 /**
  * Nhóm "action" của catalog tool - gửi/sửa thứ gì đó trên Zalo. Tách khỏi
@@ -213,4 +216,19 @@ export const ACTION_TOOL_DEFINITIONS: ToolDefinition[] = [
         ghiNhanDaGui: ctx.ghiNhanDaGui,
       }),
   },
+  {
+    key: "ocr_folder_to_file",
+    label: "OCR thư mục / nhiều file → Xuất file",
+    description:
+      "Đọc hàng loạt file (ảnh JPG/PNG, PDF text, PDF scan, Word, Excel) từ thư mục hoặc file đã gửi trong hội thoại, " +
+      "tự động OCR bằng Vision AI, tổng hợp và xuất kết quả thành Excel/Word/CSV/PDF/TXT rồi gửi luôn cho người dùng",
+    group: "action",
+    hasSettings: true,
+    available: () => isSidecarConfigured(),
+    unavailableHint: "Cần cấu hình Vision Sidecar (Vision AI) trong Settings để dùng tool OCR hàng loạt này",
+    runsInScheduledTurn: false,
+    defaultEnabled: false,  // Mặc định tắt — bật khi cần trong Dashboard
+    build: (ctx) => createOcrFolderToFileTool(ctx),
+  },
 ];
+
