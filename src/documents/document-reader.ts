@@ -383,7 +383,7 @@ async function ocrScannedPdf(
 
   try {
     // Chuyển PDF → PNG bằng pdftoppm (200 DPI, đủ nét cho OCR)
-    log.info({ filePath, totalPages, pageStart: startPage, pageEnd: actualEnd, pagesToOcr }, 'Bắt đầu auto-OCR PDF scan');
+            log.info({ filePath, totalPages, pageStart: startPage, pageEnd: actualEnd, pagesToOcr, dpi: 200 }, 'Bắt đầu auto-OCR PDF scan');
     await runPdftoppm(filePath, tmpDir, startPage, actualEnd);
 
     // Đọc các file PNG đã render
@@ -396,10 +396,13 @@ async function ocrScannedPdf(
       return `[File PDF có ${totalPages} trang dạng scan nhưng không chuyển được thành ảnh để đọc.]`;
     }
 
-    // OCR từng trang qua vision sidecar
+    // OCR từng trang qua vision sidecar. `pngFiles` có thể được đặt tên page-03,
+    // page-04... khi đọc chunk; không được đánh số lại thành Trang 1/10 vì model
+    // sẽ tưởng đây là đầu tài liệu và người dùng không biết trang nào bị thiếu.
     const results: string[] = [];
     for (let i = 0; i < pngFiles.length; i++) {
       const pngPath = path.join(tmpDir, pngFiles[i]!);
+      const pageNumber = startPage + i;
       const pngBuffer = fs.readFileSync(pngPath);
       const sidecarImage = {
         base64: pngBuffer.toString('base64'),
@@ -408,11 +411,15 @@ async function ocrScannedPdf(
 
       try {
         const pageText = await visionModule.askAboutImage(sidecarImage, OCR_PROMPT);
-        results.push(`--- Trang ${i + 1}/${pngFiles.length} ---\n${pageText}`);
-        log.info({ page: i + 1, chars: pageText.length }, 'OCR xong trang PDF');
+        const normalizedText = pageText.trim();
+        const pageResult = normalizedText && !/^\[.*không.*(chữ|đọc được).*\]$/i.test(normalizedText)
+          ? normalizedText
+          : '[OCR không trả về dữ liệu văn bản cho trang này]';
+        results.push(`--- Trang ${pageNumber}/${totalPages} ---\n${pageResult}`);
+        log.info({ page: pageNumber, chars: normalizedText.length, ocrEmpty: !normalizedText }, 'OCR xong trang PDF');
       } catch (err) {
-        log.warn({ page: i + 1, err }, 'OCR trang PDF thất bại');
-        results.push(`--- Trang ${i + 1}/${pngFiles.length} ---\n[Không đọc được trang này]`);
+        log.warn({ page: pageNumber, err }, 'OCR trang PDF thất bại');
+        results.push(`--- Trang ${pageNumber}/${totalPages} ---\n[OCR thất bại, chưa có dữ liệu trang này]`);
       }
     }
 
@@ -420,6 +427,9 @@ async function ocrScannedPdf(
       ? `\n\n[Đã OCR trang ${startPage}-${actualEnd}/${totalPages}. Muốn đọc tiếp, yêu cầu rõ phạm vi trang còn lại.]`
       : '';
 
+    const nonEmptyPages = results.filter((result) => !result.includes('[OCR không trả về dữ liệu') && !result.includes('[OCR thất bại')).length;
+    const emptyPages = results.length - nonEmptyPages;
+    log.info({ filePath, pageStart: startPage, pageEnd: actualEnd, renderedPages: pngFiles.length, nonEmptyPages, emptyPages }, 'Hoàn thành OCR chunk PDF');
     return results.join('\n\n') + suffix;
   } finally {
     // Dọn dẹp thư mục tạm

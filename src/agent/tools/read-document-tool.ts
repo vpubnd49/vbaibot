@@ -155,7 +155,9 @@ export function createReadDocumentTool(ctx: ToolContext) {
           ? `${doc.text.slice(0, maxChars)}\n[...đã cắt bớt nội dung do vượt giới hạn ${maxChars} ký tự]`
           : doc.text;
         const header = `[Nội dung file tài liệu: ${path.basename(relPath)} (${doc.fileType})]\n`;
-        return wrapUntrustedContent(`${header}${text}`, path.basename(relPath));
+        const emptyOcrPages = (text.match(/\[OCR không trả về dữ liệu|\[OCR thất bại/g) ?? []).length;
+        const pageRangeNote = pageStart || pageEnd ? `\n[Phạm vi yêu cầu: trang ${pageStart ?? 1}-${pageEnd ?? "cuối"}; số trang OCR không có dữ liệu: ${emptyOcrPages}]` : "";
+        return wrapUntrustedContent(`${header}${pageRangeNote}\n${text}`, path.basename(relPath));
       } catch (err) {
         return ketQuaLoi(`Lỗi khi đọc file tài liệu ${path.basename(relPath)}: ${String(err)}`);
       }
