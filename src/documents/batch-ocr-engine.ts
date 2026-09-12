@@ -123,14 +123,17 @@ async function withConcurrency<T>(tasks: (() => Promise<T>)[], limit: number): P
 
 // ── Vision call with retry ────────────────────────────────────────────────────
 
-async function callVision(b64: string, mime: string, prompt: string, maxTokens: number, retries = 3): Promise<string> {
+async function callVision(b64: string, mime: string, prompt: string, _maxTokens: number, retries = 3): Promise<string> {
   const { askAboutImage } = await import("../agent/vision-sidecar.js");
   const image = { base64: b64, mediaType: mime };
   for (let i = 0; i < retries; i++) {
     try {
-      return await (askAboutImage as any)(image, prompt, maxTokens);
+      // QUAN TRONG: askAboutImage(image, question) — KHONG truyen maxTokens
+      // tham so thu 3 la SidecarCaller (function), khong phai so.
+      return await (askAboutImage as any)(image, prompt);
     } catch (err) {
       const msg = String(err);
+      log.warn({ attempt: i + 1, mime, promptLen: prompt.length, err: msg }, "callVision: lan thu co loi");
       const retry = msg.includes("429") || msg.includes("rate") || msg.includes("503");
       if (!retry || i === retries - 1) throw err;
       await new Promise(r => setTimeout(r, Math.pow(2, i) * 1000));
