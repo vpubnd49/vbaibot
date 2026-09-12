@@ -25,9 +25,7 @@ const TRUONG_AN_TOAN = [
   "errno",
   "syscall",
   "statusCode",
-  "url",
   "isRetryable",
-  "responseHeaders",
 ] as const;
 
 /** Stack dài cỡ nghìn ký tự là bình thường; cắt để một dòng log không nuốt màn hình */
@@ -37,6 +35,17 @@ const STACK_TOI_DA = 2000;
 const DO_SAU_TOI_DA = 3;
 
 export type SafeError = Record<string, unknown>;
+
+const SENSITIVE_TEXT_PATTERNS: Array<[RegExp, string]> = [
+  [/https?:\/\/[^\s)]+/gi, "[URL_REDACTED]"],
+  [/(?:data:)[^\s,]+(?:,[^\s]*)?/gi, "[DATA_REDACTED]"],
+  [/(?:[A-Za-z]:\\|\/var\/|\/home\/|\/Users\/)[^\s)]+/g, "[PATH_REDACTED]"],
+  [/(?:token|secret|api[_-]?key|authorization|password)=([^\s&]+)/gi, "$1=[REDACTED]"],
+];
+
+function sanitizeErrorText(value: string): string {
+  return SENSITIVE_TEXT_PATTERNS.reduce((text, [pattern, replacement]) => text.replace(pattern, replacement), value);
+}
 
 export function serializeErrorSafely(err: unknown, doSau = 0): SafeError {
   if (err === null || err === undefined) return { message: String(err) };
@@ -61,10 +70,10 @@ export function serializeErrorSafely(err: unknown, doSau = 0): SafeError {
   // `message` của Error là non-enumerable nên vòng lặp trên không lấy được -
   // đúng cái cần đọc nhất lại là cái bị bỏ sót
   if (err instanceof Error) {
-    ra.message = err.message;
+    ra.message = sanitizeErrorText(err.message);
     ra.type = err.constructor?.name ?? "Error";
     if (err.stack) {
-      ra.stack = err.stack.length > STACK_TOI_DA ? `${err.stack.slice(0, STACK_TOI_DA)}...` : err.stack;
+      ra.stack = sanitizeErrorText(err.stack.length > STACK_TOI_DA ? `${err.stack.slice(0, STACK_TOI_DA)}...` : err.stack);
     }
   }
 

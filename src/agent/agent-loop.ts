@@ -673,31 +673,69 @@ export async function runAgentTurn({
   const layAllToolCalls = (r: typeof result) =>
     r.steps.flatMap((step) => step.toolCalls.map((call) => call.toolName));
 
-  // Chống ảo giác "đã gửi file": model trả text nhận là đã gửi/chuyển file nhưng không gọi tool
+  // Chống ảo giác "đã gửi file": model trả text nhận là đã gửi/chuyển file nhưng không gọi tool.
+  // Một lần ép gọi chưa đủ: production đã có ca model tiếp tục sinh lời hứa ở lần
+  // retry đầu (turn 4641), sau đó câu hứa vẫn đi xuống Zalo như thể file đã gửi.
+  // Lặp tối đa 3 lần và TUYỆT ĐỐI không chấp nhận câu trả lời đó nếu vẫn không có
+  // tool call gửi file thật.
   let lastStepToolCalls = result.steps.at(-1)?.toolCalls.length ?? 0;
-  if (
-    !canLuotChot({ lastStepToolCalls }) &&
-    laTinNhanAoGiacGuiFile(result.text, layAllToolCalls(result), latest.text) &&
-    lanChay < 3
-  ) {
+  for (let lanEp = 0; lanEp < 3; lanEp += 1) {
+    const allToolCalls = layAllToolCalls(result);
+    if (
+      canLuotChot({ lastStepToolCalls }) ||
+      !laTinNhanAoGiacGuiFile(result.text, allToolCalls, latest.text)
+    ) {
+      break;
+    }
+
     log.warn(
-      { text: result.text.slice(0, 150), toolCalls: layAllToolCalls(result), lanChay },
-      "Phát hiện ảo giác 'đã gửi file' nhưng không gọi tool - chạy bước ép gọi tool tạo file",
+      { text: result.text.slice(0, 150), toolCalls: allToolCalls, lanChay, lanEp: lanEp + 1 },
+      "Phát hiện ảo giác 'đã gửi file' nhưng không gọi tool - ép gọi tool tạo file",
     );
     lanChay++;
     guard.datLai();
-    // ĐẶC BIỆT: KHÔNG nối `result.response.messages` (câu trả lời ảo giác/hứa suông) vào ngữ cảnh!
-    // Nối câu ảo giác vào prompt sẽ khiến model thấy mâu thuẫn chỉ thị và câm nín (sinh rỗng).
-    // Thay vào đó, thêm lời nhắc dứt khoát và ép `toolChoice: 'required'` để model bắt buộc phải gọi tool.
+    // KHÔNG nối response.messages của câu ảo giác vào ngữ cảnh; chỉ thêm cảnh báo
+    // và ép toolChoice để model không tiếp tục tự kể tiến trình.
     messages = [
       ...messages,
-      {
-        role: "user",
-        content: taoTinNhanNhacGoiTool(latest.text),
-      },
+      { role: "user", content: taoTinNhanNhacGoiTool(latest.text) },
     ];
     result = await runOnce({ toolChoice: "required" });
     lastStepToolCalls = result.steps.at(-1)?.toolCalls.length ?? 0;
+    // Nếu tool đã được gọi nhưng input/schema lỗi, không tiếp tục coi đây là
+    // hallucination thuần túy. Lượt kế phải sửa payload theo lỗi validation;
+    // guard lặp y hệt sẽ được reset để tránh treo vô hạn.
+    const fileToolCall = result.steps.flatMap((step) => step.toolCalls).find((call) => FILE_SEND_TOOLS.has(call.toolName));
+    if (fileToolCall) {
+      const toolError = result.steps
+        .flatMap((step) => step.toolResults)
+        .find((item) => item.toolCallId === fileToolCall.toolCallId);
+      // Tool result lỗi được đánh dấu bằng nội dung `LỖI:` từ contract công cụ;
+      // không phụ thuộc shape riêng của TypedToolResult trong AI SDK.
+      const resultText = toolError && typeof toolError.output === "string" ? toolError.output : "";
+      if (!toolError || !resultText.startsWith("LỖI:")) break;
+      log.warn(
+        { tool: fileToolCall.toolName, toolCallId: fileToolCall.toolCallId },
+        "Tool xuất file đã được gọi nhưng input/execute lỗi - cho model sửa payload ở lượt kế",
+      );
+      continue;
+    }
+  }
+
+  // Nếu sau 3 lần ép mà vẫn chỉ có lời hứa, không được gửi lời hứa xuống Zalo.
+  // Trả lỗi rõ ràng để người dùng nhắn lại thay vì tưởng đã nhận được Excel.
+  if (
+    !canLuotChot({ lastStepToolCalls }) &&
+    laTinNhanAoGiacGuiFile(result.text, layAllToolCalls(result), latest.text)
+  ) {
+    log.error(
+      { toolCalls: layAllToolCalls(result), lanChay },
+      "Model vẫn không gọi tool gửi file sau 3 lần ép - chặn câu trả lời ảo giác",
+    );
+    result = {
+      ...result,
+      text: "Mình chưa tạo/gửi được file Excel vì công cụ xuất file chưa thực thi thành công. Bạn nhắn lại yêu cầu xuất file để mình thử lại.",
+    };
   }
 
   if (canLuotChot({ lastStepToolCalls })) {

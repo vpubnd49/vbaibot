@@ -13,6 +13,7 @@ import {
 import { shouldRespond } from "../middleware/allowlist-filter.js";
 import { enqueueMessage } from "../middleware/message-batcher.js";
 import { createLogger } from "../shared/logger.js";
+import { assertSafeUserRequestAudit, toUserRequestAuditEvent } from "../shared/user-request-audit.js";
 import { maybeNotifyBusyWait } from "./busy-wait-notice.js";
 import { sendDeliveredReceipt } from "./message-receipts.js";
 import { processBatch } from "./message-turn-processor.js";
@@ -86,10 +87,14 @@ export function routeIncomingMessage(
   // hẳn tin đó. Đường passive bên trên vốn đã có đúng tính chất này.
   if (!daNhan) {
     ghiVaoHistory(config.id, msg);
-    log.warn(
-      { accountId: config.id, threadId: msg.threadId },
-      "Tin bị bỏ khỏi lượt vì hàng chờ chạm trần - đã ghi vào history để bot còn biết",
-    );
+    const droppedAudit = toUserRequestAuditEvent([{
+      text: msg.text,
+      imageCount: msg.images.length,
+      files: msg.files,
+      isGroup: msg.isGroup,
+    }], { event: "user_request_dropped", dropReason: "queue_full" });
+    assertSafeUserRequestAudit(droppedAudit);
+    log.warn(droppedAudit, "Tin bị bỏ khỏi lượt vì hàng chờ chạm trần - đã ghi vào history để bot còn biết");
   }
 
   // Bot đã bận rất lâu thì nói một câu cho người ta biết vẫn đang làm. Hàm này

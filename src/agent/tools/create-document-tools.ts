@@ -53,16 +53,28 @@ async function deliverFile(
   caption: string | undefined,
 ): Promise<string> {
   const threadKey = `${ctx.account.id}:${ctx.message.threadId}`;
-  await withNamedTempFile(fileName, data, (filePath) =>
-    guiFileKemCaption(
-      ctx.api,
-      threadKey,
-      ctx.message.threadId,
-      ctx.message.threadType,
-      filePath,
-      caption,
-    ),
+  log.info(
+    { accountId: ctx.account.id, threadId: ctx.message.threadId, fileName, bytes: data.length, stage: "rendered" },
+    "Đã dựng file tự tạo, bắt đầu gửi attachment",
   );
+  try {
+    await withNamedTempFile(fileName, data, (filePath) =>
+      guiFileKemCaption(
+        ctx.api,
+        threadKey,
+        ctx.message.threadId,
+        ctx.message.threadType,
+        filePath,
+        caption,
+      ),
+    );
+  } catch (err) {
+    log.error(
+      { accountId: ctx.account.id, threadId: ctx.message.threadId, fileName, bytes: data.length, stage: "delivery", err },
+      "Gửi attachment file tự tạo thất bại",
+    );
+    throw err;
+  }
   // Vào history: tin này KHÔNG đi qua `deliverChatReply` nên không ai ghi hộ.
   // Thiếu nó thì dashboard không thấy, và lượt sau bot không nhớ đã gửi file.
   ctx.ghiNhanDaGui?.(ghiChuDaGuiFile(fileName, caption));
@@ -128,7 +140,9 @@ export function createExcelFileTool(ctx: Ctx) {
       "Hợp với báo giá, danh sách, bảng số liệu, báo cáo tổng hợp.\n" +
       'Ô trong rows: chuỗi, số, hoặc công thức dạng chuỗi "=B2*C2" (nhân 2 ô cùng dòng) / "=SUM(D2:D9)" (cộng 1 cột, đánh số coi header là dòng 1). ' +
       "Dùng công thức cho ô tính toán để người nhận sửa số là tự tính lại.\n" +
-      "VIẾT ĐẦY ĐỦ như một báo cáo thật, đừng tóm tắt cụt lủn: báo cáo tổng hợp nên tách nhiều sheet " +
+       "BẮT BUỘC gọi tool khi người dùng yêu cầu xuất Excel; không chỉ mô tả hoặc hứa hẹn. " +
+       "Cho phép rows rỗng khi người dùng yêu cầu file mẫu chỉ gồm tiêu đề và cột; nếu là báo cáo có số liệu thì điền đầy đủ các dòng. " +
+       "VIẾT ĐẦY ĐỦ như một báo cáo thật, đừng tóm tắt cụt lủn: báo cáo tổng hợp nên tách nhiều sheet " +
       "(tổng quan, chi tiết từng mục, số liệu, rủi ro/kết luận, nguồn tham khảo), mỗi sheet có title + subtitle + note, " +
       "mỗi ô mô tả trọn ý chứ không phải vài chữ. Đã bỏ công tạo file thì nội dung phải đáng để mở ra đọc.\n" +
       'MỌI chữ (tên sheet, tên file, header, nội dung) GIỮ NGUYÊN dấu tiếng Việt - viết "Tổng quan" chứ không "Tong quan".',
@@ -145,7 +159,13 @@ export function createExcelFileTool(ctx: Ctx) {
         const rate = checkDocumentRateLimit(`${ctx.account.id}:${ctx.message.threadId}`);
         if (!rate.ok) return ketQuaLoi(rate.reason);
 
-        const data = await renderXlsx(sheets as Sheet[]);
+        let data: Buffer;
+        try {
+          data = await renderXlsx(sheets as Sheet[]);
+        } catch (err) {
+          log.error({ accountId: ctx.account.id, threadId: ctx.message.threadId, fileName, stage: "render", err }, "Dựng file Excel thất bại");
+          throw err;
+        }
         return deliverFile(ctx, safeFileName(fileName, "xlsx"), data, caption);
       }),
   });

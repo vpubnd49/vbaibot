@@ -91,7 +91,7 @@ export function createReadImageTool(ctx: ToolContext, ask = askAboutImage) {
   return tool({
     description:
       "Nhìn kỹ lại ảnh đã nhận trong hội thoại bằng model đọc ảnh, với một câu hỏi cụ thể " +
-      "(đếm số lượng, đọc chữ nhỏ, xác định chi tiết, so sánh màu sắc, trích xuất bảng biểu). " +
+      "(đếm số lượng, đọc chữ nhỏ, xác định chi tiết, so sánh màu sắc, trích xuất bảng biểu). Nếu ảnh có một danh sách đầy đủ, phải đọc toàn bộ từ đầu đến cuối để chuyển sang Excel khi người dùng cần. " +
       "Dùng khi mô tả ảnh sẵn có trong hội thoại không đủ chi tiết để trả lời người dùng.\n" +
       "BATCH MODE: Khi cần đọc NHIỀU ẢNH CÙNG LÚC (trích xuất bảng biểu từ nhiều trang, " +
       "so sánh nhiều ảnh), dùng imageIndexes=[1,2,3,...] thay vì gọi tool nhiều lần — " +
@@ -113,8 +113,8 @@ export function createReadImageTool(ctx: ToolContext, ask = askAboutImage) {
         .optional()
         .describe(
           "Danh sách index ảnh cần đọc CÙNG LÚC, vd [1,2,3,4,5]. " +
-          "Khi có tham số này thì imageIndex bị bỏ qua. " +
-          "Dùng cho trích xuất bảng biểu từ nhiều trang ảnh.",
+        "Khi có tham số này thì imageIndex bị bỏ qua. " +
+        "Dùng cho trích xuất bảng biểu từ nhiều trang ảnh; với một ảnh đầy đủ danh sách cũng phải dùng imageIndexes=[1] để đọc từ đầu đến cuối.",
         ),
     }),
     execute: async ({ question, imageIndex, imageIndexes }) => {

@@ -14,6 +14,7 @@ import { forLog } from "../agent/agent-step-observer.js";
 import { finishAgentTurn, openAgentTurn } from "../conversation/usage-store.js";
 import { createLogger } from "../shared/logger.js";
 import { runInTurnLogContext } from "../shared/turn-log-context.js";
+import { assertSafeUserRequestAudit, toUserRequestAuditEvent } from "../shared/user-request-audit.js";
 import { sendSeenReceipt } from "./message-receipts.js";
 import { toZaloReaction } from "./reaction-icons.js";
 import { deliverChatReply } from "./deliver-chat-reply.js";
@@ -107,11 +108,25 @@ async function xuLyLuot(
   // mất sạch, lượt chạy tốt 5 step rồi step 6 gặp 500 không để lại dấu vết nào.
   const trace: StepTrace[] = [];
 
+  const totalImages = batch.reduce((sum, m) => sum + m.images.length, 0);
+  const totalFiles = batch.reduce((sum, m) => sum + (m.files?.length ?? 0), 0);
+  const requestAudit = toUserRequestAuditEvent(batch.map((message) => ({
+    text: message.text,
+    imageCount: message.images.length,
+    files: message.files,
+    isGroup: message.isGroup,
+  })));
+  assertSafeUserRequestAudit(requestAudit);
+  log.info(requestAudit, "Audit user request");
   log.info(
     {
       from: latest.senderName,
       batchSize: batch.length,
-      images: batch.reduce((sum, m) => sum + m.images.length, 0),
+      images: totalImages,
+      files: totalFiles,
+      requestTextLength: batch.reduce((sum, m) => sum + m.text.length, 0),
+      requestSource: "zalo-user",
+      requestClass: totalImages > 0 ? "image_or_table" : totalFiles > 0 ? "document_or_audio" : "text",
     },
     "Xử lý lượt tin nhắn",
   );
@@ -242,6 +257,16 @@ async function xuLyLuot(
     // scheduler, mà lượt theo lịch có luật `[SILENT]` riêng - lọc chung sẽ phá
     // logic đó.
     const giao = await deliverChatReply(replyTarget, config.id, latest.threadId, result.text);
+    log.info(
+      {
+        requestSource: "zalo-user",
+        requestClass: totalImages > 0 ? "image_or_table" : totalFiles > 0 ? "document_or_audio" : "text",
+        responseChars: result.text.length,
+        deliveredChars: giao.daGui.length,
+        deliveryOk: !giao.hong,
+      },
+      "Hoàn tất phản hồi người dùng",
+    );
     if (giao.hong) return;
 
     // Tự động đồng bộ câu hỏi & trả lời chất lượng cao về trung tâm huấn luyện VBAI (Fire-and-forget)
@@ -286,7 +311,18 @@ async function xuLyLuot(
       // nên để 0 và đọc số step trên trang Trace.
       finishAgentTurn(turnId, { inputTokens: 0, outputTokens: 0, totalTokens: 0, steps: trace.length });
     }
-    log.error({ err, loaiLoi, steps: trace.length }, "Lỗi xử lý lượt tin nhắn");
+    log.error(
+      {
+        err,
+        loaiLoi,
+        steps: trace.length,
+        requestSource: "zalo-user",
+        requestClass: totalImages > 0 ? "image_or_table" : totalFiles > 0 ? "document_or_audio" : "text",
+        requestTextLength: batch.reduce((sum, m) => sum + m.text.length, 0),
+        responseStatus: "technical_error",
+      },
+      "Lỗi xử lý lượt tin nhắn",
+    );
     // Báo cho người nhắn thay vì im lặng bỏ treo. KHÔNG ghi câu này vào history:
     // nó là thông báo hệ thống, để lại chỉ khiến lượt sau model neo vào tiền lệ hỏng.
     await notifyTechnicalError(replyTarget, loaiLoi);

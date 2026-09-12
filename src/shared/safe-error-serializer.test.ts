@@ -44,11 +44,11 @@ describe("serializeErrorSafely - chặn rò rỉ", () => {
     assert.equal("responseBody" in serializeErrorSafely(new ApiCallErrorGia(anh)), false);
   });
 
-  it("VẪN giữ đủ thứ để chẩn đoán", () => {
+  it("VẪN giữ đủ metadata an toàn để chẩn đoán", () => {
     const ra = serializeErrorSafely(new ApiCallErrorGia(anh));
     assert.equal(ra.message, "Too Many Requests");
     assert.equal(ra.statusCode, 429);
-    assert.match(String(ra.url), /googleapis\.com/);
+    assert.equal("url" in ra, false, "URL có thể chứa query token nên không ghi raw");
     assert.equal(ra.type, "ApiCallErrorGia");
     assert.ok(String(ra.stack).length > 0, "stack là thứ lần ra chỗ ném lỗi");
   });

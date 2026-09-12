@@ -245,7 +245,9 @@ export const sheetSchema = z.object({
   title: z.string().optional().describe('Tiêu đề lớn đầu sheet, vd "BÁO CÁO TỔNG HỢP..."'),
   subtitle: z.string().optional().describe("Dòng phụ đề nhỏ dưới tiêu đề (phạm vi, khoảng thời gian)"),
   headers: z.array(z.string()).min(1).max(20),
-  rows: z.array(z.array(spreadsheetCellSchema)).min(1),
+  rows: z
+    .array(z.array(spreadsheetCellSchema))
+    .describe("Các dòng dữ liệu; có thể để rỗng khi người dùng yêu cầu file mẫu chỉ gồm tiêu đề và cột"),
   /** Ghi chú đỏ nghiêng cuối bảng - dùng cho lưu ý quan trọng, nguồn số liệu */
   note: z.string().optional().describe("Ghi chú/lưu ý quan trọng hiện cuối bảng"),
 });

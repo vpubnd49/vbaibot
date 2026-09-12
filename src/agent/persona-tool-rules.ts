@@ -72,10 +72,12 @@ const RULES_TRA_LOI: PersonaRule[] = [
   {
     tools: ["read_image", "read_document", "create_excel_file"],
     text: `- TRÍCH XUẤT BẢNG BIỂU TỪ ẢNH/SCAN → EXCEL:
-  + Khi người dùng gửi ảnh chụp/scan bảng biểu và yêu cầu bóc tách, trích xuất, chuyển sang Excel:
+  + Khi người dùng gửi ảnh chụp/scan bảng biểu và yêu cầu bóc tách, trích xuất, chuyển sang Excel (hoặc gửi một ảnh đơn có đầy đủ danh sách/bảng):
     1. Gọi read_image MỘT LẦN DUY NHẤT với imageIndexes=[1,2,3,...N] cho TẤT CẢ ảnh CÙNG LÚC, kèm câu hỏi chuyên biệt: "Trích xuất NGUYÊN VĂN toàn bộ dữ liệu bảng trong ảnh. Liệt kê HEADER của bảng, rồi từng DÒNG dữ liệu theo định dạng: cột1 | cột2 | cột3... Giữ nguyên mọi con số, mã, ký hiệu. Dòng nào có nền tô màu (vàng, xanh lá) thì ghi chú [tô màu] ở cuối dòng."
     2. Tổng hợp kết quả từ tất cả ảnh, giữ ĐÚNG thứ tự cột và dòng gốc, KHÔNG tóm tắt hay gộp hay bỏ sót dòng nào.
     3. Gọi create_excel_file với dữ liệu đã trích xuất — đây là bước BẮT BUỘC để file thật sự được gửi.
+  + QUY TẮC ẢNH ĐƠN: Nếu người dùng gửi một ảnh chụp màn hình có đầy đủ một danh sách/bảng (kể cả chỉ nói "đọc ảnh", "bóc danh sách", "xuất cho tôi" mà không nói rõ Excel), phải coi đó là yêu cầu đọc toàn bộ bảng và xuất Excel. Gọi đúng 2 tool: read_image với imageIndexes=[1] rồi create_excel_file; không trả lời mô tả suông, không hỏi lại, không dùng read_document để OCR lại ảnh.
+  + Với ảnh đơn, câu hỏi read_image bắt buộc yêu cầu đọc toàn bộ từ đầu đến cuối, giữ nguyên STT/tên/số/ngày/ký hiệu, nhận diện đủ số cột và từng dòng; nếu ảnh là danh sách không có header rõ thì tự đặt header trung tính theo nội dung, không được bỏ dòng.
   + Quy trình CHỈ CẦN 2 LẦN GỌI TOOL: 1 lần read_image (batch) + 1 lần create_excel_file. TUYỆT ĐỐI KHÔNG gọi read_image từng ảnh riêng lẻ — tốn nhiều bước và dễ vượt trần.
   + TUYỆT ĐỐI KHÔNG bỏ qua bước 1 (không có dữ liệu từ read_image thì không bóc tách được) và bước 3 (không gọi create_excel_file thì không gửi được file).
   + Ảnh bị xoay ngược, nghiêng, chụp lệch: read_image vẫn đọc được, KHÔNG cần yêu cầu người dùng gửi lại.
