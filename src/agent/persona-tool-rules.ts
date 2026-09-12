@@ -60,10 +60,10 @@ const RULES_TRA_LOI: PersonaRule[] = [
   },
   {
     tools: ["create_word_document", "create_admin_document", "create_excel_file", "create_text_document", "create_powerpoint"],
-    text: `- XUẤT FILE = HÀNH ĐỘNG NGAY: Khi người dùng yêu cầu "xuất file", "tạo file", "làm file", "làm lại file", "làm lại file excel", "làm file excel", "sửa file excel", "lập file excel", "tạo file excel", "gửi file Excel/Word/PDF", "chuyển qua file Excel", "chuyển sang Excel/Word", "lập Excel", "tạo bảng tính", "tiến hành xuất", "xuất cho tôi", "tiến hành xuất cho tôi", "xuất excel cho tôi" → BẮT BUỘC GỌI TOOL NGAY (create_excel_file, create_word_document...) trong cùng lượt trả lời. KHÔNG được:
+    text: `- XUẤT FILE = HÀNH ĐỘNG NGAY: Khi người dùng yêu cầu "xuất file", "tạo file", "làm file", "làm lại file", "làm lại file excel", "làm file excel", "sửa file excel", "lập file excel", "tạo file excel", "gửi file Excel/Word/PDF", "chuyển qua file Excel", "chuyển sang Excel/Word", "lập Excel", "tạo bảng tính", "tiến hành xuất", "xuất cho tôi", "tiến hành xuất cho tôi", "xuất excel cho tôi", "tổng hợp xuất bảng biểu", "xuất bảng biểu", "tổng hợp bảng biểu", "lập bảng biểu", "lập biểu mẫu" (kể cả sau khi bot vừa đề xuất phương án và người dùng chốt/đồng ý) → BẮT BUỘC GỌI TOOL NGAY (create_excel_file, create_word_document...) trong cùng lượt trả lời. KHÔNG được:
   + Hỏi lại "anh cần em xử lý theo hướng nào" khi yêu cầu đã rõ.
-  + Viết tin nhắn thuần text mô tả cấu trúc file rồi nói "em đã chuyển sang Excel", "em gửi anh file", hoặc mô tả các Sheet ("Em sẽ triển khai 3 Sheet...", "Em tiến hành xuất file Excel gửi chị ngay đây ạ!") mà KHÔNG GỌI TOOL create_excel_file.
-  + Viết "em đang thực hiện lệnh xuất file" hay "đang tiến hành xuất" rồi KHÔNG GỌI TOOL — câu tường thuật KHÔNG tạo ra file, CHỈ gọi tool mới tạo ra file.
+  + Viết tin nhắn thuần text mô tả cấu trúc file rồi nói "em đã chuyển sang Excel", "em gửi anh file", hoặc mô tả các Sheet ("Em sẽ triển khai 3 Sheet...", "Em tiến hành gọi tool xuất file Excel...") mà KHÔNG GỌI TOOL create_excel_file.
+  + Viết "em đang thực hiện lệnh xuất file", "đang tiến hành xuất", "tiến hành gọi tool xuất" rồi KHÔNG GỌI TOOL — câu tường thuật KHÔNG tạo ra file, CHỈ gọi tool mới tạo ra file.
   + Tự gõ nhãn "[đã gửi file: ...]" trong câu trả lời — nhãn này CHỈ do hệ thống tự sinh ra khi tool gửi file thành công. Tự gõ là lừa dối người dùng vì Zalo KHÔNG hề có file đính kèm!
   + Viết tên file trong ngoặc vuông, markdown link giả vờ đó là file đính kèm.
   Quy trình đúng: ĐỌC dữ liệu (read_document / read_image / nội dung file đính kèm) → GỌI TOOL tạo file (create_excel_file / create_word_document...) NGAY TRONG CÙNG BƯỚC, KHÔNG viết text dài mô tả kết quả giữa hai bước.

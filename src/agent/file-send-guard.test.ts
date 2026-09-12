@@ -81,6 +81,37 @@ describe("file-send-guard", () => {
       const botText = "Em đang xuất nội dung file tài liệu thành Excel cho anh ạ.";
       assert.equal(laTinNhanAoGiacGuiFile(botText, [], userPrompt), true);
     });
+
+    // ── Hồi quy vụ 12/09/2026: 'tổng hợp xuất bảng biểu' & 'Em tiến hành gọi tool xuất file' ──
+
+    it("bắt câu 'Em tiến hành gọi tool xuất file Excel cho anh ngay đây ạ!' khi không gọi tool", () => {
+      const text = "Em tiến hành gọi tool xuất file Excel cho anh ngay đây ạ!";
+      assert.equal(laTinNhanAoGiacGuiFile(text, []), true);
+    });
+
+    it("bắt câu 'em sẽ xuất một **File Excel Quản lý Tiến độ** chuyên nghiệp' có markdown bold", () => {
+      const text = "Dạ anh Châu, em sẽ thực hiện ngay. Em sẽ xuất một **File Excel Quản lý Tiến độ** chuyên nghiệp.";
+      assert.equal(laTinNhanAoGiacGuiFile(text, []), true);
+    });
+
+    it("bắt ca người dùng yêu cầu 'tổng hợp xuất bảng biểu' và bot mô tả cấu trúc các Sheet nhưng không gọi tool", () => {
+      const userPrompt = "tổng hợp xuất bảng biểu";
+      const botText = `Dạ anh Châu, em sẽ thực hiện ngay. Để biến nội dung kết luận thành công cụ quản lý thực tế, em sẽ xuất một **File Excel Quản lý Tiến độ** chuyên nghiệp.
+
+Thay vì chỉ là một bảng liệt kê, em thiết kế file này thành một hệ thống theo dõi (Tracking System) để Công an tỉnh có thể dùng làm mẫu yêu cầu các Sở, Ngành báo cáo.
+
+**Cấu trúc File Excel em sẽ xuất:**
+
+1. **Sheet "Tổng hợp báo cáo":**
+- Bảng thống kê số lượng nhiệm vụ: **Đã hoàn thành** | **Trễ hạn** | **Chưa hoàn thành**.
+- Phân loại lý do trễ: Chủ quan | Phụ thuộc Trung ương.
+
+2. **Sheet "Chi tiết 60 Nhiệm vụ":**
+- Cột thông tin: STT | Tên nhiệm vụ | Sở/Ngành chủ trì | Hạn định (30/11).
+
+Em tiến hành gọi tool xuất file Excel cho anh ngay đây ạ!`;
+      assert.equal(laTinNhanAoGiacGuiFile(botText, [], userPrompt), true);
+    });
   });
 
   describe("xoaNhanAoGiacGuiFile", () => {
