@@ -242,6 +242,38 @@ function boLatex(text: string, daSua: string[]): string {
 
   let ra = text;
 
+  // Bước 0: Xử lý lệnh LaTeX CẤU TRÚC (có ngoặc {}) trước khi thay ký tự.
+  // Chạy 2 lần để xử lý nested (ví dụ: \frac{1}{3} bên trong $...$).
+  for (let pass = 0; pass < 2; pass++) {
+    // \frac{tử}{mẫu} và \dfrac{tử}{mẫu} → tử/mẫu
+    ra = ra.replace(/\\(?:d|c)?frac\{([^{}]*)\}\{([^{}]*)\}/g, (_m, t: string, m: string) =>
+      `${t.trim()}/${m.trim()}`);
+    // \sqrt{n} → √n (√ đã trong LATEX_KY_TU nhưng \sqrt{...} có {})
+    ra = ra.replace(/\\sqrt\{([^{}]*)\}/g, (_m, c: string) => `√${c.trim()}`);
+    // \text{nội dung} → nội dung (bỏ wrapper, giữ chữ bên trong)
+    ra = ra.replace(/\\(?:text|mathrm|mathbf|mathit|mbox)\{([^{}]*)\}/g, (_m, c: string) => c);
+    // ^{...} → (dùng Unicode sup nếu là 1 ký tự số/chữ, không thì để nguyên)
+    ra = ra.replace(/\^\{([^{}]{1,3})\}/g, (_m, c: string) => {
+      const SUP: Record<string, string> = {
+        "0": "⁰","1": "¹","2": "²","3": "³","4": "⁴","5": "⁵",
+        "6": "⁶","7": "⁷","8": "⁸","9": "⁹","n": "ⁿ","T": "ᵀ",
+      };
+      return c.length === 1 && SUP[c] ? SUP[c] : `^${c}`;
+    });
+    // ^2 ^3 không có {} — hay gặp kiểu m^2
+    ra = ra.replace(/\^([0-9n])/g, (_m, c: string) => {
+      const SUP: Record<string, string> = {
+        "0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵",
+        "6":"⁶","7":"⁷","8":"⁸","9":"⁹","n":"ⁿ",
+      };
+      return SUP[c] ?? `^${c}`;
+    });
+    // \left( \right) \left[ \right] → bỏ \left \right, giữ dấu ngoặc
+    ra = ra.replace(/\\(?:left|right)\s*([([{\])}|.]?)/g, (_m, br: string) => br);
+    // \displaystyle \textstyle \scriptstyle → remove
+    ra = ra.replace(/\\(?:display|text|script|scriptscript)style\s*/g, "");
+  }
+
   // Bước 1: Thay thế ký tự LaTeX bên trong và bên ngoài dấu $
   for (const [re, ky] of LATEX_KY_TU) {
     ra = ra.replace(re, ky);
