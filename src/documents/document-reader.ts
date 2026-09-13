@@ -336,8 +336,10 @@ async function ocrScannedImage(filePath: string, ext: string): Promise<string> {
 
   try {
     log.info({ filePath, ext, mediaType }, 'Bắt đầu OCR file ảnh tài liệu scan');
-    const ocrText = await visionModule.askAboutImage(sidecarImage, OCR_PROMPT);
-    return ocrText.trim() || '[Ảnh scan không có chữ hoặc chữ quá mờ không nhận dạng được.]';
+    const result = await visionModule.callVisionForBatchOcr(sidecarImage.base64, sidecarImage.mediaType, OCR_PROMPT);
+    const ocrText = result.text.trim();
+    const suffix = result.truncated ? '\n\n[Nội dung còn tiếp theo nhưng đã chạm giới hạn OCR — trang rất dài. Nhắn lại nếu cần phần tiếp theo.]' : '';
+    return (ocrText || '[Ảnh scan không có chữ hoặc chữ quá mờ không nhận dạng được.]') + suffix;
   } catch (err) {
     const errMsg = err instanceof Error ? err.message : String(err);
     log.warn({ filePath, err }, 'OCR file ảnh scan thất bại');
@@ -411,13 +413,13 @@ async function ocrScannedPdf(
       };
 
       try {
-        const pageText = await visionModule.askAboutImage(sidecarImage, OCR_PROMPT);
-        const normalizedText = pageText.trim();
+        const result = await visionModule.callVisionForBatchOcr(sidecarImage.base64, sidecarImage.mediaType, OCR_PROMPT);
+        const normalizedText = result.text.trim();
         const pageResult = normalizedText && !/^\[.*không.*(chữ|đọc được).*\]$/i.test(normalizedText)
-          ? normalizedText
+          ? normalizedText + (result.truncated ? '\n[Trang còn tiếp nhưng đã chạm giới hạn OCR]' : '')
           : '[OCR không trả về dữ liệu văn bản cho trang này]';
         results.push(`--- Trang ${pageNumber}/${totalPages} ---\n${pageResult}`);
-        log.info({ page: pageNumber, chars: normalizedText.length, ocrEmpty: !normalizedText }, 'OCR xong trang PDF');
+        log.info({ page: pageNumber, chars: normalizedText.length, truncated: result.truncated, ocrEmpty: !normalizedText }, 'OCR xong trang PDF');
       } catch (err) {
         log.warn({ page: pageNumber, err }, 'OCR trang PDF thất bại');
         results.push(`--- Trang ${pageNumber}/${totalPages} ---\n[OCR thất bại, chưa có dữ liệu trang này]`);
