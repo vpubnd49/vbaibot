@@ -19,7 +19,7 @@ describe("transcribeAudioFile", () => {
       assert.equal((init?.headers as Record<string, string>).Authorization, "Bearer test-key");
       assert.ok(init?.body instanceof FormData);
       const body = init.body as FormData;
-      assert.equal(body.get("model"), "whisper-test");
+       assert.equal(body.get("model"), "gemini-2.5-flash");
       assert.equal(body.get("language"), "vi");
       assert.equal(body.get("response_format"), "json");
       return new Response(JSON.stringify({ text: "  Xin chào tiếng Việt  " }), { status: 200 });
@@ -29,11 +29,11 @@ describe("transcribeAudioFile", () => {
       const result = await transcribeAudioFile(audioPath, "ghi-am.mp3", {
         baseUrl: "https://stt.test/v1",
         apiKey: "test-key",
-        model: "whisper-test",
+         model: "omni/antigravity/gemini-3.8-flash-high",
         language: "vi",
         protocol: "transcriptions",
       });
-      assert.deepEqual(result, { text: "Xin chào tiếng Việt", provider: "openai-compatible", model: "whisper-test" });
+      assert.deepEqual(result, { text: "Xin chào tiếng Việt", provider: "openai-compatible", model: "gemini-2.5-flash" });
       assert.equal(request?.url, "https://stt.test/v1/audio/transcriptions");
     } finally {
       globalThis.fetch = originalFetch;

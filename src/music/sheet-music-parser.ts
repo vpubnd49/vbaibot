@@ -1,6 +1,6 @@
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { streamText } from "ai";
-import { getVisionSettings } from "../config/runtime-vision-settings.js";
+import { getVisionSettings, isSidecarConfigured } from "../config/runtime-vision-settings.js";
 import { chayStream } from "../agent/stream-text-result.js";
 import { DOCUMENT_EXTRACTION_MODEL } from "../config/model-roles.js";
 
@@ -19,7 +19,7 @@ export async function parseSheetMusic(image: { base64: string; mediaType: string
   const apiKey = vision.sidecar.apiKey;
   const modelName = DOCUMENT_EXTRACTION_MODEL;
 
-  if (!baseUrl || !apiKey || !modelName) {
+  if (!isSidecarConfigured(vision) || !baseUrl || !apiKey) {
     throw new Error("Chưa cấu hình API key/Base URL/Model để đọc ảnh.");
   }
 

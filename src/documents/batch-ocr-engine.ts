@@ -58,14 +58,23 @@ export type OcrStats = {
 // ── Supported extensions ─────────────────────────────────────────────────────
 
 const IMAGE_EXTS = new Set([".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".tif", ".heic", ".webp"]);
-const DOC_EXTS   = new Set([".pdf", ".docx", ".doc", ".xlsx", ".xls", ".ods", ".csv", ".txt", ".md"]);
+const DOC_EXTS   = new Set([
+  ".pdf", ".docx", ".doc", ".xlsx", ".xls", ".ods", ".csv", ".tsv", ".txt", ".md",
+  ".json", ".xml", ".html", ".htm", ".rtf",
+]);
 const ALL_EXTS   = new Set([...IMAGE_EXTS, ...DOC_EXTS, ".zip"]);
 
 function isSupported(filePath: string, extensions?: string[]): boolean {
   const ext = path.extname(filePath).toLowerCase();
   // ZIP duoc chap nhan nhu la container — chay magic bytes check
   if (ext === ".zip" || isZipFile(filePath)) return true;
-  if (extensions?.length) return extensions.includes(ext);
+  if (extensions?.length) {
+    const allowed = extensions.map((value) => {
+      const normalized = value.trim().toLowerCase();
+      return normalized.startsWith(".") ? normalized : `.${normalized}`;
+    });
+    return allowed.includes(ext);
+  }
   return ALL_EXTS.has(ext);
 }
 
@@ -110,6 +119,7 @@ const AUTO_PROMPT =
 
 async function withConcurrency<T>(tasks: (() => Promise<T>)[], limit: number): Promise<T[]> {
   const results: T[] = new Array(tasks.length);
+  limit = Math.max(1, Math.floor(limit));
   let next = 0;
   const run = async (): Promise<void> => {
     while (next < tasks.length) {
@@ -127,7 +137,7 @@ async function callVision(b64: string, mime: string, prompt: string, _maxTokens:
   const { callVisionForBatchOcr } = await import("../agent/vision-sidecar.js");
   for (let i = 0; i < retries; i++) {
     try {
-      const { text, truncated } = await callVisionForBatchOcr(b64, mime, prompt);
+      const { text, truncated } = await callVisionForBatchOcr(b64, mime, prompt, _maxTokens);
       if (truncated) {
         log.warn({ attempt: i + 1, mime, chars: text.length }, "callVision: response bi truncate - JSON co the bi cat");
       }
@@ -291,8 +301,8 @@ async function processPdfFile(fp: string, cfg: OcrConfig): Promise<OcrPageResult
 async function processDocFile(fp: string): Promise<OcrPageResult[]> {
   try {
     const { readDocument } = await import("./document-reader.js");
-    const r = await readDocument(fp);
-    return [{ filePath: fp, text: r.text }];
+     const r = await readDocument(fp);
+     return [{ filePath: fp, text: r.text, ...(r.error ? { error: r.error } : {}) }];
   } catch (err) { return [{ filePath: fp, error: String(err) }]; }
 }
 
@@ -414,11 +424,17 @@ export async function batchOcr(
     .map(p => `--- ${path.basename(p.filePath)}${p.pageNum ? ` Trang ${p.pageNum}` : ""} ---\n${p.text}`)
     .join("\n\n");
 
+  // Một PDF scan tạo nhiều page result nhưng vẫn chỉ là một file.
+  // Với ZIP, filePath của page là file con; stats phản ánh số file đầu vào.
+  const fileStatuses = filePaths.map((fp) => {
+    const pages = allPages.filter((page) => page.filePath === fp);
+    return pages.length > 0 && pages.some((page) => !page.error);
+  });
   const stats: OcrStats = {
     totalFiles: filePaths.length,
-    processedFiles: allPages.filter(p => !p.error).length,
+    processedFiles: fileStatuses.filter(Boolean).length,
     totalRows: allRows.length,
-    failedFiles: allPages.filter(p => p.error).length,
+    failedFiles: fileStatuses.filter((ok) => !ok).length,
     durationMs: Date.now() - t0,
   };
   log.info(stats, "Hoan thanh batch OCR");

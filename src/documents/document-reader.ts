@@ -73,6 +73,8 @@ export type DocumentContent = {
   truncated: boolean;
   originalLength: number;
   fileType: string;
+  /** Lỗi kỹ thuật nếu không đọc được; text vẫn giữ thông báo tương thích caller cũ. */
+  error?: string;
 };
 
 const SUPPORTED_EXTENSIONS = [
@@ -92,6 +94,7 @@ export async function readDocument(filePath: string, options: DocumentReadOption
   const ext = path.extname(filePath).toLowerCase() as SupportedExtension;
   let text = '';
   let pageCount: number | undefined;
+  let readError: string | undefined;
 
   try {
     switch (ext) {
@@ -292,6 +295,7 @@ export async function readDocument(filePath: string, options: DocumentReadOption
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     log.error({ err: error, filePath }, `Lỗi khi đọc file document`);
+    readError = errorMessage;
     text = `Lỗi khi đọc nội dung file: ${errorMessage}`;
   }
 
@@ -301,6 +305,7 @@ export async function readDocument(filePath: string, options: DocumentReadOption
     truncated: false,
     originalLength: text.length,
     fileType: ext,
+    ...(readError ? { error: readError } : {}),
   };
 }
 

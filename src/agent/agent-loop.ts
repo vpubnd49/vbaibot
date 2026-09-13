@@ -46,6 +46,7 @@ import {
   xoaNhanAoGiacGuiFile,
 } from "./file-send-guard.js";
 import { getFailedActions, guardFailedActionReply } from "./action-result-guard.js";
+import { laKetQuaLoi } from "./tools/tool-failure-result.js";
 
 // Re-export để test và mọi call site cũ vẫn import từ "agent-loop.js" như trước
 export { canLuotChot, hitStepLimit, isEmptyRouterCompletion, nhanLyDoDung, vuotTranToken };
@@ -711,10 +712,9 @@ export async function runAgentTurn({
       const toolError = result.steps
         .flatMap((step) => step.toolResults)
         .find((item) => item.toolCallId === fileToolCall.toolCallId);
-      // Tool result lỗi được đánh dấu bằng nội dung `LỖI:` từ contract công cụ;
-      // không phụ thuộc shape riêng của TypedToolResult trong AI SDK.
-      const resultText = toolError && typeof toolError.output === "string" ? toolError.output : "";
-      if (!toolError || !resultText.startsWith("LỖI:")) break;
+      // Tool result lỗi dùng contract object `{ ok: false, loi }`; không dò
+      // tiền tố tiếng Việt vì nội dung lỗi có thể thay đổi và dễ bị hiểu sai.
+      if (!toolError || !laKetQuaLoi(toolError.output)) break;
       log.warn(
         { tool: fileToolCall.toolName, toolCallId: fileToolCall.toolCallId },
         "Tool xuất file đã được gọi nhưng input/execute lỗi - cho model sửa payload ở lượt kế",

@@ -42,6 +42,8 @@ export type SpeechToTextResult = {
 export type SpeechToTextOptions = {
   baseUrl?: string;
   apiKey?: string;
+  /** Deprecated: retained for source compatibility but always ignored. */
+  model?: string;
   protocol?: "audio-chat" | "transcriptions";
   language?: string;
   timeoutMs?: number;

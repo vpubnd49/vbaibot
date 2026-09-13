@@ -73,7 +73,7 @@ describe("runtime-vision-settings", () => {
     const after = store.clearSidecarSettings();
     assert.equal(store.isSidecarConfigured(after), false);
     assert.equal(after.sidecar.baseUrl, "");
-    assert.equal(after.sidecar.model, "");
+    assert.equal(after.sidecar.model, DOCUMENT_EXTRACTION_MODEL);
     assert.equal(after.sidecar.apiKey, "", "key phải bị gỡ khỏi DB");
     // Không đụng tới mode - xóa sidecar khác với đổi cách phát hiện vision
     assert.equal(after.mode, store.getVisionSettings().mode);
@@ -85,6 +85,6 @@ describe("runtime-vision-settings", () => {
     store.updateVisionSettings({ sidecarBaseUrl: "", sidecarModel: "" });
     const s = store.getVisionSettings();
     assert.equal(s.sidecar.baseUrl, "");
-    assert.equal(s.sidecar.model, "");
+    assert.equal(s.sidecar.model, DOCUMENT_EXTRACTION_MODEL);
   });
 });

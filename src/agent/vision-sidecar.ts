@@ -74,6 +74,7 @@ export type SidecarCaller = (
   settings: VisionSidecarSettings,
   image: SidecarImage,
   prompt: string,
+  maxTokens?: number,
 ) => Promise<SidecarResult>;
 
 /** Đường gọi thật - tách ra để test tiêm caller giả, không chạm mạng */
@@ -89,7 +90,7 @@ const defaultCaller: SidecarCaller = async (settings, image, prompt) => {
   // lời gọi LLM non-stream nào" rẻ hơn việc nhớ chỗ nào đang được miễn và vì sao.
   const result = await chayStream((onError) =>
     streamText({
-      model: provider(settings.model),
+        model: provider(DOCUMENT_EXTRACTION_MODEL),
       messages: [
         {
           role: "user",
@@ -137,7 +138,7 @@ export async function describeImage(
     // Mô tả cụt vẫn DÙNG được cho lượt này (có còn hơn không), nhưng TUYỆT ĐỐI
     // không cache: bản cụt sẽ sống mãi và mọi lượt sau đều đọc phải nó
     if (image.cacheKey && !truncated) {
-      saveImageDescription(image.cacheKey, description, settings.sidecar.model);
+      saveImageDescription(image.cacheKey, description, DOCUMENT_EXTRACTION_MODEL);
     }
     if (truncated) {
       log.warn(
@@ -146,7 +147,7 @@ export async function describeImage(
       );
     } else {
       log.info(
-        { cacheKey: image.cacheKey, model: settings.sidecar.model, chars: description.length },
+        { cacheKey: image.cacheKey, model: DOCUMENT_EXTRACTION_MODEL, chars: description.length },
         "Sidecar đã mô tả ảnh",
       );
     }
@@ -193,7 +194,7 @@ const askDefaultCaller: SidecarCaller = async (settings, image, prompt) => {
   });
   const result = await chayStream((onError) =>
     streamText({
-      model: provider(settings.model),
+        model: provider(DOCUMENT_EXTRACTION_MODEL),
       messages: [
         {
           role: "user",
@@ -215,9 +216,9 @@ const askDefaultCaller: SidecarCaller = async (settings, image, prompt) => {
  * Caller chuyên dụng cho batch OCR:
  * - KHÔNG thêm Vietnamese wrapper — prompt thẳng → JSON only → không truncate
  * - Token cao nhất (BATCH_OCR_MAX_TOKENS = 8192)
- * - Dùng VISION_ENDPOINT (9router.flowgiare.com) giống defaultCaller/askDefaultCaller
+ * - Dùng credentials sidecar runtime và model extraction policy cố định
  */
-const batchOcrCaller: SidecarCaller = async (settings, image, prompt) => {
+const batchOcrCaller: SidecarCaller = async (settings, image, prompt, maxTokens = BATCH_OCR_MAX_TOKENS) => {
   const provider = createOpenAICompatible({
     name: "vision-sidecar",
     baseURL: settings.baseUrl,
@@ -225,7 +226,7 @@ const batchOcrCaller: SidecarCaller = async (settings, image, prompt) => {
   });
   const result = await chayStream((onError) =>
     streamText({
-      model: provider(settings.model),
+        model: provider(DOCUMENT_EXTRACTION_MODEL),
       messages: [
         {
           role: "user",
@@ -235,7 +236,7 @@ const batchOcrCaller: SidecarCaller = async (settings, image, prompt) => {
           ],
         },
       ],
-      maxOutputTokens: BATCH_OCR_MAX_TOKENS,
+      maxOutputTokens: maxTokens,
       maxRetries: 1,
       onError,
     }),
@@ -256,12 +257,18 @@ export async function callVisionForBatchOcr(
   b64: string,
   mime: string,
   prompt: string,
+  maxTokens = BATCH_OCR_MAX_TOKENS,
 ): Promise<{ text: string; truncated: boolean }> {
   const settings = getVisionSettings();
   if (!isSidecarConfigured(settings)) {
     throw new Error("Vision sidecar chua cau hinh — thieu baseUrl, model hoac apiKey");
   }
-  return batchOcrCaller(settings.sidecar, { base64: b64, mediaType: mime }, prompt);
+  return batchOcrCaller(
+    { ...settings.sidecar, model: DOCUMENT_EXTRACTION_MODEL },
+    { base64: b64, mediaType: mime },
+    prompt,
+    maxTokens,
+  );
 }
 
 export async function askAboutImage(

@@ -46,7 +46,12 @@ async function main() {
     model: effective.model,
     hasOverride: effective.hasOverride,
   });
-  console.log("Cấu hình Google bổ sung:", getGoogleSettings());
+  const googleSettings = getGoogleSettings();
+  console.log("Cấu hình Google bổ sung:", {
+    baseUrl: googleSettings.baseUrl,
+    model: googleSettings.model,
+    apiKey: googleSettings.apiKey ? "*** đã cấu hình ***" : "chưa cấu hình",
+  });
   console.log("Cấu hình Vision Sidecar:", getVisionSettings());
 
   console.log("Đang kiểm tra kết nối gọi model chat chính...");

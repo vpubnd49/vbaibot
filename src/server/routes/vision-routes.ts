@@ -6,6 +6,7 @@ import {
   updateVisionSettings,
 } from "../../config/runtime-vision-settings.js";
 import { createLogger } from "../../shared/logger.js";
+import { DOCUMENT_EXTRACTION_MODEL } from "../../config/model-roles.js";
 
 const log = createLogger("vision-routes");
 
@@ -13,7 +14,7 @@ const updateSchema = z.object({
   mode: z.enum(["auto", "on", "off"]).optional(),
   // Chuỗi rỗng tường minh = xóa (quay về env)
   sidecarBaseUrl: z.union([z.string().startsWith("http"), z.literal("")]).optional(),
-  sidecarModel: z.string().optional(),
+  sidecarModel: z.literal(DOCUMENT_EXTRACTION_MODEL).optional(),
   // Bỏ trống (undefined) = giữ key; chuỗi rỗng = xóa key
   sidecarApiKey: z.string().optional(),
 });

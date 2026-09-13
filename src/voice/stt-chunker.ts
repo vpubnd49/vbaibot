@@ -4,6 +4,7 @@ import path from "node:path";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { createLogger } from "../shared/logger.js";
+import { AUDIO_TRANSCRIPTION_MODEL } from "../config/model-roles.js";
 import type { SpeechToTextResult } from "./stt-client.js";
 
 const execFileAsync = promisify(execFile);
@@ -63,7 +64,7 @@ export async function transcribeLongAudio(
   filePath: string,
   fileName: string,
   apiKey: string,
-  model = "gemini-2.5-flash",
+  model = AUDIO_TRANSCRIPTION_MODEL,
   baseUrl = "https://generativelanguage.googleapis.com/v1beta",
 ): Promise<SpeechToTextResult | null> {
   const stats = fs.statSync(filePath);

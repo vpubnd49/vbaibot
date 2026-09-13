@@ -22,7 +22,8 @@ const log = createLogger("zip-extractor");
 // Dinh dang duoc phep giai nen va OCR
 const ALLOWED_EXTS = new Set([
   ".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".tif", ".heic", ".webp",
-  ".pdf", ".docx", ".doc", ".xlsx", ".xls", ".ods", ".csv", ".txt", ".md",
+  ".pdf", ".docx", ".doc", ".xlsx", ".xls", ".ods", ".csv", ".tsv", ".txt", ".md",
+  ".json", ".xml", ".html", ".htm", ".rtf",
 ]);
 
 // Bo qua cac file he thong nen trong ZIP (macOS/Windows metadata)
