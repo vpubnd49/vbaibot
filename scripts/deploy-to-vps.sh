@@ -61,7 +61,7 @@ pnpm build:web
 
 echo "=== 4. Cấu hình file .env trên VPS ==="
 if [ ! -f "$APP_DIR/.env" ]; then
-    cat > "$APP_DIR/.env" << 'EOF'
+    cat > "$APP_DIR/.env" << EOF
 NODE_ENV=production
 DATA_DIR=./data
 

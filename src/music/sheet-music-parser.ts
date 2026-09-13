@@ -1,8 +1,8 @@
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { streamText } from "ai";
 import { getVisionSettings } from "../config/runtime-vision-settings.js";
-import { getEffectiveLlmSettings } from "../config/runtime-llm-settings.js";
 import { chayStream } from "../agent/stream-text-result.js";
+import { DOCUMENT_EXTRACTION_MODEL } from "../config/model-roles.js";
 
 export type SheetMusicInfo = {
   title?: string;
@@ -15,11 +15,9 @@ export type SheetMusicInfo = {
 
 export async function parseSheetMusic(image: { base64: string; mediaType: string }): Promise<SheetMusicInfo> {
   const vision = getVisionSettings();
-  const llm = getEffectiveLlmSettings();
-
-  const baseUrl = vision.sidecar.baseUrl || llm.baseUrl;
-  const apiKey = vision.sidecar.apiKey || llm.apiKey;
-  const modelName = vision.sidecar.model || llm.model;
+  const baseUrl = vision.sidecar.baseUrl;
+  const apiKey = vision.sidecar.apiKey;
+  const modelName = DOCUMENT_EXTRACTION_MODEL;
 
   if (!baseUrl || !apiKey || !modelName) {
     throw new Error("Chưa cấu hình API key/Base URL/Model để đọc ảnh.");

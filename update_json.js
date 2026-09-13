@@ -1,7 +1,12 @@
-import fs from 'fs';
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
-const filePath = 'e:/OneDrive/HSCV/Antigravity/zaloagent/src/legal/data/administrative-divisions-2025.json';
-const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+const filePath = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "src/legal/data/administrative-divisions-2025.json",
+);
+const data = JSON.parse(fs.readFileSync(filePath, "utf8"));
 
 let added = 0;
 
@@ -49,7 +54,8 @@ if (daNang) {
 }
 
 // Quảng Trị, Quảng Ngãi, Khánh Hòa, Bà Rịa - Vũng Tàu, Kiên Giang
-const findProvince = (name) => data.provinces.find(p => p.name.includes(name) || p.old_names.includes(name));
+const findProvince = (name) =>
+  data.provinces.find((p) => p.name.includes(name) || (p.old_names ?? []).includes(name));
 
 const khanhHoa = findProvince("Khánh Hòa");
 if (khanhHoa) {

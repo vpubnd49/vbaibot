@@ -66,7 +66,8 @@ export function getVisionSettings(): VisionSettings {
       : env.LLM_VISION_MODE;
   const sidecarApiKey = readSidecarApiKey();
   const sidecarBaseUrl = read(SIDECAR_BASE_URL_KEY) ?? env.VISION_SIDECAR_BASE_URL;
-  const sidecarModel = read(SIDECAR_MODEL_KEY) ?? env.VISION_SIDECAR_MODEL;
+  // Model extraction là policy cố định; không cho DB/env/UI đổi sang model khác.
+  const sidecarModel = DOCUMENT_EXTRACTION_MODEL;
 
   if (!sidecarApiKey && !sidecarBaseUrl) {
     const google = getGoogleSettings();

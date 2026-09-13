@@ -32,6 +32,7 @@ export const FILE_SEND_TOOLS = new Set([
   "create_video",
   "qppl_lamdong",
   "thanhtra_lamdong",
+  "ocr_folder_to_file",
 ]);
 
 /** Nhãn giả mạo do model tự gõ nhại theo history */

@@ -11,7 +11,7 @@ import {
   saveImageDescription,
 } from "../conversation/image-description-store.js";
 import { createLogger } from "../shared/logger.js";
-import { VISION_ENDPOINT } from "../config/model-roles.js";
+import { DOCUMENT_EXTRACTION_MODEL } from "../config/model-roles.js";
 
 /**
  * "Mắt thuê" cho model chính không đọc được ảnh: gọi model vision phụ (thường
@@ -77,11 +77,11 @@ export type SidecarCaller = (
 ) => Promise<SidecarResult>;
 
 /** Đường gọi thật - tách ra để test tiêm caller giả, không chạm mạng */
-const defaultCaller: SidecarCaller = async (_settings, image, prompt) => {
+const defaultCaller: SidecarCaller = async (settings, image, prompt) => {
   const provider = createOpenAICompatible({
     name: "vision-sidecar",
-    baseURL: VISION_ENDPOINT.baseUrl,
-    apiKey: VISION_ENDPOINT.apiKey,
+    baseURL: settings.baseUrl,
+    apiKey: settings.apiKey,
   });
   // Streaming như mọi lời gọi LLM khác trong dự án. Sidecar hiện trỏ thẳng
   // Gemini nên không dính 524 của Cloudflare, NHƯNG base URL là thứ chỉnh được
@@ -89,7 +89,7 @@ const defaultCaller: SidecarCaller = async (_settings, image, prompt) => {
   // lời gọi LLM non-stream nào" rẻ hơn việc nhớ chỗ nào đang được miễn và vì sao.
   const result = await chayStream((onError) =>
     streamText({
-      model: provider(VISION_ENDPOINT.model),
+      model: provider(settings.model),
       messages: [
         {
           role: "user",
@@ -128,7 +128,11 @@ export async function describeImage(
   if (!isSidecarConfigured(settings)) return null;
 
   try {
-    const { text: description, truncated } = await call(settings.sidecar, image, DESCRIBE_PROMPT);
+    const { text: description, truncated } = await call(
+      { ...settings.sidecar, model: DOCUMENT_EXTRACTION_MODEL },
+      image,
+      DESCRIBE_PROMPT,
+    );
     if (!description) return null;
     // Mô tả cụt vẫn DÙNG được cho lượt này (có còn hơn không), nhưng TUYỆT ĐỐI
     // không cache: bản cụt sẽ sống mãi và mọi lượt sau đều đọc phải nó
@@ -181,15 +185,15 @@ export async function ensureDescriptionsFor(
  */
 
 /** Caller riêng cho askAboutImage: cùng logic defaultCaller nhưng trần token cao hơn */
-const askDefaultCaller: SidecarCaller = async (_settings, image, prompt) => {
+const askDefaultCaller: SidecarCaller = async (settings, image, prompt) => {
   const provider = createOpenAICompatible({
     name: "vision-sidecar",
-    baseURL: VISION_ENDPOINT.baseUrl,
-    apiKey: VISION_ENDPOINT.apiKey,
+    baseURL: settings.baseUrl,
+    apiKey: settings.apiKey,
   });
   const result = await chayStream((onError) =>
     streamText({
-      model: provider(VISION_ENDPOINT.model),
+      model: provider(settings.model),
       messages: [
         {
           role: "user",
@@ -213,15 +217,15 @@ const askDefaultCaller: SidecarCaller = async (_settings, image, prompt) => {
  * - Token cao nhất (BATCH_OCR_MAX_TOKENS = 8192)
  * - Dùng VISION_ENDPOINT (9router.flowgiare.com) giống defaultCaller/askDefaultCaller
  */
-const batchOcrCaller: SidecarCaller = async (_settings, image, prompt) => {
+const batchOcrCaller: SidecarCaller = async (settings, image, prompt) => {
   const provider = createOpenAICompatible({
     name: "vision-sidecar",
-    baseURL: VISION_ENDPOINT.baseUrl,
-    apiKey: VISION_ENDPOINT.apiKey,
+    baseURL: settings.baseUrl,
+    apiKey: settings.apiKey,
   });
   const result = await chayStream((onError) =>
     streamText({
-      model: provider(VISION_ENDPOINT.model),
+      model: provider(settings.model),
       messages: [
         {
           role: "user",
@@ -272,7 +276,11 @@ export async function askAboutImage(
   const prompt =
     "Trả lời câu hỏi sau về ảnh bằng tiếng Việt, chính xác theo những gì nhìn thấy, " +
     `không suy diễn thông tin không có trong ảnh: ${question}`;
-  const { text: answer, truncated } = await call(settings.sidecar, image, prompt);
+  const { text: answer, truncated } = await call(
+    { ...settings.sidecar, model: DOCUMENT_EXTRACTION_MODEL },
+    image,
+    prompt,
+  );
   log.info(
     { model: settings.sidecar.model, question: question.slice(0, 100), chars: answer.length, truncated },
     "Sidecar trả lời câu hỏi về ảnh",

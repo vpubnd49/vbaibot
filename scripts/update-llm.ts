@@ -4,6 +4,7 @@ import { updateGoogleSettings, getGoogleSettings } from "../src/config/runtime-g
 import { resolveLanguageModel } from "../src/agent/llm-provider.js";
 import { streamText } from "ai";
 import { chayStream } from "../src/agent/stream-text-result.js";
+import { AUDIO_TRANSCRIPTION_MODEL, DOCUMENT_EXTRACTION_MODEL } from "../src/config/model-roles.js";
 
 async function main() {
   const mainProvider = process.env.LLM_PROVIDER || "openai-compatible";
@@ -12,7 +13,7 @@ async function main() {
   const mainApiKey = process.env.LLM_API_KEY || "";
 
   const googleBaseUrl = process.env.GOOGLE_BASE_URL || "https://generativelanguage.googleapis.com/v1beta/openai";
-  const googleModel = process.env.GOOGLE_MODEL || "gemini-2.5-flash";
+  const googleModel = process.env.GOOGLE_MODEL || AUDIO_TRANSCRIPTION_MODEL;
   const googleApiKey = process.env.GOOGLE_API_KEY || "";
 
   console.log("1. Cấu hình LLM CHAT CHÍNH (9Router)...");
@@ -23,7 +24,7 @@ async function main() {
     apiKey: mainApiKey,
   });
 
-  console.log("2. Cấu hình GOOGLE GEMINI BỔ SUNG (STT & OCR/Vision)...");
+  console.log("2. Cấu hình GOOGLE GEMINI BỔ SUNG (STT)...");
   updateGoogleSettings({
     baseUrl: googleBaseUrl,
     model: googleModel,
@@ -34,7 +35,7 @@ async function main() {
   updateVisionSettings({
     mode: "auto",
     sidecarBaseUrl: googleBaseUrl,
-    sidecarModel: googleModel,
+    sidecarModel: DOCUMENT_EXTRACTION_MODEL,
     sidecarApiKey: googleApiKey,
   });
 

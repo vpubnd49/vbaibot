@@ -42,7 +42,6 @@ export type SpeechToTextResult = {
 export type SpeechToTextOptions = {
   baseUrl?: string;
   apiKey?: string;
-  model?: string;
   protocol?: "audio-chat" | "transcriptions";
   language?: string;
   timeoutMs?: number;
@@ -59,13 +58,10 @@ export async function transcribeAudioFile(
     ? (google.baseUrl || "https://generativelanguage.googleapis.com/v1beta")
     : (env.STT_BASE_URL || (llm.provider === "google" ? "https://generativelanguage.googleapis.com/v1beta" : llm.baseUrl));
   const defaultApiKey = google.apiKey || env.STT_API_KEY || (llm.provider === "google" ? llm.apiKey : "");
-  const defaultModel = google.apiKey
-    ? AUDIO_TRANSCRIPTION_MODEL
-    : (env.STT_MODEL || (llm.provider === "google" ? AUDIO_TRANSCRIPTION_MODEL : llm.model));
-
   const baseUrl = options.baseUrl ?? defaultBaseUrl;
   const apiKey = options.apiKey ?? defaultApiKey;
-  const model = options.model ?? defaultModel;
+  // Model STT là policy cố định; không cho caller dùng nhầm model OCR/chat.
+  const model = AUDIO_TRANSCRIPTION_MODEL;
   const protocol = options.protocol ?? env.STT_PROTOCOL;
   const language = options.language ?? env.STT_LANGUAGE;
   const timeoutMs = options.timeoutMs ?? env.STT_TIMEOUT_MS;
