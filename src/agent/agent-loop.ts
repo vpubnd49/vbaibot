@@ -140,6 +140,7 @@ export type AgentTurnParams = {
    * vào history. Xem `ToolContext.ghiNhanDaGui`.
    */
   ghiNhanDaGui?: (noiDung: string) => void;
+  fileDaGuiTrongLuot?: Set<string>;
 };
 
 export type AgentTurnResult = {
@@ -163,6 +164,7 @@ export async function runAgentTurn({
   isolated = false,
   layTinChen,
   ghiNhanDaGui,
+  fileDaGuiTrongLuot,
 }: AgentTurnParams): Promise<AgentTurnResult> {
   // Tin cuối đại diện cho lượt: tools (thả reaction, quote) tác động lên tin này
   const latest = batch[batch.length - 1]!;
@@ -355,7 +357,7 @@ export async function runAgentTurn({
           // Thêm `isolated` lọc bớt tool không hợp với lượt theo lịch (add_reaction
           // không có msgId thật, read_image không có ảnh, save_memory chặn injection
           // từ job) - xem runsInScheduledTurn ở tool-registry.ts
-          tools: buildAgentTools({ api, account, agent, message: latest, batch, isolated, ghiNhanDaGui }),
+          tools: buildAgentTools({ api, account, agent, message: latest, batch, isolated, ghiNhanDaGui, fileDaGuiTrongLuot }),
           // Hai điều kiện dừng. `stepCountIs` chặn số VÒNG; điều kiện token chặn
           // KÍCH THƯỚC - kết quả tool cộng dồn qua từng step (web_fetch một mình đã
           // tới WEB_FETCH_MAX_CHARS ký tự), nên một lượt ít step vẫn phình được.

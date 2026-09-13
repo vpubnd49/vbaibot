@@ -25,7 +25,7 @@ const MAX_DOWNLOAD_BYTES = 200 * 1024 * 1024;
 // Nguồn URL do LLM quyết mà LLM đọc tin của người lạ, nên đường tải phải đi qua
 // safe-remote-download: chặn IP nội bộ (SSRF - loopback, 169.254.169.254...) và
 // cắt theo stream khi vượt 200 MiB. File tạm bị xóa ngay sau khi gửi.
-export function createSendFileTool({ api, account, message, ghiNhanDaGui }: ToolContext) {
+export function createSendFileTool({ api, account, message, ghiNhanDaGui, fileDaGuiTrongLuot }: ToolContext) {
   // Ghi history NGAY TRONG hàm gửi để hai nhánh (URL và kho shared-files) không
   // thể quên: tin này không đi qua `deliverChatReply` nên không ai ghi hộ.
   const sendAttachment = async (filePath: string, caption: string | undefined, tenHienThi: string) => {
@@ -36,6 +36,7 @@ export function createSendFileTool({ api, account, message, ghiNhanDaGui }: Tool
       message.threadType,
       filePath,
       caption,
+      fileDaGuiTrongLuot,
     );
     ghiNhanDaGui?.(ghiChuDaGuiFile(tenHienThi, caption));
   };

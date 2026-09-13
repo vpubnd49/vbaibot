@@ -192,6 +192,7 @@ async function xuLyLuot(
    * chốt của agent (`deliverChatReply` ghi sau cùng).
    */
   const daGuiBoiTool: string[] = [];
+  const fileDaGuiTrongLuot = new Set<string>();
   const ghiNhanDaGui = (noiDung: string): void => {
     if (noiDung.trim()) daGuiBoiTool.push(noiDung.trim());
   };
@@ -230,6 +231,7 @@ async function xuLyLuot(
       resolveModel: options.resolveModel,
       layTinChen,
       ghiNhanDaGui,
+      fileDaGuiTrongLuot,
     });
     // Chốt usage + trace trong CÙNG một giao dịch: hai câu rời nhau thì process
     // chết ở giữa (PM2 restart, max_memory_restart) để lại row có token thật mà

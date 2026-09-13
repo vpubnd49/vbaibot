@@ -51,6 +51,8 @@ export type ToolContext = {
    * lượt đó (`runsInScheduledTurn: false`).
    */
   ghiNhanDaGui?: (noiDung: string) => void;
+  /** Dấu vân tay file đã gửi trong lượt hiện tại, dùng để chống gửi trùng. */
+  fileDaGuiTrongLuot?: Set<string>;
 };
 
 /**

@@ -43,7 +43,7 @@ const log = createLogger("create-document");
 const DELIVERED_NOTE =
   "Đã tạo và GỬI file cho người dùng rồi. KHÔNG gọi send_file để gửi lại file này.";
 
-type Ctx = Pick<ToolContext, "api" | "account" | "message" | "ghiNhanDaGui">;
+type Ctx = Pick<ToolContext, "api" | "account" | "message" | "ghiNhanDaGui" | "fileDaGuiTrongLuot">;
 
 /** Dựng buffer -> gửi kèm caption -> xóa file tạm. Trả câu cho model đọc. */
 async function deliverFile(
@@ -66,6 +66,7 @@ async function deliverFile(
         ctx.message.threadType,
         filePath,
         caption,
+        ctx.fileDaGuiTrongLuot,
       ),
     );
   } catch (err) {

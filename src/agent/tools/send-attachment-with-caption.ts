@@ -1,4 +1,7 @@
 import type { API, ThreadType } from "zca-js";
+import { createHash } from "node:crypto";
+import fs from "node:fs";
+import path from "node:path";
 import { enqueueSend } from "../../middleware/rate-limiter.js";
 import { createLogger } from "../../shared/logger.js";
 import { laLoiMayChuTuChoi } from "../../zalo/send-reply-in-parts.js";
@@ -25,12 +28,20 @@ export async function guiFileKemCaption(
   threadType: ThreadType,
   filePath: string,
   caption: string | undefined,
-): Promise<void> {
+  fileDaGuiTrongLuot?: Set<string>,
+): Promise<boolean> {
+  const fileKey = `${path.basename(filePath)}:${createHash("sha256").update(fs.readFileSync(filePath)).digest("hex")}`;
   const tin = tinKemFile(caption);
 
-  await enqueueSend(threadKey, async () => {
+  return enqueueSend(threadKey, async () => {
+    if (fileDaGuiTrongLuot?.has(fileKey)) {
+      log.warn({ threadId, fileName: path.basename(filePath) }, "Bỏ qua gửi file trùng trong cùng lượt");
+      return false;
+    }
     try {
-      return await api.sendMessage({ ...tin, attachments: [filePath] }, threadId, threadType);
+      await api.sendMessage({ ...tin, attachments: [filePath] }, threadId, threadType);
+      fileDaGuiTrongLuot?.add(fileKey);
+      return true;
     } catch (err) {
       // Không có style để bỏ, hoặc lỗi đường truyền (tin có thể đã tới) thì
       // KHÔNG gửi lại - gửi lại lúc đó là nhân đôi file trước mặt người dùng.
@@ -40,7 +51,9 @@ export async function guiFileKemCaption(
         { threadId, soStyle: tin.styles.length, err },
         "Zalo từ chối caption có định dạng - gửi lại dạng chữ trơn",
       );
-      return await api.sendMessage({ msg: tin.msg, attachments: [filePath] }, threadId, threadType);
+      await api.sendMessage({ msg: tin.msg, attachments: [filePath] }, threadId, threadType);
+      fileDaGuiTrongLuot?.add(fileKey);
+      return true;
     }
   });
 }
