@@ -70,7 +70,7 @@ function configureSidecar(): void {
 }
 
 /** Các tool chỉ vào schema khi hạ tầng riêng của chúng đã sẵn sàng */
-const GATED_TOOLS = ["read_image", "create_image"];
+const GATED_TOOLS = ["read_image", "create_image", "ocr_folder_to_file"];
 
 function configureImageGen(): void {
   imageStore.updateImageSettings({
@@ -221,6 +221,7 @@ describe("tool-registry", () => {
     "knowledge_research",
     "developer_research",
     "transcribe_audio",
+    "ocr_folder_to_file",
   ];
 
   it("isolated:true (lượt theo lịch) loại đủ tool kể cả khi hạ tầng/cấu hình đã sẵn sàng", () => {

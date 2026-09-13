@@ -28,7 +28,7 @@ test("Document reader: kiểm tra định dạng và đọc file văn bản", as
   assert.equal(isSupportedDocument("test.rtf"), true);
   assert.equal(isSupportedDocument("test.tsv"), true);
   assert.equal(isSupportedDocument("test.exe"), false);
-  assert.equal(isSupportedDocument("test.zip"), false);
+  assert.equal(isSupportedDocument("test.zip"), true);  // ZIP: batch-ocr-engine tự giải nén
 
   const tempDir = os.tmpdir();
 
