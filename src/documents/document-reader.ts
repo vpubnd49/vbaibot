@@ -120,8 +120,25 @@ export async function readDocument(filePath: string, options: DocumentReadOption
           log.warn({ filePath, err: pdfErr }, 'pdf-parse không đọc được text, chuyển sang OCR scan');
         }
 
-        // PDF scan auto-OCR: chuyển trang thành ảnh rồi gọi vision sidecar đọc
-        if (text.trim().length < 50) {
+        // PDF scan auto-OCR: chuyển trang thành ảnh rồi gọi vision sidecar đọc.
+        //
+        // Heuristic: đếm KÝ TỰ CÓ NGHĨA (chữ cái + ký tự đặc biệt, bỏ qua
+        // whitespace và chữ số). Scanned PDF chỉ trả về số trang "1\n2\n...10"
+        // → meaningfulChars=0. PDF text thật có nội dung tiếng Việt → lớn.
+        //
+        // Ngưỡng: tối thiểu 50 chữ/trang (dể phát hiện file scan/quét). Giá
+        // trị 50 đủ nhỏ để không bỏ qua PDF 1 trang ngắn, đủ lớn để loại
+        // page-number-only kết quả từ scanned PDF.
+        const meaningfulChars = text.replace(/[\s\d\r\n\t.,;:!?()\[\]{}"'\/\\|-]/g, '').length;
+        const minMeaningful = Math.max(50, (pageCount ?? 1) * 50);
+        const isLikelyScan = meaningfulChars < minMeaningful;
+
+        log.info({
+          filePath, pageCount, extractedLength: text.trim().length,
+          meaningfulChars, minMeaningful, isLikelyScan,
+        }, isLikelyScan ? 'PDF thiếu chữ → chạy OCR scan' : 'PDF có text đủ → dùng trực tiếp');
+
+        if (isLikelyScan) {
           const pages = (pageCount && pageCount > 0) ? pageCount : 10;
           const ocrText = await ocrScannedPdf(filePath, pages, options.pageStart, options.pageEnd);
           if (ocrText && ocrText.trim()) {
