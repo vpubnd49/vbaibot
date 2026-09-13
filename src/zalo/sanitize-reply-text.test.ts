@@ -366,12 +366,24 @@ describe("lamSachTraLoi - dọn LaTeX", () => {
     assert.equal(sach("$a \\geq b$"), "a ≥ b");
     assert.equal(sach("$\\pm 5\\%$"), "± 5%");
     assert.equal(sach("$\\infty$"), "∞");
-    assert.equal(sach("$\\sqrt{2}$"), "√{2}");
+    assert.equal(sach("$\\sqrt{2}$"), "√2");       // mới: bỏ {} và giữ nội dung
     assert.equal(sach("$a \\cdot b$"), "a · b");
     assert.equal(sach("$\\ldots$"), "…");
     assert.equal(sach("$A \\implies B$"), "A ⇒ B");
     assert.equal(sach("$A \\iff B$"), "A ⇔ B");
   });
+
+  it("\\frac \\text \\dfrac được chuyển sang văn xuôi", () => {
+    assert.equal(sach("$\\frac{1}{3}$"), "1/3");
+    assert.equal(sach("$\\dfrac{a}{b}$"), "a/b");
+    // \text{} bên trong $...$ — nội dung bắt đầu bằng chữ (không phải số) mới được strip $
+    assert.equal(sach("$x = 1,7\\text{ m}$"), "x = 1,7 m");
+    // \frac ngoài $...$
+    assert.equal(sach("\\frac{1}{3} × 3,14"), "1/3 × 3,14");
+    assert.equal(sach("m^2"), "m^2");     // không có braces → GIỮ NGUYÊN
+    assert.equal(sach("m^{2}"), "m²");   // có curly braces → chuyển sang ²
+  });
+
 
   it("dấu $ tiền tệ KHÔNG bị đụng - không có ký tự LaTeX bên trong", () => {
     // Trường hợp quan trọng: người ta nói về giá cả

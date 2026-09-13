@@ -238,54 +238,49 @@ const INLINE_MATH_RE = /\$(?!\d)([^$\n]{1,200})\$/g;
 const BLOCK_MATH_RE = /\$\$([^$]{1,500}?)\$\$/g;
 
 function boLatex(text: string, daSua: string[]): string {
-  if (!text.includes("$") && !text.includes("\\")) return text;
+  if (!text.includes("$") && !text.includes("\\") && !text.includes("^{")) return text;
 
   let ra = text;
 
-  // Bước 0: Xử lý lệnh LaTeX CẤU TRÚC (có ngoặc {}) trước khi thay ký tự.
-  // Chạy 2 lần để xử lý nested (ví dụ: \frac{1}{3} bên trong $...$).
+  // Bước 1: Gỡ dấu $$ và $ TRƯỚC — giữ nội dung, trim khoảng trắng đầu cuối.
+  // Làm trước để $\frac{1}{3}$ → \frac{1}{3} → 1/3 (không bị digit guard chặn).
+  // `(?!\d)` bảo vệ "$500" "$1000" (giá tiền) - chỉ bỏ $ khi sau đó là chữ/ký hiệu.
+  ra = ra.replace(BLOCK_MATH_RE, (_m, c: string) => c.trim());
+  ra = ra.replace(INLINE_MATH_RE, (_m, c: string) => c.trim());
+
+  // Bước 2: Xử lý lệnh LaTeX CẤU TRÚC (có ngoặc {}).
+  // Chạy 2 lần để xử lý nested bên trong nhau.
   for (let pass = 0; pass < 2; pass++) {
     // \frac{tử}{mẫu} và \dfrac{tử}{mẫu} → tử/mẫu
     ra = ra.replace(/\\(?:d|c)?frac\{([^{}]*)\}\{([^{}]*)\}/g, (_m, t: string, m: string) =>
       `${t.trim()}/${m.trim()}`);
-    // \sqrt{n} → √n (√ đã trong LATEX_KY_TU nhưng \sqrt{...} có {})
+    // \sqrt{n} → √n
     ra = ra.replace(/\\sqrt\{([^{}]*)\}/g, (_m, c: string) => `√${c.trim()}`);
     // \text{nội dung} → nội dung (bỏ wrapper, giữ chữ bên trong)
     ra = ra.replace(/\\(?:text|mathrm|mathbf|mathit|mbox)\{([^{}]*)\}/g, (_m, c: string) => c);
-    // ^{...} → (dùng Unicode sup nếu là 1 ký tự số/chữ, không thì để nguyên)
+    // ^{...} → Unicode superscript nếu 1 ký tự (ví dụ: ^{2} → ²). Chỉ xử lý có curly braces.
     ra = ra.replace(/\^\{([^{}]{1,3})\}/g, (_m, c: string) => {
       const SUP: Record<string, string> = {
-        "0": "⁰","1": "¹","2": "²","3": "³","4": "⁴","5": "⁵",
-        "6": "⁶","7": "⁷","8": "⁸","9": "⁹","n": "ⁿ","T": "ᵀ",
+        "0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵",
+        "6":"⁶","7":"⁷","8":"⁸","9":"⁹","n":"ⁿ","T":"ᵀ",
       };
       return c.length === 1 && SUP[c] ? SUP[c] : `^${c}`;
     });
-    // ^2 ^3 không có {} — hay gặp kiểu m^2
-    ra = ra.replace(/\^([0-9n])/g, (_m, c: string) => {
-      const SUP: Record<string, string> = {
-        "0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵",
-        "6":"⁶","7":"⁷","8":"⁸","9":"⁹","n":"ⁿ",
-      };
-      return SUP[c] ?? `^${c}`;
-    });
+    // ^2 ^3 không có {} — KHÔNG xử lý (quá ambiguous, bắt cả "mc^2", "km^2")
+    // Chỉ xử lý ^{2} (có curly braces — rõ ràng là LaTeX)
     // \left( \right) \left[ \right] → bỏ \left \right, giữ dấu ngoặc
-    ra = ra.replace(/\\(?:left|right)\s*([([{\])}|.]?)/g, (_m, br: string) => br);
+    // QUAN TRỌNG: dấu ngoặc phải CÓ MẶT (không dùng ?) để không match \rightarrow!
+    ra = ra.replace(/\\(?:left|right)\s*(?=[([{\])}|.])/g, "");
     // \displaystyle \textstyle \scriptstyle → remove
     ra = ra.replace(/\\(?:display|text|script|scriptscript)style\s*/g, "");
   }
 
-  // Bước 1: Thay thế ký tự LaTeX bên trong và bên ngoài dấu $
+  // Bước 3: Thay thế ký tự LaTeX đơn lẻ (\rightarrow → →, \times → ×, ...)
   for (const [re, ky] of LATEX_KY_TU) {
     ra = ra.replace(re, ky);
   }
 
-  // Bước 2: Gỡ dấu $$ (block math) rồi $ (inline math) - giữ nội dung.
-  // Trim nội dung bắt được: `$ \rightarrow$` thành `$ →$` sau bước 1, bắt được
-  // ` →` (có dấu cách đầu) - trim để ra `→` gọn.
-  ra = ra.replace(BLOCK_MATH_RE, (_m, c: string) => c.trim());
-  ra = ra.replace(INLINE_MATH_RE, (_m, c: string) => c.trim());
-
-  // Bước 3: Dọn khoảng trắng thừa do LaTeX (" →" thay vì "→")
+  // Bước 4: Dọn khoảng trắng thừa
   ra = ra.replace(/ {2,}/g, " ");
 
   if (ra !== text) daSua.push("LaTeX");
