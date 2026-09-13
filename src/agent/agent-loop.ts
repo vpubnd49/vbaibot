@@ -41,6 +41,7 @@ import {
 } from "./agent-loop-conditions.js";
 import {
   FILE_SEND_TOOLS,
+  laNguoiDungYeuCauXuatFile,
   laTinNhanAoGiacGuiFile,
   taoTinNhanNhacGoiTool,
   xoaNhanAoGiacGuiFile,
@@ -335,7 +336,7 @@ export async function runAgentTurn({
   // Xem `stream-text-result.ts` để biết số đo. Bot vẫn KHÔNG stream chữ xuống
   // Zalo: `gomKetQuaStream` đọc hết stream rồi trả về đúng hình dạng cũ, nên
   // phần còn lại của vòng lặp không đổi một dòng nào.
-  const runOnce = async (options?: { toolChoice?: "auto" | "none" | "required" }) => {
+  const runOnce = async (options?: { toolChoice?: "auto" | "none" | "required"; timeoutMs?: number }) => {
     // Dựng đầu vào TẠI ĐÂY thay vì gán ngược vào `messages` - xem
     // `ganTinChenVao`. `prepareStep` chỉ chèn phần tin MỚI kéo được, còn bản
     // này gom cả `tinChenDaKeo`, nên hai đường không chồng lên nhau.
@@ -376,12 +377,12 @@ export async function runAgentTurn({
           // Bật thinking theo LLM_REASONING_EFFORT - kiểm chứng bằng
           // usage.outputTokenDetails.reasoningTokens > 0 trong log bên dưới
           providerOptions: resolveReasoningOptions(agent),
-          maxRetries: 2,
-          // Chặn trên cho CẢ lượt. Không có nó, router nhận kết nối rồi treo sẽ ăn
-          // 300s (undici) x maxRetries x số step, khóa thread hàng giờ trong khi tin
-          // nhắn sau xếp hàng chờ. `totalMs` bao gồm cả thời gian chạy tool, nên giá
-          // trị này bắt buộc lớn hơn IMAGE_GEN_TIMEOUT_MS.
-          timeout: { totalMs: getTuning("LLM_TURN_TIMEOUT_MS") },
+           maxRetries: 2,
+           // Chặn trên cho CẢ lượt. Không có nó, router nhận kết nối rồi treo sẽ ăn
+           // 300s (undici) x maxRetries x số step, khóa thread hàng giờ trong khi tin
+           // nhắn sau xếp hàng chờ. `totalMs` bao gồm cả thời gian chạy tool, nên giá
+           // trị này bắt buộc lớn hơn IMAGE_GEN_TIMEOUT_MS.
+           timeout: { totalMs: options?.timeoutMs ?? getTuning("LLM_TURN_TIMEOUT_MS") },
           // Log từng tool call kèm input + đầu output: khi bot trả lời kém phải đọc
           // được ngay nó fetch trang nào và thấy gì (vụ dò vé số chỉ có số steps,
           // toàn bộ chẩn đoán phải đi đường vòng qua DB + tái hiện tay)
@@ -681,11 +682,12 @@ export async function runAgentTurn({
   // Lặp tối đa 3 lần và TUYỆT ĐỐI không chấp nhận câu trả lời đó nếu vẫn không có
   // tool call gửi file thật.
   let lastStepToolCalls = result.steps.at(-1)?.toolCalls.length ?? 0;
+  const exportIntent = laNguoiDungYeuCauXuatFile(latest.text);
   for (let lanEp = 0; lanEp < 3; lanEp += 1) {
     const allToolCalls = layAllToolCalls(result);
     if (
       canLuotChot({ lastStepToolCalls }) ||
-      !laTinNhanAoGiacGuiFile(result.text, allToolCalls, latest.text)
+      (!exportIntent && !laTinNhanAoGiacGuiFile(result.text, allToolCalls, latest.text))
     ) {
       break;
     }
@@ -702,7 +704,10 @@ export async function runAgentTurn({
       ...messages,
       { role: "user", content: taoTinNhanNhacGoiTool(latest.text) },
     ];
-    result = await runOnce({ toolChoice: "required" });
+    result = await runOnce({
+      toolChoice: "required",
+      timeoutMs: Math.max(60_000, getTuning("LLM_TURN_TIMEOUT_MS") - 120_000),
+    });
     lastStepToolCalls = result.steps.at(-1)?.toolCalls.length ?? 0;
     // Nếu tool đã được gọi nhưng input/schema lỗi, không tiếp tục coi đây là
     // hallucination thuần túy. Lượt kế phải sửa payload theo lỗi validation;
@@ -727,7 +732,8 @@ export async function runAgentTurn({
   // Trả lỗi rõ ràng để người dùng nhắn lại thay vì tưởng đã nhận được Excel.
   if (
     !canLuotChot({ lastStepToolCalls }) &&
-    laTinNhanAoGiacGuiFile(result.text, layAllToolCalls(result), latest.text)
+    (laTinNhanAoGiacGuiFile(result.text, layAllToolCalls(result), latest.text) ||
+      (exportIntent && !layAllToolCalls(result).some((t) => FILE_SEND_TOOLS.has(t))))
   ) {
     log.error(
       { toolCalls: layAllToolCalls(result), lanChay },

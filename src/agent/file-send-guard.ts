@@ -78,6 +78,14 @@ const MO_TA_FILE_CUA_BOT_RE =
  * @param toolCalls Danh sách tên các tool đã được gọi trong lượt
  * @param userPrompt Câu yêu cầu của người dùng (tùy chọn)
  */
+export function laNguoiDungYeuCauXuatFile(userPrompt: string): boolean {
+  return (
+    Y_DINH_XUAT_FILE_RE.test(userPrompt) ||
+    Y_DINH_XUAT_EXCEL_RE.test(userPrompt) ||
+    Y_DINH_XUAT_CHUNG_RE.test(userPrompt)
+  );
+}
+
 export function laTinNhanAoGiacGuiFile(
   text: string,
   toolCalls: string[],

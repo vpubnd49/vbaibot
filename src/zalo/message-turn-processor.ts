@@ -248,7 +248,25 @@ async function xuLyLuot(
     writeBatchToHistory();
 
     if (!result.text) {
-      log.debug("Agent không trả text (có thể chỉ thả reaction)");
+      const fileToolUsed = trace.some((step) =>
+        step.toolCalls?.some((call) =>
+          [
+            "create_excel_file",
+            "create_word_document",
+            "create_admin_document",
+            "create_text_document",
+            "create_powerpoint",
+            "send_file",
+            "ocr_folder_to_file",
+          ].includes(call.name),
+        ),
+      );
+      if (fileToolUsed) {
+        log.warn("Agent không trả text sau khi gọi tool file; gửi thông báo thay vì im lặng");
+        await notifyTechnicalError(replyTarget, "unknown");
+      } else {
+        log.debug("Agent không trả text (có thể chỉ thả reaction)");
+      }
       return;
     }
 
