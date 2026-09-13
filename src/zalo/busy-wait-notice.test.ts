@@ -173,22 +173,26 @@ describe("maybeNotifyBusyWait", () => {
   });
 
   it("thread rảnh trở lại thì đồng hồ về mốc mới - quãng chờ sau đếm lại từ đầu", async () => {
-    tuning.setTuning("BUSY_ACK_AFTER_MS", 30);
+    // BUSY_ACK_AFTER_MS = 200 thay vì 30: sleep(30) sau đó chỉ chiếm 15% ngưỡng
+    // → 85% biên an toàn. Dùng 30ms thì sleep(5) quá nhỏ — chạy full 1647 tests
+    // CPU tranh nhau, sleep(5) thực tế dễ vượt 30ms và ca này đỏ ngẫu nhiên
+    // (cùng nguyên nhân đã ghi ở test "không nhắc lại trong cùng quãng chờ").
+    tuning.setTuning("BUSY_ACK_AFTER_MS", 200);
     const nha = chiemThread("k-doi-quang");
-    await sleep(60);
+    await sleep(250);   // vượt ngưỡng để chứng minh period đầu đã tính giờ
     nha();
-    await sleep(20); // khoá đã nhả
+    await sleep(50);    // đủ để release() và delete batDauBan chạy xong
 
     assert.equal(chain.daBanBaoLau("k-doi-quang"), null, "rảnh rồi thì không còn mốc nào");
 
     const nha2 = chiemThread("k-doi-quang");
-    await sleep(5);
+    await sleep(30);    // 15% ngưỡng — kể cả máy chậm 3× cũng chỉ 90ms < 200ms
     assert.equal(
       await notice.maybeNotifyBusyWait(muc("k-doi-quang")),
       false,
       "quãng chờ MỚI phải đếm lại từ đầu, không kế thừa thời gian của quãng trước",
     );
     nha2();
-    await sleep(10);
+    await sleep(50);
   });
 });
