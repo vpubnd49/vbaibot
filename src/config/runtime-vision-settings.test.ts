@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { after, before, describe, it } from "node:test";
 import { cleanupTestEnv, setupTestEnv } from "../shared/test-env-setup.js";
+import { DOCUMENT_EXTRACTION_MODEL } from "./model-roles.js";
 
 let dataDir: string;
 let store: typeof import("./runtime-vision-settings.js");
@@ -27,6 +28,15 @@ describe("runtime-vision-settings", () => {
     const s = store.getVisionSettings();
     assert.equal(s.mode, "auto");
     assert.equal(store.isSidecarConfigured(s), false);
+  });
+
+  it("fallback Google cho file extraction dùng model Omni cố định", async () => {
+    const google = await import("./runtime-google-settings.js");
+    google.updateGoogleSettings({ apiKey: "AQ.fake-google-key", baseUrl: "https://google.test/v1beta/openai", model: "gemini-2.5-flash" });
+    store.clearSidecarSettings();
+    const s = store.getVisionSettings();
+    assert.equal(s.sidecar.model, DOCUMENT_EXTRACTION_MODEL);
+    google.updateGoogleSettings({ apiKey: "" });
   });
 
   it("update mode lưu DB và đè lên env", () => {

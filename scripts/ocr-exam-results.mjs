@@ -7,6 +7,7 @@ import ExcelJS from "exceljs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
+const DOCUMENT_EXTRACTION_MODEL = "omni/antigravity/gemini-3.8-flash-high";
 
 function decryptWith(k, p) {
   const b = Buffer.from(p, "base64");
@@ -22,11 +23,11 @@ function loadConfig() {
   const db = new DatabaseSync(path.join(ROOT, "data", "zalo-agent.db"));
   const get = k => db.prepare("SELECT value FROM runtime_settings WHERE key = ?").get(k)?.value ?? "";
   let apiKey = "", base = "", model = "";
-  const vk = get("vision_sidecar_api_key"), vu = get("vision_sidecar_base_url"), vm = get("vision_sidecar_model");
-  if (vk && vu) { try { apiKey = decryptWith(key, vk); base = vu; model = vm || "gemini-2.5-flash"; } catch {} }
+  const vk = get("vision_sidecar_api_key"), vu = get("vision_sidecar_base_url");
+  if (vk && vu) { try { apiKey = decryptWith(key, vk); base = vu; model = DOCUMENT_EXTRACTION_MODEL; } catch {} }
   if (!apiKey) {
-    const gk = get("google_api_key"), gu = get("google_base_url"), gm = get("google_model");
-    if (gk && gu) { try { apiKey = decryptWith(key, gk); base = gu; model = gm || "gemini-2.5-flash"; } catch {} }
+    const gk = get("google_api_key"), gu = get("google_base_url");
+    if (gk && gu) { try { apiKey = decryptWith(key, gk); base = gu; model = DOCUMENT_EXTRACTION_MODEL; } catch {} }
   }
   if (!apiKey) throw new Error("No API key");
   console.log("Config OK:", base, model);

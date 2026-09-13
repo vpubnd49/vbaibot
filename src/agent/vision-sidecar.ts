@@ -11,6 +11,7 @@ import {
   saveImageDescription,
 } from "../conversation/image-description-store.js";
 import { createLogger } from "../shared/logger.js";
+import { VISION_ENDPOINT } from "../config/model-roles.js";
 
 /**
  * "Mắt thuê" cho model chính không đọc được ảnh: gọi model vision phụ (thường
@@ -76,11 +77,11 @@ export type SidecarCaller = (
 ) => Promise<SidecarResult>;
 
 /** Đường gọi thật - tách ra để test tiêm caller giả, không chạm mạng */
-const defaultCaller: SidecarCaller = async (settings, image, prompt) => {
+const defaultCaller: SidecarCaller = async (_settings, image, prompt) => {
   const provider = createOpenAICompatible({
     name: "vision-sidecar",
-    baseURL: settings.baseUrl,
-    apiKey: settings.apiKey,
+    baseURL: VISION_ENDPOINT.baseUrl,
+    apiKey: VISION_ENDPOINT.apiKey,
   });
   // Streaming như mọi lời gọi LLM khác trong dự án. Sidecar hiện trỏ thẳng
   // Gemini nên không dính 524 của Cloudflare, NHƯNG base URL là thứ chỉnh được
@@ -88,7 +89,7 @@ const defaultCaller: SidecarCaller = async (settings, image, prompt) => {
   // lời gọi LLM non-stream nào" rẻ hơn việc nhớ chỗ nào đang được miễn và vì sao.
   const result = await chayStream((onError) =>
     streamText({
-      model: provider(OMNI_VISION_MODEL),
+      model: provider(VISION_ENDPOINT.model),
       messages: [
         {
           role: "user",
@@ -175,25 +176,24 @@ export async function ensureDescriptionsFor(
  * chung đã có cache riêng). Ném lỗi để tool tự diễn giải cho model.
  *
  * Dùng ASK_MAX_TOKENS (4096) thay vì DESCRIBE_MAX_TOKENS (2048) vì agent hỏi
- * câu hỏi cụ thể — đặc biệt trích xuất bảng biểu dày cột cần chép nguyên văn.
+ * câu hỏi cụ thể — đặc biệt trích xuất bảng biểu 10+ cột × 15+ dòng cần ≥3000
+ * token. Tiếng Việt ~2.7 ký tự/token → 4096 ≈ 11.000 ký tự, đủ cho bảng dày nhất.
  */
 
 /** Caller riêng cho askAboutImage: cùng logic defaultCaller nhưng trần token cao hơn */
-const askDefaultCaller: SidecarCaller = async (settings, image, prompt) => {
+const askDefaultCaller: SidecarCaller = async (_settings, image, prompt) => {
   const provider = createOpenAICompatible({
     name: "vision-sidecar",
-    baseURL: settings.baseUrl,
-    apiKey: settings.apiKey,
+    baseURL: VISION_ENDPOINT.baseUrl,
+    apiKey: VISION_ENDPOINT.apiKey,
   });
   const result = await chayStream((onError) =>
     streamText({
-      model: provider(OMNI_VISION_MODEL),
+      model: provider(VISION_ENDPOINT.model),
       messages: [
         {
           role: "user",
           content: [
-            // Gemini OpenAI-compatible endpoint expects vision input as `image`,
-            // not generic `file`. Sending `file` caused HTTP 400 in OCR logs.
             { type: "image", image: image.base64, mediaType: image.mediaType },
             { type: "text", text: prompt },
           ],
@@ -208,35 +208,24 @@ const askDefaultCaller: SidecarCaller = async (settings, image, prompt) => {
 };
 
 /**
- * Model chung cho MỌI thao tác Vision: mô tả ảnh, read_image, batch OCR.
- * NGOẠI LẸ DUY NHÁT: Audio (boc băng) giõ nguyên gemini-2.5-flash (stt-client.ts).
- */
-const OMNI_VISION_MODEL = "omni/antigravity/gemini-3.8-flash-high";
-
-/**
  * Caller chuyên dụng cho batch OCR:
- * - KHÔNG thêm Vietnamese wrapper ("Trả lời câu hỏi sau về ảnh bằng tiếng Việt...")
+ * - KHÔNG thêm Vietnamese wrapper — prompt thẳng → JSON only → không truncate
  * - Token cao nhất (BATCH_OCR_MAX_TOKENS = 8192)
- * - Dùng OMNI_VISION_MODEL thay vì model sidecar mặc định
- *
- * Khác askDefaultCaller: askDefaultCaller thêm wrapper TV làm phình response,
- * dẫn đến truncate JSON. Caller này tránh vấn đề đó hoàn toàn.
+ * - Dùng VISION_ENDPOINT (9router.flowgiare.com) giống defaultCaller/askDefaultCaller
  */
-const batchOcrCaller: SidecarCaller = async (settings, image, prompt) => {
+const batchOcrCaller: SidecarCaller = async (_settings, image, prompt) => {
   const provider = createOpenAICompatible({
     name: "vision-sidecar",
-    baseURL: settings.baseUrl,
-    apiKey: settings.apiKey,
+    baseURL: VISION_ENDPOINT.baseUrl,
+    apiKey: VISION_ENDPOINT.apiKey,
   });
   const result = await chayStream((onError) =>
     streamText({
-      model: provider(OMNI_VISION_MODEL),
+      model: provider(VISION_ENDPOINT.model),
       messages: [
         {
           role: "user",
           content: [
-            // Giữ type: "image" vì Gemini OpenAI-compat endpoint yêu cầu,
-            // dù AI SDK warn deprecated. type: "file" gây HTTP 400.
             { type: "image", image: image.base64, mediaType: image.mediaType },
             { type: "text", text: prompt },
           ],

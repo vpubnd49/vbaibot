@@ -5,6 +5,7 @@ import { getEffectiveLlmSettings } from "../config/runtime-llm-settings.js";
 import { getGoogleSettings } from "../config/runtime-google-settings.js";
 import { createLogger } from "../shared/logger.js";
 import { canUseFfmpeg, transcribeLongAudio } from "./stt-chunker.js";
+import { AUDIO_TRANSCRIPTION_MODEL } from "../config/model-roles.js";
 
 const log = createLogger("stt-client");
 
@@ -59,8 +60,8 @@ export async function transcribeAudioFile(
     : (env.STT_BASE_URL || (llm.provider === "google" ? "https://generativelanguage.googleapis.com/v1beta" : llm.baseUrl));
   const defaultApiKey = google.apiKey || env.STT_API_KEY || (llm.provider === "google" ? llm.apiKey : "");
   const defaultModel = google.apiKey
-    ? (google.model || "gemini-2.5-flash")
-    : (env.STT_MODEL || (llm.provider === "google" ? "gemini-2.5-flash" : llm.model));
+    ? AUDIO_TRANSCRIPTION_MODEL
+    : (env.STT_MODEL || (llm.provider === "google" ? AUDIO_TRANSCRIPTION_MODEL : llm.model));
 
   const baseUrl = options.baseUrl ?? defaultBaseUrl;
   const apiKey = options.apiKey ?? defaultApiKey;

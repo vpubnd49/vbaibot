@@ -23,6 +23,7 @@ after(() => {
 
 const IMG = { base64: "abc", mediaType: "image/jpeg" };
 
+
 function configureSidecar(): void {
   visionStore.updateVisionSettings({
     sidecarBaseUrl: "https://gemini.test/v1beta/openai",

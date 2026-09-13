@@ -2,7 +2,8 @@ import { db } from "../conversation/database.js";
 import { decryptSecret, encryptSecret, maskSecret } from "./secret-cipher.js";
 
 /**
- * Cấu hình Google Gemini bổ sung (cho STT, Vision, OCR, TTS).
+ * Cấu hình Google Gemini bổ sung cho audio transcription/STT và TTS.
+ * OCR/file extraction dùng model Antigravity riêng, không lấy model này.
  * Tách riêng để LLM chat chính vẫn chạy qua 9Router/OpenAI-compatible
  * mà không bị đè hay lẫn lộn.
  */

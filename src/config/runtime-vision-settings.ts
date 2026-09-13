@@ -2,6 +2,7 @@ import { db } from "../conversation/database.js";
 import { env } from "./env.js";
 import { decryptSecret, encryptSecret, maskSecret } from "./secret-cipher.js";
 import { getGoogleSettings } from "./runtime-google-settings.js";
+import { DOCUMENT_EXTRACTION_MODEL } from "./model-roles.js";
 
 /**
  * Cấu hình đọc ảnh (vision), sửa được từ trang Providers trên dashboard,
@@ -74,7 +75,9 @@ export function getVisionSettings(): VisionSettings {
         mode,
         sidecar: {
           baseUrl: google.baseUrl || "https://generativelanguage.googleapis.com/v1beta/openai",
-          model: google.model || "gemini-2.5-flash",
+           // Fallback credentials của Google vẫn dùng endpoint tương thích,
+           // nhưng model extraction phải cố định, không lấy google.model (STT).
+           model: DOCUMENT_EXTRACTION_MODEL,
           apiKey: google.apiKey,
         },
       };
