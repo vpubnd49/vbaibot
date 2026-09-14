@@ -10,7 +10,7 @@ import {
   isTvplConfigured,
   type TvplSearchResult,
 } from "./tvpl-crawler.js";
-import { searchVbpl } from "./vbpl-crawler.js";
+import { searchVbpl, downloadVbplDocument } from "./vbpl-crawler.js";
 
 const log = createLogger("national-legal-service");
 
@@ -127,18 +127,21 @@ export async function searchNationalLegal(keyword: string): Promise<NationalLega
 /**
  * Tải VB pháp luật cấp Trung ương.
  * @param downloadId ID/URL trả từ searchNationalLegal
- * @param source Nguồn: "congbao" hoặc "tvpl"
+ * @param source Nguồn: "congbao" | "tvpl" | "vbpl"
  * @param format Định dạng tải (chỉ TVPL hỗ trợ chọn format)
  * @param soHieu Số hiệu dùng đặt tên file
  */
 export async function downloadNationalLegal(
   downloadId: string,
-  source: "congbao" | "tvpl",
+  source: "congbao" | "tvpl" | "vbpl",
   format: "pdf" | "doc" | "docx" = "pdf",
   soHieu?: string,
 ): Promise<NationalDownloadResult> {
   if (source === "congbao") {
     return downloadFromCongbao(downloadId, soHieu);
+  }
+  if (source === "vbpl") {
+    return downloadFromVbpl(downloadId, format === "doc" ? "docx" : (format as "pdf" | "docx"), soHieu);
   }
   return downloadFromTvpl(downloadId, format, soHieu);
 }
@@ -189,6 +192,26 @@ async function downloadFromTvpl(
     source: "tvpl",
     error: result.error,
   };
+}
+
+async function downloadFromVbpl(
+  slug: string,
+  format: "pdf" | "docx" = "pdf",
+  soHieu?: string,
+): Promise<NationalDownloadResult> {
+  try {
+    const result = await downloadVbplDocument(slug, format, soHieu);
+    return {
+      filePath: result.filePath,
+      format: result.format,
+      fileSize: result.fileSize,
+      source: "vbpl",
+      error: result.error,
+    };
+  } catch (err) {
+    log.error({ err, slug }, "VBPL download failed");
+    return { filePath: null, format, fileSize: 0, source: "vbpl", error: String(err) };
+  }
 }
 
 // ─── Helpers ───────────────────────────────────────────────────────

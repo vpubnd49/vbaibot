@@ -38,9 +38,9 @@ export function createNationalLegalTool({ api, account, message, ghiNhanDaGui }:
         .optional()
         .describe("ID/URL VB cần tải (lấy từ kết quả search). Dùng cho action 'download'."),
       source: z
-        .enum(["congbao", "tvpl"])
+        .enum(["congbao", "tvpl", "vbpl"])
         .optional()
-        .describe("Nguồn tải: 'congbao' = Công báo CP, 'tvpl' = Thư viện Pháp luật"),
+        .describe("Nguồn tải: 'congbao' = Công báo CP, 'tvpl' = Thư viện PL, 'vbpl' = CSDL quốc gia"),
       format: z
         .enum(["pdf", "doc", "docx"])
         .optional()
@@ -65,12 +65,9 @@ export function createNationalLegalTool({ api, account, message, ghiNhanDaGui }:
           const results = await searchNationalLegal(keyword);
 
           if (results.length === 0) {
-            const vbplLink = `https://vbpl.vn/van-ban/trung-uong?keyword=${encodeURIComponent(keyword)}`;
             return (
-              `Không tìm thấy VB "${keyword}" trong kho Công báo CP.\n` +
-              `Tuy nhiên VB này có thể có trên CSDL quốc gia về pháp luật.\n` +
-              `🔗 Tra cứu trực tiếp tại: ${vbplLink}\n` +
-              `(Trên trang vbpl.vn → tab "Văn bản gốc" để tải file PDF)`
+              `Không tìm thấy văn bản nào khớp từ khóa "${keyword}" trên cả Công báo Chính phủ, CSDL quốc gia về pháp luật (vbpl.vn) và Thư viện Pháp luật.\n` +
+              `Vui lòng kiểm tra lại số hiệu hoặc cơ quan ban hành.`
             );
           }
 
@@ -84,7 +81,7 @@ export function createNationalLegalTool({ api, account, message, ghiNhanDaGui }:
       // ── DOWNLOAD ──
       if (action === "download") {
         if (!downloadId) return "Cần downloadId (lấy từ kết quả search) để tải VB.";
-        if (!source) return "Cần chỉ định source: 'congbao' hoặc 'tvpl'.";
+        if (!source) return "Cần chỉ định source: 'congbao', 'vbpl' hoặc 'tvpl'.";
 
         try {
           const dl = await downloadNationalLegal(downloadId, source, format || "pdf", soHieu);
@@ -93,10 +90,17 @@ export function createNationalLegalTool({ api, account, message, ghiNhanDaGui }:
             return `❌ Tải VB thất bại: ${dl.error || "lỗi không xác định"}`;
           }
 
+          const sourceLabel =
+            source === "congbao"
+              ? "Công báo ĐT Chính phủ"
+              : source === "vbpl"
+                ? "CSDL quốc gia về pháp luật"
+                : "Thư viện Pháp luật";
+
           // Gửi file vào chat nếu yêu cầu
           if (sendFileToChat) {
             const fileName = path.basename(dl.filePath);
-            const caption = `📜 VB Pháp luật: ${soHieu || fileName}\n📎 ${fileName} (${Math.round(dl.fileSize / 1024)} KB)\n🔗 Nguồn: ${source === "congbao" ? "Công báo ĐT Chính phủ" : "Thư viện Pháp luật"}`;
+            const caption = `📜 VB Pháp luật: ${soHieu || fileName}\n📎 ${fileName} (${Math.round(dl.fileSize / 1024)} KB)\n🔗 Nguồn: ${sourceLabel}`;
 
             try {
               await guiFileKemCaption(
@@ -111,7 +115,7 @@ export function createNationalLegalTool({ api, account, message, ghiNhanDaGui }:
 
               return (
                 `✅ ĐÃ GỬI FILE: ${fileName} (${Math.round(dl.fileSize / 1024)} KB)\n` +
-                `Nguồn: ${source === "congbao" ? "Công báo ĐT Chính phủ" : "Thư viện Pháp luật"}\n` +
+                `Nguồn: ${sourceLabel}\n` +
                 `Số hiệu: ${soHieu || "N/A"}`
               );
             } catch (sendErr) {
@@ -124,7 +128,7 @@ export function createNationalLegalTool({ api, account, message, ghiNhanDaGui }:
             `✅ Đã tải VB thành công:\n` +
             `- File: ${path.basename(dl.filePath)}\n` +
             `- Kích thước: ${Math.round(dl.fileSize / 1024)} KB\n` +
-            `- Nguồn: ${source === "congbao" ? "Công báo ĐT Chính phủ" : "Thư viện Pháp luật"}`
+            `- Nguồn: ${sourceLabel}`
           );
         } catch (err) {
           log.error({ err, downloadId }, "National legal download error");

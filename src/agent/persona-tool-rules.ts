@@ -359,7 +359,8 @@ const RULES_TRA_CUU: PersonaRule[] = [
   + VB CẤP TRUNG ƯƠNG (Luật QH, Nghị định CP, Thông tư Bộ, QĐ Thủ tướng, Nghị quyết QH/CP, Pháp lệnh, Chỉ thị TTg): GỌI national_legal.
   + VB CẤP TỈNH LÂM ĐỒNG (QĐ/CV UBND tỉnh, NQ HĐND, Chỉ thị Chủ tịch, Kế hoạch, Báo cáo...): GỌI qppl_lamdong.
   + Khi KHÔNG RÕ cấp ban hành: hỏi người dùng "VB này của Trung ương hay của tỉnh?" HOẶC nếu số hiệu rõ ràng chứa NĐ-CP/TT-Bxxx/QĐ-TTg thì gọi national_legal.
-  + national_legal tìm trên 2 nguồn: Công báo ĐT CP (miễn phí, PDF ký số) + Thư viện Pháp luật (cần đăng nhập, hỗ trợ PDF/DOC/DOCX).`,
+  + national_legal tìm trên 3 nguồn: Công báo ĐT CP (miễn phí, PDF ký số), CSDL quốc gia về pháp luật (vbpl.vn - có văn bản mới nhất, tải trực tiếp PDF/DOCX) và Thư viện Pháp luật (tvpl).
+  + KHI NGƯỜI DÙNG YÊU CẦU TẢI VĂN BẢN (vd: "tải NĐ 349/2026", "gửi file Nghị định X"): BẮT BUỘC phải dùng national_legal để tìm và TẢI TRỰC TIẾP FILE VỀ RỒI GỬI VÀO CHAT (action="download", sendFileToChat=true). TUYỆT ĐỐI KHÔNG chỉ gửi link hay trả lời không tìm thấy nếu chưa tra cứu trên CSDL quốc gia vbpl.vn!`,
   },
 ];
 
