@@ -117,10 +117,48 @@ function nameFromUrl(url: string): string {
   try {
     const u = new URL(url);
     const seg = u.pathname.split("/").filter(Boolean).pop() ?? "";
-    const decoded = decodeURIComponent(seg).trim();
+    const decoded = decodeMaybeNonUtf8(seg).trim();
     return decoded || u.hostname;
   } catch {
     return "file";
+  }
+}
+
+/**
+ * Giải mã tên file từ URL SharePoint.
+ *
+ * SharePoint Lâm Đồng encode tên file tiếng Việt dạng percent-encoded
+ * Latin-1/Windows-1252 thay vì UTF-8 chuẩn. Ví dụ:
+ * - `B%E1o%20c%E1o` (Latin-1) thay vì `B%C3%A1o%20c%C3%A1o` (UTF-8)
+ * - `%D0_%20%E1n` (Latin-1 cho "Đề án") thay vì `%C4%90%E1%BB%81%20%C3%A1n`
+ *
+ * Chiến lược: thử UTF-8 trước, nếu ra ký tự thay thế (�) → decode lại
+ * từng byte thành Latin-1 (code page 1252).
+ */
+function decodeMaybeNonUtf8(encoded: string): string {
+  // Bước 1: thử decode chuẩn UTF-8
+  try {
+    const utf8 = decodeURIComponent(encoded);
+    if (!utf8.includes("\uFFFD")) return utf8;
+  } catch { /* fallthrough to Latin-1 */ }
+
+  // Bước 2: decode từng byte thành Latin-1
+  // Chuyển percent-encoded thành mảng byte, rồi map byte → char Latin-1
+  try {
+    const bytes: number[] = [];
+    for (let i = 0; i < encoded.length; i++) {
+      if (encoded[i] === "%" && i + 2 < encoded.length) {
+        bytes.push(parseInt(encoded.substring(i + 1, i + 3), 16));
+        i += 2;
+      } else {
+        bytes.push(encoded.charCodeAt(i));
+      }
+    }
+    // Latin-1: mỗi byte là một code point (ISO 8859-1 superset)
+    return String.fromCharCode(...bytes);
+  } catch {
+    // Fallback cuối: trả nguyên encoded
+    return encoded;
   }
 }
 
