@@ -349,7 +349,6 @@ export function createQpplLamdongTool({ api, account, message, ghiNhanDaGui }: T
           const sentNamesForDoc: string[] = [];
           for (const absPath of allPaths) {
             const fileName = path.basename(absPath);
-            const caption = `VB ${targetDoc.loaiVanBan}: ${targetDoc.soKyHieu}\n📎 ${fileName}`;
             try {
               await guiFileKemCaption(
                 api,
@@ -357,7 +356,7 @@ export function createQpplLamdongTool({ api, account, message, ghiNhanDaGui }: T
                 message.threadId,
                 message.threadType,
                 absPath,
-                caption,
+                undefined,
               );
               totalFilesSent++;
               sentNamesForDoc.push(fileName);
