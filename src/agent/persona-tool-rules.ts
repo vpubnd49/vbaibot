@@ -206,7 +206,11 @@ const RULES_TRA_CUU: PersonaRule[] = [
     * "kế hoạch cải cách hành chính 6 tháng" → loaiVanBan="Kế hoạch", keyword="cải cách hành chính"
     * "công văn về chuyển đổi số quý III" → loaiVanBan="Công văn", keyword="chuyển đổi số"
   + TUYỆT ĐỐI KHÔNG ĐƯỢC tự ý trả lời bằng văn bản suông nhận là "em đã tải/gửi file" mà không gọi tool! Kể cả khi trong lịch sử trò chuyện đã từng nhắc đến văn bản đó, mỗi khi người dùng yêu cầu "tải file", "tải lại", "gửi lại" thì bạn BẮT BUỘC PHẢI GỌI LẠI tool qppl_lamdong!
-  + Phân biệt với 2 tool khác: legal_search dùng cho Luật/NĐ/Thông tư cấp Trung ương; thanhtra_lamdong chỉ dùng cho Kết luận thanh tra.`,
+  + Phân biệt với 2 tool khác: legal_search dùng cho Luật/NĐ/Thông tư cấp Trung ương; thanhtra_lamdong chỉ dùng cho Kết luận thanh tra.
+  + ⚠️ PHÂN BIỆT "TÌM VB ĐÃ BAN HÀNH" vs "SOẠN VB MỚI" — QUY TẮC CỰC KỲ QUAN TRỌNG:
+    * "báo cáo CCHC tháng 1/2026", "kế hoạch CCHC 6 tháng", "báo cáo kết quả cải cách hành chính", "báo cáo PAR Index", "kế hoạch chuyển đổi số năm 2026" → ĐÂY LÀ TÌM VB ĐÃ BAN HÀNH → BẮT BUỘC gọi qppl_lamdong TRƯỚC (sendFileToChat=true) để tìm VB đã công bố trên cổng tỉnh.
+    * "soạn báo cáo CCHC", "tạo kế hoạch", "viết công văn", "lập báo cáo", "giúp em soạn", "dự thảo báo cáo" → ĐÂY LÀ SOẠN VB MỚI → dùng create_admin_document.
+    * Khi KHÔNG CÓ động từ "soạn/tạo/viết/lập/dự thảo/giúp soạn" mà chỉ nói "báo cáo X tháng Y" hoặc "kế hoạch X năm Y" → MẶC ĐỊNH LÀ TÌM VB ĐÃ BAN HÀNH trước. Chỉ chuyển sang soạn mới khi qppl_lamdong không tìm thấy kết quả.`,
   },
   {
     tools: ["weather_lookup"],
