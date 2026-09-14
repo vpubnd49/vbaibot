@@ -125,20 +125,25 @@ export function upsertQpplDoc(doc: {
 }
 
 /**
- * Tìm kiếm văn bản QPPL theo từ khóa, loại VB và nguồn.
+ * Tìm kiếm văn bản QPPL theo từ khóa, loại VB, nguồn và khoảng ngày.
  *
  * Tìm LIKE trên: số ký hiệu, trích yếu, cơ quan, lĩnh vực.
+ * dateFrom/dateTo lọc theo ngay_ban_hanh (ISO date, VD "2026-01-01").
  */
 export function searchQpplDocs(opts?: {
   keyword?: string;
   loaiVanBan?: string;
   nguon?: QpplNguon;
+  dateFrom?: string;
+  dateTo?: string;
   limit?: number;
 }): QpplDoc[] {
   const max = Math.max(1, Math.min(opts?.limit ?? 10, 30));
   const kw = opts?.keyword?.trim();
   const loai = opts?.loaiVanBan?.trim();
   const nguon = opts?.nguon;
+  const dateFrom = opts?.dateFrom?.trim();
+  const dateTo = opts?.dateTo?.trim();
 
   const conditions: string[] = [];
   const params: (string | number | null)[] = [];
@@ -159,6 +164,15 @@ export function searchQpplDocs(opts?: {
   if (nguon) {
     conditions.push("nguon = ?");
     params.push(nguon);
+  }
+
+  if (dateFrom) {
+    conditions.push("ngay_ban_hanh >= ?");
+    params.push(dateFrom);
+  }
+  if (dateTo) {
+    conditions.push("ngay_ban_hanh < ?");
+    params.push(dateTo);
   }
 
   const where = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";

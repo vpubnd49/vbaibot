@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { dataDir } from "../config/env.js";
 import { createLogger } from "../shared/logger.js";
-import { extractFileUrls, fetchQpplItems, downloadQpplFile, searchQpplItemsLive } from "./qppl-crawler.js";
+import { extractFileUrls, fetchQpplItems, downloadQpplFile, searchQpplItemsLive, searchQpplByDateRange } from "./qppl-crawler.js";
 import { countQpplDocs, getQpplDocById, updateQpplLocalPath, upsertQpplDoc } from "./qppl-store.js";
 import type { QpplDoc, QpplFileLink, QpplNguon, QpplSyncResult } from "./qppl-types.js";
 
@@ -129,6 +129,69 @@ export async function liveSearchAndUpsert(
   }
 
   log.info({ keyword, found: docs.length }, "Live search QPPL → upsert xong");
+  return docs;
+}
+
+/**
+ * Tra cứu VB QPPL theo khoảng ngày trực tiếp trên API cổng tỉnh, upsert vào DB.
+ *
+ * Dùng khi người dùng yêu cầu VB theo thời gian cụ thể:
+ * "báo cáo CCHC tháng 1/2026", "kế hoạch 6 tháng đầu năm 2026", v.v.
+ *
+ * Flow: gọi API SharePoint với $filter ngày → post-filter keyword/loại VB
+ * → upsert kết quả vào SQLite → trả QpplDoc[].
+ */
+export async function liveSearchByDateRange(opts: {
+  dateFrom: string;
+  dateTo: string;
+  keyword?: string;
+  loaiVanBan?: string;
+  limit?: number;
+}): Promise<QpplDoc[]> {
+  const liveResults = await searchQpplByDateRange({
+    dateFrom: opts.dateFrom,
+    dateTo: opts.dateTo,
+    keyword: opts.keyword,
+    loaiVanBan: opts.loaiVanBan,
+    limit: opts.limit ?? 30,
+  });
+
+  if (liveResults.length === 0) return [];
+
+  const docs: QpplDoc[] = [];
+  for (const { nguon, item } of liveResults) {
+    const soKyHieu =
+      item.S_x1ed1__x002f_K_x00fd__x0020_hi?.trim() ||
+      item.Title?.replace(/^Trục liên thông:\s*/i, "").trim() ||
+      "";
+    if (!soKyHieu) continue;
+
+    const fileLinks = extractFileUrls(item.Urls);
+
+    try {
+      const doc = upsertQpplDoc({
+        soKyHieu,
+        trichYeu: item.Tr_x00ed_ch_x0020_y_x1ebf_u ?? "",
+        loaiVanBan: item.Lo_x1ea1_i_x0020_v_x0103_n_x0020 ?? "",
+        coQuanBanHanh: item.C_x01a1__x0020_quan_x0020_ban_x0 ?? "",
+        linhVuc: item.L_x0129_nh_x0020_V_x1ef1_c ?? "",
+        hieuLuc: item.Hi_x1ec7_u_x0020_l_x1ef1_c ?? "Còn",
+        ngayBanHanh: item.Ng_x00e0_y ?? undefined,
+        nguon,
+        fileUrls: JSON.stringify(fileLinks),
+        spId: item.ID ?? null,
+        modifiedAt: item.Modified,
+      });
+      docs.push(doc);
+    } catch (err) {
+      log.warn({ soKyHieu, err }, "Lỗi upsert VB từ date-range search");
+    }
+  }
+
+  log.info(
+    { dateFrom: opts.dateFrom, dateTo: opts.dateTo, keyword: opts.keyword, found: docs.length },
+    "Live date-range search QPPL → upsert xong",
+  );
   return docs;
 }
 

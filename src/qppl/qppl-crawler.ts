@@ -393,3 +393,117 @@ export async function downloadQpplFile(
 
   return buffer.length;
 }
+
+/**
+ * Tra cứu VB QPPL trong khoảng ngày, phân trang tự động.
+ *
+ * SharePoint `$filter` trên trường `Ng_x00e0_y` (Date) hoạt động qua proxy,
+ * nhưng `substringof` trên Title chỉ chứa số hiệu ("Trục liên thông: 1077/UBND-NNMT")
+ * — KHÔNG chứa trích yếu hay loại VB. Vì vậy:
+ * - Lọc NGÀY: qua API (`$filter`)
+ * - Lọc KEYWORD + LOẠI VB: post-filter client-side trên trích yếu + số ký hiệu.
+ *
+ * Thử cả UBND lẫn HĐND rồi gộp kết quả.
+ */
+export async function searchQpplByDateRange(opts: {
+  dateFrom: string; // ISO date "2026-01-01"
+  dateTo: string;   // ISO date "2026-02-01"
+  keyword?: string;
+  loaiVanBan?: string;
+  limit?: number;
+}): Promise<{ nguon: QpplNguon; item: QpplRawItem }[]> {
+  const { dateFrom, dateTo, keyword, loaiVanBan, limit = 50 } = opts;
+  if (!dateFrom || !dateTo) return [];
+
+  const results: { nguon: QpplNguon; item: QpplRawItem }[] = [];
+  const nguons: QpplNguon[] = ["ubnd", "hdnd"];
+
+  const kwLower = keyword?.trim().toLowerCase() ?? "";
+  const loaiLower = loaiVanBan?.trim().toLowerCase() ?? "";
+
+  for (const nguon of nguons) {
+    const cfg = NGUON_CONFIG[nguon];
+    const dateFilter =
+      `Ng_x00e0_y ge datetime'${dateFrom}T00:00:00' and Ng_x00e0_y lt datetime'${dateTo}T00:00:00'`;
+
+    const pageSize = 100; // SharePoint max per page
+    let nextUrl: string | null =
+      `${cfg.baseUrl}('${encodeURIComponent(cfg.listTitle)}')/items` +
+      `?$filter=${encodeURIComponent(dateFilter)}` +
+      `&$orderby=Ng_x00e0_y desc` +
+      `&$select=${SP_SELECT_FIELDS}` +
+      `&$top=${pageSize}`;
+
+    let page = 0;
+    const MAX_PAGES = 20; // max 2000 items per nguon per date range
+    let nguonItems: QpplRawItem[] = [];
+
+    while (nextUrl && page < MAX_PAGES) {
+      page++;
+      try {
+        const res = await fetch(API_PROXY_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json;odata=verbose",
+            "User-Agent": "Mozilla/5.0 (compatible; VBAIBot/1.0)",
+          },
+          body: JSON.stringify({ SourceUrl: nextUrl }),
+          signal: AbortSignal.timeout(20000),
+        });
+
+        if (!res.ok) {
+          log.warn({ status: res.status, page, nguon, dateFrom, dateTo }, "API date-range QPPL trả mã lỗi");
+          break;
+        }
+
+        const data = (await res.json()) as {
+          d?: { results?: QpplRawItem[]; __next?: string };
+        };
+        const items = data?.d?.results || [];
+        nguonItems.push(...items);
+
+        const rawNext = data?.d?.__next;
+        nextUrl =
+          rawNext && items.length > 0
+            ? rawNext.replace("https://lamdong.gov.vn/", "https://w3.lamdong.gov.vn/")
+            : null;
+
+        log.debug(
+          { page, fetched: items.length, total: nguonItems.length, nguon, dateFrom, dateTo },
+          "Đã lấy trang VB QPPL theo ngày",
+        );
+      } catch (err) {
+        log.error({ err, page, nguon, dateFrom, dateTo }, "Lỗi khi gọi API date-range QPPL");
+        break;
+      }
+    }
+
+    // Post-filter: keyword trên trích yếu + số ký hiệu, loại VB trên loai
+    for (const item of nguonItems) {
+      if (kwLower) {
+        const searchable = [
+          item.Tr_x00ed_ch_x0020_y_x1ebf_u ?? "",
+          item.S_x1ed1__x002f_K_x00fd__x0020_hi ?? "",
+          item.Title ?? "",
+        ].join(" ").toLowerCase();
+        if (!searchable.includes(kwLower)) continue;
+      }
+      if (loaiLower) {
+        const itemLoai = (item.Lo_x1ea1_i_x0020_v_x0103_n_x0020 ?? "").toLowerCase();
+        if (!itemLoai.includes(loaiLower)) continue;
+      }
+      results.push({ nguon, item });
+    }
+
+    log.debug(
+      { nguon, dateFrom, dateTo, rawCount: nguonItems.length, filtered: results.length },
+      "Date-range search QPPL",
+    );
+
+    if (results.length >= limit) break;
+  }
+
+  return results.slice(0, limit);
+}
+

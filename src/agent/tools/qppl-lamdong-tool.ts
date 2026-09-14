@@ -3,7 +3,7 @@ import path from "node:path";
 import { tool } from "ai";
 import { z } from "zod";
 import { searchQpplDocs, getQpplDocById, countQpplDocs } from "../../qppl/qppl-store.js";
-import { getQpplStorageDir, syncQpplDocuments, downloadAllFilesForDoc, liveSearchAndUpsert } from "../../qppl/qppl-service.js";
+import { getQpplStorageDir, syncQpplDocuments, downloadAllFilesForDoc, liveSearchAndUpsert, liveSearchByDateRange } from "../../qppl/qppl-service.js";
 import type { QpplDownloadResult } from "../../qppl/qppl-service.js";
 import { guiFileKemCaption } from "./send-attachment-with-caption.js";
 import { ghiChuDaGuiFile } from "./sent-by-tool-note.js";
@@ -28,6 +28,7 @@ export function createQpplLamdongTool({ api, account, message, ghiNhanDaGui }: T
     description:
       "BẮT BUỘC GỌI TOOL NÀY khi người dùng yêu cầu tra cứu, tìm kiếm hoặc TẢI FILE văn bản chỉ đạo điều hành của tỉnh Lâm Đồng " +
       "(Quyết định UBND/BĐD, Công văn, Kế hoạch, Nghị quyết HĐND, Chỉ thị, Báo cáo, Tờ trình...). " +
+      "Hỗ trợ lọc theo khoảng thời gian (tháng, quý, năm) kết hợp loại VB và từ khóa. " +
       "KHI NGƯỜI DÙNG YÊU CẦU TẢI FILE (VD: 'tải quyết định 4480', 'tải kế hoạch 15187', 'gửi file quyết định...'): " +
       "BẮT BUỘC đặt sendFileToChat=true và keyword là số hiệu văn bản để tool tải toàn bộ file đính kèm gửi thẳng vào chat.",
     inputSchema: z.object({
@@ -57,6 +58,20 @@ export function createQpplLamdongTool({ api, account, message, ghiNhanDaGui }: T
         .number()
         .optional()
         .describe("ID văn bản (dùng cho action 'get')"),
+      dateFrom: z
+        .string()
+        .optional()
+        .describe(
+          "Ngày bắt đầu ISO (VD: '2026-01-01'). Dùng để lọc VB theo khoảng thời gian. " +
+          "Ví dụ: tháng 1/2026 → dateFrom='2026-01-01', dateTo='2026-02-01'",
+        ),
+      dateTo: z
+        .string()
+        .optional()
+        .describe(
+          "Ngày kết thúc ISO (VD: '2026-02-01'). Kết hợp dateFrom. " +
+          "Ví dụ: 6 tháng đầu 2026 → dateFrom='2026-01-01', dateTo='2026-07-01'",
+        ),
       sendFileToChat: z
         .boolean()
         .optional()
@@ -68,7 +83,7 @@ export function createQpplLamdongTool({ api, account, message, ghiNhanDaGui }: T
         .default(false)
         .describe("Nếu true cùng sendFileToChat, gom toàn bộ file thành một ZIP kèm MANIFEST.csv rồi gửi một lần"),
     }),
-    execute: async ({ action, keyword, loaiVanBan, nguon, docId, sendFileToChat, archiveFiles }) => {
+    execute: async ({ action, keyword, loaiVanBan, nguon, docId, dateFrom, dateTo, sendFileToChat, archiveFiles }) => {
       // === SYNC ===
       if (action === "sync") {
         const target = (nguon as QpplNguon) || "ubnd";
@@ -225,6 +240,8 @@ export function createQpplLamdongTool({ api, account, message, ghiNhanDaGui }: T
         keyword,
         loaiVanBan,
         nguon: nguon as QpplNguon | undefined,
+        dateFrom,
+        dateTo,
         limit: 50,
       });
 
@@ -232,13 +249,26 @@ export function createQpplLamdongTool({ api, account, message, ghiNhanDaGui }: T
       if (docs.length === 0 && countQpplDocs() === 0) {
         await syncQpplDocuments("ubnd", 100);
         await syncQpplDocuments("hdnd", 50);
-        docs = searchQpplDocs({ keyword, loaiVanBan, nguon: nguon as QpplNguon | undefined, limit: 50 });
+        docs = searchQpplDocs({ keyword, loaiVanBan, nguon: nguon as QpplNguon | undefined, dateFrom, dateTo, limit: 50 });
       }
 
-      // Fallback: local DB không có → tra cứu trực tiếp trên API cổng tỉnh
-      // (VB nằm ngoài batch sync gần nhất, VD: 15187/KH-UBND ban hành 10/09/2026)
+      // Fallback 1: nếu có dateFrom/dateTo → tra API theo khoảng ngày
+      if (docs.length === 0 && dateFrom && dateTo) {
+        docs = await liveSearchByDateRange({ dateFrom, dateTo, keyword, loaiVanBan, limit: 30 });
+      }
+
+      // Fallback 2: local DB không có + không có dateRange → tra cứu live bằng keyword
       if (docs.length === 0 && keyword) {
         docs = await liveSearchAndUpsert(keyword, 30);
+        // Nếu tìm được bằng keyword nhưng có dateFrom/dateTo → lọc lại theo ngày
+        if (dateFrom || dateTo) {
+          docs = docs.filter((d) => {
+            const date = d.ngayBanHanh?.slice(0, 10) ?? "";
+            if (dateFrom && date < dateFrom) return false;
+            if (dateTo && date >= dateTo) return false;
+            return true;
+          });
+        }
       }
 
       if (docs.length === 0) {

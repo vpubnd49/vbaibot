@@ -190,8 +190,21 @@ const RULES_TRA_CUU: PersonaRule[] = [
   {
     tools: ["qppl_lamdong"],
     text: `- TOOL QPPL_LAMDONG - TRA CỨU & TẢI VĂN BẢN TỈNH LÂM ĐỒNG (UBND, HĐND):
-  + BẮT BUỘC 100% PHẢI GỌI TOOL qppl_lamdong khi người dùng hỏi: "tải quyết định...", "tải công văn...", "tải kế hoạch...", "tải văn bản...", "tìm công văn số...", "văn bản chỉ đạo tỉnh", "tải quyết định 4480", "tải kế hoạch 15187"...
+  + BẮT BUỘC 100% PHẢI GỌI TOOL qppl_lamdong khi người dùng hỏi: "tải quyết định...", "tải công văn...", "tải kế hoạch...", "tải văn bản...", "tìm công văn số...", "văn bản chỉ đạo tỉnh", "tải quyết định 4480", "tải kế hoạch 15187", "báo cáo CCHC tháng...", "kế hoạch cải cách hành chính 6 tháng..."
   + KHI NGƯỜI DÙNG YÊU CẦU TẢI FILE (kể cả khi bảo tải lại/gửi lại): BẮT BUỘC đặt tham số sendFileToChat=true và keyword=<số hiệu/từ khóa>. Tool sẽ tự động tải tất cả các file đính kèm (gồm cả file chính thức có chữ ký số và các phụ lục) rồi gửi thẳng vào chat Zalo cho người dùng.
+  + KHI NGƯỜI DÙNG YÊU CẦU THEO THỜI GIAN (tháng/quý/năm/6 tháng): BẮT BUỘC chuyển sang dateFrom/dateTo ISO:
+    * "tháng 1/2026" → dateFrom="2026-01-01", dateTo="2026-02-01"
+    * "tháng 6/2026" → dateFrom="2026-06-01", dateTo="2026-07-01"
+    * "6 tháng đầu năm 2026" → dateFrom="2026-01-01", dateTo="2026-07-01"
+    * "6 tháng cuối năm 2025" → dateFrom="2025-07-01", dateTo="2026-01-01"
+    * "quý I/2026" → dateFrom="2026-01-01", dateTo="2026-04-01"
+    * "quý III/2026" → dateFrom="2026-07-01", dateTo="2026-10-01"
+    * "năm 2025" → dateFrom="2025-01-01", dateTo="2026-01-01"
+    * "9 tháng đầu năm 2026" → dateFrom="2026-01-01", dateTo="2026-10-01"
+    Kết hợp loaiVanBan + keyword khi người dùng nói rõ loại VB:
+    * "báo cáo CCHC tháng 1/2026" → loaiVanBan="Báo cáo", keyword="cải cách hành chính", dateFrom/dateTo tương ứng
+    * "kế hoạch cải cách hành chính 6 tháng" → loaiVanBan="Kế hoạch", keyword="cải cách hành chính"
+    * "công văn về chuyển đổi số quý III" → loaiVanBan="Công văn", keyword="chuyển đổi số"
   + TUYỆT ĐỐI KHÔNG ĐƯỢC tự ý trả lời bằng văn bản suông nhận là "em đã tải/gửi file" mà không gọi tool! Kể cả khi trong lịch sử trò chuyện đã từng nhắc đến văn bản đó, mỗi khi người dùng yêu cầu "tải file", "tải lại", "gửi lại" thì bạn BẮT BUỘC PHẢI GỌI LẠI tool qppl_lamdong!
   + Phân biệt với 2 tool khác: legal_search dùng cho Luật/NĐ/Thông tư cấp Trung ương; thanhtra_lamdong chỉ dùng cho Kết luận thanh tra.`,
   },
