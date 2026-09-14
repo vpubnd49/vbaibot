@@ -283,12 +283,55 @@ export function createQpplLamdongTool({ api, account, message, ghiNhanDaGui }: T
       if (sendFileToChat && docs.length > 0) {
         // Loại trùng soKyHieu (cùng VB có thể xuất hiện nhiều lần từ search)
         const seen = new Set<string>();
-        const uniqueDocs = docs.filter((d) => {
+        let uniqueDocs = docs.filter((d) => {
           if (seen.has(d.soKyHieu)) return false;
           seen.add(d.soKyHieu);
           return true;
         });
-        // Gửi TẤT CẢ văn bản tìm được theo yêu cầu người dùng (tải hết các file).
+
+        // Smart post-filter: khi dateFrom/dateTo là đúng 1 tháng, loại VB có
+        // trích yếu nhắc tháng KHÁC (VD: user hỏi tháng 8, trích yếu ghi "tháng 7")
+        if (dateFrom && dateTo && uniqueDocs.length > 1) {
+          const dfDate = new Date(dateFrom);
+          const dtDate = new Date(dateTo);
+          const diffMonths =
+            (dtDate.getFullYear() - dfDate.getFullYear()) * 12 +
+            (dtDate.getMonth() - dfDate.getMonth());
+
+          // Chỉ áp dụng khi khoảng thời gian <= 1 tháng
+          if (diffMonths <= 1) {
+            const requestedMonth = dfDate.getMonth() + 1; // 1-12
+
+            // Danh sách tháng khác để loại trừ
+            const otherMonthPatterns: RegExp[] = [];
+            for (let m = 1; m <= 12; m++) {
+              if (m === requestedMonth) continue;
+              // Khớp các dạng: "tháng 7", "tháng 07", "thang 7", "T7", "T07"
+              // Cẩn thận không match "tháng 7.2026" khi year khác
+              otherMonthPatterns.push(
+                new RegExp(`(?:tháng|thang|tháng\\s)\\s*0?${m}(?:\\b|[./])`, "i"),
+              );
+            }
+
+            const filtered = uniqueDocs.filter((d) => {
+              const text = `${d.trichYeu} ${d.soKyHieu}`;
+              // Nếu VB nhắc tháng KHÁC VÀ KHÔNG nhắc tháng đúng → loại
+              const mentionsOther = otherMonthPatterns.some((re) => re.test(text));
+              const mentionsRequested = new RegExp(
+                `(?:tháng|thang)\\s*0?${requestedMonth}(?:\\b|[./])`, "i",
+              ).test(text);
+              if (mentionsOther && !mentionsRequested) return false;
+              return true;
+            });
+
+            // Chỉ áp dụng nếu sau khi lọc vẫn còn kết quả
+            if (filtered.length > 0) {
+              uniqueDocs = filtered;
+            }
+          }
+        }
+
+        // Gửi TẤT CẢ văn bản đã lọc chính xác.
         // Mỗi file gửi lỗi vẫn tiếp tục gửi các file còn lại để không bỏ sót.
         const toSend = uniqueDocs;
         const sentFiles: string[] = [];

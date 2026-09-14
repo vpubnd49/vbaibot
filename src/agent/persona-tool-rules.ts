@@ -210,7 +210,11 @@ const RULES_TRA_CUU: PersonaRule[] = [
   + ⚠️ PHÂN BIỆT "TÌM VB ĐÃ BAN HÀNH" vs "SOẠN VB MỚI" — QUY TẮC CỰC KỲ QUAN TRỌNG:
     * "báo cáo CCHC tháng 1/2026", "kế hoạch CCHC 6 tháng", "báo cáo kết quả cải cách hành chính", "báo cáo PAR Index", "kế hoạch chuyển đổi số năm 2026" → ĐÂY LÀ TÌM VB ĐÃ BAN HÀNH → BẮT BUỘC gọi qppl_lamdong TRƯỚC (sendFileToChat=true) để tìm VB đã công bố trên cổng tỉnh.
     * "soạn báo cáo CCHC", "tạo kế hoạch", "viết công văn", "lập báo cáo", "giúp em soạn", "dự thảo báo cáo" → ĐÂY LÀ SOẠN VB MỚI → dùng create_admin_document.
-    * Khi KHÔNG CÓ động từ "soạn/tạo/viết/lập/dự thảo/giúp soạn" mà chỉ nói "báo cáo X tháng Y" hoặc "kế hoạch X năm Y" → MẶC ĐỊNH LÀ TÌM VB ĐÃ BAN HÀNH trước. Chỉ chuyển sang soạn mới khi qppl_lamdong không tìm thấy kết quả.`,
+    * Khi KHÔNG CÓ động từ "soạn/tạo/viết/lập/dự thảo/giúp soạn" mà chỉ nói "báo cáo X tháng Y" hoặc "kế hoạch X năm Y" → MẶC ĐỊNH LÀ TÌM VB ĐÃ BAN HÀNH trước. Chỉ chuyển sang soạn mới khi qppl_lamdong không tìm thấy kết quả.
+  + ⚠️ KHI USER CHỈ MUỐN 1 THÁNG CỤ THỂ (VD: "tháng 8 thôi", "chỉ tháng 8", "trong tháng 8"):
+    * BẮT BUỘC đặt dateFrom/dateTo chính xác 1 tháng (VD: dateFrom="2026-08-01", dateTo="2026-09-01").
+    * Tool sẽ TỰ ĐỘNG loại VB có trích yếu nhắc tháng khác (VD: VB ban hành tháng 8 nhưng nội dung về "tháng 7" sẽ bị loại).
+    * TUYỆT ĐỐI KHÔNG gửi VB của tháng liền kề khi user đã nói rõ chỉ muốn 1 tháng.`,
   },
   {
     tools: ["weather_lookup"],
