@@ -10,6 +10,7 @@ import {
   isTvplConfigured,
   type TvplSearchResult,
 } from "./tvpl-crawler.js";
+import { searchVbpl } from "./vbpl-crawler.js";
 
 const log = createLogger("national-legal-service");
 
@@ -24,8 +25,8 @@ export type NationalLegalResult = {
   loaiVB: string;
   /** Ngày ban hành */
   ngayBanHanh: string;
-  /** Nguồn: "congbao" | "tvpl" */
-  source: "congbao" | "tvpl";
+  /** Nguồn: "congbao" | "tvpl" | "vbpl" */
+  source: "congbao" | "tvpl" | "vbpl";
   /** URL trang chi tiết */
   detailUrl: string;
   /** ID dùng để tải (docId TVPL hoặc detail URL Công báo) */
@@ -36,7 +37,7 @@ export type NationalDownloadResult = {
   filePath: string | null;
   format: string;
   fileSize: number;
-  source: "congbao" | "tvpl";
+  source: "congbao" | "tvpl" | "vbpl";
   error?: string;
 };
 
@@ -44,14 +45,15 @@ export type NationalDownloadResult = {
 
 /**
  * Tìm kiếm văn bản pháp luật cấp Trung ương.
- * Chiến lược: song song Công báo + TVPL, gộp kết quả loại trùng.
+ * Chiến lược: song song Công báo + VBPL + TVPL, gộp kết quả loại trùng.
  */
 export async function searchNationalLegal(keyword: string): Promise<NationalLegalResult[]> {
   const results: NationalLegalResult[] = [];
 
-  // Chạy song song 2 nguồn
-  const [congbaoItems, tvplItems] = await Promise.allSettled([
+  // Chạy song song 3 nguồn
+  const [congbaoItems, vbplItems, tvplItems] = await Promise.allSettled([
     searchCongbao(keyword),
+    searchVbpl(keyword),
     isTvplConfigured() ? searchTvpl(keyword) : Promise.resolve([] as TvplSearchResult[]),
   ]);
 
@@ -72,14 +74,35 @@ export async function searchNationalLegal(keyword: string): Promise<NationalLega
     log.warn({ err: congbaoItems.reason }, "Congbao search failed");
   }
 
-  // Xử lý kết quả TVPL
-  if (tvplItems.status === "fulfilled") {
-    for (const item of tvplItems.value) {
-      // Kiểm tra trùng số hiệu với kết quả Công báo
+  // Xử lý kết quả VBPL (CSDL quốc gia về pháp luật - miễn phí)
+  if (vbplItems.status === "fulfilled") {
+    for (const item of vbplItems.value) {
       const existing = results.find(
         (r) => r.soHieu && item.soHieu && normalizeSoHieu(r.soHieu) === normalizeSoHieu(item.soHieu),
       );
-      if (existing) continue; // Bỏ trùng, ưu tiên Công báo
+      if (existing) continue;
+
+      results.push({
+        soHieu: item.soHieu,
+        trichYeu: item.trichYeu,
+        loaiVB: item.loaiVB,
+        ngayBanHanh: item.ngayBanHanh,
+        source: "vbpl",
+        detailUrl: item.detailUrl,
+        downloadId: item.slug,
+      });
+    }
+  } else {
+    log.warn({ err: vbplItems.reason }, "VBPL search failed");
+  }
+
+  // Xử lý kết quả TVPL (cần đăng nhập)
+  if (tvplItems.status === "fulfilled") {
+    for (const item of tvplItems.value) {
+      const existing = results.find(
+        (r) => r.soHieu && item.soHieu && normalizeSoHieu(r.soHieu) === normalizeSoHieu(item.soHieu),
+      );
+      if (existing) continue;
 
       results.push({
         soHieu: item.soHieu,

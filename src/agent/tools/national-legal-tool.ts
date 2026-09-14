@@ -18,7 +18,7 @@ export function createNationalLegalTool({ api, account, message, ghiNhanDaGui }:
     description:
       "BẮT BUỘC GỌI TOOL NÀY khi người dùng hỏi, tra cứu hoặc yêu cầu TẢI FILE văn bản pháp luật CẤP TRUNG ƯƠNG " +
       "(Luật, Nghị định, Thông tư, Quyết định TTg, Nghị quyết QH/CP, Pháp lệnh...). " +
-      "Nguồn: Công báo điện tử CP (congbao.chinhphu.vn) + Thư viện Pháp luật (thuvienphapluat.vn). " +
+      "Nguồn: CSDL quốc gia về pháp luật (vbpl.vn) + Công báo ĐT CP (congbao.chinhphu.vn) + Thư viện Pháp luật. " +
       "KHÔNG dùng cho VB tỉnh Lâm Đồng (dùng tool qppl_lamdong). " +
       "KHI NGƯỜI DÙNG YÊU CẦU TẢI FILE: đặt sendFileToChat=true.",
     inputSchema: z.object({
