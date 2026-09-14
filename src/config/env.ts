@@ -242,8 +242,8 @@ const envSchema = z.object({
   // Số tin tối đa giữ lại mỗi thread; tin cũ hơn bị xóa sau mỗi lần ghi để DB
   // không phình vô hạn khi bot chạy dài ngày.
   HISTORY_MAX_MESSAGES_PER_THREAD: z.coerce.number().int().min(20).max(100_000).default(500),
-  SEND_DELAY_MIN_MS: z.coerce.number().int().min(0).default(800),
-  SEND_DELAY_MAX_MS: z.coerce.number().int().min(0).default(2500),
+  SEND_DELAY_MIN_MS: z.coerce.number().int().min(0).default(200),
+  SEND_DELAY_MAX_MS: z.coerce.number().int().min(0).default(800),
   // Zalo chặn tin quá dài ở phía server (error_code 118 "Nội dung quá dài") -
   // zca-js không kiểm gì nên vượt ngưỡng là mất trắng cả câu trả lời. Đo được:
   // chính Zalo tự cắt tin dán vào thành đoạn 2613 ký tự, tức trần thật >= 2613;
@@ -261,8 +261,9 @@ const envSchema = z.object({
   // bị Zalo đánh dấu spam; vượt trần thì đoạn cuối kèm ghi chú "phần sau còn dài".
   ZALO_MAX_MESSAGE_PARTS: z.coerce.number().int().min(1).max(20).default(5),
   // Thời gian chờ gộp tin nhắn cùng thread thành 1 lượt agent (ảnh + caption,
-  // hoặc user nhắn liền nhiều tin ngắn). Cao hơn = gộp tốt hơn nhưng trả lời chậm hơn.
-  MESSAGE_BATCH_DEBOUNCE_MS: z.coerce.number().int().min(0).max(15000).default(2500),
+  // hoặc user nhắn liền nhiều tin ngắn). Cao hơn = gộp tốt hơn nhưng trả lời
+  // chậm hơn. 1000ms đủ cho Zalo tách ảnh+caption (300-800ms) mà không chờ quá.
+  MESSAGE_BATCH_DEBOUNCE_MS: z.coerce.number().int().min(0).max(15000).default(1000),
   // Zalo không có API tắt "đang nhập", chỉ báo tự hết sau vài giây -> phải bắn
   // lặp lại theo chu kỳ này cho tới khi gửi xong câu trả lời
   TYPING_REFRESH_MS: z.coerce.number().int().min(1000).max(10000).default(3000),

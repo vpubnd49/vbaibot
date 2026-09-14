@@ -153,8 +153,7 @@ async function xuLyLuot(
 
   const luuAnh = options.persistImages ?? persistBatchImages;
   const luuFile = options.persistFiles ?? persistBatchFiles;
-  await luuAnh(config.id, batch);
-  await luuFile(config.id, batch);
+  await Promise.all([luuAnh(config.id, batch), luuFile(config.id, batch)]);
 
   /**
    * Tin người dùng nhắn thêm GIỮA lượt, đã được kéo vào ngữ cảnh của model.
@@ -177,8 +176,7 @@ async function xuLyLuot(
     // phải có TRƯỚC khi dựng nội dung cho model, và trước khi ghi history.
     // Thiếu nó thì model sẽ tưởng file bị lỗi không tải được, sidecar không nạp
     // lại được, và history bị mất đường dẫn khi URL Zalo hết hạn.
-    await luuAnh(config.id, moi);
-    await luuFile(config.id, moi);
+    await Promise.all([luuAnh(config.id, moi), luuFile(config.id, moi)]);
     return moi;
   };
 
