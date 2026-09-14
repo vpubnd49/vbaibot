@@ -100,7 +100,6 @@ export function createNationalLegalTool({ api, account, message, ghiNhanDaGui }:
           // Gửi file vào chat nếu yêu cầu
           if (sendFileToChat) {
             const fileName = path.basename(dl.filePath);
-            const caption = `📜 VB Pháp luật: ${soHieu || fileName}\n📎 ${fileName} (${Math.round(dl.fileSize / 1024)} KB)\n🔗 Nguồn: ${sourceLabel}`;
 
             try {
               await guiFileKemCaption(
@@ -109,7 +108,7 @@ export function createNationalLegalTool({ api, account, message, ghiNhanDaGui }:
                 message.threadId,
                 message.threadType,
                 dl.filePath,
-                caption,
+                undefined,
               );
               ghiNhanDaGui?.(ghiChuDaGuiFile(fileName, `VB PL TW (${source})`));
 
