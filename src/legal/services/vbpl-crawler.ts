@@ -55,6 +55,97 @@ export type VbplDownloadResult = {
   error?: string;
 };
 
+const DOC_TYPE_MAP: Record<string, string> = {
+  "nghi-dinh": "0d08b84c-7de7-4800-8760-2a68265e7890",
+};
+
+export type VbplSearchParams = {
+  keyword?: string;
+  docType?: string[];
+  agencyIds?: string[];
+  issueDateFrom?: string;
+  issueDateTo?: string;
+  sortBy?: string;
+  sortDirection?: "asc" | "desc";
+  page?: number;
+  pageSize?: number;
+};
+
+/**
+ * Phân tích câu hỏi người dùng để trích xuất bộ lọc thời gian và loại văn bản.
+ * Hỗ trợ các câu hỏi như:
+ * - "tôi cần tải các nghị định mới nhất vừa ban hành trong tháng 7"
+ * - "Nghị định ban hành tháng 7 năm 2026"
+ * - "nghị định mới nhất"
+ */
+export function parseTemporalAndCategoryFilter(rawKeyword: string): VbplSearchParams | null {
+  const text = rawKeyword.trim();
+  const lower = text.toLowerCase();
+
+  let hasFilter = false;
+  let docType: string[] | undefined = undefined;
+  let issueDateFrom: string | undefined = undefined;
+  let issueDateTo: string | undefined = undefined;
+  let sortBy = "issueDate";
+  let sortDirection: "asc" | "desc" = "desc";
+
+  // 1. Loại văn bản (Nghị định)
+  if (/\b(nghị định|nđ|nghidinh)\b/i.test(lower)) {
+    docType = [DOC_TYPE_MAP["nghi-dinh"]];
+    hasFilter = true;
+  }
+
+  // 2. Năm ban hành
+  let year = new Date().getFullYear();
+  const yearMatch = text.match(/\b(202[0-9])\b/);
+  if (yearMatch) {
+    year = parseInt(yearMatch[1], 10);
+    hasFilter = true;
+  }
+
+  // 3. Tháng ban hành
+  const monthMatch = text.match(/\btháng\s*([0-9]{1,2})\b/i);
+  if (monthMatch) {
+    const m = parseInt(monthMatch[1], 10);
+    if (m >= 1 && m <= 12) {
+      const padM = String(m).padStart(2, "0");
+      const lastDay = new Date(year, m, 0).getDate();
+      issueDateFrom = `${year}-${padM}-01T00:00:00`;
+      issueDateTo = `${year}-${padM}-${lastDay}T23:59:59`;
+      hasFilter = true;
+    }
+  }
+
+  // 4. Các cụm từ chỉ tính mới
+  if (/\b(mới nhất|vừa ban hành|gần đây|mới ban hành)\b/i.test(lower)) {
+    hasFilter = true;
+  }
+
+  if (!hasFilter) return null;
+
+  // Lược bỏ các từ khóa chức năng/thời gian để lại chủ đề tìm kiếm (nếu có)
+  const cleaned = text
+    .replace(/\b(tôi cần|cần|hãy|cho tôi xin|cho xin|tìm|tải|tra cứu|xem|danh sách|quét)\b/gi, "")
+    .replace(/\b(các|những|toàn bộ|tất cả|mới nhất|vừa ban hành|mới ban hành|gần đây)\b/gi, "")
+    .replace(/\b(nghị định|nđ|quyết định|thông tư|luật|nghị quyết)\b/gi, "")
+    .replace(/\b(ban hành|phát hành)\b/gi, "")
+    .replace(/\b(trong\s+)?tháng\s*[0-9]{1,2}(\s*năm\s*202[0-9])?\b/gi, "")
+    .replace(/\b(năm\s*)?202[0-9]\b/gi, "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  return {
+    keyword: cleaned.length > 1 ? cleaned : "",
+    docType,
+    issueDateFrom,
+    issueDateTo,
+    sortBy,
+    sortDirection,
+    page: 1,
+    pageSize: 15,
+  };
+}
+
 export function getSearchCandidates(rawKeyword: string): string[] {
   const candidates: string[] = [];
   const trimmed = rawKeyword.trim();
@@ -90,11 +181,29 @@ export function getSearchCandidates(rawKeyword: string): string[] {
 
 /**
  * Tìm VB trên CSDL quốc gia về pháp luật (vbpl.vn).
- * Ưu tiên gọi Next.js Server Action trực tiếp (nhanh, 100ms) với cơ chế retry và dự phòng các dạng từ khóa.
+ * Hỗ trợ tự động nhận diện bộ lọc thời gian (tháng/năm) và loại VB (Nghị định),
+ * kết hợp Server Action có retry và dự phòng candidates.
  */
 export async function searchVbpl(keyword: string): Promise<VbplSearchResult[]> {
-  const candidates = getSearchCandidates(keyword);
+  // 1. Kiểm tra xem query có chứa bộ lọc thời gian / loại VB hay không
+  const temporalFilter = parseTemporalAndCategoryFilter(keyword);
+  if (temporalFilter) {
+    try {
+      const results = await searchVbplServerAction(temporalFilter);
+      if (results.length > 0) return results;
 
+      // Nếu có keyword chủ đề nhưng không ra kết quả, thử quét toàn bộ theo tháng (bỏ keyword chủ đề)
+      if (temporalFilter.keyword) {
+        const broadResults = await searchVbplServerAction({ ...temporalFilter, keyword: "" });
+        if (broadResults.length > 0) return broadResults;
+      }
+    } catch (err) {
+      log.warn({ err, keyword }, "VBPL temporal filter search failed, falling back to candidates");
+    }
+  }
+
+  // 2. Thử từng từ khóa ứng viên
+  const candidates = getSearchCandidates(keyword);
   for (const cand of candidates) {
     try {
       const results = await searchVbplServerAction(cand);
@@ -104,7 +213,7 @@ export async function searchVbpl(keyword: string): Promise<VbplSearchResult[]> {
     }
   }
 
-  // Fallback: browser-based search
+  // 3. Fallback: browser-based search
   for (const cand of candidates) {
     try {
       const results = await searchVbplBrowser(cand);
@@ -120,13 +229,12 @@ export async function searchVbpl(keyword: string): Promise<VbplSearchResult[]> {
 /**
  * Search qua Next.js Server Action có cơ chế retry khi gặp lỗi 500 ngẫu nhiên từ server.
  */
-async function searchVbplServerAction(keyword: string): Promise<VbplSearchResult[]> {
+async function searchVbplServerAction(queryOrParams: string | VbplSearchParams): Promise<VbplSearchResult[]> {
   const url = `${BASE_URL}/van-ban/trung-uong`;
-  const params = {
-    keyword,
-    page: 1,
-    pageSize: 15,
-  };
+  const params =
+    typeof queryOrParams === "string"
+      ? { keyword: queryOrParams, page: 1, pageSize: 15 }
+      : { page: 1, pageSize: 15, ...queryOrParams };
 
   const maxAttempts = 3;
   let lastError: any = null;
@@ -189,11 +297,11 @@ async function searchVbplServerAction(keyword: string): Promise<VbplSearchResult
         }
       }
 
-      log.info({ keyword, count: results.length, attempt }, "VBPL Server Action search completed");
+      log.info({ params, count: results.length, attempt }, "VBPL Server Action search completed");
       return results;
     } catch (err) {
       lastError = err;
-      log.warn({ err, keyword, attempt }, "VBPL Server Action attempt failed");
+      log.warn({ err, params, attempt }, "VBPL Server Action attempt failed");
       if (attempt < maxAttempts) {
         await new Promise((r) => setTimeout(r, 600 * attempt));
       }
