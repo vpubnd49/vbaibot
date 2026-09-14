@@ -65,9 +65,12 @@ export function createNationalLegalTool({ api, account, message, ghiNhanDaGui }:
           const results = await searchNationalLegal(keyword);
 
           if (results.length === 0) {
+            const vbplLink = `https://vbpl.vn/van-ban/trung-uong?keyword=${encodeURIComponent(keyword)}`;
             return (
-              `Không tìm thấy văn bản nào khớp từ khóa "${keyword}" trên Công báo CP và TVPL.\n` +
-              "Thử lại với số hiệu chính xác (VD: '347/2026') hoặc từ khóa ngắn hơn."
+              `Không tìm thấy VB "${keyword}" trong kho Công báo CP.\n` +
+              `Tuy nhiên VB này có thể có trên CSDL quốc gia về pháp luật.\n` +
+              `🔗 Tra cứu trực tiếp tại: ${vbplLink}\n` +
+              `(Trên trang vbpl.vn → tab "Văn bản gốc" để tải file PDF)`
             );
           }
 
