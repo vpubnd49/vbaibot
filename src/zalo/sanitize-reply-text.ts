@@ -321,9 +321,16 @@ function boSentinel(text: string, daSua: string[]): string {
   return giu.join("\n");
 }
 
-/** Câu trả lời có mẩu chữ đặc trưng của system prompt không */
-export function coDauHieuRoPrompt(text: string): boolean {
-  return DAU_HIEU_RO_PROMPT.some((d) => text.includes(d));
+/**
+ * Câu trả lời có mẩu chữ đặc trưng của system prompt không.
+ *
+ * Trả mẩu chữ ĐÃ TRÚNG thay vì boolean thuần: caller ghi vào log thì khi
+ * chặn nhầm (false positive) chỉ cần đọc log là biết phải sửa ở dấu hiệu nào
+ * trong `DAU_HIEU_RO_PROMPT`, thay vì phải tái hiện cả câu trả lời rồi thử
+ * từng dấu hiệu. Trả `undefined` khi không trúng gì.
+ */
+export function coDauHieuRoPrompt(text: string): string | undefined {
+  return DAU_HIEU_RO_PROMPT.find((d) => text.includes(d));
 }
 
 /**
@@ -334,8 +341,9 @@ export function coDauHieuRoPrompt(text: string): boolean {
  * và bộ canh trượt đúng ca người ta cố tình lách.
  */
 export function lamSachTraLoi(text: string): KetQuaLamSach {
-  if (coDauHieuRoPrompt(text)) {
-    return { text: "", daSua: ["CHẶN: rò system prompt"], chan: true };
+  const dauHieuRo = coDauHieuRoPrompt(text);
+  if (dauHieuRo) {
+    return { text: "", daSua: [`CHẶN: rò system prompt [${dauHieuRo}]`], chan: true };
   }
 
   const daSua: string[] = [];
@@ -377,8 +385,9 @@ export function lamSachTraLoi(text: string): KetQuaLamSach {
  */
 export function lamSachGiuDinhDang(text: string): KetQuaLamSach {
   // Kiểm rò prompt trên chữ GỐC - cùng lý do đã ghi ở `lamSachTraLoi`
-  if (coDauHieuRoPrompt(text)) {
-    return { text: "", daSua: ["CHẶN: rò system prompt"], chan: true };
+  const dauHieuRo = coDauHieuRoPrompt(text);
+  if (dauHieuRo) {
+    return { text: "", daSua: [`CHẶN: rò system prompt [${dauHieuRo}]`], chan: true };
   }
 
   const daSua: string[] = [];

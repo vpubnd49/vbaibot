@@ -40,7 +40,7 @@ export async function deliverChatReply(
     // Câu trả lời rò system prompt. Cắt bớt rồi gửi phần còn lại là gửi nửa
     // vời - không ai biết phần nào còn rò. Chặn hẳn, báo lỗi kỹ thuật.
     // 200 ký tự đầu để chẩn đoán, KHÔNG đổ nguyên prompt vào file log.
-    log.error({ dauText: text.slice(0, 200) }, "Chặn câu trả lời rò system prompt - không gửi");
+    log.error({ dauText: text.slice(0, 200), daSua: sach.daSua }, "Chặn câu trả lời rò system prompt - không gửi");
     await notifyTechnicalError(target);
     return { daGui: "", hong: true };
   }

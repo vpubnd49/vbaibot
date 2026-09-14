@@ -28,8 +28,12 @@ export const TECHNICAL_ERROR_REPLY =
  * Một câu cho mọi thứ là nói dối người nhắn: "bot hết quota" và "mạng chập" đọc
  * ra y hệt nhau, nên họ không biết nên chờ hay báo cho chủ bot.
  *
- * Cả ba câu đều viết bằng lời thường, KHÔNG lộ chi tiết kỹ thuật (mã lỗi, tên
+ * Mỗi câu viết bằng lời thường, KHÔNG lộ chi tiết kỹ thuật (mã lỗi, tên
  * provider, endpoint) - người nhắn có thể là người lạ, chi tiết chỉ đi vào log.
+ *
+ * Loại nào KHÔNG có ở đây thì rơi về `TECHNICAL_ERROR_REPLY` - xem
+ * `cauLoiTheoLoai`. Mỗi loại thêm vào đây phải có NỘI DUNG KHÁC BIỆT: thêm
+ * cho có mà câu giống hệt câu chung thì chỉ thêm mã để bảo trì.
  */
 export const LOI_THEO_LOAI: Record<string, string> = {
   rate_limit:
@@ -42,6 +46,15 @@ export const LOI_THEO_LOAI: Record<string, string> = {
   // không phải trục trặc thoáng qua - nếu không họ sẽ nhắn lại mỗi vài phút.
   cau_hinh:
     "Bot mình chưa được cài đặt xong nên chưa trả lời được. Mình đã báo cho chủ bot, bạn quay lại sau nhé.",
+  // 5xx, timeout, mạng chập - đường truyền tới provider chết tạm. Khác câu chung
+  // ở chỗ nói rõ "đường truyền" để người nhắn biết đây là lỗi TẠM, nhắn lại sau
+  // vài phút là có cơ hội thành công.
+  transient:
+    "Mình đang gặp trục trặc đường truyền tới hệ thống AI nên chưa trả lời được, bạn nhắn lại giúp mình sau vài phút nhé.",
+  // Hội thoại dài quá khả năng xử lý. Phải nói khác hẳn lỗi mạng: nhắn lại y
+  // hệt là lại tràn y hệt, phải đổi cách hỏi (gọn hơn, chia nhỏ) mới cứu được.
+  context_overflow:
+    "Cuộc hội thoại đã quá dài nên mình không xử lý được tin này. Bạn thử hỏi gọn hơn hoặc bắt đầu chủ đề mới giúp mình nhé.",
 };
 
 /** Câu hợp với loại lỗi; loại lạ thì rơi về câu chung */
@@ -235,8 +248,15 @@ export async function notifyTechnicalError(target: ReplyTarget, loaiLoi?: string
   // cùng đi qua chỗ kiểm ở trên rồi cùng gửi. Đánh dấu sau thì cửa sổ đó vẫn hở.
   lanBaoLoiCuoi.set(khoa, bayGio);
 
+  const cauGui = cauLoiTheoLoai(loaiLoi);
   try {
-    await sendOne(target, cauLoiTheoLoai(loaiLoi));
+    await sendOne(target, cauGui);
+    // Metric: mỗi dòng này = MỘT lần người nhắn thật sự nhận câu lỗi. Grep
+    // `metric:error_notify` rồi group by `loaiLoi` để biết tần suất theo loại.
+    log.warn(
+      { threadId: target.threadId, loaiLoi: loaiLoi ?? "chung", metric: "error_notify" },
+      "Đã gửi thông báo lỗi cho người nhắn",
+    );
   } catch (err) {
     log.error({ threadId: target.threadId, err }, "Không gửi được cả thông báo lỗi");
   }
