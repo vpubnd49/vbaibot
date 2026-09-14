@@ -80,20 +80,47 @@ export function createNationalLegalTool({ api, account, message, ghiNhanDaGui }:
 
       // ── DOWNLOAD ──
       if (action === "download") {
-        if (!downloadId) return "Cần downloadId (lấy từ kết quả search) để tải VB.";
-        if (!source) return "Cần chỉ định source: 'congbao', 'vbpl' hoặc 'tvpl'.";
+        let targetDownloadId = downloadId;
+        let targetSource = source;
+        let targetSoHieu = soHieu;
+
+        // Tự động tìm kiếm trước nếu chưa có downloadId hoặc source
+        if (!targetDownloadId || !targetSource) {
+          const searchTarget = targetSoHieu || keyword;
+          if (!searchTarget) {
+            return "Cần cung cấp từ khóa, số hiệu hoặc downloadId để tải văn bản pháp luật.";
+          }
+
+          log.info({ searchTarget }, "Auto-searching before download in national-legal-tool");
+          try {
+            const searchResults = await searchNationalLegal(searchTarget);
+            if (searchResults.length === 0) {
+              return (
+                `Không tìm thấy văn bản nào khớp "${searchTarget}" trên CSDL quốc gia (vbpl.vn), Công báo hay TVPL để tải.\n` +
+                `Vui lòng kiểm tra lại số hiệu văn bản.`
+              );
+            }
+            const best = searchResults[0];
+            targetDownloadId = best.downloadId;
+            targetSource = best.source;
+            targetSoHieu = targetSoHieu || best.soHieu;
+          } catch (err) {
+            log.error({ err, searchTarget }, "Auto-search error before download");
+            return `Lỗi khi tra cứu văn bản để tải: ${String(err)}`;
+          }
+        }
 
         try {
-          const dl = await downloadNationalLegal(downloadId, source, format || "pdf", soHieu);
+          const dl = await downloadNationalLegal(targetDownloadId, targetSource, format || "pdf", targetSoHieu);
 
           if (!dl.filePath) {
             return `❌ Tải VB thất bại: ${dl.error || "lỗi không xác định"}`;
           }
 
           const sourceLabel =
-            source === "congbao"
+            targetSource === "congbao"
               ? "Công báo ĐT Chính phủ"
-              : source === "vbpl"
+              : targetSource === "vbpl"
                 ? "CSDL quốc gia về pháp luật"
                 : "Thư viện Pháp luật";
 
@@ -110,12 +137,13 @@ export function createNationalLegalTool({ api, account, message, ghiNhanDaGui }:
                 dl.filePath,
                 undefined,
               );
-              ghiNhanDaGui?.(ghiChuDaGuiFile(fileName, `VB PL TW (${source})`));
+              ghiNhanDaGui?.(ghiChuDaGuiFile(fileName, `VB PL TW (${targetSource})`));
 
               return (
-                `✅ ĐÃ GỬI FILE: ${fileName} (${Math.round(dl.fileSize / 1024)} KB)\n` +
+                `✅ ĐÃ TẢI VÀ GỬI FILE VÀO CHAT: ${fileName} (${Math.round(dl.fileSize / 1024)} KB)\n` +
                 `Nguồn: ${sourceLabel}\n` +
-                `Số hiệu: ${soHieu || "N/A"}`
+                `Số hiệu: ${targetSoHieu || "N/A"}\n` +
+                `(File đã được gửi trực tiếp đến người dùng trong chat. Chỉ cần báo ngắn gọn đã gửi file, không gửi link hay caption trùng lặp)`
               );
             } catch (sendErr) {
               log.error({ sendErr, filePath: dl.filePath }, "Failed to send file to chat");
@@ -130,7 +158,7 @@ export function createNationalLegalTool({ api, account, message, ghiNhanDaGui }:
             `- Nguồn: ${sourceLabel}`
           );
         } catch (err) {
-          log.error({ err, downloadId }, "National legal download error");
+          log.error({ err, targetDownloadId }, "National legal download error");
           return `❌ Lỗi khi tải VB: ${String(err)}`;
         }
       }
@@ -150,11 +178,17 @@ function formatSearchResults(results: NationalLegalResult[], keyword: string): s
 
   for (let i = 0; i < shown.length; i++) {
     const r = shown[i];
-    const srcIcon = r.source === "congbao" ? "🏛️" : "📚";
+    const srcIcon = r.source === "congbao" ? "🏛️" : r.source === "vbpl" ? "⚖️" : "📚";
+    const srcName =
+      r.source === "congbao"
+        ? "Công báo CP"
+        : r.source === "vbpl"
+          ? "CSDL quốc gia (vbpl.vn)"
+          : "Thư viện Pháp luật";
     text +=
       `${i + 1}. ${srcIcon} **${r.loaiVB}${r.soHieu ? ` ${r.soHieu}` : ""}**\n` +
       `   ${r.trichYeu}\n` +
-      `   📅 ${r.ngayBanHanh || "N/A"} | Nguồn: ${r.source === "congbao" ? "Công báo CP" : "TVPL"}\n` +
+      `   📅 ${r.ngayBanHanh || "N/A"} | Nguồn: ${srcName}\n` +
       `   🔗 ${r.detailUrl}\n` +
       `   → Để tải: dùng action='download', downloadId='${r.downloadId}', source='${r.source}'\n\n`;
   }

@@ -55,26 +55,70 @@ export type VbplDownloadResult = {
   error?: string;
 };
 
+export function getSearchCandidates(rawKeyword: string): string[] {
+  const candidates: string[] = [];
+  const trimmed = rawKeyword.trim();
+  if (!trimmed) return candidates;
+
+  // 1. Trích xuất mẫu số hiệu nếu có (VD: 349/2026/NĐ-CP hoặc 349/2026)
+  const match = trimmed.match(/(\d+\/\d{4}(?:\/[A-ZĐa-zđ0-9_-]+)?)/i);
+  if (match) {
+    const fullSoHieu = match[1].toUpperCase();
+    candidates.push(fullSoHieu);
+    const numYear = fullSoHieu.replace(/\/[A-ZĐ0-9_-]+$/i, "");
+    if (!candidates.includes(numYear)) candidates.push(numYear);
+  }
+
+  // 2. Lược bỏ từ khóa giao tiếp (Nghị định, Thông tư, Tải, Tra cứu...)
+  const stripped = trimmed
+    .replace(/^(tải|tìm|tra cứu|xem|cho tôi xin|cho xin|hãy tải|tải giúp)\s+/i, "")
+    .replace(/^(nghị định|nghị quyết|thông tư|quyết định|luật|pháp lệnh|chỉ thị|vb|văn bản|nđ|nq|tt|qđ)\s+/i, "")
+    .trim();
+  if (stripped && !candidates.includes(stripped)) {
+    candidates.push(stripped);
+  }
+
+  // 3. Toàn bộ chuỗi nguyên bản
+  if (!candidates.includes(trimmed)) {
+    candidates.push(trimmed);
+  }
+
+  return candidates;
+}
+
 // ─── 1. Search ─────────────────────────────────────────────────────
 
 /**
  * Tìm VB trên CSDL quốc gia về pháp luật (vbpl.vn).
- * Ưu tiên gọi Next.js Server Action trực tiếp (nhanh, 100ms).
+ * Ưu tiên gọi Next.js Server Action trực tiếp (nhanh, 100ms) với cơ chế retry và dự phòng các dạng từ khóa.
  */
 export async function searchVbpl(keyword: string): Promise<VbplSearchResult[]> {
-  try {
-    const results = await searchVbplServerAction(keyword);
-    if (results.length > 0) return results;
-  } catch (err) {
-    log.warn({ err, keyword }, "VBPL Server Action search failed, trying browser fallback");
+  const candidates = getSearchCandidates(keyword);
+
+  for (const cand of candidates) {
+    try {
+      const results = await searchVbplServerAction(cand);
+      if (results.length > 0) return results;
+    } catch (err) {
+      log.warn({ err, cand }, "VBPL Server Action search candidate failed, trying next candidate");
+    }
   }
 
   // Fallback: browser-based search
-  return searchVbplBrowser(keyword);
+  for (const cand of candidates) {
+    try {
+      const results = await searchVbplBrowser(cand);
+      if (results.length > 0) return results;
+    } catch (err) {
+      log.warn({ err, cand }, "VBPL browser search candidate failed");
+    }
+  }
+
+  return [];
 }
 
 /**
- * Search qua Next.js Server Action.
+ * Search qua Next.js Server Action có cơ chế retry khi gặp lỗi 500 ngẫu nhiên từ server.
  */
 async function searchVbplServerAction(keyword: string): Promise<VbplSearchResult[]> {
   const url = `${BASE_URL}/van-ban/trung-uong`;
@@ -84,64 +128,79 @@ async function searchVbplServerAction(keyword: string): Promise<VbplSearchResult
     pageSize: 15,
   };
 
-  const res = await fetch(url, {
-    method: "POST",
-    headers: {
-      ...BROWSER_HEADERS,
-      "Content-Type": "application/json",
-      "Next-Action": SEARCH_ACTION_ID,
-    },
-    body: JSON.stringify([params]),
-    signal: AbortSignal.timeout(15_000),
-  });
+  const maxAttempts = 3;
+  let lastError: any = null;
 
-  if (!res.ok) {
-    throw new Error(`VBPL Server Action HTTP ${res.status}`);
-  }
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: {
+          ...BROWSER_HEADERS,
+          "Content-Type": "application/json",
+          "Next-Action": SEARCH_ACTION_ID,
+        },
+        body: JSON.stringify([params]),
+        signal: AbortSignal.timeout(15_000),
+      });
 
-  const text = await res.text();
-  const results: VbplSearchResult[] = [];
-
-  // Parse Flight RSC response - data nằm ở dòng "1:{...}"
-  const lines = text.split("\n");
-  for (const line of lines) {
-    if (line.startsWith("1:")) {
-      try {
-        const jsonStr = line.slice(2);
-        const data = JSON.parse(jsonStr) as {
-          total?: number;
-          items?: Array<{
-            id: string;
-            docNum?: string;
-            title?: string;
-            agencyName?: string;
-            issueDate?: string;
-            docType?: { name?: string };
-          }>;
-        };
-
-        if (Array.isArray(data.items)) {
-          for (const item of data.items) {
-            results.push({
-              soHieu: item.docNum || "",
-              trichYeu: item.title || item.docNum || "",
-              loaiVB: item.docType?.name || extractLoaiVBFromTitle(item.title || ""),
-              coQuanBanHanh: item.agencyName || "",
-              ngayBanHanh: item.issueDate ? item.issueDate.slice(0, 10) : "",
-              detailUrl: `${BASE_URL}/van-ban/chi-tiet/${item.id}`,
-              slug: item.id,
-            });
-          }
-        }
-      } catch (parseErr) {
-        log.warn({ parseErr }, "Error parsing VBPL RSC line 1");
+      if (!res.ok) {
+        throw new Error(`VBPL Server Action HTTP ${res.status}`);
       }
-      break;
+
+      const text = await res.text();
+      const results: VbplSearchResult[] = [];
+
+      // Parse Flight RSC response - data nằm ở dòng "1:{...}"
+      const lines = text.split("\n");
+      for (const line of lines) {
+        if (line.startsWith("1:")) {
+          try {
+            const jsonStr = line.slice(2);
+            const data = JSON.parse(jsonStr) as {
+              total?: number;
+              items?: Array<{
+                id: string;
+                docNum?: string;
+                title?: string;
+                agencyName?: string;
+                issueDate?: string;
+                docType?: { name?: string };
+              }>;
+            };
+
+            if (Array.isArray(data.items)) {
+              for (const item of data.items) {
+                results.push({
+                  soHieu: item.docNum || "",
+                  trichYeu: item.title || item.docNum || "",
+                  loaiVB: item.docType?.name || extractLoaiVBFromTitle(item.title || ""),
+                  coQuanBanHanh: item.agencyName || "",
+                  ngayBanHanh: item.issueDate ? item.issueDate.slice(0, 10) : "",
+                  detailUrl: `${BASE_URL}/van-ban/chi-tiet/${item.id}`,
+                  slug: item.id,
+                });
+              }
+            }
+          } catch (parseErr) {
+            log.warn({ parseErr }, "Error parsing VBPL RSC line 1");
+          }
+          break;
+        }
+      }
+
+      log.info({ keyword, count: results.length, attempt }, "VBPL Server Action search completed");
+      return results;
+    } catch (err) {
+      lastError = err;
+      log.warn({ err, keyword, attempt }, "VBPL Server Action attempt failed");
+      if (attempt < maxAttempts) {
+        await new Promise((r) => setTimeout(r, 600 * attempt));
+      }
     }
   }
 
-  log.info({ keyword, count: results.length }, "VBPL Server Action search completed");
-  return results;
+  throw lastError || new Error(`VBPL Server Action failed after ${maxAttempts} attempts`);
 }
 
 // ─── 2. Download ───────────────────────────────────────────────────

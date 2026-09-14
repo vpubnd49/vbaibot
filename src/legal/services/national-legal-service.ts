@@ -57,24 +57,7 @@ export async function searchNationalLegal(keyword: string): Promise<NationalLega
     isTvplConfigured() ? searchTvpl(keyword) : Promise.resolve([] as TvplSearchResult[]),
   ]);
 
-  // Xử lý kết quả Công báo
-  if (congbaoItems.status === "fulfilled") {
-    for (const item of congbaoItems.value) {
-      results.push({
-        soHieu: item.soHieu,
-        trichYeu: item.title,
-        loaiVB: item.loaiVB,
-        ngayBanHanh: item.pubDate.slice(0, 10),
-        source: "congbao",
-        detailUrl: item.detailUrl,
-        downloadId: item.detailUrl,
-      });
-    }
-  } else {
-    log.warn({ err: congbaoItems.reason }, "Congbao search failed");
-  }
-
-  // Xử lý kết quả VBPL (CSDL quốc gia về pháp luật - miễn phí)
+  // 1. Xử lý kết quả VBPL trước (CSDL quốc gia về pháp luật - miễn phí, có sẵn file gốc trực tiếp từ MOJ)
   if (vbplItems.status === "fulfilled") {
     for (const item of vbplItems.value) {
       const existing = results.find(
@@ -96,7 +79,29 @@ export async function searchNationalLegal(keyword: string): Promise<NationalLega
     log.warn({ err: vbplItems.reason }, "VBPL search failed");
   }
 
-  // Xử lý kết quả TVPL (cần đăng nhập)
+  // 2. Xử lý kết quả Công báo
+  if (congbaoItems.status === "fulfilled") {
+    for (const item of congbaoItems.value) {
+      const existing = results.find(
+        (r) => r.soHieu && item.soHieu && normalizeSoHieu(r.soHieu) === normalizeSoHieu(item.soHieu),
+      );
+      if (existing) continue;
+
+      results.push({
+        soHieu: item.soHieu,
+        trichYeu: item.title,
+        loaiVB: item.loaiVB,
+        ngayBanHanh: item.pubDate.slice(0, 10),
+        source: "congbao",
+        detailUrl: item.detailUrl,
+        downloadId: item.detailUrl,
+      });
+    }
+  } else {
+    log.warn({ err: congbaoItems.reason }, "Congbao search failed");
+  }
+
+  // 3. Xử lý kết quả TVPL (cần đăng nhập)
   if (tvplItems.status === "fulfilled") {
     for (const item of tvplItems.value) {
       const existing = results.find(
