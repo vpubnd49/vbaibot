@@ -82,8 +82,16 @@ export function createQpplLamdongTool({ api, account, message, ghiNhanDaGui }: T
         .optional()
         .default(false)
         .describe("Nếu true cùng sendFileToChat, gom toàn bộ file thành một ZIP kèm MANIFEST.csv rồi gửi một lần"),
+      maxSendDocs: z
+        .number()
+        .optional()
+        .default(1)
+        .describe(
+          "Số VB tối đa gửi file vào chat (mặc định 1 = chỉ VB đầu tiên/mới nhất). " +
+          "Đặt >1 khi user yêu cầu 'tất cả', 'mấy cái', 'các VB' — VD: 'gửi tất cả báo cáo CCHC' → maxSendDocs=10.",
+        ),
     }),
-    execute: async ({ action, keyword, loaiVanBan, nguon, docId, dateFrom, dateTo, sendFileToChat, archiveFiles }) => {
+    execute: async ({ action, keyword, loaiVanBan, nguon, docId, dateFrom, dateTo, sendFileToChat, archiveFiles, maxSendDocs }) => {
       // === SYNC ===
       if (action === "sync") {
         const target = (nguon as QpplNguon) || "ubnd";
@@ -331,9 +339,9 @@ export function createQpplLamdongTool({ api, account, message, ghiNhanDaGui }: T
           }
         }
 
-        // Gửi TẤT CẢ văn bản đã lọc chính xác.
-        // Mỗi file gửi lỗi vẫn tiếp tục gửi các file còn lại để không bỏ sót.
-        const toSend = uniqueDocs;
+        // Giới hạn số VB gửi file: mặc định 1 (chỉ VB mới nhất).
+        // User nói "tất cả" → model đặt maxSendDocs > 1.
+        const toSend = uniqueDocs.slice(0, maxSendDocs);
         const sentFiles: string[] = [];
         const failedFiles: string[] = [];
         let totalFilesSent = 0;

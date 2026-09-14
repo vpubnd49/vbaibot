@@ -214,7 +214,11 @@ const RULES_TRA_CUU: PersonaRule[] = [
   + ⚠️ KHI USER CHỈ MUỐN 1 THÁNG CỤ THỂ (VD: "tháng 8 thôi", "chỉ tháng 8", "trong tháng 8"):
     * BẮT BUỘC đặt dateFrom/dateTo chính xác 1 tháng (VD: dateFrom="2026-08-01", dateTo="2026-09-01").
     * Tool sẽ TỰ ĐỘNG loại VB có trích yếu nhắc tháng khác (VD: VB ban hành tháng 8 nhưng nội dung về "tháng 7" sẽ bị loại).
-    * TUYỆT ĐỐI KHÔNG gửi VB của tháng liền kề khi user đã nói rõ chỉ muốn 1 tháng.`,
+    * TUYỆT ĐỐI KHÔNG gửi VB của tháng liền kề khi user đã nói rõ chỉ muốn 1 tháng.
+  + ⚠️ SỐ VB GỬI FILE (maxSendDocs) — MẶC ĐỊNH = 1:
+    * "mới nhất", "báo cáo CCHC mới nhất", "gửi cho tôi kế hoạch chuyển đổi số" → maxSendDocs=1 (chỉ gửi VB đầu tiên/mới nhất).
+    * "gửi tất cả báo cáo CCHC tháng 8", "gửi hết", "gửi mấy cái" → maxSendDocs=5 hoặc 10.
+    * Khi KHÔNG nói rõ "tất cả" hay số lượng → MẶC ĐỊNH maxSendDocs=1. TUYỆT ĐỐI KHÔNG gửi nhiều VB khi user chỉ muốn 1.`,
   },
   {
     tools: ["weather_lookup"],
