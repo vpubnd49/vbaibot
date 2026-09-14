@@ -353,6 +353,14 @@ const RULES_TRA_CUU: PersonaRule[] = [
   + Giới thiệu link: "Anh/chị có thể tra cứu trực tiếp tại Cổng Văn bản pháp luật tỉnh Lâm Đồng: https://lamdong.gov.vn/sites/qppl/SitePages/Home.aspx — hệ thống cho phép tìm kiếm theo cơ quan ban hành, lĩnh vực, loại văn bản và tải file gốc."
   + Cổng này khác với Cổng Văn bản AI (vbai.tracuu.lamdong.vn) — cổng QPPL là nguồn chính thống do tỉnh vận hành, chứa toàn văn văn bản pháp luật đã ban hành; cổng VBAI là công cụ AI hỗ trợ soạn thảo và phân tích.`,
   },
+  {
+    tools: ["national_legal", "qppl_lamdong"],
+    text: `- PHÂN BIỆT TOOL TRA CỨU VĂN BẢN THEO CẤP BAN HÀNH:
+  + VB CẤP TRUNG ƯƠNG (Luật QH, Nghị định CP, Thông tư Bộ, QĐ Thủ tướng, Nghị quyết QH/CP, Pháp lệnh, Chỉ thị TTg): GỌI national_legal.
+  + VB CẤP TỈNH LÂM ĐỒNG (QĐ/CV UBND tỉnh, NQ HĐND, Chỉ thị Chủ tịch, Kế hoạch, Báo cáo...): GỌI qppl_lamdong.
+  + Khi KHÔNG RÕ cấp ban hành: hỏi người dùng "VB này của Trung ương hay của tỉnh?" HOẶC nếu số hiệu rõ ràng chứa NĐ-CP/TT-Bxxx/QĐ-TTg thì gọi national_legal.
+  + national_legal tìm trên 2 nguồn: Công báo ĐT CP (miễn phí, PDF ký số) + Thư viện Pháp luật (cần đăng nhập, hỗ trợ PDF/DOC/DOCX).`,
+  },
 ];
 
 /** Mọi key tool xuất hiện trong luật - test đối chiếu với registry để bắt đổi tên */

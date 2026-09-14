@@ -18,6 +18,7 @@ import { createKnowledgeResearchTool } from "./knowledge-research-tool.js";
 import { createDeveloperResearchTool } from "./developer-research-tool.js";
 import { createThanhtraLamdongTool } from "./thanhtra-lamdong-tool.js";
 import { createQpplLamdongTool } from "./qppl-lamdong-tool.js";
+import { createNationalLegalTool } from "./national-legal-tool.js";
 import { createTranscribeAudioTool } from "./transcribe-audio-tool.js";
 
 /**
@@ -41,6 +42,15 @@ export const READ_TOOL_DEFINITIONS: ToolDefinition[] = [
       "Tra cứu và tải file văn bản chỉ đạo điều hành, QPPL của UBND tỉnh và HĐND tỉnh Lâm Đồng (Công văn, Quyết định, Nghị quyết, Chỉ thị...)",
     group: "read",
     build: (ctx) => createQpplLamdongTool(ctx),
+  },
+  {
+    key: "national_legal",
+    label: "VB Pháp luật cấp TW",
+    description:
+      "Tra cứu và tải file VB pháp luật cấp Trung ương: Luật, Nghị định, Thông tư, QĐ Thủ tướng, Nghị quyết QH/CP " +
+      "(nguồn: Công báo ĐT CP + Thư viện Pháp luật). Hỗ trợ tải PDF, DOC, DOCX.",
+    group: "read",
+    build: (ctx) => createNationalLegalTool(ctx),
   },
   {
     key: "get_datetime",

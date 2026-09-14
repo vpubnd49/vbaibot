@@ -355,6 +355,12 @@ const envSchema = z.object({
   // Video tốn nhất cả chi phí lẫn thời gian: 5 giây video mất 30-120 giây chờ.
   VIDEO_GEN_MAX_PER_HOUR: z.coerce.number().int().min(1).max(100).default(3),
   VIDEO_GEN_TIMEOUT_MS: z.coerce.number().int().min(30_000).max(1_800_000).default(600_000),
+
+  // Thư viện Pháp luật (thuvienphapluat.vn) - tài khoản cơ quan để tra cứu + tải VB cấp TW
+  TVPL_USERNAME: z.string().default(""),
+  TVPL_PASSWORD: z.string().default(""),
+  // Trần tải file mỗi giờ để tránh bị khóa tài khoản
+  TVPL_MAX_DOWNLOADS_PER_HOUR: z.coerce.number().int().min(1).max(100).default(20),
 });
 
 const parsed = envSchema.safeParse(process.env);
