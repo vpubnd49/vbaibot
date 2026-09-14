@@ -46,6 +46,11 @@ export function createNationalLegalTool({ api, account, message, ghiNhanDaGui }:
         .optional()
         .default("pdf")
         .describe("Định dạng file tải về (chỉ TVPL hỗ trợ doc/docx)"),
+      limit: z
+        .number()
+        .optional()
+        .default(1)
+        .describe("Số lượng file muốn tải (nếu tải nhiều văn bản, mặc định 3, tối đa 5)"),
       sendFileToChat: z
         .boolean()
         .optional()
@@ -56,7 +61,7 @@ export function createNationalLegalTool({ api, account, message, ghiNhanDaGui }:
         .optional()
         .describe("Số hiệu VB (dùng đặt tên file khi tải)"),
     }),
-    execute: async ({ action, keyword, downloadId, source, format, sendFileToChat, soHieu }) => {
+    execute: async ({ action, keyword, downloadId, source, format, sendFileToChat, soHieu, limit }) => {
       // ── SEARCH ──
       if (action === "search") {
         if (!keyword) return "Cần nhập từ khóa để tìm kiếm VB pháp luật cấp TW.";
@@ -69,6 +74,45 @@ export function createNationalLegalTool({ api, account, message, ghiNhanDaGui }:
               `Không tìm thấy văn bản nào khớp từ khóa "${keyword}" trên cả Công báo Chính phủ, CSDL quốc gia về pháp luật (vbpl.vn) và Thư viện Pháp luật.\n` +
               `Vui lòng kiểm tra lại số hiệu hoặc cơ quan ban hành.`
             );
+          }
+
+          // Nếu model vô tình gọi search nhưng lại bật sendFileToChat (muốn tải file)
+          if (sendFileToChat && results.length > 0) {
+            const isPlural = /\b(các|những|danh sách|toàn bộ|tất cả)\b/i.test(keyword);
+            const countToDownload = isPlural ? Math.min(results.length, limit > 1 ? limit : 3) : 1;
+            const sentFiles: string[] = [];
+
+            for (let i = 0; i < countToDownload; i++) {
+              const item = results[i];
+              try {
+                const dl = await downloadNationalLegal(item.downloadId, item.source, format || "pdf", item.soHieu);
+                if (dl.filePath) {
+                  const fileName = path.basename(dl.filePath);
+                  await guiFileKemCaption(
+                    api,
+                    `${account.id}:${message.threadId}`,
+                    message.threadId,
+                    message.threadType,
+                    dl.filePath,
+                    undefined,
+                  );
+                  ghiNhanDaGui?.(ghiChuDaGuiFile(fileName, `VB PL TW (${item.source})`));
+                  sentFiles.push(`${item.soHieu || fileName} (${Math.round(dl.fileSize / 1024)} KB)`);
+                  await new Promise((r) => setTimeout(r, 600));
+                }
+              } catch (dlErr) {
+                log.error({ dlErr, item }, "Failed downloading search item");
+              }
+            }
+
+            if (sentFiles.length > 0) {
+              let msg = `✅ ĐÃ TẢI VÀ GỬI ${sentFiles.length} VĂN BẢN VÀO CHAT CHO NGƯỜI DÙNG:\n` + sentFiles.map((s) => `- ${s}`).join("\n");
+              if (results.length > countToDownload) {
+                msg += `\n\n📋 Danh sách các văn bản khác cùng đợt:\n` + results.slice(countToDownload, countToDownload + 7).map((r) => `- ${r.soHieu} (${r.ngayBanHanh}): ${r.trichYeu.slice(0, 70)}`).join("\n");
+              }
+              msg += `\n(File đã được gửi trực tiếp vào chat. Chỉ cần báo ngắn gọn đã gửi file)`;
+              return msg;
+            }
           }
 
           return formatSearchResults(results, keyword);
@@ -100,6 +144,49 @@ export function createNationalLegalTool({ api, account, message, ghiNhanDaGui }:
                 `Vui lòng kiểm tra lại số hiệu văn bản.`
               );
             }
+
+            // Kiểm tra xem yêu cầu có phải là tải nhiều văn bản không ("các nghị định", "danh sách", "những")
+            const isPlural = /\b(các|những|danh sách|toàn bộ|tất cả)\b/i.test(searchTarget) || !targetSoHieu;
+            const countToDownload = isPlural ? Math.min(searchResults.length, limit > 1 ? limit : 3) : 1;
+
+            if (countToDownload > 1 && sendFileToChat) {
+              const sentFiles: string[] = [];
+              const failedFiles: string[] = [];
+
+              for (let i = 0; i < countToDownload; i++) {
+                const item = searchResults[i];
+                try {
+                  const dl = await downloadNationalLegal(item.downloadId, item.source, format || "pdf", item.soHieu);
+                  if (dl.filePath) {
+                    const fileName = path.basename(dl.filePath);
+                    await guiFileKemCaption(
+                      api,
+                      `${account.id}:${message.threadId}`,
+                      message.threadId,
+                      message.threadType,
+                      dl.filePath,
+                      undefined,
+                    );
+                    ghiNhanDaGui?.(ghiChuDaGuiFile(fileName, `VB PL TW (${item.source})`));
+                    sentFiles.push(`${item.soHieu || fileName} (${Math.round(dl.fileSize / 1024)} KB)`);
+                    await new Promise((r) => setTimeout(r, 600));
+                  } else {
+                    failedFiles.push(item.soHieu || item.downloadId);
+                  }
+                } catch (dlErr) {
+                  log.error({ dlErr, item }, "Failed downloading batch item");
+                  failedFiles.push(item.soHieu || item.downloadId);
+                }
+              }
+
+              let msg = `✅ ĐÃ TẢI VÀ GỬI ${sentFiles.length} VĂN BẢN VÀO CHAT CHO NGƯỜI DÙNG:\n` + sentFiles.map((s) => `- ${s}`).join("\n");
+              if (searchResults.length > countToDownload) {
+                msg += `\n\n📋 Danh sách các văn bản khác cùng đợt:\n` + searchResults.slice(countToDownload, countToDownload + 7).map((r) => `- ${r.soHieu} (${r.ngayBanHanh}): ${r.trichYeu.slice(0, 70)}`).join("\n");
+              }
+              msg += `\n(File đã được gửi trực tiếp vào chat. Chỉ cần báo ngắn gọn đã gửi file, không gửi link hay caption trùng lặp)`;
+              return msg;
+            }
+
             const best = searchResults[0];
             targetDownloadId = best.downloadId;
             targetSource = best.source;

@@ -32,6 +32,7 @@ export const FILE_SEND_TOOLS = new Set([
   "create_video",
   "qppl_lamdong",
   "thanhtra_lamdong",
+  "national_legal",
   "ocr_folder_to_file",
 ]);
 
