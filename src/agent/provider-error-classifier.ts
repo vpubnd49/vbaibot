@@ -45,6 +45,13 @@ export type LoaiLoiProvider =
   | "cau_hinh"
   /** 429 - hết quota hoặc bị siết nhịp. Chờ rồi thử lại có ích. */
   | "rate_limit"
+  /**
+   * 429 nhưng gốc rễ là HẾT HẠN MỨC tháng/dự án (spending cap, monthly limit,
+   * resource exhausted). Chờ rồi thử lại VÔ ÍCH - phải CHUYỂN sang backup
+   * provider hoặc nâng cap. Tách khỏi `rate_limit` vì `rate_limit` chỉ cần chờ
+   * vài giây là hết, còn đây cần hành động quản trị.
+   */
+  | "quota_exhausted"
   /** Input vượt cửa sổ ngữ cảnh. Cắt bớt rồi thử lại có ích. */
   | "context_overflow"
   /** 401/403 - sai khóa hoặc không có quyền. Thử lại VÔ ÍCH. */
@@ -71,6 +78,27 @@ const DAU_HIEU_TRAN_CONTEXT = [
   "prompt is too long",
   "reduce the length",
   "exceeds the maximum",
+];
+
+/**
+ * Dấu hiệu HẾT HẠN MỨC vĩnh viễn (spending cap, monthly quota, resource
+ * exhausted) - khác rate_limit tạm thời (chỉ cần chờ vài giây).
+ *
+ * Google AI Studio trả 429 kèm "exceeded its monthly spending cap";
+ * OpenAI trả 429 kèm "billing hard limit" hoặc "exceeded your current quota".
+ * Cả hai đều là 429 như rate_limit, nhưng retry VÔ ÍCH.
+ */
+const DAU_HIEU_HET_HAN_MUC = [
+  "spending cap",
+  "spending limit",
+  "monthly spending",
+  "billing hard limit",
+  "exceeded your current quota",
+  "quota has been exhausted",
+  "resource has been exhausted",
+  "resource_exhausted",
+  "insufficient_quota",
+  "account has been deactivated",
 ];
 
 /** Lỗi TẦNG MẠNG - chưa tới được provider, hoặc đứt giữa chừng */
@@ -135,7 +163,12 @@ export function phanLoaiLoiProvider(raw: unknown): LoaiLoiProvider {
 
   // Mã HTTP trước, chuỗi sau: mã là dữ liệu có cấu trúc do provider gửi, còn
   // chuỗi thì mỗi nơi viết một kiểu và đổi bất cứ lúc nào.
-  if (ma === 429) return "rate_limit";
+  if (ma === 429) {
+    // 429 có hai loại: siết nhịp tạm (vài giây) vs hết hạn mức tháng (vĩnh viễn).
+    // Đọc thông báo để phân biệt: hết cap thì retry VÔ ÍCH, phải chuyển backup.
+    if (DAU_HIEU_HET_HAN_MUC.some((d) => chuoi.includes(d))) return "quota_exhausted";
+    return "rate_limit";
+  }
   if (ma === 401 || ma === 403) return "auth";
 
   // Context tràn LUÔN là 400 chung với lỗi tham số khác, nên chỉ nhận ra được
@@ -155,9 +188,9 @@ export function phanLoaiLoiProvider(raw: unknown): LoaiLoiProvider {
   return "unknown";
 }
 
-/** Loại nào thì thử lại mới có ích - `unknown` cho thử vì hỏng an toàn */
+/** Loại nào thì thử lại CÙNG provider mới có ích - `unknown` cho thử vì hỏng an toàn */
 export function nenThuLai(loai: LoaiLoiProvider): boolean {
-  return loai !== "auth" && loai !== "cau_hinh";
+  return loai !== "auth" && loai !== "cau_hinh" && loai !== "quota_exhausted";
 }
 
 /**

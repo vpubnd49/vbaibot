@@ -38,6 +38,12 @@ export const TECHNICAL_ERROR_REPLY =
 export const LOI_THEO_LOAI: Record<string, string> = {
   rate_limit:
     "Mình đang bị quá tải nên chưa trả lời kịp tin này, bạn nhắn lại giúp mình sau vài phút nhé.",
+  // Hết hạn mức tháng/spending cap: retry VÔ ÍCH, khác hẳn quá tải tạm thời.
+  // Nếu có backup provider thì code ở agent-loop đã tự chuyển rồi nên câu này
+  // chỉ hiện khi KHÔNG có backup - phải nói rõ là hệ thống cần xử lý, không
+  // phải chờ vài phút là hết.
+  quota_exhausted:
+    "Hệ thống AI đã hết hạn mức sử dụng tháng này, mình đã thông báo cho quản trị viên. Bạn nhắn lại sau ít phút nhé.",
   // Đây là lỗi CẤU HÌNH, chờ bao lâu cũng không tự hết - phải nói khác hẳn
   // câu "thử lại sau", kẻo người nhắn ngồi đợi vô vọng.
   auth: "Phần kết nối của mình đang có vấn đề về cấu hình, mình đã báo lại cho chủ bot. Bạn nhắn lại sau nhé.",

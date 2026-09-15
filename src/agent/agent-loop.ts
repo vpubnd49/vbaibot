@@ -549,13 +549,57 @@ export async function runAgentTurn({
       throw err;
     }
 
+    if (loai === "quota_exhausted") {
+      // HẾT HẠN MỨC (spending cap, monthly quota): retry cùng provider VÔ ÍCH.
+      // Chuyển thẳng sang backup provider - đây là đường cứu DUY NHẤT.
+      const backup = getBackupModel(
+        { accountId: account.id, threadId: latest.threadId, contextEpoch },
+        resolveReasoningEffort(agent),
+      );
+      if (backup) {
+        log.warn(
+          { backupModel: backup.label },
+          "Provider chính hết hạn mức tháng - chuyển sang backup ngay",
+        );
+        lanChay++;
+        guard.datLai();
+        return runOnce({
+          backupModel: { model: backup.model, providerOptions: backup.providerOptions },
+        });
+      }
+      // Không có backup: ném ra cho caller trả câu nói rõ đây là hết quota,
+      // không phải trục trặc thoáng qua.
+      throw err;
+    }
+
     if (loai === "rate_limit") {
       const cho = giayChoLai(err) ?? 5;
       log.warn({ giayCho: cho }, "Provider siết nhịp - chờ rồi thử lại đúng 1 lần");
       await new Promise((r) => setTimeout(r, cho * 1000));
       lanChay++;
       guard.datLai();
-      return runOnce();
+      try {
+        return await runOnce();
+      } catch (retryErr) {
+        // Rate limit retry thất bại: có thể là spending cap ẩn dưới dạng 429
+        // liên tục. Thử backup provider trước khi bỏ cuộc.
+        const backup = getBackupModel(
+          { accountId: account.id, threadId: latest.threadId, contextEpoch },
+          resolveReasoningEffort(agent),
+        );
+        if (backup) {
+          log.warn(
+            { backupModel: backup.label },
+            "Rate limit retry vẫn hỏng - chuyển sang backup",
+          );
+          lanChay++;
+          guard.datLai();
+          return runOnce({
+            backupModel: { model: backup.model, providerOptions: backup.providerOptions },
+          });
+        }
+        throw retryErr;
+      }
     }
 
     if (loai === "context_overflow") {
