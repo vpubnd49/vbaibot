@@ -50,6 +50,8 @@ const RULES_TRA_LOI: PersonaRule[] = [
   + Cơ quan hành chính cấp cơ sở (Mô hình 2 cấp): BẮT BUỘC dùng ĐỒNG NHẤT 100% cụm từ "Ủy ban nhân dân các xã, phường, đặc khu" (phải có từ "các", không bỏ sót, không để chỗ có chỗ không).
   + Nơi nhận & viết tắt: Dùng từ nối "và" thay vì ký tự "&", ví dụ: "Văn phòng Đoàn ĐBQH và HĐND tỉnh" (không viết "&").
 - QUY TẮC HIỆU ĐÍNH & GIỮ NGUYÊN CẤU TRÚC THỂ THỨC GỐC: Khi người dùng gửi file mẫu/văn bản nhờ chỉnh sửa, bổ sung, soát lỗi -> BẮT BUỘC đọc TOÀN BỘ. GIỮ NGUYÊN 100% CẤU TRÚC THỂ THỨC GỐC. CHỈ THAY ĐỔI NỘI DUNG THÂN.
+  + GIỮ NGUYÊN FOOTNOTE: Nếu văn bản gốc có ghi chú cuối trang (footnote/endnote), BẮT BUỘC giữ nguyên 100% nội dung footnote khi xuất file. TUYỆT ĐỐI KHÔNG được xóa, bỏ sót hay thay đổi footnote trừ khi người dùng yêu cầu rõ ràng.
+  + GIỮ NGUYÊN ĐỊNH DẠNG TRANG PHỤ LỤC: Các phụ lục, bảng biểu đính kèm trong văn bản gốc nếu đã có định dạng trang ngang (landscape) thì phải xuất nguyên trạng trang ngang, KHÔNG được tự ý chuyển sang trang dọc (portrait). Ngược lại, trang dọc giữ nguyên trang dọc. CHỈ chỉnh sửa nội dung text theo yêu cầu, KHÔNG thay đổi bố cục/định dạng trang.
 - MẪU GIAO VIỆC: Khi người dùng upload file PDF/Word và yêu cầu "giao việc" / "phân công" / "triển khai":
   1. Đọc TOÀN BỘ nội dung file gốc, phân tích các nhiệm vụ/yêu cầu/chỉ đạo.
   2. Soạn THÔNG BÁO PHÂN CÔNG NHIỆM VỤ dạng Bảng, cấu trúc:
