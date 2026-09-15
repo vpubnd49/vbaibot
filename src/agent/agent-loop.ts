@@ -8,6 +8,7 @@ import { getMemoriesForContext } from "../conversation/memory-store.js";
 import { getApprovedKnowledge } from "../conversation/shared-knowledge-store.js";
 import { getThreadContextEpoch, getThreadSummary } from "../conversation/thread-store.js";
 import { autoCaptureKnowledge } from "./auto-capture-knowledge.js";
+import { getBackupModel } from "./backup-provider.js";
 import { createLogger } from "../shared/logger.js";
 import { TECHNICAL_ERROR_REPLY } from "../zalo/send-reply-in-parts.js";
 import type { ParsedMessage } from "../zalo/zalo-message-parser.js";
@@ -338,7 +339,12 @@ export async function runAgentTurn({
   // Xem `stream-text-result.ts` để biết số đo. Bot vẫn KHÔNG stream chữ xuống
   // Zalo: `gomKetQuaStream` đọc hết stream rồi trả về đúng hình dạng cũ, nên
   // phần còn lại của vòng lặp không đổi một dòng nào.
-  const runOnce = async (options?: { toolChoice?: "auto" | "none" | "required"; timeoutMs?: number }) => {
+  const runOnce = async (options?: {
+    toolChoice?: "auto" | "none" | "required";
+    timeoutMs?: number;
+    /** Override model + providerOptions - dùng khi chuyển sang backup provider */
+    backupModel?: { model: import("ai").LanguageModel; providerOptions?: ReturnType<typeof resolveReasoningOptions> };
+  }) => {
     // Dựng đầu vào TẠI ĐÂY thay vì gán ngược vào `messages` - xem
     // `ganTinChenVao`. `prepareStep` chỉ chèn phần tin MỚI kéo được, còn bản
     // này gom cả `tinChenDaKeo`, nên hai đường không chồng lên nhau.
@@ -346,7 +352,7 @@ export async function runAgentTurn({
     return chayStream(
       (onError) =>
         streamText({
-          model: resolveModel(agent, {
+          model: options?.backupModel?.model ?? resolveModel(agent, {
             accountId: account.id,
             threadId: latest.threadId,
             contextEpoch,
@@ -378,7 +384,7 @@ export async function runAgentTurn({
           maxOutputTokens: getTuning("LLM_MAX_OUTPUT_TOKENS"),
           // Bật thinking theo LLM_REASONING_EFFORT - kiểm chứng bằng
           // usage.outputTokenDetails.reasoningTokens > 0 trong log bên dưới
-          providerOptions: resolveReasoningOptions(agent),
+          providerOptions: options?.backupModel?.providerOptions ?? resolveReasoningOptions(agent),
            maxRetries: 2,
            // Chặn trên cho CẢ lượt. Không có nó, router nhận kết nối rồi treo sẽ ăn
            // 300s (undici) x maxRetries x số step, khóa thread hàng giờ trong khi tin
@@ -597,12 +603,39 @@ export async function runAgentTurn({
   }
 
   // 9Router thỉnh thoảng trả 200 + completion rỗng (0 token). maxRetries của
-  // SDK không retry vì response "thành công" - phải tự thử lại 1 lần.
+  // SDK không retry vì response "thành công" - phải tự thử lại.
+  // Retry lần 1: gọi lại router
   if (isGlitch(result)) {
-    log.warn("Router trả completion rỗng (0 token) - thử lại 1 lần");
+    log.warn("Router trả completion rỗng (0 token) - thử lại lần 1");
     lanChay++;
     guard.datLai();
     result = await runOnce();
+  }
+  // Retry lần 2: gọi lại router lần cuối
+  if (isGlitch(result)) {
+    log.warn("Router trả completion rỗng lần 2 - thử lại router lần cuối");
+    lanChay++;
+    guard.datLai();
+    result = await runOnce();
+  }
+  // Router hỏng 3 lần liên tiếp: chuyển sang Google Gemini trực tiếp (bỏ qua
+  // 9Router hoàn toàn). Dùng cấu hình google_* đã lưu trong runtime_settings.
+  if (isGlitch(result)) {
+    const backup = getBackupModel(
+      { accountId: account.id, threadId: latest.threadId, contextEpoch },
+      resolveReasoningEffort(agent),
+    );
+    if (backup) {
+      log.warn(
+        { backupModel: backup.label },
+        "Router rỗng 3 lần liên tiếp - chuyển sang Google Gemini trực tiếp",
+      );
+      lanChay++;
+      guard.datLai();
+      result = await runOnce({
+        backupModel: { model: backup.model, providerOptions: backup.providerOptions },
+      });
+    }
   }
 
   const doLechUocLuong = soSanhUocLuong(
@@ -650,11 +683,11 @@ export async function runAgentTurn({
     "Hoàn thành lượt agent",
   );
 
-  // Vẫn rỗng sau retry: trả lời fallback thay vì im lặng bỏ treo người nhắn.
+  // Vẫn rỗng sau CẢ router retry LẪN backup Google: trả lời fallback.
   // Lượt "chỉ thả reaction" hợp lệ không dính nhánh này (có tool call + token).
   if (isGlitch(result)) {
     log.error(
-      "Router trả completion rỗng 2 lần liên tiếp - trả lời fallback. Cần soi log 9Router.",
+      "Cả router (3 lần) lẫn Google backup đều rỗng - trả lời fallback",
     );
     return {
       text: ROUTER_DOWN_REPLY,
