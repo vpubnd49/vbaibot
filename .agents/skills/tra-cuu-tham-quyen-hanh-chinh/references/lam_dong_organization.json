@@ -1,11 +1,13 @@
 {
   "dataset": "lam_dong_provincial_departments_2025",
-  "provenance": "user_provided_resolutions_390_to_395_NQ_HDND",
-  "scope_note": "Các bản ghi phản ánh cơ cấu theo các Nghị quyết HĐND tỉnh Lâm Đồng khóa X, Kỳ họp thứ 22 ngày 18/02/2025. Phân biệt ngày nghị quyết có hiệu lực với ngày cơ quan đi vào hoạt động.",
+  "provenance": "user_provided_resolutions_390_to_395_NQ_HDND_and_03_NQ_HDND_03072025",
+  "scope_note": "Danh sách ĐẦY ĐỦ 14 cơ quan chuyên môn và tổ chức hành chính thuộc UBND tỉnh Lâm Đồng sau sắp xếp 2025. Bao gồm 6 Sở hợp nhất (NQ390-395/NQ-HĐND 18/02/2025), Sở Ngoại vụ thành lập mới (NQ03/NQ-HĐND 03/7/2025), 5 Sở giữ nguyên, Thanh tra tỉnh và Văn phòng UBND tỉnh. Phân biệt ngày nghị quyết có hiệu lực với ngày cơ quan đi vào hoạt động.",
+  "deprecated_names_warning": "Từ 01/03/2025 trở đi, TUYỆT ĐỐI KHÔNG dùng các tên cũ: 'Sở Nông nghiệp và Phát triển nông thôn', 'Sở Tài nguyên và Môi trường', 'Sở Kế hoạch và Đầu tư', 'Sở Giao thông vận tải', 'Sở Lao động – Thương binh và Xã hội', 'Sở Thông tin và Truyền thông', 'Ban Dân tộc'. Thay bằng tên canonical tương ứng.",
   "records": [
     {
       "canonical_name": "Sở Nông nghiệp và Môi trường tỉnh Lâm Đồng",
       "short_name": "Sở Nông nghiệp và Môi trường",
+      "abbreviation": "Sở NN&MT",
       "old_entities": [
         "Sở Nông nghiệp và Phát triển nông thôn tỉnh Lâm Đồng",
         "Sở Tài nguyên và Môi trường tỉnh Lâm Đồng"
@@ -15,11 +17,15 @@
       "resolution_date": "2025-02-18",
       "resolution_effective_from": "2025-02-18",
       "organization_operational_from": "2025-03-01",
+      "governing_ministry": "Bộ Nông nghiệp và Môi trường",
+      "governing_circular": "Thông tư số 19/2025/TT-BNNMT ngày 19/6/2025",
+      "key_functions": "Nông nghiệp; lâm nghiệp; diêm nghiệp; thủy sản; thủy lợi; phòng chống thiên tai; giảm nghèo; phát triển nông thôn; đất đai; tài nguyên nước; khoáng sản, địa chất; môi trường; khí tượng thủy văn; biến đổi khí hậu; đo đạc bản đồ",
       "note": "Thành lập trên cơ sở hợp nhất hai Sở cũ."
     },
     {
       "canonical_name": "Sở Khoa học và Công nghệ tỉnh Lâm Đồng",
       "short_name": "Sở Khoa học và Công nghệ",
+      "abbreviation": "Sở KH&CN",
       "old_entities": [
         "Sở Khoa học và Công nghệ tỉnh Lâm Đồng",
         "Sở Thông tin và Truyền thông tỉnh Lâm Đồng"
@@ -29,11 +35,14 @@
       "resolution_date": "2025-02-18",
       "resolution_effective_from": "2025-02-18",
       "organization_operational_from": "2025-03-01",
+      "governing_ministry": "Bộ Khoa học và Công nghệ",
+      "key_functions": "Nghiên cứu KH, phát triển CN, đổi mới sáng tạo; sở hữu trí tuệ; tiêu chuẩn đo lường chất lượng; bưu chính; viễn thông; tần số vô tuyến điện; CNTT, công nghệ số; chuyển đổi số; hạ tầng thông tin truyền thông",
       "note": "Tên Sở Khoa học và Công nghệ được giữ cho cơ quan mới sau hợp nhất."
     },
     {
       "canonical_name": "Sở Nội vụ tỉnh Lâm Đồng",
       "short_name": "Sở Nội vụ",
+      "abbreviation": "Sở NV",
       "old_entities": [
         "Sở Lao động - Thương binh và Xã hội tỉnh Lâm Đồng",
         "Sở Nội vụ tỉnh Lâm Đồng"
@@ -43,11 +52,15 @@
       "resolution_date": "2025-02-18",
       "resolution_effective_from": "2025-02-18",
       "organization_operational_from": "2025-03-01",
+      "governing_ministry": "Bộ Nội vụ",
+      "governing_circular": "Thông tư số 10/2025/TT-BNV ngày 19/6/2025",
+      "key_functions": "Tổ chức hành chính; chính quyền địa phương; cán bộ, công chức, viên chức; CCHC; hội, quỹ xã hội; thi đua khen thưởng; văn thư lưu trữ; thanh niên; lao động, tiền lương; việc làm; BHXH; an toàn VSLĐ; người có công; bình đẳng giới",
       "note": "Nghị quyết 395/NQ-HĐND đồng thời chuyển chức năng, nhiệm vụ, tổ chức bộ máy quản lý nhà nước về tôn giáo từ Sở Nội vụ sang Sở Dân tộc và Tôn giáo."
     },
     {
       "canonical_name": "Sở Xây dựng tỉnh Lâm Đồng",
       "short_name": "Sở Xây dựng",
+      "abbreviation": "Sở XD",
       "old_entities": [
         "Sở Xây dựng tỉnh Lâm Đồng",
         "Sở Giao thông vận tải tỉnh Lâm Đồng"
@@ -57,11 +70,14 @@
       "resolution_date": "2025-02-18",
       "resolution_effective_from": "2025-02-18",
       "organization_operational_from": "2025-03-01",
+      "governing_ministry": "Bộ Xây dựng",
+      "governing_circular": "Thông tư số 10/2025/TT-BXD ngày 14/6/2025",
       "note": "Tên Sở Xây dựng được giữ cho cơ quan mới sau hợp nhất."
     },
     {
       "canonical_name": "Sở Tài chính tỉnh Lâm Đồng",
       "short_name": "Sở Tài chính",
+      "abbreviation": "Sở TC",
       "old_entities": [
         "Sở Kế hoạch và Đầu tư tỉnh Lâm Đồng",
         "Sở Tài chính tỉnh Lâm Đồng"
@@ -71,11 +87,14 @@
       "resolution_date": "2025-02-18",
       "resolution_effective_from": "2025-02-18",
       "organization_operational_from": "2025-03-01",
+      "governing_ministry": "Bộ Tài chính",
+      "governing_circular": "Thông tư số 57/2025/TT-BTC ngày 25/6/2025",
       "note": "Tên Sở Tài chính được giữ cho cơ quan mới sau hợp nhất."
     },
     {
       "canonical_name": "Sở Dân tộc và Tôn giáo tỉnh Lâm Đồng",
       "short_name": "Sở Dân tộc và Tôn giáo",
+      "abbreviation": "Sở DT&TG",
       "old_entities": [
         "Ban Dân tộc tỉnh Lâm Đồng"
       ],
@@ -90,7 +109,95 @@
       "resolution_date": "2025-02-18",
       "resolution_effective_from": "2025-02-18",
       "organization_operational_from": "2025-03-01",
+      "governing_ministry": "Bộ Dân tộc và Tôn giáo",
+      "key_functions": "Công tác dân tộc; tín ngưỡng, tôn giáo",
       "note": "Ban Dân tộc tiếp nhận chức năng quản lý nhà nước về tôn giáo từ Sở Nội vụ."
+    },
+    {
+      "canonical_name": "Sở Ngoại vụ tỉnh Lâm Đồng",
+      "short_name": "Sở Ngoại vụ",
+      "abbreviation": "Sở NgV",
+      "old_entities": [],
+      "change_type": "thành lập mới",
+      "resolution_number": "03/NQ-HĐND",
+      "resolution_date": "2025-07-03",
+      "resolution_effective_from": "2025-07-03",
+      "organization_operational_from": "2025-07-08",
+      "governing_ministry": "Bộ Ngoại giao",
+      "governing_circular": "Thông tư số 09/2025/TT-BNG ngày 30/6/2025",
+      "key_functions": "Công tác đối ngoại địa phương; biên giới, lãnh thổ quốc gia",
+      "note": "Sở Ngoại vụ thành lập mới trực thuộc UBND tỉnh theo NQ03/NQ-HĐND."
+    },
+    {
+      "canonical_name": "Sở Công Thương tỉnh Lâm Đồng",
+      "short_name": "Sở Công Thương",
+      "abbreviation": "Sở CT",
+      "old_entities": [],
+      "change_type": "giữ nguyên",
+      "governing_ministry": "Bộ Công Thương",
+      "governing_circular": "Thông tư số 37/2025/TT-BCT",
+      "note": "Giữ nguyên tên, cập nhật chức năng nhiệm vụ theo NĐ 150/2025/NĐ-CP."
+    },
+    {
+      "canonical_name": "Sở Tư pháp tỉnh Lâm Đồng",
+      "short_name": "Sở Tư pháp",
+      "abbreviation": "Sở TP",
+      "old_entities": [],
+      "change_type": "giữ nguyên",
+      "governing_ministry": "Bộ Tư pháp",
+      "governing_circular": "Thông tư số 09/2025/TT-BTP ngày 16/6/2025",
+      "note": "Giữ nguyên tên, cập nhật chức năng nhiệm vụ theo NĐ 150/2025/NĐ-CP."
+    },
+    {
+      "canonical_name": "Sở Văn hóa, Thể thao và Du lịch tỉnh Lâm Đồng",
+      "short_name": "Sở Văn hóa, Thể thao và Du lịch",
+      "abbreviation": "Sở VH-TT&DL",
+      "old_entities": [],
+      "change_type": "giữ nguyên",
+      "note": "Giữ nguyên tên."
+    },
+    {
+      "canonical_name": "Sở Giáo dục và Đào tạo tỉnh Lâm Đồng",
+      "short_name": "Sở Giáo dục và Đào tạo",
+      "abbreviation": "Sở GD&ĐT",
+      "old_entities": [],
+      "change_type": "giữ nguyên",
+      "note": "Giữ nguyên tên."
+    },
+    {
+      "canonical_name": "Sở Y tế tỉnh Lâm Đồng",
+      "short_name": "Sở Y tế",
+      "abbreviation": "Sở YT",
+      "old_entities": [],
+      "change_type": "giữ nguyên",
+      "note": "Giữ nguyên tên."
+    },
+    {
+      "canonical_name": "Thanh tra tỉnh Lâm Đồng",
+      "short_name": "Thanh tra tỉnh",
+      "abbreviation": "TTr",
+      "old_entities": [],
+      "change_type": "giữ nguyên",
+      "note": "Giữ nguyên tên."
+    },
+    {
+      "canonical_name": "Văn phòng Ủy ban nhân dân tỉnh Lâm Đồng",
+      "short_name": "Văn phòng UBND tỉnh",
+      "abbreviation": "VP UBND",
+      "old_entities": [],
+      "change_type": "giữ nguyên",
+      "note": "Giữ nguyên tên. Cơ quan tham mưu tổng hợp cho UBND tỉnh."
     }
-  ]
+  ],
+  "common_legal_bases": {
+    "luat_to_chuc_cqdp": {"name": "Luật Tổ chức chính quyền địa phương", "number": "72/2025/QH15", "date": "2025-06-16"},
+    "nghi_dinh_to_chuc_cqcm": {"name": "NĐ quy định tổ chức CQCM thuộc UBND tỉnh/TP và UBND xã/phường/ĐK", "number": "150/2025/NĐ-CP", "date": "2025-06-12"},
+    "nghi_dinh_thanh_lap_giai_the": {"name": "NĐ quy định về thành lập, tổ chức lại, giải thể tổ chức hành chính", "number": "158/2018/NĐ-CP", "date": "2018-11-22"},
+    "nghi_quyet_sap_xep_dvhc": {"name": "NQ sắp xếp đơn vị hành chính cấp tỉnh", "number": "202/2025/QH15", "date": "2025-06-12"},
+    "nghi_quyet_thanh_lap_cqcm": {"name": "NQ thành lập CQCM và TCHC khác thuộc UBND tỉnh Lâm Đồng", "number": "03/NQ-HĐND", "date": "2025-07-03"},
+    "de_an_thanh_lap_cqcm": {"name": "Đề án thành lập CQCM, TCHC khác thuộc UBND tỉnh Lâm Đồng", "number": "05/ĐA-UBND", "date": "2025-07-02"}
+  },
+  "leadership": {
+    "chu_tich_ubnd": {"name": "Hồ Văn Mười", "title": "Ủy viên Ban Chấp hành Trung ương Đảng, Phó Bí thư Tỉnh ủy, Chủ tịch UBND tỉnh"}
+  }
 }

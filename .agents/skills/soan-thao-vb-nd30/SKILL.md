@@ -93,6 +93,7 @@ giay_uy_quyen, hop_dong, cong_dien, ban_ghi_nho, cong_van
 | File | Nội dung |
 |:---|:---|
 | `references/quy_tac_the_thuc.md` | Thông số pixel-perfect |
+| `references/mau_cau_truc_vbhc.md` | Cấu trúc mẫu 5 loại VBHC (QĐ, KH, TB, TTr, BC) rút từ VB thực tế tỉnh Lâm Đồng |
 | `references/bang_viet_tat.md` | Chữ viết tắt CQ (QĐ 4114) |
 | `references/phan_quyen_ky.md` | Ma trận TM./KT./TL. (QĐ 1528) |
 
