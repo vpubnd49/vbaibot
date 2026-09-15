@@ -91,6 +91,8 @@ const account: AccountConfig = {
   autoReactIcon: "heart",
   typingIndicatorEnabled: false,
   disabledTools: [],
+  adminUserIds: [],
+  adminPauseTimeoutMs: 300000,
 };
 
 const tinNhan = (): ParsedMessage => ({

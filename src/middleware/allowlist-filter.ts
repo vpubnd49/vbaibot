@@ -1,5 +1,6 @@
 import type { AccountConfig } from "../config/account-store.js";
 import { isMentioningBot } from "../shared/fold-for-search.js";
+import { isThreadPaused } from "../conversation/thread-store.js";
 import type { ParsedMessage } from "../zalo/zalo-message-parser.js";
 
 export type FilterDecision = {
@@ -60,5 +61,12 @@ export function shouldRespond(
     return recordOnly("thread đang tắt bot - chỉ ghi history");
   }
 
+  // Smart Admin Pause: admin đang tự trả lời → bot nhường sóng, chỉ ghi history.
+  // Check SAU botEnabled vì thread tắt hẳn thì không cần check pause nữa.
+  if (isThreadPaused(account.id, msg.threadId)) {
+    return recordOnly("thread đang nhường admin - chỉ ghi history");
+  }
+
   return { respond: true, record: true, reason: "ok" };
 }
+

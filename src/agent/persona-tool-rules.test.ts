@@ -78,8 +78,9 @@ describe("buildSystemPrompt ghép luật theo tool đang bật", () => {
   } as never;
 
   it("tắt tool trên dashboard thì luật của tool đó biến mất khỏi prompt", () => {
-    const day = persona.buildSystemPrompt(agent, msg, undefined, { disabledTools: [] });
+    const day = persona.buildSystemPrompt(agent, msg, undefined, { id: "test", disabledTools: [] });
     const tat = persona.buildSystemPrompt(agent, msg, undefined, {
+      id: "test",
       disabledTools: [
         "create_word_document",
         "create_admin_document",
@@ -103,13 +104,14 @@ describe("buildSystemPrompt ghép luật theo tool đang bật", () => {
   it("tool chưa cấu hình hạ tầng cũng không được dạy luật", () => {
     // create_image có available() = isImageGenConfigured(), test env chưa cấu
     // hình endpoint vẽ -> model KHÔNG nhận được tool, prompt cũng đừng dạy nó
-    const day = persona.buildSystemPrompt(agent, msg, undefined, { disabledTools: [] });
+    const day = persona.buildSystemPrompt(agent, msg, undefined, { id: "test", disabledTools: [] });
     assert.ok(!day.includes("create_image"));
     assert.ok(!day.includes("Vẽ ảnh AI"));
   });
 
   it("account không còn tool nào: prompt không dạy luật tool nào nữa", () => {
     const khongTool = persona.buildSystemPrompt(agent, msg, undefined, {
+      id: "test",
       disabledTools: registry.TOOL_KEYS,
     });
     assert.ok(khongTool.includes("KHÔNG có công cụ nào được bật"));

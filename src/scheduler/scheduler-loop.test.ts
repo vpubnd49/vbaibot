@@ -83,6 +83,8 @@ function attachOnline(
     autoReactIcon: "heart",
     typingIndicatorEnabled: false,
     disabledTools: [],
+    adminUserIds: [],
+    adminPauseTimeoutMs: 300000,
   };
   const api = {
     getOwnId: () => "self-1",

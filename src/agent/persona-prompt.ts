@@ -1,10 +1,12 @@
 import type { AccountConfig } from "../config/account-store.js";
 import type { AgentProfile } from "../config/agent-store.js";
+import { buildOverrideExamples } from "../conversation/response-override-store.js";
 import { botTimeZone } from "../config/runtime-tuning-settings.js";
 import type { MemoryContext } from "../conversation/memory-store.js";
 import { currentDateLine } from "../shared/current-datetime.js";
 import { khoiDieuDaNho, khoiTriThucChung } from "./memory-prompt-block.js";
 import type { ParsedMessage } from "../zalo/zalo-message-parser.js";
+import { detectSentiment, sentimentPromptLine } from "./sentiment-detector.js";
 import { listAvailableTools, type ToolDefinition } from "./tools/tool-registry.js";
 import { toolPersonaSections } from "./persona-tool-rules.js";
 import {
@@ -131,7 +133,7 @@ export function buildSystemPrompt(
   agent: AgentProfile,
   msg: ParsedMessage,
   memory?: PromptMemory,
-  account?: Pick<AccountConfig, "disabledTools">,
+  account?: Pick<AccountConfig, "id" | "disabledTools">,
   isolated?: boolean,
 ): string {
   // Chỉ ngày + thứ, không có giờ - giờ đổi mỗi phút sẽ vỡ prompt cache mỗi phút.
@@ -178,6 +180,17 @@ export function buildSystemPrompt(
     ? `Bối cảnh: bạn đang ở trong nhóm chat Zalo, được "${msg.senderName}" nhắc đến. Lịch sử có tin nhắn của nhiều người, định dạng "[ngày/tháng giờ:phút] Tên: nội dung". Nhiều tin trong lịch sử là thành viên nói chuyện với nhau chứ không phải nói với bạn - dùng làm ngữ cảnh, chỉ trả lời tin nhắc đến bạn.`
     : `Bối cảnh: bạn đang chat riêng với "${msg.senderName}". Tin nhắn trong lịch sử có kèm thời gian gửi dạng "[ngày/tháng giờ:phút]" - để ý khoảng cách thời gian, đừng nối chuyện cũ như vừa nhắn xong nếu đã lâu.`;
   sections.push(context);
+
+  // ===== Response Override: few-shot từ admin đã sửa =====
+  if (account) {
+    const overrideBlock = buildOverrideExamples(account.id);
+    if (overrideBlock) sections.push(overrideBlock);
+  }
+
+  // ===== Sentiment Analysis: inject tone cue =====
+  const sentiment = detectSentiment(msg.text);
+  const sentimentLine = sentimentPromptLine(sentiment);
+  if (sentimentLine) sections.push(sentimentLine);
 
   return sections.join("\n\n");
 }

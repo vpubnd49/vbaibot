@@ -78,6 +78,8 @@ function makeCtx(): ToolContext {
       autoReactIcon: "heart",
       typingIndicatorEnabled: true,
       disabledTools: [],
+      adminUserIds: [],
+      adminPauseTimeoutMs: 300000,
     },
     agent: fakeAgentProfile(),
     message: msg(),

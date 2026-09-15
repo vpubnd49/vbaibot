@@ -21,6 +21,8 @@ function makeAccount(overrides: Partial<AccountConfig> = {}): AccountConfig {
     autoReactIcon: "heart",
     typingIndicatorEnabled: true,
     disabledTools: [],
+    adminUserIds: [],
+    adminPauseTimeoutMs: 300000,
     ...overrides,
   };
 }

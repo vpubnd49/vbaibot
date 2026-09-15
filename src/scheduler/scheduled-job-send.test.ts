@@ -84,6 +84,8 @@ function attachOnline(): { threadId: string; text: string }[] {
     autoReactIcon: "heart",
     typingIndicatorEnabled: false,
     disabledTools: [],
+    adminUserIds: [],
+    adminPauseTimeoutMs: 300000,
   };
   const api = {
     getOwnId: () => "self-1",
@@ -192,6 +194,8 @@ describe("sendAndConclude - hoàn suất trần phải trả về ĐÚNG NGÀY �
         autoReactIcon: "heart",
         typingIndicatorEnabled: false,
         disabledTools: [],
+    adminUserIds: [],
+    adminPauseTimeoutMs: 300000,
       },
       {
         getOwnId: () => "self-1",

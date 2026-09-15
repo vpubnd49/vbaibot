@@ -7,8 +7,10 @@ import { filePathsOf, imagePathsOf, persistBatchFiles, persistBatchImages } from
 import {
   hasDisplayName,
   isBotEnabled,
+  isThreadPaused,
   recordThreadActivity,
   setThreadDisplayName,
+  setThreadPausedUntil,
 } from "../conversation/thread-store.js";
 import { shouldRespond } from "../middleware/allowlist-filter.js";
 import { enqueueMessage } from "../middleware/message-batcher.js";
@@ -21,6 +23,9 @@ import { reportPayloadAnomalies } from "./payload-anomaly-watch.js";
 import { describeForHistory, parseIncomingMessage, type ParsedMessage } from "./zalo-message-parser.js";
 
 const log = createLogger("message-router");
+
+/** Lệnh resume bot: user gõ trong chat để bot hoạt động trở lại */
+const RESUME_COMMANDS = ["/bot", "/resume"];
 
 /**
  * Mọi tin đến (kể cả tin sẽ bị lọc): ghi contact + thread ("auto-collected").
@@ -55,6 +60,34 @@ export function routeIncomingMessage(
     });
     if (msg.isGroup && !hasDisplayName(config.id, msg.threadId)) {
       void resolveGroupName(config.id, api, msg.threadId);
+    }
+
+    // ===== Smart Admin Pause =====
+    // Lệnh /bot hoặc /resume: resume ngay, BẤT KỂ ai gõ (admin hay user)
+    const trimmedText = msg.text.trim().toLowerCase();
+    if (RESUME_COMMANDS.includes(trimmedText)) {
+      if (isThreadPaused(config.id, msg.threadId)) {
+        setThreadPausedUntil(config.id, msg.threadId, null);
+        log.info(
+          { threadId: msg.threadId, sender: msg.senderName },
+          "Thread resumed bằng lệnh " + trimmedText,
+        );
+      }
+      // Không return: vẫn để shouldRespond xử lý tin nhắn bình thường
+    }
+
+    // Admin gửi tin (KHÔNG phải lệnh resume) → pause thread
+    if (
+      config.adminUserIds.length > 0 &&
+      config.adminUserIds.includes(msg.senderId) &&
+      !RESUME_COMMANDS.includes(trimmedText)
+    ) {
+      const deadline = Date.now() + config.adminPauseTimeoutMs;
+      setThreadPausedUntil(config.id, msg.threadId, deadline);
+      log.info(
+        { threadId: msg.threadId, admin: msg.senderName, pauseMs: config.adminPauseTimeoutMs },
+        "Admin gửi tin - pause thread",
+      );
     }
   }
 

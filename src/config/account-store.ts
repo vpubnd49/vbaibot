@@ -28,6 +28,10 @@ export type AccountConfig = {
    * cho account cũ, không cần migration).
    */
   disabledTools: string[];
+  /** Danh sách Zalo ID của admin/staff - khi họ gửi tin thì bot tạm im */
+  adminUserIds: string[];
+  /** Thời gian pause (ms) khi admin gửi tin. Mặc định 5 phút */
+  adminPauseTimeoutMs: number;
 };
 
 type Row = {
@@ -44,6 +48,8 @@ type Row = {
   auto_react_icon: string;
   typing_indicator_enabled: number;
   disabled_tools: string;
+  admin_user_ids: string;
+  admin_pause_timeout_ms: number;
 };
 
 const toConfig = (r: Row): AccountConfig => ({
@@ -59,12 +65,14 @@ const toConfig = (r: Row): AccountConfig => ({
   autoReactIcon: r.auto_react_icon,
   typingIndicatorEnabled: r.typing_indicator_enabled === 1,
   disabledTools: parseDisabledTools(r.disabled_tools),
+  adminUserIds: JSON.parse(r.admin_user_ids || '[]') as string[],
+  adminPauseTimeoutMs: r.admin_pause_timeout_ms,
 });
 
 const SELECT = `SELECT id, label, enabled, agent_id, allowlist_mode, allowlist_user_ids,
                        group_require_mention, respond_to_groups, group_passive_listen,
                        auto_react_enabled, auto_react_icon, typing_indicator_enabled,
-                       disabled_tools
+                       disabled_tools, admin_user_ids, admin_pause_timeout_ms
                 FROM accounts`;
 
 export function listAccounts(): AccountConfig[] {
@@ -101,7 +109,8 @@ export function updateAccount(
     `UPDATE accounts SET label = ?, enabled = ?, agent_id = ?, allowlist_mode = ?,
        allowlist_user_ids = ?, group_require_mention = ?, respond_to_groups = ?,
        group_passive_listen = ?, auto_react_enabled = ?, auto_react_icon = ?,
-       typing_indicator_enabled = ?, disabled_tools = ?
+       typing_indicator_enabled = ?, disabled_tools = ?, admin_user_ids = ?,
+       admin_pause_timeout_ms = ?
      WHERE id = ?`,
   ).run(
     next.label,
@@ -116,6 +125,8 @@ export function updateAccount(
     next.autoReactIcon,
     next.typingIndicatorEnabled ? 1 : 0,
     JSON.stringify(next.disabledTools),
+    JSON.stringify(next.adminUserIds),
+    next.adminPauseTimeoutMs,
     id,
   );
   return getAccount(id);

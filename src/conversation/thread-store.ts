@@ -86,6 +86,34 @@ export function setThreadDisplayName(accountId: string, threadId: string, name: 
   setNameStmt.run(name, accountId, threadId);
 }
 
+// ===== Smart Admin Pause =====
+
+const getPausedStmt = db.prepare(
+  "SELECT paused_until FROM threads WHERE account_id = ? AND thread_id = ?",
+);
+
+/**
+ * Thread có đang bị pause (admin đang tự trả lời) hay không.
+ * NULL hoặc đã quá hạn = không pause. So sánh epoch ms.
+ */
+export function isThreadPaused(accountId: string, threadId: string): boolean {
+  const row = getPausedStmt.get(accountId, threadId) as { paused_until: number | null } | undefined;
+  if (!row || row.paused_until === null) return false;
+  return row.paused_until > Date.now();
+}
+
+const setPausedStmt = db.prepare(
+  "UPDATE threads SET paused_until = ? WHERE account_id = ? AND thread_id = ?",
+);
+
+/**
+ * Set hoặc xóa pause cho thread.
+ * @param epochMs epoch ms hết hạn, hoặc null để resume ngay.
+ */
+export function setThreadPausedUntil(accountId: string, threadId: string, epochMs: number | null): void {
+  setPausedStmt.run(epochMs, accountId, threadId);
+}
+
 // ===== Memory lớp 2: rolling summary =====
 
 const getSummaryStmt = db.prepare(

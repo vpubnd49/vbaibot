@@ -68,6 +68,8 @@ const config: AccountConfig = {
   autoReactIcon: "heart",
   typingIndicatorEnabled: false,
   disabledTools: [],
+    adminUserIds: [],
+    adminPauseTimeoutMs: 300000,
 };
 
 const api = {

@@ -44,6 +44,9 @@ const patchSchema = z.object({
   typingIndicatorEnabled: z.boolean().optional(),
   // Chặn key tool lạ ngay ở API - key sai âm thầm nằm trong DB sẽ không tắt gì cả
   disabledTools: z.array(z.enum(TOOL_KEYS as [string, ...string[]])).optional(),
+  // Smart Admin Pause: danh sách Zalo ID admin + thời gian pause
+  adminUserIds: z.array(z.string()).optional(),
+  adminPauseTimeoutMs: z.number().int().min(10000).max(3600000).optional(),
 });
 
 const withStatus = (a: ReturnType<typeof listAccounts>[number]) => ({

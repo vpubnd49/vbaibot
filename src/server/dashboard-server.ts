@@ -25,6 +25,7 @@ import { contactRoutes } from "./routes/contact-routes.js";
 import { logRoutes } from "./routes/log-routes.js";
 import { memoryRoutes } from "./routes/memory-routes.js";
 import { knowledgeRoutes } from "./routes/knowledge-routes.js";
+import { overrideRoutes } from "./routes/override-routes.js";
 import { overviewRoutes } from "./routes/overview-routes.js";
 import { providerRoutes } from "./routes/provider-routes.js";
 import { scheduleRoutes } from "./routes/schedule-routes.js";
@@ -223,6 +224,7 @@ export function buildDashboardApp(): Hono {
   app.route("/api/provider", providerRoutes);
   app.route("/api/memories", memoryRoutes);
   app.route("/api/knowledge", knowledgeRoutes);
+  app.route("/api/overrides", overrideRoutes);
   app.route("/api/accounts", accountRoutes);
   app.route("/api/agents", agentRoutes);
   app.route("/api/tools", toolRoutes);

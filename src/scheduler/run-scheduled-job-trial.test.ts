@@ -74,6 +74,8 @@ function attachOnlineWithGate(): { sent: { threadId: string; text: string }[]; r
     autoReactIcon: "heart",
     typingIndicatorEnabled: false,
     disabledTools: [],
+    adminUserIds: [],
+    adminPauseTimeoutMs: 300000,
   };
   const api = {
     getOwnId: () => "self-1",

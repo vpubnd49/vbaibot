@@ -306,6 +306,19 @@ function runMigrations(): void {
     CREATE INDEX IF NOT EXISTS idx_broadcast_logs_thread ON broadcast_logs (account_id, thread_id);
     CREATE INDEX IF NOT EXISTS idx_broadcast_logs_created ON broadcast_logs (created_at DESC);
 
+    -- Bảng lưu câu trả lời đã được admin sửa lại (Response Override)
+    -- Dùng làm few-shot examples để bot tự cải thiện theo thời gian.
+    CREATE TABLE IF NOT EXISTS response_overrides (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      account_id TEXT NOT NULL,
+      thread_id TEXT NOT NULL,
+      user_message TEXT NOT NULL,
+      original_response TEXT NOT NULL,
+      corrected_response TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+    );
+    CREATE INDEX IF NOT EXISTS idx_overrides_account ON response_overrides (account_id, created_at DESC);
+
     -- Văn bản Kết luận thanh tra tỉnh Lâm Đồng (Cổng TTĐT lamdong.gov.vn)
     CREATE TABLE IF NOT EXISTS thanhtra_documents (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -406,6 +419,15 @@ function runMigrations(): void {
   // phải ngay lần đầu (bất biến "chưa từng gửi được thì không coi là đã
   // chạy"). Mặc định 0 để mọi job cũ coi như chưa từng thử hỏng lần nào.
   addColumnIfMissing("scheduled_jobs", "delivery_attempts", "INTEGER NOT NULL DEFAULT 0");
+
+  // ===== Phase 1: Smart Admin Pause =====
+  // Thời điểm hết pause (epoch ms). NULL = không pause. Admin gửi tin → set
+  // paused_until = now + timeout; hết hạn hoặc /bot → set NULL.
+  addColumnIfMissing("threads", "paused_until", "INTEGER");
+  // Danh sách Zalo ID của admin/staff - khi họ gửi tin thì bot tạm im.
+  addColumnIfMissing("accounts", "admin_user_ids", "TEXT NOT NULL DEFAULT '[]'");
+  // Thời gian pause (ms) khi admin gửi tin. Mặc định 5 phút.
+  addColumnIfMissing("accounts", "admin_pause_timeout_ms", "INTEGER NOT NULL DEFAULT 300000");
 }
 
 function addColumnIfMissing(table: string, column: string, definition: string): void {

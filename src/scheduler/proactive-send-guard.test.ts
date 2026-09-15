@@ -44,6 +44,8 @@ const accountConfig = (id: string): AccountConfig => ({
   autoReactIcon: "heart",
   typingIndicatorEnabled: false,
   disabledTools: [],
+  adminUserIds: [],
+  adminPauseTimeoutMs: 300000,
 });
 
 before(async () => {
