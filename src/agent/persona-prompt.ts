@@ -2,6 +2,7 @@ import type { AccountConfig } from "../config/account-store.js";
 import type { AgentProfile } from "../config/agent-store.js";
 import { buildOverrideExamples } from "../conversation/response-override-store.js";
 import { botTimeZone } from "../config/runtime-tuning-settings.js";
+import { LEGAL_WORKFLOW_PROMPT } from "../knowledge/noi-chinh-templates.js";
 import type { MemoryContext } from "../conversation/memory-store.js";
 import { currentDateLine } from "../shared/current-datetime.js";
 import { khoiDieuDaNho, khoiTriThucChung } from "./memory-prompt-block.js";
@@ -155,6 +156,11 @@ export function buildSystemPrompt(
     const available = listAvailableTools({ agent, account }, { isolated });
     sections.push(toolCapabilitySection(available));
     sections.push(...toolPersonaSections(available.map((t) => t.key)));
+
+    // Tri thức chuyên ngành Nội chính: inject khi account có tool tạo VB
+    if (available.some((t) => t.key === "create_admin_document")) {
+      sections.push(LEGAL_WORKFLOW_PROMPT);
+    }
   }
 
   if (agent.persona.trim()) {
