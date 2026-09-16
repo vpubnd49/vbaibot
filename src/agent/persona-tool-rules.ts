@@ -94,15 +94,23 @@ const RULES_TRA_LOI: PersonaRule[] = [
   {
     tools: ["create_excel_file"],
     text: `- SƠ ĐỒ GANTT, BIỂU ĐỒ, SƠ ĐỒ — BẮT BUỘC XUẤT EXCEL:
-  + Khi người dùng yêu cầu "sơ đồ Gantt", "Gantt chart", "lộ trình triển khai", "tiến độ thực hiện", "timeline dự án" → BẮT BUỘC GỌI create_excel_file NGAY với cấu trúc:
-    * Sheet "Gantt Chart" gồm các cột: [STT, Giai đoạn, Công việc cụ thể, Đơn vị/Người phụ trách, Ngày bắt đầu, Ngày kết thúc, Thời gian (ngày), Ghi chú/Phụ thuộc]
-    * Chia rõ từng GIAI ĐOẠN, bên trong mỗi giai đoạn liệt kê CHI TIẾT từng công việc con — KHÔNG gộp chung "Giai đoạn 1: Chuẩn bị" rồi bỏ trống chi tiết.
-    * Ngày tháng phải hợp lý, có tính kế tiếp (công việc sau bắt đầu sau hoặc song song với công việc trước).
-    * Nếu có thể, thêm Sheet "Tổng quan" tóm tắt các mốc chính (milestone).
-    * TUYỆT ĐỐI KHÔNG liệt kê Gantt bằng text trong chat — Gantt mà không có file là VÔ NGHĨA vì người dùng không thể sắp xếp, lọc, in ấn được.
+  + Khi người dùng yêu cầu "sơ đồ Gantt", "Gantt chart", "lộ trình triển khai", "tiến độ thực hiện", "timeline dự án" → BẮT BUỘC GỌI create_excel_file NGAY:
+    * CẤU TRÚC GANTT CHUẨN — Sheet chính "Sơ đồ Gantt":
+      - Title: tên dự án/kế hoạch (vd: "SƠ ĐỒ GANTT - DỰ ÁN NÂNG CẤP MẠNG LAN")
+      - Subtitle: mô tả ngắn (tổng thời gian, số giai đoạn)
+      - Headers: [STT, Giai đoạn / Công việc, Đơn vị phụ trách, Bắt đầu, Kết thúc, Số ngày, Thanh tiến độ, Ghi chú]
+      - Dòng GIAI ĐOẠN: in đậm tên giai đoạn bằng **Giai đoạn 1: Chuẩn bị** — nổi bật phân tách rõ ràng
+      - Dòng công việc con: thụt đầu "  1.1. Khảo sát hiện trạng" — CHI TIẾT từng bước, KHÔNG gộp chung
+      - Cột "Thanh tiến độ": dùng ký tự █ (block) lặp lại tỷ lệ với số ngày, vd: "████████" cho 8 ngày, "████" cho 4 ngày — tạo hiệu ứng THANH GANTT TRỰC QUAN ngay trong Excel
+      - Ngày tháng liên tục và hợp lý: công việc sau bắt đầu sau khi công việc phụ thuộc kết thúc
+    * CHỌN THEME MÀU PHÙ HỢP NỘI DUNG: theme "teal" cho CNTT/kỹ thuật, "blue" cho tài chính/kinh doanh, "green" cho nông nghiệp/môi trường, "navy" cho báo cáo tổng hợp, "burgundy" cho pháp lý/rủi ro
+    * Sheet "Tổng quan Milestone": bảng tóm tắt [STT, Mốc quan trọng, Ngày hoàn thành, Phụ thuộc, Trạng thái]
+    * Note cuối sheet: "Ghi chú: Sơ đồ Gantt được lập dựa trên ước tính thời gian chuẩn. Thời gian thực tế có thể thay đổi tùy điều kiện triển khai."
+    * TUYỆT ĐỐI KHÔNG liệt kê Gantt bằng text trong chat — Gantt mà không có file là VÔ NGHĨA.
   + Khi người dùng yêu cầu "biểu đồ", "chart", "đồ thị", "sơ đồ tổ chức", "sơ đồ quy trình", "so sánh bằng biểu đồ", "flowchart" → BẮT BUỘC GỌI create_excel_file:
     * Tổ chức dữ liệu thành bảng rõ ràng để người dùng chỉ cần chọn Insert Chart trong Excel.
-    * Sơ đồ tổ chức, quy trình: dùng Excel với cột [Cấp bậc, Chức danh/Bước, Đơn vị, Quan hệ/Phụ thuộc, Ghi chú] — người dùng mở Excel là hiểu ngay cấu trúc.
+    * Sơ đồ tổ chức, quy trình: dùng Excel với cột [Cấp bậc, Chức danh/Bước, Đơn vị, Quan hệ/Phụ thuộc, Ghi chú].
+    * Chọn theme màu phù hợp lĩnh vực.
     * KHÔNG mô tả biểu đồ/sơ đồ bằng text — người dùng cần FILE để trình bày, in ấn, chỉnh sửa.`,
   },
   {
