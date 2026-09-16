@@ -20,6 +20,9 @@ import { finishRun, openRun } from "./job-run-log-store.js";
 import { computeNextRun, decideDueAction } from "./next-run.js";
 import { checkAccountAndThreadReady, checkProactiveDailyCap } from "./proactive-send-guard.js";
 import { runScheduledJob } from "./run-scheduled-job.js";
+import { getDueFollowups, markFollowupFired } from "../agent/followup-tracker.js";
+import { getRunningAccountApi } from "../zalo/account-manager.js";
+import { deliverChatReply } from "../zalo/deliver-chat-reply.js";
 import { concludeCapBlockedAtTick } from "./scheduled-job-cap-guard.js";
 import { listDueJobs, scheduleOf, setNextRun, type ScheduledJob } from "./scheduled-job-store.js";
 
@@ -172,6 +175,37 @@ export async function runSchedulerTick(now: Date = new Date()): Promise<void> {
     }
   } catch (err) {
     log.error({ err }, "Tick lỗi - vòng lặp vẫn tiếp tục ở lần kế");
+  }
+
+  // ===== Proactive Follow-up =====
+  // Gửi nhắc nhẹ khi user chưa phản hồi (tách try/catch riêng để job chính
+  // không bị ảnh hưởng nếu follow-up lỗi)
+  try {
+    const dueFollowups = getDueFollowups();
+    for (const fu of dueFollowups) {
+      try {
+        const api = getRunningAccountApi(fu.accountId);
+        if (api) {
+          const msg = "Anh/chị ơi, em vẫn đang chờ phản hồi từ anh/chị ạ. Nếu cần hỗ trợ thêm, anh/chị cứ nhắn nhé! 😊";
+          const target: import("../zalo/send-reply-in-parts.js").ReplyTarget = {
+            api,
+            threadKey: `${fu.accountId}:${fu.threadId}`,
+            threadId: fu.threadId,
+            threadType: 1, // mặc định cá nhân; nhóm cũng gửi được với threadType=1
+          };
+          const result = await deliverChatReply(target, fu.accountId, fu.threadId, msg);
+          if (!result.hong) {
+            log.info({ accountId: fu.accountId, threadId: fu.threadId }, "Gửi follow-up thành công");
+          }
+        }
+        markFollowupFired(fu.id);
+      } catch (fuErr) {
+        log.warn({ err: fuErr, followupId: fu.id }, "Follow-up gửi lỗi");
+        markFollowupFired(fu.id); // Vẫn mark để không retry vĩnh viễn
+      }
+    }
+  } catch (fuTopErr) {
+    log.error({ err: fuTopErr }, "Follow-up scan lỗi");
   }
 }
 

@@ -12,6 +12,7 @@ import { saveTurnTrace, trongGiaoDich } from "../agent/agent-trace-store.js";
 import { traceLuotHong } from "../agent/failed-turn-trace.js";
 import { forLog } from "../agent/agent-step-observer.js";
 import { finishAgentTurn, openAgentTurn } from "../conversation/usage-store.js";
+import { shouldTrackFollowup, scheduleFollowup, cancelFollowup } from "../agent/followup-tracker.js";
 import { createLogger } from "../shared/logger.js";
 import { runInTurnLogContext } from "../shared/turn-log-context.js";
 import { assertSafeUserRequestAudit, toUserRequestAuditEvent } from "../shared/user-request-audit.js";
@@ -218,6 +219,11 @@ async function xuLyLuot(
     }
   };
 
+  // Hủy follow-up cũ: user đã nhắn lại → không cần nhắc nữa
+  cancelFollowup(config.id, latest.threadId);
+
+  const turnStartMs = Date.now();
+
   try {
     // Chạy agent TRƯỚC khi ghi history: runAgentTurn tự đọc history cũ và tự
     // ghép batch hiện tại vào input - ghi trước sẽ khiến tin mới lặp 2 lần.
@@ -235,8 +241,9 @@ async function xuLyLuot(
     // chết ở giữa (PM2 restart, max_memory_restart) để lại row có token thật mà
     // không có dòng `agent_steps` nào - lượt đó BIẾN MẤT khỏi trang Trace vì
     // `getRecentTurnsAllThreads` INNER JOIN sang bảng trace.
+    const responseTimeMs = Date.now() - turnStartMs;
     trongGiaoDich(() => {
-      finishAgentTurn(turnId, result.usage);
+      finishAgentTurn(turnId, result.usage, responseTimeMs);
       // Trace lưu ở đây chứ không trong agent-loop: chỗ này vốn đã là nơi chốt
       // usage của lượt, gom một mối cho dễ tìm.
       if (trace.length > 0) saveTurnTrace(turnId, trace);
@@ -286,6 +293,11 @@ async function xuLyLuot(
       "Hoàn tất phản hồi người dùng",
     );
     if (giao.hong) return;
+
+    // Proactive follow-up: nếu bot hỏi lại user → đặt timer nhắc
+    if (shouldTrackFollowup(result.text)) {
+      scheduleFollowup(config.id, latest.threadId);
+    }
 
     // Tự động đồng bộ câu hỏi & trả lời chất lượng cao về trung tâm huấn luyện VBAI (Fire-and-forget)
     void syncTurnToVBAI({
