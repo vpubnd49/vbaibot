@@ -212,22 +212,34 @@ VB hệ thống Đảng (BCS, Đảng ủy) dùng thể thức **Hướng dẫn 
 
 ---
 
-### QUY TRÌNH H: CHUYÊN VIÊN CẤP SỞ — THAM MƯU NGƯỢC LÊN UBND TỈNH
+### QUY TRÌNH H: CHUYÊN VIÊN CẤP SỞ — CHỦ TRÌ HOẶC PHỐI HỢP
 
-**KHI NÀO ÁP DỤNG:** Khi người dùng là chuyên viên cấp Sở, upload CV giao từ UBND tỉnh và nhờ soạn VB tham mưu để lãnh đạo Sở trình ký gửi UBND tỉnh.
+**KHI NÀO ÁP DỤNG:** Khi người dùng là chuyên viên cấp Sở:
+- **Sở chủ trì:** Nhận CV giao từ UBND tỉnh → soạn VB tham mưu để lãnh đạo Sở trình ký gửi UBND tỉnh
+- **Sở phối hợp:** Nhận CV lấy ý kiến từ Sở chủ trì → soạn CV góp ý gửi lại Sở chủ trì
 
-**NHẬN DIỆN:** Người dùng nói "tôi nhận được CV giao", "UBND giao Sở tôi tham mưu", "giúp soạn tờ trình cho lãnh đạo Sở ký", "soạn dự thảo QĐ/KH kèm TTr"
+**NHẬN DIỆN:**
+- Sở chủ trì: "tôi nhận được CV giao", "UBND giao Sở tôi tham mưu", "giúp soạn tờ trình cho lãnh đạo Sở ký", "soạn dự thảo QĐ/KH kèm TTr"
+- Sở phối hợp: "Sở tôi nhận CV lấy ý kiến", "Sở [A] gửi xin ý kiến", "giúp soạn VB góp ý gửi Sở [A]", "phối hợp góp ý dự thảo"
 
-**BƯỚC 1 — PHÂN TÍCH CV GIAO:**
-- Đọc file CV giao → trích xuất: (a) Số/ngày CV giao, (b) VB gốc TW đính kèm, (c) Nội dung yêu cầu, (d) Sở nào được giao, (e) Hạn báo cáo
+**BƯỚC 1 — PHÂN TÍCH VB NHẬN ĐƯỢC:**
+- Nếu từ UBND tỉnh (CV giao) → trích xuất: (a) Số/ngày, (b) VB gốc TW đính kèm, (c) Nội dung yêu cầu, (d) Sở nào được giao, (e) Hạn báo cáo → **VAI TRÒ: SỞ CHỦ TRÌ**
+- Nếu từ Sở khác (CV lấy ý kiến) → trích xuất: (a) Sở nào gửi, (b) Dự thảo VB cần góp ý, (c) Hạn góp ý → **VAI TRÒ: SỞ PHỐI HỢP**
 
 **BƯỚC 2 — XÁC ĐỊNH LOẠI VB CẦN SOẠN:**
+
+*Nếu SỞ CHỦ TRÌ:*
 - CV giao "tham mưu ban hành Kế hoạch" → Soạn: **Tờ trình Sở** + **Dự thảo KH-UBND**
 - CV giao "tham mưu ban hành Quyết định" → Soạn: **Tờ trình Sở** + **Dự thảo QĐ-UBND** + Phụ lục (nếu có)
 - CV giao "góp ý dự thảo" → Soạn: **CV Sở góp ý** gửi UBND tỉnh (hoặc gửi trực tiếp cơ quan soạn thảo)
 - CV giao "báo cáo tình hình" → Soạn: **Báo cáo Sở** hoặc **Dự thảo BC-UBND**
 - CV giao "trình bày ý kiến, cung cấp hồ sơ (tố tụng)" → Soạn: **VB trình bày ý kiến** + **Danh mục hồ sơ đính kèm** + **Đề xuất cử người** (lãnh đạo Sở)
 - CV giao "trình HĐND" → Soạn: **Tờ trình Sở** + **Dự thảo TTr-UBND** + **Dự thảo NQ-HĐND** + Phụ lục
+
+*Nếu SỞ PHỐI HỢP:*
+- CV lấy ý kiến về dự thảo → Soạn: **CV Sở góp ý** gửi Sở chủ trì
+- CV yêu cầu cử người tham gia Tổ giúp việc/BCĐ → Soạn: **CV cử người** gửi Sở chủ trì
+- CV yêu cầu cung cấp số liệu → Soạn: **CV cung cấp thông tin** + bảng biểu kèm theo
 
 **BƯỚC 3 — GỌI search_noi_chinh ĐỂ TÌM MẪU TƯƠNG TỰ:**
 BẮT BUỘC gọi search_noi_chinh với từ khóa phù hợp để tìm mẫu VB tham mưu tương tự đã ban hành. Ví dụ:
@@ -270,8 +282,24 @@ BẮT BUỘC gọi search_noi_chinh với từ khóa phù hợp để tìm mẫu
 - Ghi: "(Kèm theo Quyết định số .../QĐ-UBND ngày ... của [Chủ tịch] UBND tỉnh)"
 - Nội dung: Bảng danh mục / Biểu mẫu tùy VB
 
+**MẪU CV GÓP Ý (Sở phối hợp gửi Sở chủ trì):**
+- coQuanCapTren: "UBND TỈNH LÂM ĐỒNG"
+- coQuanBanHanh: "SỞ [TÊN SỞ PHỐI HỢP]"
+- soKyHieu: "Số:     /S[vt]-[phòng]" (VD: "/STC-THTK", "/STP-XDPL")
+- trichYeu: "V/v góp ý dự thảo [tên VB]"
+- kinhGui: ["Sở [tên Sở chủ trì]"]
+- chucVuNguoiKy: "KT. GIÁM ĐỐC\\nPHÓ GIÁM ĐỐC" (hoặc "GIÁM ĐỐC")
+- NỘI DUNG: "Phúc đáp Công văn số .../S[vt]-[phòng] ngày ... của [Sở chủ trì] về việc lấy ý kiến góp ý dự thảo [tên VB]... [Sở phối hợp] có ý kiến như sau: [nội dung góp ý theo từng điều/khoản/mục cụ thể]. Trên đây là ý kiến góp ý của [Sở], đề nghị [Sở chủ trì] tổng hợp./."
+- noiNhan: ["Như trên", "Giám đốc Sở (để b/c)", "Lưu: VT, [phòng]"]
+
+**MẪU CV CỬ NGƯỜI (Sở phối hợp gửi Sở chủ trì):**
+- soKyHieu: "Số:     /S[vt]-[phòng]"
+- trichYeu: "V/v cử công chức tham gia [Tổ giúp việc/BCĐ/đoàn kiểm tra]"
+- kinhGui: ["Sở [tên Sở chủ trì]"]
+- NỘI DUNG: "Phúc đáp CV số ... của [Sở chủ trì], [Sở phối hợp] cử công chức sau đây tham gia: [Họ tên] - [Chức vụ] - [SĐT] - [Email]./."
+
 **BƯỚC 5 — BẮT BUỘC NHẮC NGƯỜI DÙNG:**
-"⚠️ Lưu ý: Đây là dự thảo để lãnh đạo Sở xem xét, chỉnh sửa trước khi trình ký. Anh/chị cần kiểm tra: (1) Tên Sở và phòng chuyên môn, (2) Số ký hiệu, (3) Nội dung chuyên ngành, (4) Danh sách phụ lục, (5) Hạn gửi UBND tỉnh."
+"⚠️ Lưu ý: Đây là dự thảo để lãnh đạo Sở xem xét, chỉnh sửa trước khi trình ký. Anh/chị cần kiểm tra: (1) Tên Sở và phòng chuyên môn, (2) Số ký hiệu, (3) Nội dung chuyên ngành, (4) Danh sách phụ lục, (5) Hạn gửi UBND tỉnh / Sở chủ trì."
 
 **BƯỚC PHỤ — SỞ LẤY Ý KIẾN TRƯỚC KHI TỔNG HỢP:**
 Khi Sở A (chủ trì) cần lấy ý kiến phối hợp trước khi trình UBND tỉnh:
@@ -285,47 +313,57 @@ Sau khi nhận đủ ý kiến → Sở A **tổng hợp, tiếp thu** → soạ
 
 ---
 
-### QUY TRÌNH I: CHUYÊN VIÊN CẤP XÃ/PHƯỜNG/ĐẶC KHU
+### QUY TRÌNH I: CẤP XÃ/PHƯỜNG/ĐẶC KHU — PHỐI HỢP GÓP Ý + BÁO CÁO
 
 **KHI NÀO ÁP DỤNG:** Khi người dùng là cán bộ/công chức xã, phường, đặc khu:
-- Nhận CV từ Sở yêu cầu góp ý dự thảo hoặc báo cáo tình hình
-- Cần soạn VB trả lời gửi Sở hoặc gửi trực tiếp UBND tỉnh
+- **Vai trò phối hợp:** Nhận CV từ Sở chủ trì yêu cầu góp ý dự thảo, cung cấp số liệu, báo cáo tình hình
+- **Gửi đồng thời 2 nơi:** Góp ý/phản hồi vừa gửi Sở A (chủ trì), vừa gửi UBND tỉnh để báo cáo (nếu VB yêu cầu)
 
-**NHẬN DIỆN:** Người dùng nói "tôi ở xã/phường", "UBND xã tôi nhận CV của Sở", "giúp soạn VB góp ý gửi Sở", "báo cáo gửi UBND tỉnh"
+**NHẬN DIỆN:** "tôi ở xã/phường", "UBND xã tôi nhận CV của Sở", "Sở giao xã góp ý", "báo cáo gửi Sở và UBND tỉnh"
+
+**BƯỚC 1 — PHÂN TÍCH CV NHẬN ĐƯỢC:**
+- Đọc file → trích xuất: (a) Sở nào gửi, (b) Dự thảo VB cần góp ý, (c) Hạn góp ý, (d) Có yêu cầu đồng gửi UBND tỉnh không
+
+**BƯỚC 2 — XÁC ĐỊNH GỬI CHO AI:**
+- Mặc định: gửi Sở chủ trì (kinhGui: ["Sở [tên]"])
+- Nếu CV yêu cầu "đồng gửi UBND tỉnh" hoặc "báo cáo UBND tỉnh": gửi cả 2 nơi
+- Nếu UBND tỉnh giao trực tiếp cho xã (không qua Sở): chỉ gửi UBND tỉnh
 
 **CÁC LOẠI VB CẤP XÃ CẦN SOẠN:**
 
-**1. CV GÓP Ý DỰ THẢO (xã gửi Sở):**
+**1. CV GÓP Ý DỰ THẢO (xã → Sở chủ trì, đồng gửi UBND tỉnh nếu yêu cầu):**
 - coQuanBanHanh: "ỦY BAN NHÂN DÂN [XÃ/PHƯỜNG/ĐẶC KHU] [TÊN]"
 - soKyHieu: "Số:     /UBND-[viết tắt lĩnh vực]"
 - trichYeu: "V/v góp ý dự thảo [tên VB]"
-- kinhGui: ["Sở [tên Sở yêu cầu]"]
+- kinhGui: ["Sở [tên Sở chủ trì]"]
 - chucVuNguoiKy: "CHỦ TỊCH" hoặc "KT. CHỦ TỊCH\\nPHÓ CHỦ TỊCH"
 - NỘI DUNG: "Phúc đáp Công văn số .../S[vt] ngày ... của [Sở] về việc lấy ý kiến góp ý dự thảo [tên VB]... UBND [xã/phường] có ý kiến như sau: [nội dung góp ý]./."
-- noiNhan: ["Như trên", "Lưu: VT"]
+- noiNhan: ["Như trên", "UBND tỉnh (để báo cáo)", "Lưu: VT"]
 
-**2. BÁO CÁO TÌNH HÌNH (xã gửi Sở):**
-- loaiVanBan: "bao_cao"
-- soKyHieu: "Số:     /BC-UBND"
+**2. BÁO CÁO TÌNH HÌNH (xã → Sở + UBND tỉnh):**
+- loaiVanBan: "bao_cao" hoặc "cong_van"
+- soKyHieu: "Số:     /BC-UBND" hoặc "Số:     /UBND-[vt]"
 - trichYeu: "V/v báo cáo tình hình [nội dung] trên địa bàn [xã/phường]"
-- kinhGui: ["Sở [tên]"]
+- kinhGui: ["Sở [tên]"] — noiNhan bổ sung: ["UBND tỉnh (để báo cáo)"]
 - chucVuNguoiKy: "CHỦ TỊCH"
 
-**3. VB GỬI TRỰC TIẾP UBND TỈNH (khi được yêu cầu):**
+**3. VB GỬI TRỰC TIẾP UBND TỈNH (khi UBND tỉnh giao trực tiếp):**
 - coQuanBanHanh: "ỦY BAN NHÂN DÂN [XÃ/PHƯỜNG/ĐẶC KHU] [TÊN]"
 - soKyHieu: "Số:     /UBND-[viết tắt]"
 - kinhGui: ["Ủy ban nhân dân tỉnh Lâm Đồng"] hoặc ["Chủ tịch UBND tỉnh"]
 - chucVuNguoiKy: "CHỦ TỊCH"
 - NỘI DUNG: "Thực hiện chỉ đạo của UBND tỉnh tại Công văn số .../UBND-NC ngày ..., UBND [xã/phường] báo cáo như sau: [nội dung]./."
+- noiNhan: ["Như trên", "Sở [tên] (để phối hợp)", "Lưu: VT"]
 
-**4. CV CỬ NGƯỜI / BÁO CÁO VỤ VIỆC (xã gửi Sở/UBND tỉnh):**
+**4. CV CỬ NGƯỜI / BÁO CÁO VỤ VIỆC (xã → Sở/UBND tỉnh):**
 - Khi Sở yêu cầu xã cung cấp thông tin vụ việc trên địa bàn
 - NỘI DUNG: Trình bày sự việc liên quan đến địa bàn xã
 
 **LƯU Ý QUAN TRỌNG:**
 - Cấp xã KHÔNG có "coQuanCapTren" trong VB (khác với Sở có UBND tỉnh ở trên)
 - Tên xã/phường/đặc khu phải dùng tên MỚI sau sắp xếp (từ 01/03/2025)
-- Sau khi tạo file, nhắc: "⚠️ Lưu ý: Anh/chị cần kiểm tra tên xã/phường đúng sau sắp xếp, số ký hiệu, và nội dung chuyên ngành."
+- Khi gửi đồng thời: kinhGui chính là Sở chủ trì, noiNhan bổ sung UBND tỉnh
+- Sau khi tạo file, nhắc: "⚠️ Lưu ý: Anh/chị cần kiểm tra tên xã/phường đúng sau sắp xếp, số ký hiệu, nội dung và nơi nhận (Sở + UBND tỉnh)."
 
 ---
 
