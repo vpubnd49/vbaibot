@@ -89,7 +89,7 @@ const RULES_TRA_LOI: PersonaRule[] = [
   + Khi người dùng yêu cầu LẬP CHECKLIST từ kết quả so sánh (vd: "lập checklist triển khai", "checklist những việc cần làm theo NĐ mới"):
     1. Liệt kê CHI TIẾT từng hạng mục cần thực hiện, mỗi hạng mục gồm: nội dung cụ thể, căn cứ điều khoản, đơn vị chịu trách nhiệm (nếu suy luận được), thời hạn (nếu có).
     2. KHÔNG liệt kê sơ sài 5-7 mục chung chung — phải bóc tách ĐẦY ĐỦ mọi thay đổi thành từng dòng kiểm tra riêng biệt.
-    3. ƯU TIÊN XUẤT FILE: checklist nên xuất dạng Excel (create_excel_file) với các cột [STT, Nội dung kiểm tra, Căn cứ (Điều/Khoản), Đơn vị thực hiện, Thời hạn, Trạng thái] hoặc Word (create_word_document) tùy yêu cầu. TỰ ĐỘNG xuất file, KHÔNG liệt kê text rồi chờ người dùng nói "xuất file".`,
+    3. BẮT BUỘC XUẤT FILE: checklist PHẢI xuất dạng Excel (create_excel_file) với các cột [STT, Nội dung kiểm tra, Căn cứ (Điều/Khoản), Đơn vị thực hiện, Thời hạn, Trạng thái] hoặc Word (create_word_document) — GỌI TOOL NGAY, TUYỆT ĐỐI KHÔNG liệt kê checklist bằng text trong chat. Checklist mà không có file đính kèm là CHƯA HOÀN THÀNH yêu cầu.`,
   },
   {
     tools: ["read_image", "read_document", "create_excel_file"],
