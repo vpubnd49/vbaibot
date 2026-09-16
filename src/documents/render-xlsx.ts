@@ -43,20 +43,81 @@ export function safeSheetName(raw: string, fallback: string): string {
 }
 
 /**
- * Ô chữ có marker `**đậm**` -> rich text của exceljs. Model được dạy marker này
- * (tool Word) nên ô Excel cũng phải hiểu - không parse thì dấu sao lọt nguyên
- * vào file. Font phải khai lại từng đoạn vì rich text ghi đè font của ô.
+ * Bảng màu cho tag `<color>text</color>` trong ô text Excel.
+ * Dùng cho thanh Gantt (mỗi giai đoạn một màu) và highlight trong bảng.
+ * ARGB không có alpha prefix vì ExcelJS font.color.argb dùng 6-ký-tự.
+ */
+const TEXT_COLORS: Record<string, string> = {
+  blue:     "2F5496",
+  green:    "548235",
+  orange:   "ED7D31",
+  purple:   "7030A0",
+  red:      "C00000",
+  teal:     "17646B",
+  navy:     "1F3864",
+  brown:    "8B6914",
+  gray:     "808080",
+  // Aliases tiếng Việt - model đôi khi dùng
+  xanh:     "2F5496",
+  "xanh lá":"548235",
+  cam:      "ED7D31",
+  tím:      "7030A0",
+  đỏ:       "C00000",
+  nâu:      "8B6914",
+  xám:      "808080",
+};
+
+/**
+ * Regex bắt cả bold `**text**` lẫn color `<color>text</color>`.
+ * Thiết kế để bắt lồng nhau: `<blue>**GĐ 1**████</blue>`.
+ * Thứ tự: color tag ưu tiên trước, bold parse bên trong mỗi segment.
+ */
+const COLOR_TAG_RE = /<(\w[\w\sáàảãạăắằẳẵặâấầẩẫậéèẻẽẹêếềểễệíìỉĩịóòỏõọôốồổỗộơớờởỡợúùủũụưứừửữựýỳỷỹỵđ]*)>([\s\S]*?)<\/\1>/g;
+
+/**
+ * Ô chữ có marker `**đậm**` và/hoặc `<color>text</color>` -> rich text
+ * của ExcelJS. Model được dạy cả hai marker (tool Word dùng **bold**,
+ * Gantt chart dùng color tag) nên ô Excel cũng phải hiểu.
+ * Font phải khai lại từng đoạn vì rich text ghi đè font của ô.
  */
 function textCellValue(text: string): ExcelJS.CellValue {
-  if (!text.includes("**")) return text;
-  const parts = text.split(/\*\*([^*]+)\*\*/g);
-  const richText = parts
-    .map((part, index) => ({
-      text: part,
-      font: { name: FONT_NAME, size: FONT_SIZE, bold: index % 2 === 1 },
-    }))
-    .filter((run) => run.text.length > 0);
-  return richText.length > 0 ? { richText } : "";
+  const hasColor = COLOR_TAG_RE.test(text);
+  COLOR_TAG_RE.lastIndex = 0; // reset regex state
+  const hasBold = text.includes("**");
+  if (!hasColor && !hasBold) return text;
+
+  const runs: ExcelJS.RichText[] = [];
+  let lastIndex = 0;
+
+  // Bước 1: tách ra các đoạn có color tag và không có
+  const segments: { text: string; color?: string }[] = [];
+  if (hasColor) {
+    for (const match of text.matchAll(COLOR_TAG_RE)) {
+      const before = text.slice(lastIndex, match.index);
+      if (before) segments.push({ text: before });
+      const colorName = match[1].toLowerCase().trim();
+      segments.push({ text: match[2], color: TEXT_COLORS[colorName] });
+      lastIndex = match.index! + match[0].length;
+    }
+    const tail = text.slice(lastIndex);
+    if (tail) segments.push({ text: tail });
+  } else {
+    segments.push({ text });
+  }
+
+  // Bước 2: trong mỗi segment, parse **bold** markers
+  for (const seg of segments) {
+    const parts = seg.text.split(/\*\*([^*]+)\*\*/g);
+    for (let i = 0; i < parts.length; i++) {
+      if (!parts[i]) continue;
+      const font: Partial<ExcelJS.Font> = { name: FONT_NAME, size: FONT_SIZE };
+      if (i % 2 === 1) font.bold = true;
+      if (seg.color) font.color = { argb: seg.color };
+      runs.push({ text: parts[i], font: font as ExcelJS.Font });
+    }
+  }
+
+  return runs.length > 0 ? { richText: runs } : "";
 }
 
 /**

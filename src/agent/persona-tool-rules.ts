@@ -101,7 +101,13 @@ const RULES_TRA_LOI: PersonaRule[] = [
       - Headers: [STT, Giai đoạn / Công việc, Đơn vị phụ trách, Bắt đầu, Kết thúc, Số ngày, Thanh tiến độ, Ghi chú]
       - Dòng GIAI ĐOẠN: in đậm tên giai đoạn bằng **Giai đoạn 1: Chuẩn bị** — nổi bật phân tách rõ ràng
       - Dòng công việc con: thụt đầu "  1.1. Khảo sát hiện trạng" — CHI TIẾT từng bước, KHÔNG gộp chung
-      - Cột "Thanh tiến độ": dùng ký tự █ (block) lặp lại tỷ lệ với số ngày, vd: "████████" cho 8 ngày, "████" cho 4 ngày — tạo hiệu ứng THANH GANTT TRỰC QUAN ngay trong Excel
+      - Cột "Thanh tiến độ": dùng COLOR TAG + ký tự █ để tạo thanh Gantt MÀU SẮC theo giai đoạn. Mỗi giai đoạn dùng MỘT MÀU KHÁC NHAU:
+        Giai đoạn 1: <blue>████████</blue> (xanh dương)
+        Giai đoạn 2: <green>████████</green> (xanh lá)
+        Giai đoạn 3: <orange>████████</orange> (cam)
+        Giai đoạn 4: <purple>████████</purple> (tím)
+        Giai đoạn 5: <teal>████████</teal> (xanh ngọc)
+        Số ký tự █ tỷ lệ với số ngày (1 ký tự ≈ 1-2 ngày). Cú pháp BẮT BUỘC: <tên_màu>████</tên_màu>. Renderer sẽ tự động tô màu font trong Excel.
       - Ngày tháng liên tục và hợp lý: công việc sau bắt đầu sau khi công việc phụ thuộc kết thúc
     * CHỌN THEME MÀU PHÙ HỢP NỘI DUNG: theme "teal" cho CNTT/kỹ thuật, "blue" cho tài chính/kinh doanh, "green" cho nông nghiệp/môi trường, "navy" cho báo cáo tổng hợp, "burgundy" cho pháp lý/rủi ro
     * Sheet "Tổng quan Milestone": bảng tóm tắt [STT, Mốc quan trọng, Ngày hoàn thành, Phụ thuộc, Trạng thái]
