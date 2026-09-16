@@ -121,19 +121,56 @@ Sau khi Sở có VB tham mưu, MỚI ban hành:
 
 ---
 
-### QUY TRÌNH B: VĂN BẢN CHUYỂN/GIAO
+### QUY TRÌNH B: GIAO/CHUYỂN VĂN BẢN — CHUỖI 4 NHÁNH ĐẦU RA
 
-Khi nhận VB từ Trung ương/Bộ/tỉnh ủy cần chuyển cho Sở thực hiện:
-- coQuanCapTren: "UBND TỈNH LÂM ĐỒNG" (hoặc bỏ trống nếu UBND tỉnh trực tiếp ban hành)
-- coQuanBanHanh: "VĂN PHÒNG" (nếu VP ký thay) hoặc "ỦY BAN NHÂN DÂN TỈNH LÂM ĐỒNG"
-- trichYeu: "V/v chuyển [tên VB] / V/v triển khai [tên VB]"
-- NỘI DUNG: "UBND tỉnh nhận được [VB]... Căn cứ CNNV, [VP UBND tỉnh / UBND tỉnh] chuyển/giao [Sở] nghiên cứu, tham mưu/thực hiện... Báo cáo kết quả trước ngày..."
+**TỔNG QUAN:** Khi nhận VB từ Trung ương/Bộ/tỉnh ủy → UBND tỉnh GIAO cho Sở chuyên ngành tham mưu → tùy nội dung, Sở sẽ tham mưu theo 1 trong 4 nhánh:
+
+**NHÁNH 1: KẾ HOẠCH TRIỂN KHAI + BÁO CÁO GỬI TW**
+Khi VB TW yêu cầu triển khai chương trình/chính sách/nghị quyết mới:
+- Sở tham mưu → UBND tỉnh ban hành **Kế hoạch triển khai** (loaiVanBan: "ke_hoach")
+- Sau khi thực hiện → UBND tỉnh ban hành **Báo cáo** gửi Bộ/cơ quan TW (loaiVanBan: "bao_cao")
+- Ký hiệu KH: "Số:     /KH-UBND" | Ký hiệu BC: "Số:     /BC-UBND"
+- Người ký: "TM. UBND\\nCHỦ TỊCH" hoặc "KT. CHỦ TỊCH\\nPHÓ CHỦ TỊCH"
+- Nơi nhận BC: ["Bộ Nội vụ" (hoặc Bộ liên quan), "Thường trực Tỉnh ủy", "HĐND tỉnh", "Các Sở liên quan", "Lưu: VT, NC"]
+
+**NHÁNH 2: TỜ TRÌNH → UBND BAN HÀNH QUYẾT ĐỊNH**
+Khi cần ban hành QĐ kiện toàn/thành lập/phê duyệt:
+- Sở tham mưu **Tờ trình** (loaiVanBan: "to_trinh", soKyHieu: "Số:     /TTr-[Sở]")
+- UBND tỉnh ban hành **Quyết định** (loaiVanBan: "quyet_dinh", soKyHieu: "Số:     /QĐ-UBND")
+- Người ký QĐ: "TM. UBND\\nCHỦ TỊCH"
+- Căn cứ QĐ: "Căn cứ [Luật/NĐ liên quan]; Căn cứ Tờ trình số .../TTr-[Sở] ngày ... của [Sở]..."
+
+**NHÁNH 3: TỜ TRÌNH → TRÌNH HỘI ĐỒNG NHÂN DÂN (NGHỊ QUYẾT)**
+Khi nội dung thuộc thẩm quyền HĐND tỉnh (phí/lệ phí, phân cấp, quy hoạch...):
+- Sở tham mưu Tờ trình (gửi UBND tỉnh)
+- UBND tỉnh soạn bộ hồ sơ:
+  + **Tờ trình UBND gửi HĐND** (soKyHieu: "Số:     /TTr-UBND")
+  + **Dự thảo Nghị quyết** (soKyHieu: "Số:     /NQ-HĐND", coQuanBanHanh: "HỘI ĐỒNG NHÂN DÂN\\nTỈNH LÂM ĐỒNG")
+  + **CV VP xin ý kiến thành viên UBND** (soKyHieu: "Số:     /VP-NC", coQuanCapTren: "UBND TỈNH LÂM ĐỒNG", coQuanBanHanh: "VĂN PHÒNG")
+  + **Bảng tổng hợp ý kiến thành viên UBND**
+- Người ký TTr UBND: "TM. UBND\\nCHỦ TỊCH"
+
+**NHÁNH 4: TỜ TRÌNH → ĐẢNG ỦY UBND TỈNH**
+Khi nội dung liên quan công tác Đảng hoặc cần ý kiến Đảng ủy:
+- Sở tham mưu → UBND tỉnh gửi Đảng ủy UBND tỉnh
+- VB giao triển khai CV Đảng ủy: soKyHieu "Số:     /UBND-NC", trichYeu: "V/v triển khai CV số ...-CV/ĐU của Đảng ủy UBND tỉnh"
+
+**MẪU CV GIAO CHUNG (dùng cho tất cả nhánh):**
+- coQuanBanHanh: "ỦY BAN NHÂN DÂN TỈNH LÂM ĐỒNG"
+- soKyHieu: "Số:     /UBND-NC" hoặc "Số:     /UBND-NCKS"
+- kinhGui: [Sở chuyên ngành]
+- chucVuNguoiKy: "KT. CHỦ TỊCH\\nPHÓ CHỦ TỊCH"
+- NỘI DUNG: "UBND tỉnh nhận được [VB]... Giao [Sở] chủ trì, phối hợp nghiên cứu, tham mưu... Báo cáo UBND tỉnh trước ngày .../."
+
+**MẪU CV CHUYỂN (VP ký thay):**
+- coQuanCapTren: "UBND TỈNH LÂM ĐỒNG", coQuanBanHanh: "VĂN PHÒNG"
+- soKyHieu: "Số:     /VP-NCKSTTHC" hoặc "Số:     /VP-NC"
+- chucVuNguoiKy: "KT. CHÁNH VĂN PHÒNG\\nPHÓ CHÁNH VĂN PHÒNG"
 
 ---
 
 ### QUY TRÌNH C: VĂN BẢN VỀ HỘI, TỔ CHỨC BỘ MÁY
 
-Khi tham mưu về Hội/BCĐ/Tổ chức liên ngành:
 - Thành lập/kiện toàn → QĐ (loaiVanBan: "quyet_dinh")
 - Sáp nhập/giải thể/đổi tên Hội → Tờ trình + QĐ
 - Phê duyệt Điều lệ → QĐ phê duyệt
@@ -143,7 +180,6 @@ Khi tham mưu về Hội/BCĐ/Tổ chức liên ngành:
 
 ### QUY TRÌNH D: VĂN BẢN THANH TRA, PCTN
 
-Khi triển khai công tác phòng chống tham nhũng:
 - Kế hoạch PCTN → loaiVanBan: "ke_hoach"
 - Báo cáo tự đánh giá PCTN → loaiVanBan: "bao_cao"
 - CV triển khai VB BCĐ TW/Tỉnh ủy → loaiVanBan: "cong_van"
