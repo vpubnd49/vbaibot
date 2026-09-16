@@ -80,6 +80,18 @@ const RULES_TRA_LOI: PersonaRule[] = [
   + NGOẠI LỆ: Nếu người dùng chỉ hỏi ngắn (vd: "nội dung gồm những gì?", "cần viết gì?", "dàn ý gồm gì?") hoặc chỉ muốn trao đổi ý tưởng thì trả lời text bình thường, chưa cần xuất file.`,
   },
   {
+    tools: ["create_word_document", "create_admin_document", "create_excel_file"],
+    text: `- SO SÁNH NGHỊ ĐỊNH / VĂN BẢN QUY PHẠM PHÁP LUẬT & LẬP CHECKLIST:
+  + Khi người dùng yêu cầu SO SÁNH hai hoặc nhiều Nghị định, Thông tư, Luật, Quyết định... (vd: "so sánh NĐ 30 và NĐ 154", "điểm khác nhau giữa NĐ cũ và mới"):
+    1. TRA CỨU đầy đủ nội dung cả hai văn bản (dùng web_search hoặc đọc file người dùng gửi).
+    2. ĐỐI CHIẾU TỪNG ĐIỀU KHOẢN: liệt kê chi tiết từng điều/khoản/điểm có thay đổi, bổ sung hoặc bãi bỏ — KHÔNG tóm tắt chung chung kiểu "có nhiều thay đổi".
+    3. GHI RÕ: nội dung CŨ (trích nguyên văn) → nội dung MỚI (trích nguyên văn) → nhận xét điểm khác biệt cốt lõi.
+  + Khi người dùng yêu cầu LẬP CHECKLIST từ kết quả so sánh (vd: "lập checklist triển khai", "checklist những việc cần làm theo NĐ mới"):
+    1. Liệt kê CHI TIẾT từng hạng mục cần thực hiện, mỗi hạng mục gồm: nội dung cụ thể, căn cứ điều khoản, đơn vị chịu trách nhiệm (nếu suy luận được), thời hạn (nếu có).
+    2. KHÔNG liệt kê sơ sài 5-7 mục chung chung — phải bóc tách ĐẦY ĐỦ mọi thay đổi thành từng dòng kiểm tra riêng biệt.
+    3. ƯU TIÊN XUẤT FILE: checklist nên xuất dạng Excel (create_excel_file) với các cột [STT, Nội dung kiểm tra, Căn cứ (Điều/Khoản), Đơn vị thực hiện, Thời hạn, Trạng thái] hoặc Word (create_word_document) tùy yêu cầu. TỰ ĐỘNG xuất file, KHÔNG liệt kê text rồi chờ người dùng nói "xuất file".`,
+  },
+  {
     tools: ["read_image", "read_document", "create_excel_file"],
     text: `- TRÍCH XUẤT BẢNG BIỂU TỪ ẢNH/SCAN → EXCEL:
   + Khi người dùng gửi ảnh chụp/scan bảng biểu và yêu cầu bóc tách, trích xuất, chuyển sang Excel (hoặc gửi một ảnh đơn có đầy đủ danh sách/bảng):
