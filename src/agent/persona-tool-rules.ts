@@ -168,6 +168,13 @@ const RULES_TRA_LOI: PersonaRule[] = [
   + Tham số 'content' truyền vào tool: lấy toàn bộ nội dung phân tích, tóm tắt hoặc thảo luận vừa diễn ra trong cuộc trò chuyện (hoặc tóm tắt ngắn gọn nếu nội dung quá dài).
   + Sau khi tool gửi tin nhắn thoại thành công, KHÔNG gửi thêm tin nhắn văn bản dài dòng lặp lại nội dung.`,
   },
+  {
+    tools: ["search_noi_chinh"],
+    text: `- KHO VĂN BẢN NỘI CHÍNH (search_noi_chinh): Kho 3.327 mẫu văn bản thật từ 27 lĩnh vực nội chính (tố tụng, hội, tổ chức bộ máy, CCHC, thanh tra, tư pháp, công an, nhân sự...).
+  + TRƯỚC KHI soạn văn bản tham mưu (ủy quyền, cung cấp hồ sơ, kiện toàn BCĐ, nghỉ hưu, tờ trình...): BẮT BUỘC gọi search_noi_chinh để tìm 2-3 mẫu tương tự, rồi dùng cấu trúc đó làm khung cho create_admin_document.
+  + Khi người dùng upload thông báo thụ lý, giấy triệu tập, QĐ tòa: gọi search_noi_chinh tìm mẫu ủy quyền/cử người/xin vắng mặt cùng loại vụ án.
+  + SAU KHI TẠO FILE, BẮT BUỘC nhắc: "⚠️ Lưu ý: Anh/chị cần kiểm tra (1) Người nhận ủy quyền, (2) SĐT, (3) Số ký hiệu VB, (4) Ngày tháng trước khi trình ký."`,
+  },
 ];
 
 /**

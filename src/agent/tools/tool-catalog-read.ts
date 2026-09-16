@@ -20,6 +20,7 @@ import { createThanhtraLamdongTool } from "./thanhtra-lamdong-tool.js";
 import { createQpplLamdongTool } from "./qppl-lamdong-tool.js";
 import { createNationalLegalTool } from "./national-legal-tool.js";
 import { createTranscribeAudioTool } from "./transcribe-audio-tool.js";
+import { createSearchNoiChinhTool } from "./search-noi-chinh-tool.js";
 
 /**
  * Nhóm "read" của catalog tool - tra cứu, không tác động ra ngoài. Tách khỏi
@@ -182,5 +183,14 @@ export const READ_TOOL_DEFINITIONS: ToolDefinition[] = [
     group: "read",
     runsInScheduledTurn: false,
     build: (ctx) => createTranscribeAudioTool(ctx),
+  },
+  {
+    key: "search_noi_chinh",
+    label: "Kho VB Nội chính",
+    description:
+      "Tra cứu kho 3.327 mẫu văn bản Nội chính thật (ủy quyền, tờ trình, công văn, quyết định, kiện toàn, nghỉ hưu...) " +
+      "để tham khảo cấu trúc và nội dung khi soạn thảo văn bản mới",
+    group: "read",
+    build: () => createSearchNoiChinhTool(),
   },
 ];
