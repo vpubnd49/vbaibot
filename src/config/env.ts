@@ -38,10 +38,11 @@ const envSchema = z.object({
   LLM_MODEL: z.string().default(""),
   // Mặc định 10 (trước là 8). Đo trên Gemini 06/08/2026 với yêu cầu "tóm tắt 10
   // tin": model tiêu 6-8 bước chỉ để TÌM rồi hết bước, chưa kịp mở bài nào bằng
-  // web_fetch, nên câu trả lời toàn ý chung chung không số liệu. 10 để một lượt
-  // nghiên cứu còn chỗ vừa tìm vừa đọc. Không nới hơn: mỗi bước là một lần gọi
-  // model, mà trần token ngữ cảnh và trần thời gian lượt vẫn phải gánh phần sau.
-  LLM_MAX_STEPS: z.coerce.number().int().min(1).max(30).default(10),
+  // web_fetch, nên câu trả lời toàn ý chung chung không số liệu. 20 đủ chỗ cho
+  // lượt gộp batch nhiều yêu cầu (vd tạo Word + PowerPoint) mà vẫn còn dư cho
+  // tra cứu web. Mỗi bước là một lần gọi model, nhưng trần token ngữ cảnh và
+  // trần thời gian lượt đã có chặn riêng nên 20 bước vẫn an toàn.
+  LLM_MAX_STEPS: z.coerce.number().int().min(1).max(30).default(20),
   // Trần token cho phần INPUT của một lần gọi model. Trước khi có nó, ngữ cảnh
   // chỉ bị chặn bằng SỐ TIN (HISTORY_CONTEXT_LIMIT) - mà một tin Zalo dài tùy
   // ý, nên đó là đếm nhầm đơn vị. Đo trên DB thật: đã có lượt cộng dồn 184.835
@@ -175,8 +176,10 @@ const envSchema = z.object({
   DOCUMENT_MAX_SLIDES: z.coerce.number().int().min(1).max(50).default(30),
   // Tông màu giao diện PowerPoint mặc định
   DOCUMENT_DEFAULT_PPTX_THEME: z.enum(["navy", "blue", "green", "burgundy", "slate", "teal"]).default("navy"),
-  // Số file tối đa 1 thread được tạo trong 1 giờ - chặn spam "xuất file" liên tục
-  DOCUMENT_MAX_PER_HOUR: z.coerce.number().int().min(1).max(200).default(10),
+  // Số file tối đa 1 thread được tạo trong 1 giờ - chặn spam \"xuất file\" liên tục.
+  // 30 đủ thoải mái cho user yêu cầu nhiều file (Word + Excel + PowerPoint + sửa lại)
+  // mà vẫn chặn được lạm dụng từ người lạ.
+  DOCUMENT_MAX_PER_HOUR: z.coerce.number().int().min(1).max(200).default(30),
   // Trần ký tự trích xuất từ 1 file tài liệu người dùng gửi. File dài hơn bị
   // cắt và bot được báo tài liệu bị cắt ngắn. Một trang Word ~3000 ký tự nên
   // 50000 ký tự ≈ 16 trang - đủ cho hầu hết tài liệu thường gặp trên Zalo.

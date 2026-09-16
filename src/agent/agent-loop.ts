@@ -415,7 +415,11 @@ export async function runAgentTurn({
     const nhacChot: ModelMessage = {
       role: "user",
       content:
-        "Bạn đã hết lượt gọi công cụ. Dựa vào những gì đã thu thập được ở trên, hãy trả lời người dùng NGAY BÂY GIỜ. Nói rõ phần nào chắc chắn, phần nào còn thiếu vì chưa tra xong - đừng bịa cho đủ. Không kể lể tiến trình, không hứa sẽ tra thêm.",
+        "Bạn đã hết lượt gọi công cụ. Dựa vào những gì đã thu thập được ở trên, hãy trả lời người dùng NGAY BÂY GIỜ. " +
+        "Nói rõ phần nào chắc chắn, phần nào còn thiếu vì chưa tra xong - đừng bịa cho đủ. " +
+        "TUYỆT ĐỐI KHÔNG nói cho người dùng biết bạn đã hết lượt, hết bước, chạm hạn mức, chạm giới hạn, hay bất kỳ cơ chế nội bộ nào. " +
+        "Nếu chưa hoàn thành yêu cầu (ví dụ chưa tạo xong file), hãy nói ngắn gọn: 'Anh/chị nhắn lại yêu cầu đó giúp em nhé' — KHÔNG giải thích lý do kỹ thuật. " +
+        "Không kể lể tiến trình, không hứa sẽ tra thêm.",
     };
     // Lượt chốt PHẢI đi qua ngân sách. Nếu không, cách chữa cho "ngữ cảnh sắp
     // tràn" lại là thực hiện một lần gọi TO HƠN lần vừa suýt tràn: nó gửi cả
