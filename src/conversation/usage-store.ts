@@ -26,7 +26,7 @@ const openStmt = db.prepare(`
 
 const finishStmt = db.prepare(`
   UPDATE agent_turns
-  SET input_tokens = ?, output_tokens = ?, total_tokens = ?, steps = ?
+  SET input_tokens = ?, output_tokens = ?, total_tokens = ?, steps = ?, response_time_ms = ?
   WHERE id = ?
 `);
 
@@ -59,8 +59,8 @@ export function openAgentTurn(
  * Chốt usage khi lượt xong - nguồn cho cột Context màn Sessions + thống kê chi phí.
  * Lượt ném lỗi vẫn nên gọi (với số đo được tới lúc hỏng) để row không nằm lại ở 0.
  */
-export function finishAgentTurn(turnId: number, usage: AgentTurnUsage): void {
-  finishStmt.run(usage.inputTokens, usage.outputTokens, usage.totalTokens, usage.steps, turnId);
+export function finishAgentTurn(turnId: number, usage: AgentTurnUsage, responseTimeMs = 0): void {
+  finishStmt.run(usage.inputTokens, usage.outputTokens, usage.totalTokens, usage.steps, responseTimeMs, turnId);
 }
 
 const threadTotalsStmt = db.prepare(`

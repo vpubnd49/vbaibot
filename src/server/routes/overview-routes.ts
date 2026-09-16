@@ -7,6 +7,8 @@ import {
   getTokenSummary,
   type UsageGranularity,
 } from "../../conversation/usage-store.js";
+import { getFeedbackStats } from "../../conversation/feedback-store.js";
+import { db } from "../../conversation/database.js";
 import {
   startOfDayUtc,
   startOfMonthUtc,
@@ -27,6 +29,28 @@ function soNgayTu(raw: string | undefined): number {
 }
 
 const GRANULARITY_CHO_PHEP: UsageGranularity[] = ["day", "week", "month", "year"];
+
+// ===== Response Time Stats =====
+const responseTimeStmt = db.prepare(`
+  SELECT response_time_ms FROM agent_turns
+  WHERE account_id = ? AND response_time_ms > 0
+  ORDER BY response_time_ms ASC
+`);
+
+function getResponseTimeStats(accountId: string): {
+  avg: number; p50: number; p95: number; count: number;
+} {
+  const rows = responseTimeStmt.all(accountId) as { response_time_ms: number }[];
+  if (rows.length === 0) return { avg: 0, p50: 0, p95: 0, count: 0 };
+
+  const times = rows.map((r) => r.response_time_ms);
+  const sum = times.reduce((a, b) => a + b, 0);
+  const avg = Math.round(sum / times.length);
+  const p50 = times[Math.floor(times.length * 0.5)]!;
+  const p95 = times[Math.floor(times.length * 0.95)]!;
+
+  return { avg, p50, p95, count: times.length };
+}
 
 /**
  * /api/overview - trang tổng quan:
@@ -88,12 +112,26 @@ export const overviewRoutes = new Hono().get("/", (c) => {
     items: getGroupedUsage(a.id, granularity, since, tz),
   }));
 
+  // Phase 3A: Response time stats (avg/p50/p95)
+  const responseTimeByAccount = accounts.map((a) => ({
+    accountId: a.id,
+    stats: getResponseTimeStats(a.id),
+  }));
+
+  // Phase 3B: User feedback satisfaction score
+  const feedbackByAccount = accounts.map((a) => ({
+    accountId: a.id,
+    stats: getFeedbackStats(a.id),
+  }));
+
   return c.json({
     accounts,
     usageByAccount,
     statsByAccount,
     tokenSummaryByAccount,
     groupedUsageByAccount,
+    responseTimeByAccount,
+    feedbackByAccount,
     system: getSystemInfo(),
     todayKey: todayKey(tz),
     timezone: tz,

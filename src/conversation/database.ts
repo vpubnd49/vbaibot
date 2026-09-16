@@ -428,6 +428,70 @@ function runMigrations(): void {
   addColumnIfMissing("accounts", "admin_user_ids", "TEXT NOT NULL DEFAULT '[]'");
   // Thời gian pause (ms) khi admin gửi tin. Mặc định 5 phút.
   addColumnIfMissing("accounts", "admin_pause_timeout_ms", "INTEGER NOT NULL DEFAULT 300000");
+
+  // ===== Phase 1: Response Overrides =====
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS response_overrides (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      account_id TEXT NOT NULL,
+      trigger_text TEXT NOT NULL,
+      corrected_response TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+    );
+    CREATE INDEX IF NOT EXISTS idx_response_overrides_account
+      ON response_overrides (account_id);
+  `);
+
+  // ===== Phase 2B: Proactive Follow-up =====
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS pending_followups (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      account_id TEXT NOT NULL,
+      thread_id TEXT NOT NULL,
+      fire_at INTEGER NOT NULL,
+      status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'fired', 'cancelled')),
+      created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+    );
+    CREATE INDEX IF NOT EXISTS idx_pending_followups_status
+      ON pending_followups (status, fire_at);
+  `);
+
+  // ===== Phase 3A: Response Time Tracking =====
+  addColumnIfMissing("agent_turns", "response_time_ms", "INTEGER NOT NULL DEFAULT 0");
+
+  // ===== Phase 3B: User Feedback =====
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS user_feedback (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      account_id TEXT NOT NULL,
+      thread_id TEXT NOT NULL DEFAULT '',
+      turn_id INTEGER NOT NULL,
+      rating INTEGER NOT NULL CHECK (rating IN (1, -1)),
+      user_id TEXT NOT NULL DEFAULT '',
+      created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
+      UNIQUE(account_id, turn_id)
+    );
+    CREATE INDEX IF NOT EXISTS idx_user_feedback_account
+      ON user_feedback (account_id, id);
+  `);
+
+  // ===== Phase 4: Audit Trail =====
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS audit_logs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
+      actor TEXT NOT NULL,
+      action TEXT NOT NULL,
+      account_id TEXT NOT NULL DEFAULT '',
+      thread_id TEXT NOT NULL DEFAULT '',
+      details TEXT,
+      ip TEXT NOT NULL DEFAULT ''
+    );
+    CREATE INDEX IF NOT EXISTS idx_audit_logs_action
+      ON audit_logs (action, id);
+    CREATE INDEX IF NOT EXISTS idx_audit_logs_created
+      ON audit_logs (created_at);
+  `);
 }
 
 function addColumnIfMissing(table: string, column: string, definition: string): void {

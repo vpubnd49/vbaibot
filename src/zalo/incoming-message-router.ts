@@ -13,6 +13,7 @@ import {
   setThreadPausedUntil,
 } from "../conversation/thread-store.js";
 import { shouldRespond } from "../middleware/allowlist-filter.js";
+import { checkIncomingRateLimit } from "../middleware/incoming-rate-limiter.js";
 import { enqueueMessage } from "../middleware/message-batcher.js";
 import { createLogger } from "../shared/logger.js";
 import { assertSafeUserRequestAudit, toUserRequestAuditEvent } from "../shared/user-request-audit.js";
@@ -100,6 +101,17 @@ export function routeIncomingMessage(
     log.debug(
       { accountId: config.id, threadId: msg.threadId, reason: decision.reason },
       decision.record ? "Ghi passive, không trả lời" : "Bỏ qua tin",
+    );
+    return;
+  }
+
+  // ===== Rate Limiting tin đến =====
+  const rateResult = checkIncomingRateLimit(config.id, msg.senderId);
+  if (!rateResult.allowed) {
+    ghiVaoHistory(config.id, msg);
+    log.info(
+      { accountId: config.id, threadId: msg.threadId, sender: msg.senderName, retryAfterMs: rateResult.retryAfterMs },
+      "Rate limit - ghi history, không gọi LLM",
     );
     return;
   }

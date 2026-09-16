@@ -137,6 +137,12 @@ export const TUNING_GROUPS: TuningGroup[] = [
     navHint: "Quản lý lịch hẹn",
     hint: "Bot tự nhắn theo lịch: tần suất quét, trần chống spam, giữ log bao lâu.",
   },
+  {
+    id: "safety",
+    title: "An toàn & Chống spam",
+    navHint: "Rate limit, chống lạm dụng",
+    hint: "Giới hạn tần suất tin nhắn từ mỗi user để tránh lạm dụng và bảo vệ tài nguyên.",
+  },
 ];
 
 const TUNING_BY_KEY = {
@@ -682,6 +688,35 @@ const TUNING_BY_KEY = {
     min: 0,
     max: 200,
     unit: "mục",
+  },
+
+  // --- Rate Limiting & Follow-up ---
+  RATE_LIMIT_WINDOW_MS: {
+    kind: "number" as const,
+    group: "safety",
+    label: "Cửa sổ rate limit",
+    hint: "Khoảng thời gian tính rate limit (ms). VD: 60000 = 1 phút. Đặt 0 để tắt rate limit.",
+    min: 0,
+    max: 3_600_000,
+    unit: "ms",
+  },
+  RATE_LIMIT_MAX_MESSAGES: {
+    kind: "number" as const,
+    group: "safety",
+    label: "Trần tin nhắn mỗi user",
+    hint: "Số tin nhắn tối đa 1 user được gửi trong cửa sổ rate limit. Đặt 0 để tắt.",
+    min: 0,
+    max: 1000,
+    unit: "tin",
+  },
+  FOLLOWUP_TIMEOUT_MS: {
+    kind: "number" as const,
+    group: "schedule",
+    label: "Thời gian nhắc lại (follow-up)",
+    hint: "Sau bao lâu bot nhắc lại nếu user chưa phản hồi (ms). Đặt 0 để tắt. VD: 600000 = 10 phút.",
+    min: 0,
+    max: 86_400_000,
+    unit: "ms",
   },
 } as const satisfies Record<string, TuningDef>;
 

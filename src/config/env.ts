@@ -299,6 +299,13 @@ const envSchema = z.object({
   SCHEDULER_RUN_LOG_KEEP: z.coerce.number().int().min(5).max(1000).default(50),
   MORNING_GREETING_ENABLED: z.preprocess(emptyToUndefined, z.stringbool().default(false)),
 
+  // Rate limiting tin đến: chặn spam/lạm dụng. 0 = tắt rate limit.
+  RATE_LIMIT_WINDOW_MS: z.coerce.number().int().min(0).max(3_600_000).default(60_000),
+  RATE_LIMIT_MAX_MESSAGES: z.coerce.number().int().min(0).max(1000).default(0),
+
+  // Proactive follow-up: nhắc lại khi user chưa phản hồi (ms). 0 = tắt.
+  FOLLOWUP_TIMEOUT_MS: z.coerce.number().int().min(0).max(86_400_000).default(0),
+
   // Dashboard web (Hono, cùng process). Không set DASHBOARD_PASSWORD = dashboard tắt.
   DASHBOARD_PORT: z.coerce.number().int().min(1).max(65535).default(3900),
   DASHBOARD_PASSWORD: z.preprocess(

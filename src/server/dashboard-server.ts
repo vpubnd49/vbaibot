@@ -38,6 +38,8 @@ import { visionRoutes } from "./routes/vision-routes.js";
 import { voiceRoutes } from "./routes/voice-routes.js";
 import { broadcastRoutes } from "./routes/broadcast-routes.js";
 import { kieCallbackRoutes } from "./routes/kie-callback-routes.js";
+import { feedbackRoutes } from "./routes/feedback-routes.js";
+import { auditRoutes } from "./routes/audit-routes.js";
 import { ocrRoutes } from "./routes/ocr-routes.js";
 import { getOcrPortalHtml } from "./routes/ocr-portal-html.js";
 
@@ -236,6 +238,8 @@ export function buildDashboardApp(): Hono {
   app.route("/api/schedule", scheduleRoutes);
   app.route("/api/broadcast", broadcastRoutes);
   app.route("/api/ocr", ocrRoutes);
+  app.route("/api/feedback", feedbackRoutes);
+  app.route("/api/audit", auditRoutes);
 
   // API không khớp route nào phải trả JSON 404, không được rơi xuống SPA
   // fallback bên dưới (client fetch JSON mà nhận HTML thì lỗi rất khó đọc)

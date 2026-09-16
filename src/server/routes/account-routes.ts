@@ -13,6 +13,7 @@ import {
 import { getAgent } from "../../config/agent-store.js";
 import { dataDir } from "../../config/env.js";
 import { createLogger } from "../../shared/logger.js";
+import { logAudit } from "../../conversation/audit-log-store.js";
 import { isAccountRunning, startAccount, stopAccount } from "../../zalo/account-manager.js";
 import { getQrLoginStatus, startQrLogin } from "../../zalo/qr-login-manager.js";
 import { REACTION_ICON_KEYS, REACTION_ICONS } from "../../zalo/reaction-icons.js";
@@ -109,6 +110,7 @@ export const accountRoutes = new Hono()
       }
     }
 
+    logAudit({ actor: "admin", action: "config_change", accountId: id, details: parsed.data });
     return c.json({ account: withStatus(account), warning });
   })
 
@@ -131,6 +133,7 @@ export const accountRoutes = new Hono()
     // Xóa luôn credentials (cookie mã hóa) - account đã xóa thì không giữ chìa khóa.
     // History/contacts giữ lại để còn tra cứu.
     fs.rmSync(path.join(dataDir, "accounts", id), { recursive: true, force: true });
+    logAudit({ actor: "admin", action: "account_toggle", accountId: id, details: { deleted: true } });
     log.info({ accountId: id }, "Xóa account + credentials từ dashboard");
     return c.json({ ok: true });
   });
