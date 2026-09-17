@@ -69,17 +69,16 @@ export type ModelOverride = {
  * - google: gọi thẳng API Google (Gemini)
  * API key/base URL luôn lấy từ cấu hình chung (per-agent key là chuyện sau).
  */
-export function resolveLanguageModel(
-  override?: ModelOverride,
-  /**
-   * Thread đang xử lý - dùng dựng header phiên ổn định để router bật prompt
-   * caching. Bỏ trống (summarizer, nút test kết nối) thì không gửi header:
-   * đó là lượt một lần, không có prefix nào để tái dùng.
-   */
-  thread?: { accountId: string; threadId: string; contextEpoch?: number },
+export function taoLanguageModel(
+  settings: {
+    provider: LlmProviderKind;
+    baseUrl?: string;
+    model: string;
+    apiKey?: string;
+    apiKeyHong?: boolean;
+  },
+  sessionHeaders: Record<string, string> = {},
 ): LanguageModel {
-  const base = getEffectiveLlmSettings();
-  const settings = { ...base, ...doiProviderAnToan(base, override) };
   if (!settings.apiKey) {
     // Khóa CÓ trong DB nhưng giải mã hỏng là chuyện khác hẳn "chưa nhập": nói
     // sai bệnh thì người dùng đi nhập lại key trong khi gốc rễ là
@@ -100,15 +99,6 @@ export function resolveLanguageModel(
       "Chưa cấu hình model - nhập ở trang Providers trên dashboard (hoặc LLM_MODEL trong .env)",
     );
   }
-
-  const sessionHeaders = thread
-    ? cacheSessionHeaders(
-        getTuning("LLM_CACHE_SESSION_ENABLED"),
-        thread.accountId,
-        thread.threadId,
-        thread.contextEpoch ?? 0,
-      )
-    : {};
 
   switch (settings.provider) {
     case "openai-compatible": {
@@ -156,6 +146,30 @@ export function resolveLanguageModel(
       return provider(settings.model);
     }
   }
+}
+
+export function resolveLanguageModel(
+  override?: ModelOverride,
+  /**
+   * Thread đang xử lý - dùng dựng header phiên ổn định để router bật prompt
+   * caching. Bỏ trống (summarizer, nút test kết nối) thì không gửi header:
+   * đó là lượt một lần, không có prefix nào để tái dùng.
+   */
+  thread?: { accountId: string; threadId: string; contextEpoch?: number },
+): LanguageModel {
+  const base = getEffectiveLlmSettings();
+  const settings = { ...base, ...doiProviderAnToan(base, override) };
+
+  const sessionHeaders = thread
+    ? cacheSessionHeaders(
+        getTuning("LLM_CACHE_SESSION_ENABLED"),
+        thread.accountId,
+        thread.threadId,
+        thread.contextEpoch ?? 0,
+      )
+    : {};
+
+  return taoLanguageModel(settings, sessionHeaders);
 }
 
 /**

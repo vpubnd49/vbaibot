@@ -121,16 +121,38 @@ export const providerRoutes = new Hono()
     return c.json({ ok: true, provider: s.provider, model: s.model, hasOverride: s.hasOverride });
   })
 
-  // Gọi 1 completion tối thiểu bằng cấu hình hiệu lực - nút "Test kết nối" trên UI
+  // Gọi 1 completion tối thiểu - nút "Test kết nối" trên UI.
+  // Nhận body tùy chọn từ form để test được cấu hình đang gõ trước khi lưu;
+  // nếu không truyền hoặc bỏ trống field nào thì rơi về cấu hình hiệu lực đang lưu.
   .post("/test", async (c) => {
     try {
-      const { resolveLanguageModel } = await import("../../agent/llm-provider.js");
-      // Streaming để nút này đi ĐÚNG đường vận chuyển mà bot dùng. Test một
-      // đằng bot chạy một nẻo thì nút báo xanh trong khi bot đang chết vì 524,
-      // hoặc ngược lại - đúng lúc người ta bấm nó để tìm nguyên nhân.
+      const body = await c.req.json().catch(() => ({}));
+      const { taoLanguageModel } = await import("../../agent/llm-provider.js");
+      const effective = getEffectiveLlmSettings();
+
+      const testProvider = (body?.provider || effective.provider) as (typeof LLM_PROVIDER_KINDS)[number];
+      const testSettings = {
+        provider: testProvider,
+        baseUrl:
+          body?.baseUrl !== undefined && body.baseUrl !== ""
+            ? body.baseUrl
+            : body?.provider && body.provider !== effective.provider
+              ? undefined
+              : effective.baseUrl,
+        model:
+          typeof body?.model === "string" && body.model.trim() !== ""
+            ? body.model.trim()
+            : effective.model,
+        apiKey:
+          typeof body?.apiKey === "string" && body.apiKey.trim() !== ""
+            ? body.apiKey.trim()
+            : effective.apiKey,
+        apiKeyHong: effective.apiKeyHong,
+      };
+
       const result = await chayStream((onError) =>
         streamText({
-          model: resolveLanguageModel(),
+          model: taoLanguageModel(testSettings),
           prompt: "Trả lời đúng 1 từ: ok",
           maxOutputTokens: 200,
           maxRetries: 0,

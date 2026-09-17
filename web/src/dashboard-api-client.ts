@@ -437,9 +437,10 @@ export const api = {
       body: JSON.stringify(update),
     }),
   clearProvider: () => request<{ ok: true }>("/api/provider", { method: "DELETE" }),
-  testProvider: () =>
+  testProvider: (params?: { provider?: string; baseUrl?: string; model?: string; apiKey?: string }) =>
     request<{ ok: boolean; reply?: string; error?: string }>("/api/provider/test", {
       method: "POST",
+      body: params ? JSON.stringify(params) : undefined,
     }),
   kie: () => request<KieSettings>("/api/provider/kie"),
   updateKie: (update: Partial<KieSettings> & { apiKey?: string }) =>

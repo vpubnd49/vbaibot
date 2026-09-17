@@ -21,3 +21,6 @@ qr*.png
 
 # Cấu hình MCP server của máy dev (đường dẫn tuyệt đối, có thể chứa token)
 .mcp.json
+
+# Editor scratch / metadata
+.kilo/

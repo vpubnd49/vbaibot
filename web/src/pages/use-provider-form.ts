@@ -74,11 +74,18 @@ export function useProviderForm() {
   async function test() {
     setBusy(true);
     setStatus(null);
-    const result = await api.testProvider().catch((err) => ({
-      ok: false as const,
-      error: err instanceof ApiError ? err.message : "Không gọi được",
-      reply: undefined,
-    }));
+    const result = await api
+      .testProvider({
+        provider: form.provider,
+        baseUrl: form.baseUrl,
+        model: form.model,
+        apiKey: form.apiKey || undefined,
+      })
+      .catch((err) => ({
+        ok: false as const,
+        error: err instanceof ApiError ? err.message : "Không gọi được",
+        reply: undefined,
+      }));
     setStatus(
       result.ok
         ? { tone: "green", text: `Kết nối ok - model trả lời: "${result.reply}"` }
