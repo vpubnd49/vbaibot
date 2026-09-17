@@ -38,6 +38,24 @@ export function shouldRespond(
     return skip("không có nội dung xử lý được (sticker/voice/...)");
   }
 
+  // ── Bỏ qua sticker "add bạn" ──────────────────────────────────────────────
+  // Khi add bạn trên Zalo, hệ thống gửi sticker chào dưới dạng file ảnh có
+  // tên generic (file.png, file.gif). Bot không nên trả lời vì đây không phải
+  // yêu cầu — chỉ là hành động kết bạn. Chạy OCR trên sticker sẽ thất bại.
+  //
+  // Ảnh thuần (images array) vẫn cho qua vì người dùng có thể gửi ảnh chụp
+  // tài liệu không kèm text. File tài liệu thật (.pdf, .docx...) cũng cho qua.
+  if (!msg.text.trim()) {
+    const files = msg.files ?? [];
+    // Chỉ có file duy nhất tên generic như sticker add bạn, không có ảnh thật
+    const isOnlyStickerFile = files.length === 1
+      && msg.images.length === 0
+      && /^file\.(png|gif|jpg|jpeg|webp)$/i.test(files[0]!.fileName);
+    if (isOnlyStickerFile) {
+      return skip("sticker add bạn (file.png) không kèm text");
+    }
+  }
+
   const isMentioned = msg.mentionsMe || isMentioningBot(msg.text, account.label);
 
   if (msg.isGroup) {
