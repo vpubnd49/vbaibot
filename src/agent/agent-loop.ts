@@ -577,9 +577,14 @@ export async function runAgentTurn({
       throw err;
     }
 
-    if (loai === "rate_limit") {
+    if (loai === "rate_limit" || loai === "provider_busy") {
       const cho = giayChoLai(err) ?? 5;
-      log.warn({ giayCho: cho }, "Provider siết nhịp - chờ rồi thử lại đúng 1 lần");
+      log.warn(
+        { giayCho: cho, loai },
+        loai === "provider_busy"
+          ? "Provider đang bận - chờ rồi thử lại đúng 1 lần"
+          : "Provider siết nhịp - chờ rồi thử lại đúng 1 lần",
+      );
       await new Promise((r) => setTimeout(r, cho * 1000));
       lanChay++;
       guard.datLai();

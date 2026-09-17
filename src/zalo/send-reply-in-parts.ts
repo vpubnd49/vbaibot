@@ -37,7 +37,9 @@ export const TECHNICAL_ERROR_REPLY =
  */
 export const LOI_THEO_LOAI: Record<string, string> = {
   rate_limit:
-    "Mình đang bị quá tải nên chưa trả lời kịp tin này, bạn nhắn lại giúp mình sau vài phút nhé.",
+    "Mình đang bị giới hạn lượt truy cập nên chưa trả lời kịp tin này, bạn nhắn lại giúp mình sau vài phút nhé.",
+  provider_busy:
+    "Hệ thống AI đang quá tải tạm thời, bạn nhắn lại giúp mình sau ít phút nhé.",
   // Hết hạn mức tháng/spending cap: retry VÔ ÍCH, khác hẳn quá tải tạm thời.
   // Nếu có backup provider thì code ở agent-loop đã tự chuyển rồi nên câu này
   // chỉ hiện khi KHÔNG có backup - phải nói rõ là hệ thống cần xử lý, không

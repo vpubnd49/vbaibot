@@ -27,6 +27,12 @@ describe("phanLoaiLoiProvider - theo mã HTTP", () => {
     assert.equal(phanLoaiLoiProvider(loiApi(429, "Rate limit exceeded")), "rate_limit");
   });
 
+  it("nhận diện provider bận qua thông báo 429/5xx hoặc lỗi không có mã", () => {
+    assert.equal(phanLoaiLoiProvider(loiApi(429, "Server busy, retry later")), "provider_busy");
+    assert.equal(phanLoaiLoiProvider(loiApi(503, "Service overloaded")), "provider_busy");
+    assert.equal(phanLoaiLoiProvider(new Error("Server busy, retry later")), "provider_busy");
+  });
+
   it("401 và 403 là sai khóa hoặc thiếu quyền", () => {
     assert.equal(phanLoaiLoiProvider(loiApi(401, "Invalid API key")), "auth");
     assert.equal(phanLoaiLoiProvider(loiApi(403, "Forbidden")), "auth");
@@ -156,7 +162,7 @@ describe("KHÔNG được giẫm chân bộ phân loại lỗi ảnh", () => {
 describe("nenThuLai", () => {
   it("chỉ auth là KHÔNG thử lại - thử lại sai khóa chỉ chậm gấp ba rồi vẫn hỏng", () => {
     assert.equal(nenThuLai("auth"), false);
-    for (const l of ["rate_limit", "context_overflow", "transient", "unknown"] as const) {
+    for (const l of ["rate_limit", "provider_busy", "context_overflow", "transient", "unknown"] as const) {
       assert.equal(nenThuLai(l), true, l);
     }
   });

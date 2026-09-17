@@ -45,6 +45,8 @@ export type LoaiLoiProvider =
   | "cau_hinh"
   /** 429 - hết quota hoặc bị siết nhịp. Chờ rồi thử lại có ích. */
   | "rate_limit"
+  /** Provider báo đang quá tải/bận tạm thời. Chờ rồi thử lại có ích. */
+  | "provider_busy"
   /**
    * 429 nhưng gốc rễ là HẾT HẠN MỨC tháng/dự án (spending cap, monthly limit,
    * resource exhausted). Chờ rồi thử lại VÔ ÍCH - phải CHUYỂN sang backup
@@ -99,6 +101,16 @@ const DAU_HIEU_HET_HAN_MUC = [
   "resource_exhausted",
   "insufficient_quota",
   "account has been deactivated",
+];
+
+/** Dấu hiệu provider đang quá tải hoặc tạm thời chưa phục vụ được */
+const DAU_HIEU_PROVIDER_BAN = [
+  "server busy",
+  "service busy",
+  "temporarily unavailable",
+  "try again later",
+  "overloaded",
+  "at capacity",
 ];
 
 /** Lỗi TẦNG MẠNG - chưa tới được provider, hoặc đứt giữa chừng */
@@ -167,9 +179,18 @@ export function phanLoaiLoiProvider(raw: unknown): LoaiLoiProvider {
     // 429 có hai loại: siết nhịp tạm (vài giây) vs hết hạn mức tháng (vĩnh viễn).
     // Đọc thông báo để phân biệt: hết cap thì retry VÔ ÍCH, phải chuyển backup.
     if (DAU_HIEU_HET_HAN_MUC.some((d) => chuoi.includes(d))) return "quota_exhausted";
+    if (DAU_HIEU_PROVIDER_BAN.some((d) => chuoi.includes(d))) return "provider_busy";
     return "rate_limit";
   }
   if (ma === 401 || ma === 403) return "auth";
+
+  // Một số gateway trả thông báo quá tải kèm 502/503/504 hoặc không giữ mã HTTP.
+  if (
+    DAU_HIEU_PROVIDER_BAN.some((d) => chuoi.includes(d)) &&
+    (ma === undefined || ma === 502 || ma === 503 || ma === 504)
+  ) {
+    return "provider_busy";
+  }
 
   // Context tràn LUÔN là 400 chung với lỗi tham số khác, nên chỉ nhận ra được
   // qua thông báo. Chỉ dò trong nhóm 4xx để một lỗi 500 có chữ "too long"
