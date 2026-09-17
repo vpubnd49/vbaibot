@@ -13,10 +13,10 @@ import { chuanHoaStyles } from "./normalize-zalo-styles.js";
  * (`zca-js/src/apis/sendMessage.ts`, enum `TextStyle`). Người dùng chỉ ra rằng
  * tin Zalo thật có in đậm và tiêu đề, còn bot thì trả lời một khối chữ phẳng.
  *
- * MỨC ĐỘ: cố ý CHỈ dùng nhóm không màu - đậm, nghiêng, gạch ngang, tiêu đề
- * to-đậm. Zalo có sẵn 4 màu nhưng bot trả lời hội thoại mà tô màu thì đọc như
- * tin quảng cáo; màu để dành cho ca thông báo, quyết định sau. Danh sách CỐ Ý
- * không dùng style của Zalo - xem docstring `laDongKhoi`.
+ * MỨC ĐỘ: đậm, nghiêng, gạch ngang cho inline, tiêu đề dùng Big + Bold +
+ * Green để nổi bật. Inline khi model ghi `<cam>`, `<do>`, `<xanh>` thì render
+ * đúng màu. Danh sách CỐ Ý không dùng style list của Zalo - xem docstring
+ * `laDongKhoi`.
  *
  * OFFSET ĐẾM THEO ĐƠN VỊ UTF-16 (`String.length` của JS), KHÔNG phải code
  * point. zca-js gói thẳng `start`/`len` vào `textProperties` JSON, không đổi gì,
@@ -169,10 +169,12 @@ export function markdownSangStyleZalo(input: string): KetQuaDinhDang {
     phan.push(daInline);
 
     if (daInline.length > 0) {
-      // Big cho to hơn thấy rõ, Bold thêm độ đậm cho client cũ
+      // Big cho to hơn thấy rõ, Bold thêm độ đậm cho client cũ, Green tô màu
+      // nổi bật để phân biệt tiêu đề với nội dung — giống như ảnh mẫu user gửi.
       if (mTieuDe) {
         styles.push({ start: conTro, len: daInline.length, st: TextStyle.Big });
         styles.push({ start: conTro, len: daInline.length, st: TextStyle.Bold });
+        styles.push({ start: conTro, len: daInline.length, st: TextStyle.Green });
       }
       for (const s of spans) styles.push({ start: conTro + s.start, len: s.len, st: s.st });
     }

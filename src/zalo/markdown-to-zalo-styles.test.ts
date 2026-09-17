@@ -83,12 +83,12 @@ describe("markdownSangStyleZalo - inline", () => {
 });
 
 describe("markdownSangStyleZalo - khối", () => {
-  it("tiêu đề thành to + đậm, dấu # biến mất", () => {
+  it("tiêu đề thành to + đậm + xanh, dấu # biến mất", () => {
     const ket = markdownSangStyleZalo("## Bảng giá hôm nay");
     assert.equal(ket.text, "Bảng giá hôm nay");
     assert.deepEqual(
       ket.styles.map((s) => s.st).sort(),
-      [TextStyle.Big, TextStyle.Bold].sort(),
+      [TextStyle.Big, TextStyle.Bold, TextStyle.Green].sort(),
     );
     assert.equal(doanCua(ket, 0), "Bảng giá hôm nay");
   });
