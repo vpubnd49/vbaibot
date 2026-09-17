@@ -8,6 +8,7 @@ import { getMemoriesForContext } from "../conversation/memory-store.js";
 import { getApprovedKnowledge } from "../conversation/shared-knowledge-store.js";
 import { getThreadContextEpoch, getThreadSummary } from "../conversation/thread-store.js";
 import { autoCaptureKnowledge } from "./auto-capture-knowledge.js";
+import { guardOutdatedContent } from "./outdated-content-guard.js";
 import { getBackupModel } from "./backup-provider.js";
 import { createLogger } from "../shared/logger.js";
 import { TECHNICAL_ERROR_REPLY } from "../zalo/send-reply-in-parts.js";
@@ -875,7 +876,11 @@ export async function runAgentTurn({
   const daGoiToolGuiFile = finalToolCalls.some((t) => FILE_SEND_TOOLS.has(t));
   const failedActions = getFailedActions(result.steps);
   const textKhongAoGiac = daGoiToolGuiFile ? result.text.trim() : xoaNhanAoGiacGuiFile(result.text.trim());
-  const textCuoi = guardFailedActionReply(textKhongAoGiac, failedActions);
+  const textSauGuard = guardFailedActionReply(textKhongAoGiac, failedActions);
+
+  // Lớp phòng thủ cuối: scan text tìm cụm từ lỗi thời (3 cấp, Sở cũ)
+  // và append cảnh báo ⚠️ nếu phát hiện.
+  const textCuoi = guardOutdatedContent(textSauGuard);
 
   return {
     text: textCuoi,

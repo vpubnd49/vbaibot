@@ -492,6 +492,9 @@ function runMigrations(): void {
     CREATE INDEX IF NOT EXISTS idx_audit_logs_created
       ON audit_logs (created_at);
   `);
+
+  // ===== Phase 5: Shared Knowledge Priority =====
+  addColumnIfMissing("shared_knowledge", "priority", "TEXT NOT NULL DEFAULT 'normal'");
 }
 
 function addColumnIfMissing(table: string, column: string, definition: string): void {

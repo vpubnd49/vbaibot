@@ -8,6 +8,7 @@ export type SharedKnowledgeFact = {
   content: string;
   source: string;
   status: "pending" | "approved" | "rejected";
+  priority: "critical" | "normal" | "low";
   reviewedBy: string | null;
   learnedInThreadId: string;
   createdAt: string;
@@ -21,8 +22,8 @@ const VALID_CATEGORIES = new Set<string>(["legal", "policy", "procedure", "corre
 
 // Prepared statements
 const insertStmt = db.prepare(`
-  INSERT INTO shared_knowledge (account_id, category, content, source, status, learned_in_thread_id)
-  VALUES (?, ?, ?, ?, ?, ?)
+  INSERT INTO shared_knowledge (account_id, category, content, source, status, priority, learned_in_thread_id)
+  VALUES (?, ?, ?, ?, ?, ?, ?)
 `);
 
 const trungStmt = db.prepare(`
@@ -47,19 +48,21 @@ const deleteStmt = db.prepare(`
   DELETE FROM shared_knowledge WHERE id = ? AND account_id = ?
 `);
 
-// Query approved facts for injection into prompt — respects expiry and max items
+// Query approved facts for injection into prompt — respects expiry, priority, and max items
 const approvedStmt = db.prepare(`
-  SELECT id, account_id, category, content, source, status, reviewed_by,
+  SELECT id, account_id, category, content, source, status, priority, reviewed_by,
          learned_in_thread_id, created_at, approved_at, expires_at
   FROM shared_knowledge
   WHERE account_id = ? AND status = 'approved'
     AND (expires_at IS NULL OR expires_at > strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
-  ORDER BY id DESC
+  ORDER BY
+    CASE priority WHEN 'critical' THEN 0 WHEN 'normal' THEN 1 ELSE 2 END,
+    id DESC
   LIMIT ?
 `);
 
 const listStmt = db.prepare(`
-  SELECT id, account_id, category, content, source, status, reviewed_by,
+  SELECT id, account_id, category, content, source, status, priority, reviewed_by,
          learned_in_thread_id, created_at, approved_at, expires_at
   FROM shared_knowledge
   WHERE account_id = ? AND (? = '' OR status = ?)
@@ -81,6 +84,7 @@ function mapRow(r: any): SharedKnowledgeFact {
     content: r.content,
     source: r.source,
     status: r.status,
+    priority: r.priority ?? "normal",
     reviewedBy: r.reviewed_by ?? null,
     learnedInThreadId: r.learned_in_thread_id,
     createdAt: r.created_at,
@@ -104,6 +108,7 @@ export function proposeKnowledge(params: {
   source: string;
   learnedInThreadId: string;
   autoApprove?: boolean;
+  priority?: "critical" | "normal" | "low";
 }): KetQuaDeXuat {
   if (!VALID_CATEGORIES.has(params.category)) {
     return { ghi: false, lyDo: "loai_khong_hop_le" };
@@ -113,12 +118,14 @@ export function proposeKnowledge(params: {
     return { ghi: false, lyDo: "trung" };
   }
   const status = params.autoApprove ? "approved" : "pending";
+  const priority = params.priority ?? "normal";
   const result = insertStmt.run(
     params.accountId,
     params.category,
     noiDung,
     params.source,
     status,
+    priority,
     params.learnedInThreadId,
   );
   return { ghi: true, id: Number(result.lastInsertRowid) };

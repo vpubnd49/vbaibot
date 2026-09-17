@@ -7,10 +7,13 @@ const log = createLogger("auto-capture-knowledge");
 /**
  * Tool tra cứu có giá trị lâu dài — kết quả LUÔN được auto-capture.
  * Không capture tool tạm thời (weather, finance_rates, news).
+ *
+ * Đã loại admin_division_lookup: dữ liệu hành chính hardcode trong
+ * data/administrative-divisions-2025.json, capture chỉ tạo bản sao JSON
+ * thô tốn token mà không thêm giá trị.
  */
 const TOOL_CAPTURE_MAP: Record<string, string> = {
   legal_search: "legal",
-  admin_division_lookup: "correction",
   tax_accounting_lookup: "legal",
 };
 
@@ -23,7 +26,6 @@ const WEB_SEARCH_KEYWORDS = [
   "diện tích", "dân số", "hành chính", "sáp nhập",
   "hiệu lực", "thay thế", "bãi bỏ", "ban hành",
   "tiêu chuẩn", "quy chuẩn", "hướng dẫn",
-  "tỉnh", "thành phố", "đơn vị", "phường", "xã",
   "điều lệ", "nội quy", "chính sách",
 ];
 
@@ -33,12 +35,63 @@ const webSearchIsValuable = (query: string): boolean => {
 };
 
 /**
- * Rút trích nội dung ngắn gọn từ kết quả tool (tối đa 500 ký tự).
+ * Rút trích nội dung CÓ GIÁ TRỊ từ kết quả tool, loại bỏ JSON thô.
+ *
+ * Trước đây: cắt 500 ký tự đầu → giữ nguyên JSON → inject vào prompt
+ * không ai đọc được, tốn token vô ích.
+ *
+ * Bây giờ: parse cấu trúc → extract trường quan trọng → viết thành
+ * câu text gọn gàng model dễ sử dụng.
  */
-function condenseResult(raw: unknown): string {
+function condenseResult(raw: unknown, toolName: string): string {
   const str = typeof raw === "string" ? raw : JSON.stringify(raw);
-  if (str.length <= 500) return str;
-  return str.slice(0, 497) + "...";
+
+  // Bỏ qua kết quả quá ngắn (lỗi, không tìm thấy)
+  if (str.length < 30) return "";
+
+  // Thử parse JSON để extract thông tin
+  if (str.startsWith("{") || str.startsWith("[")) {
+    try {
+      const parsed = JSON.parse(str);
+
+      // Tool result wrapper từ Vercel AI SDK
+      if (parsed.type === "tool-result" && parsed.output) {
+        return condensePlainText(String(parsed.output));
+      }
+
+      // Legal search: extract tên VB, số hiệu, hiệu lực
+      if (toolName === "legal_search" && typeof parsed === "object") {
+        const parts: string[] = [];
+        if (parsed.documentNumber) parts.push(`Số hiệu: ${parsed.documentNumber}`);
+        if (parsed.title) parts.push(`Tên: ${parsed.title}`);
+        if (parsed.effectiveStatus) parts.push(`Hiệu lực: ${parsed.effectiveStatus}`);
+        if (parsed.issuer) parts.push(`CQ ban hành: ${parsed.issuer}`);
+        if (parts.length > 0) return parts.join(". ");
+      }
+    } catch {
+      // Không parse được → xử lý như plain text
+    }
+  }
+
+  return condensePlainText(str);
+}
+
+/**
+ * Cắt text thuần tối đa 400 ký tự, cắt ở ranh giới câu nếu được.
+ */
+function condensePlainText(text: string): string {
+  // Loại bỏ JSON wrapper nếu còn sót
+  const cleaned = text
+    .replace(/^\[Tra cứu:.*?\]\s*/i, "")
+    .replace(/\{"type":"tool-result".*?"output":"?/i, "")
+    .trim();
+
+  if (cleaned.length <= 400) return cleaned;
+
+  // Cắt ở ranh giới câu gần 400 ký tự nhất
+  const cutoff = cleaned.lastIndexOf(".", 400);
+  if (cutoff > 200) return cleaned.slice(0, cutoff + 1);
+  return cleaned.slice(0, 397) + "...";
 }
 
 /**
@@ -84,12 +137,15 @@ export function autoCaptureKnowledge(
 
         const query =
           (args.query ?? args.q ?? args.keyword ?? args.ten ?? "") as string;
-        const resultText = condenseResult("result" in result ? result.result : result);
+        const resultText = condenseResult(
+          "result" in result ? result.result : result,
+          toolName,
+        );
 
-        // Bỏ qua kết quả quá ngắn (lỗi, không tìm thấy)
+        // Bỏ qua kết quả rỗng hoặc quá ngắn
         if (resultText.length < 30) continue;
 
-        const content = `[Tra cứu: ${query}] ${resultText}`;
+        const content = `[${query}] ${resultText}`;
         const source = `tool:${toolName}`;
 
         const ketQua = proposeKnowledge({
@@ -112,3 +168,4 @@ export function autoCaptureKnowledge(
     log.warn({ err }, "Auto-capture knowledge lỗi (không ảnh hưởng trả lời)");
   }
 }
+
