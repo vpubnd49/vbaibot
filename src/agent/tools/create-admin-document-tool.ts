@@ -11,6 +11,7 @@ import type { ToolContext } from "./index.js";
 import { ketQuaLoi, type KetQuaLoiTool } from "./tool-failure-result.js";
 import { guiFileKemCaption } from "./send-attachment-with-caption.js";
 import { ghiChuDaGuiFile } from "./sent-by-tool-note.js";
+import { replaceOutdatedOrgNames } from "../outdated-content-guard.js";
 
 const log = createLogger("create-admin-document");
 
@@ -80,10 +81,12 @@ export function createAdminDocumentTool(ctx: Ctx) {
         const rate = checkDocumentRateLimit(`${ctx.account.id}:${ctx.message.threadId}`);
         if (!rate.ok) return ketQuaLoi(rate.reason);
 
+        const sanitizedDoc = replaceOutdatedOrgNames(docData) as AdminDocument;
+
         const data =
-          docData.heThong === "dang_hd05"
-            ? await renderPartyDocx(docData as AdminDocument)
-            : await renderAdminDocx(docData as AdminDocument);
+          sanitizedDoc.heThong === "dang_hd05"
+            ? await renderPartyDocx(sanitizedDoc)
+            : await renderAdminDocx(sanitizedDoc);
 
         return deliverAdminFile(ctx, safeFileName(fileName, "docx"), data, caption);
       }),

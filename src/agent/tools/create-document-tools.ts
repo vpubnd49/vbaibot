@@ -24,6 +24,7 @@ import type { ToolContext } from "./index.js";
 import { ketQuaLoi, type KetQuaLoiTool } from "./tool-failure-result.js";
 import { guiFileKemCaption } from "./send-attachment-with-caption.js";
 import { ghiChuDaGuiFile } from "./sent-by-tool-note.js";
+import { replaceOutdatedOrgNames, replaceOutdatedOrgNamesInText } from "../outdated-content-guard.js";
 
 /**
  * Tool tạo file .docx/.xlsx rồi GỬI LUÔN cho cuộc trò chuyện.
@@ -128,7 +129,10 @@ export function createWordDocumentTool(ctx: Ctx) {
         const rate = checkDocumentRateLimit(`${ctx.account.id}:${ctx.message.threadId}`);
         if (!rate.ok) return ketQuaLoi(rate.reason);
 
-        const data = await renderDocx(blocks as DocumentBlock[], { title });
+        const sanitizedBlocks = replaceOutdatedOrgNames(blocks) as DocumentBlock[];
+        const sanitizedTitle = title ? replaceOutdatedOrgNamesInText(title) : undefined;
+
+        const data = await renderDocx(sanitizedBlocks, { title: sanitizedTitle });
         return deliverFile(ctx, safeFileName(fileName, "docx"), data, caption);
       }),
   });
@@ -160,9 +164,11 @@ export function createExcelFileTool(ctx: Ctx) {
         const rate = checkDocumentRateLimit(`${ctx.account.id}:${ctx.message.threadId}`);
         if (!rate.ok) return ketQuaLoi(rate.reason);
 
+        const sanitizedSheets = replaceOutdatedOrgNames(sheets) as Sheet[];
+
         let data: Buffer;
         try {
-          data = await renderXlsx(sheets as Sheet[]);
+          data = await renderXlsx(sanitizedSheets);
         } catch (err) {
           log.error({ accountId: ctx.account.id, threadId: ctx.message.threadId, fileName, stage: "render", err }, "Dựng file Excel thất bại");
           throw err;

@@ -48,4 +48,12 @@ describe("loadUploadedDocument", () => {
     const res = await loadUploadedDocument("../../package.json", 1000);
     assert.equal(res, null);
   });
+
+  it("trả null khi nội dung file là thông báo lỗi hoặc fallback OCR", async () => {
+    const fallbackTxtPath = path.join(testDir, "fallback.txt");
+    const relFallbackPath = "media/test-acc/test-thread/fallback.txt";
+    fs.writeFileSync(fallbackTxtPath, "[File PDF có 10 trang nhưng không trích xuất được nội dung text.]", "utf-8");
+    const res = await loadUploadedDocument(relFallbackPath, 1000);
+    assert.equal(res, null);
+  });
 });

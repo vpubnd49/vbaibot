@@ -146,6 +146,13 @@ export async function readDocument(filePath: string, options: DocumentReadOption
           const ocrText = await ocrScannedPdf(filePath, pages, options.pageStart, options.pageEnd);
           if (ocrText && ocrText.trim()) {
             text = ocrText;
+            const stripped = ocrText.replace(/--- Trang \d+\/\d+ ---|\[(?:File PDF|OCR|Đã OCR)[^\]]*\]|\s+/gi, '');
+            if (ocrText.startsWith('[File PDF') || ocrText.startsWith('[OCR') || stripped.length === 0) {
+              readError = ocrText;
+            }
+          } else {
+            readError = `[File PDF có ${pages} trang dạng scan nhưng không trích xuất được nội dung text.]`;
+            text = readError;
           }
         }
         break;
@@ -287,6 +294,9 @@ export async function readDocument(filePath: string, options: DocumentReadOption
       case '.webp': {
         pageCount = 1;
         text = await ocrScannedImage(filePath, ext);
+        if (text.startsWith('[File ảnh') || text.startsWith('[Lỗi') || text.startsWith('[Ảnh scan')) {
+          readError = text;
+        }
         break;
       }
       default:

@@ -272,9 +272,15 @@ export async function buildCurrentTurnContent(
               text: `[Nội dung file tài liệu "${file.fileName}"${cutNote}:\n${doc.text}\n]`,
             });
           } else {
+            const isPdf = ext === ".pdf";
+            const failMessage = isPdf
+              ? `[File "${file.fileName}" là PDF scan/ảnh chụp, hệ thống chưa trích xuất được text. ` +
+                `Hãy thông báo ngắn gọn, lịch sự và nhờ người dùng gửi file Word (.doc/.docx) hoặc dán trực tiếp nội dung text để xử lý. ` +
+                `KHÔNG nói các câu máy móc như "bản scan chưa nhận diện được lớp chữ" và KHÔNG lặp lại cùng một thông báo.]`
+              : `[Có file tài liệu đính kèm "${file.fileName}" nhưng không trích xuất được nội dung]`;
             parts.push({
               type: "text",
-              text: `[Có file tài liệu đính kèm "${file.fileName}" nhưng không trích xuất được nội dung]`,
+              text: failMessage,
             });
           }
         }

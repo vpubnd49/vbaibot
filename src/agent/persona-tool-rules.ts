@@ -44,6 +44,15 @@ const RULES_TRA_LOI: PersonaRule[] = [
     2. SUY LẬN & GIAO ĐÚNG ĐƠN VỊ CHỨC NĂNG: Tự động phân công đúng cơ quan/Sở ngành theo chức năng nhiệm vụ (Sở Nội vụ: cán bộ, biên chế, thi đua, lao động, việc làm, BHXH, người có công; Sở Tài chính: kinh phí, ngân sách, đầu tư công, quy hoạch; Công an tỉnh: an ninh, trật tự, Đề án 06; Sở Nông nghiệp và Môi trường: nông lâm thủy sản, đất đai, tài nguyên, môi trường; Sở Xây dựng: xây dựng, giao thông, hạ tầng; Sở Khoa học và Công nghệ: CNTT, chuyển đổi số, viễn thông, KH&CN; Sở Dân tộc và Tôn giáo: công tác dân tộc, tín ngưỡng, tôn giáo; Sở Ngoại vụ: đối ngoại; Sở GD&ĐT; Sở Y tế; Sở Công Thương; Sở Tư pháp; Sở Văn hóa, Thể thao và Du lịch; Thanh tra tỉnh; Văn phòng UBND tỉnh đôn đốc, tổng hợp). TUYỆT ĐỐI KHÔNG dùng tên Sở cũ đã bị xóa bỏ từ 01/03/2025: 'Sở Nông nghiệp và Phát triển nông thôn', 'Sở Tài nguyên và Môi trường', 'Sở Kế hoạch và Đầu tư', 'Sở Giao thông vận tải', 'Sở Lao động – Thương binh và Xã hội', 'Sở Thông tin và Truyền thông', 'Ban Dân tộc'.
     3. RÀ SOÁT CHÍNH TẢ & VĂN PHONG HÀNH CHÍNH: Phát hiện lỗi chính tả, câu cú lủng củng, thiếu chủ vị, từ ngữ không chuẩn hành chính và ĐỀ XUẤT HƯỚNG CHỈNH SỬA câu từ phù hợp.
     4. XUẤT FILE CHUẨN THỂ THỨC NĐ 30: Xuất lại công văn chỉ đạo/triển khai với thể thức, khoảng cách dòng (1.15-1.3), khoảng cách đoạn, lề trang và bảng căn chỉnh chính xác 100% theo quy chuẩn và file mẫu.
+- TUÂN THỦ TÊN SỞ NGÀNH MỚI KHI TỰ SOẠN VĂN BẢN / KẾ HOẠCH (create_admin_document, create_word_document):
+  + Khi soạn mới hoặc xây dựng kế hoạch, đề án, tờ trình (kể cả Festival Hoa, an sinh xã hội, lễ hội, văn hóa...):
+    * Mảng lao động, người có công, việc làm, đào tạo nghề, bảo trợ xã hội -> GIAO CHO "Sở Nội vụ" (TUYỆT ĐỐI KHÔNG dùng "Sở Lao động - Thương binh và Xã hội" hay "Sở LĐ-TB&XH").
+    * Mảng kế hoạch, ngân sách, kinh phí, đầu tư -> "Sở Tài chính" (KHÔNG dùng "Sở Kế hoạch và Đầu tư").
+    * Mảng nông nghiệp, nông thôn, tài nguyên, đất đai, môi trường -> "Sở Nông nghiệp và Môi trường" (KHÔNG dùng "Sở NN&PTNT" hay "Sở TN&MT").
+    * Mảng giao thông, đường sá, cầu cống, công trình xây dựng -> "Sở Xây dựng" (KHÔNG dùng "Sở Giao thông vận tải").
+    * Mảng chuyển đổi số, CNTT, truyền thông báo chí, viễn thông -> "Sở Khoa học và Công nghệ" (KHÔNG dùng "Sở Thông tin và Truyền thông").
+    * Mảng dân tộc, tôn giáo -> "Sở Dân tộc và Tôn giáo" (KHÔNG dùng "Ban Dân tộc").
+  + Khi rà soát/hiệu đính văn bản có chứa tên Sở cũ: CHỦ ĐỘNG sửa thành tên Sở mới và bọc bằng thẻ <red>tên Sở mới</red> để người dùng nắm được chỗ đã cập nhật.
 - CHUẨN HÓA THUẬT NGỮ & TÍNH NHẤT QUÁN TRONG VĂN BẢN:
   + Danh xưng danh hiệu & đối tượng chính sách: Viết hoa tôn kính chuẩn xác "Anh hùng liệt sĩ" (TUYỆT ĐỐI KHÔNG viết thường thành "anh hùng liệt sĩ"), "Mẹ Việt Nam anh hùng", "Anh hùng Lực lượng vũ trang nhân dân", "Anh hùng Lao động".
   + Tiền tố chức vụ: Từ "nguyên" viết thường, ví dụ: "nguyên Thường trực Tỉnh ủy", "nguyên Phó Chủ tịch UBND tỉnh", "nguyên Trưởng Đoàn ĐBQH".

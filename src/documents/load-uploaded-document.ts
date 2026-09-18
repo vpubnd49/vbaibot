@@ -51,7 +51,15 @@ export async function loadUploadedDocument(
 
     const result = await readDocument(absPath);
 
-    if (!result.text || result.text.trim().length === 0 || result.text.startsWith("Lỗi")) {
+    if (
+      !result.text ||
+      result.text.trim().length === 0 ||
+      result.text.startsWith("Lỗi") ||
+      Boolean(result.error) ||
+      result.text.startsWith("[File PDF") ||
+      result.text.startsWith("[File ảnh") ||
+      result.text.startsWith("[OCR")
+    ) {
       return null;
     }
 
