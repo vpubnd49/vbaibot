@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { after, before, describe, it } from "node:test";
 import type { Hono } from "hono";
 import { cleanupTestEnv, setupTestEnv } from "../../shared/test-env-setup.js";
+import { DOCUMENT_EXTRACTION_MODEL } from "../../config/model-roles.js";
 
 /**
  * API /api/vision - tách khỏi dashboard-server.test.ts (đã dài) vì đây là
@@ -121,7 +122,7 @@ describe("/api/vision", () => {
     const data = await getVision();
     assert.equal(data.sidecar.configured, false);
     assert.equal(data.sidecar.baseUrl, "");
-    assert.equal(data.sidecar.model, "");
+    assert.equal(data.sidecar.model, DOCUMENT_EXTRACTION_MODEL);
     assert.equal(data.sidecar.hasApiKey, false, "key phải bị gỡ khỏi DB, không chỉ ẩn đi");
     // mode vẫn off + không còn sidecar -> bot bỏ ảnh và nói thật
     assert.equal(data.imageMode, "blind");

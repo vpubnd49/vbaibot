@@ -14,7 +14,7 @@ const updateSchema = z.object({
   mode: z.enum(["auto", "on", "off"]).optional(),
   // Chuỗi rỗng tường minh = xóa (quay về env)
   sidecarBaseUrl: z.union([z.string().startsWith("http"), z.literal("")]).optional(),
-  sidecarModel: z.literal(DOCUMENT_EXTRACTION_MODEL).optional(),
+  sidecarModel: z.string().optional(),
   // Bỏ trống (undefined) = giữ key; chuỗi rỗng = xóa key
   sidecarApiKey: z.string().optional(),
 });
