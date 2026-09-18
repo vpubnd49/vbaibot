@@ -145,9 +145,11 @@ async function callVision(b64: string, mime: string, prompt: string, _maxTokens:
     } catch (err) {
       const msg = String(err);
       log.warn({ attempt: i + 1, mime, err: msg }, "callVision: lan thu co loi");
-      const retry = msg.includes("429") || msg.includes("rate") || msg.includes("503");
+      const retry = /429|rate|too many requests|resource_exhausted|quota|overloaded|503/i.test(msg);
       if (!retry || i === retries - 1) throw err;
-      await new Promise(r => setTimeout(r, Math.pow(2, i) * 1000));
+      const delayMs = Math.max(2000, Math.pow(2, i) * 1500);
+      log.info({ attempt: i + 1, delayMs }, "callVision: dang retry sau rate limit");
+      await new Promise(r => setTimeout(r, delayMs));
     }
   }
   throw new Error("Het so lan retry");
@@ -425,8 +427,12 @@ export async function batchOcr(
     .join("\n\n");
 
   // Một PDF scan tạo nhiều page result nhưng vẫn chỉ là một file.
-  // Với ZIP, filePath của page là file con; stats phản ánh số file đầu vào.
+  // Với ZIP, filePath của page là file con trong tempDir; stats phản ánh số file đầu vào.
   const fileStatuses = filePaths.map((fp) => {
+    const isZip = path.extname(fp).toLowerCase() === ".zip" || isZipFile(fp);
+    if (isZip) {
+      return allPages.length > 0 && allPages.some((page) => !page.error);
+    }
     const pages = allPages.filter((page) => page.filePath === fp);
     return pages.length > 0 && pages.some((page) => !page.error);
   });

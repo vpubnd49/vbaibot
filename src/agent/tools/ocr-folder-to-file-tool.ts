@@ -203,10 +203,10 @@ async function runOcr(
   caption: string | undefined,
 ): Promise<string | ReturnType<typeof ketQuaLoi>> {
   try {
-    const { rows, text, stats } = await batchOcr(ocrSource, {
+    const { pages, rows, text, stats } = await batchOcr(ocrSource, {
       mode: ocrCfg.mode,
       prompt: ocrCfg.prompt,
-      concurrency: 3,
+      concurrency: 2,
       maxTokens: 8192,
       sortBy: (ocrCfg.sortBy as any) ?? "none",
       sortColumn: ocrCfg.sortColumn,
@@ -214,6 +214,18 @@ async function runOcr(
     });
 
     if (stats.totalFiles === 0) return ketQuaLoi("Khong tim thay file hop le de xu ly.");
+
+    // Chan triet de: Khong bao gio xuat file rong khi OCR that bai toan bo
+    if (stats.processedFiles === 0 || (rows.length === 0 && !text.trim())) {
+      const firstErr = pages.find(p => p.error)?.error;
+      const errHint = firstErr ? ` (${firstErr})` : "";
+      log.warn({ stats, firstErr }, "OCR that bai toan bo, khong co noi dung de xuat file");
+      return ketQuaLoi(
+        `Khong trich xuat duoc noi dung tu file (xu ly ${stats.processedFiles}/${stats.totalFiles} file thanh cong).${errHint} ` +
+        `Co the do he thong AI nhan dien hinh anh dang qua tai (Too Many Requests / 429) hoac file khong co chu doc duoc. ` +
+        `Vui long thu lai sau giay lat hoac gui file text/Word thay the.`
+      );
+    }
 
     const ts = new Date().toISOString().slice(0, 16).replace(/[T:]/g, "-");
     const baseName = (outputFileName ?? `OCR_${ts}`).replace(/\.[a-z]+$/i, "");
@@ -235,10 +247,10 @@ async function runOcr(
       data = renderCsvFromRows(rows);
       ext = "csv";
     } else if (outputFormat === "word") {
-      const pages = text
+      const pagesData = text
         ? [{ filename: "OCR", text }]
         : rows.map((r, i) => ({ filename: `Muc ${i + 1}`, text: Object.entries(r).map(([k, v]) => `${k}: ${v ?? ""}`).join("\n") }));
-      data = await renderDocxFromPages(pages, { title: baseName });
+      data = await renderDocxFromPages(pagesData, { title: baseName });
       ext = "docx";
     } else if (outputFormat === "pdf") {
       const sections = text
@@ -249,6 +261,10 @@ async function runOcr(
     } else {
       data = Buffer.from(text || rows.map(r => Object.values(r).join("\t")).join("\n"), "utf-8");
       ext = "txt";
+    }
+
+    if (!data || data.length === 0) {
+      return ketQuaLoi("Noi dung trich xuat rong, khong the tao file.");
     }
 
     const fileName = `${baseName}.${ext}`;
