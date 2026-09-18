@@ -90,7 +90,7 @@ const defaultCaller: SidecarCaller = async (settings, image, prompt) => {
   // lời gọi LLM non-stream nào" rẻ hơn việc nhớ chỗ nào đang được miễn và vì sao.
   const result = await chayStream((onError) =>
     streamText({
-        model: provider(DOCUMENT_EXTRACTION_MODEL),
+      model: provider(settings.model || DOCUMENT_EXTRACTION_MODEL),
       messages: [
         {
           role: "user",
@@ -130,7 +130,7 @@ export async function describeImage(
 
   try {
     const { text: description, truncated } = await call(
-      { ...settings.sidecar, model: DOCUMENT_EXTRACTION_MODEL },
+      settings.sidecar,
       image,
       DESCRIBE_PROMPT,
     );
@@ -226,7 +226,7 @@ const batchOcrCaller: SidecarCaller = async (settings, image, prompt, maxTokens 
   });
   const result = await chayStream((onError) =>
     streamText({
-        model: provider(DOCUMENT_EXTRACTION_MODEL),
+      model: provider(settings.model || DOCUMENT_EXTRACTION_MODEL),
       messages: [
         {
           role: "user",
@@ -264,7 +264,7 @@ export async function callVisionForBatchOcr(
     throw new Error("Vision sidecar chua cau hinh — thieu baseUrl, model hoac apiKey");
   }
   return batchOcrCaller(
-    { ...settings.sidecar, model: DOCUMENT_EXTRACTION_MODEL },
+    settings.sidecar,
     { base64: b64, mediaType: mime },
     prompt,
     maxTokens,
@@ -284,7 +284,7 @@ export async function askAboutImage(
     "Trả lời câu hỏi sau về ảnh bằng tiếng Việt, chính xác theo những gì nhìn thấy, " +
     `không suy diễn thông tin không có trong ảnh: ${question}`;
   const { text: answer, truncated } = await call(
-    { ...settings.sidecar, model: DOCUMENT_EXTRACTION_MODEL },
+    settings.sidecar,
     image,
     prompt,
   );

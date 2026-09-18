@@ -2,6 +2,7 @@ import { db } from "../conversation/database.js";
 import { env } from "./env.js";
 import { decryptSecret, encryptSecret, maskSecret } from "./secret-cipher.js";
 import { getGoogleSettings } from "./runtime-google-settings.js";
+import { getEffectiveLlmSettings } from "./runtime-llm-settings.js";
 import { DOCUMENT_EXTRACTION_MODEL } from "./model-roles.js";
 
 /**
@@ -66,30 +67,49 @@ export function getVisionSettings(): VisionSettings {
       : env.LLM_VISION_MODE;
   const sidecarApiKey = readSidecarApiKey();
   const sidecarBaseUrl = read(SIDECAR_BASE_URL_KEY) ?? env.VISION_SIDECAR_BASE_URL;
-  // Model extraction là policy cố định; không cho DB/env/UI đổi sang model khác.
-  const sidecarModel = DOCUMENT_EXTRACTION_MODEL;
+  const storedModel = read(SIDECAR_MODEL_KEY);
 
-  if (!sidecarApiKey && !sidecarBaseUrl) {
-    const google = getGoogleSettings();
-    if (google.apiKey) {
-      return {
-        mode,
-        sidecar: {
-          baseUrl: google.baseUrl || "https://generativelanguage.googleapis.com/v1beta/openai",
-           // Fallback credentials của Google vẫn dùng endpoint tương thích,
-           // nhưng model extraction phải cố định, không lấy google.model (STT).
-           model: DOCUMENT_EXTRACTION_MODEL,
-          apiKey: google.apiKey,
-        },
-      };
-    }
+  if (sidecarApiKey && sidecarBaseUrl) {
+    return {
+      mode,
+      sidecar: {
+        baseUrl: sidecarBaseUrl,
+        model: storedModel || DOCUMENT_EXTRACTION_MODEL,
+        apiKey: sidecarApiKey,
+      },
+    };
+  }
+
+  // Ưu tiên fallback về cấu hình LLM chính (nếu người dùng cấu hình LLM trên Dashboard như 9router ag/gemini-3.8-flash)
+  const llm = getEffectiveLlmSettings();
+  if (llm.baseUrl && llm.apiKey) {
+    return {
+      mode,
+      sidecar: {
+        baseUrl: llm.baseUrl,
+        model: llm.model,
+        apiKey: llm.apiKey,
+      },
+    };
+  }
+
+  const google = getGoogleSettings();
+  if (google.apiKey) {
+    return {
+      mode,
+      sidecar: {
+        baseUrl: google.baseUrl || "https://generativelanguage.googleapis.com/v1beta/openai",
+        model: DOCUMENT_EXTRACTION_MODEL,
+        apiKey: google.apiKey,
+      },
+    };
   }
 
   return {
     mode,
     sidecar: {
       baseUrl: sidecarBaseUrl ?? "",
-      model: sidecarModel,
+      model: storedModel || DOCUMENT_EXTRACTION_MODEL,
       apiKey: sidecarApiKey,
     },
   };
