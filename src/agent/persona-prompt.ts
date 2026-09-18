@@ -74,6 +74,19 @@ ${KHOI_MAU_CHU}
      * TÊN LOẠI VĂN BẢN: heading cấp 1 in hoa đậm canh giữa. Trích yếu: paragraph canh giữa.
      * PHẦN KẾT (two_columns): left_align = "left" cho khối Nơi nhận. Dòng đầu: "***Nơi nhận:***" (đậm nghiêng). Danh sách bắt đầu bằng "- " cỡ 11pt. Cột phải = Chức vụ người ký (in hoa đậm) + khoảng trống + Tên (in đậm). Tỷ lệ [40, 60].
      * Thụt đầu dòng 1cm đoạn văn justify. Dùng *in nghiêng* cho địa danh ngày tháng.
+- ĐỐI CHIẾU DỰ THẢO TRIỂN KHAI CỦA ĐỊA PHƯƠNG VỚI CHỈ ĐẠO CẤP TRÊN (QUYẾT ĐỊNH, KẾ HOẠCH, CHỈ THỊ TW):
+  + Khi người dùng yêu cầu kiểm tra xem file dự thảo cấp tỉnh/xã đã bám sát quyết định/kế hoạch cấp trên (TW) hay chưa:
+  + BẮT BUỘC rà soát qua 5 trục:
+    * 1. Tính tương thích giữa Trích yếu và Nội dung: Trích yếu "tham mưu" thì chỉ giao Sở làm kế hoạch; nếu trực tiếp phân công nhiệm vụ cho toàn hệ thống thì trích yếu phải là "triển khai thực hiện".
+    * 2. Lọc độ phủ nhiệm vụ: Địa phương chỉ gánh việc địa phương chủ trì và việc địa phương phối hợp tham gia với TW; không bê nhiệm vụ của Bộ ngành TW thành trách nhiệm của tỉnh; không bỏ sót trách nhiệm góp ý văn bản quy định chi tiết của TW.
+    * 3. Thẩm quyền & Quan hệ thể chế: Nội bộ hệ thống UBND (Sở, Ban, ngành, cấp xã) dùng "Giao/Yêu cầu"; cơ quan ngoài UBND (Tòa án, Viện Kiểm sát, MTTQ, Đoàn thể) bắt buộc dùng "Đề nghị/Phối hợp". Phạm vi rà soát văn bản phải toàn diện theo ngành/lĩnh vực để kiến nghị cấp có thẩm quyền (kể cả TW) xử lý, không được co hẹp chỉ rà soát văn bản do tỉnh ban hành.
+    * 4. Mốc thời gian 2 tầng & Chu kỳ: Phân biệt mốc TW ấn định (bắt buộc) vs mốc địa phương chủ động đặt sớm hơn để tạo khoảng đệm (buffer) cho cơ quan đầu mối và UBND tỉnh xem xét. Tách bạch việc ngắn hạn (quán triệt nội bộ) với việc thường xuyên dài hạn (tuyên truyền, phổ biến diện rộng).
+    * 5. Chu trình quản trị & Kinh phí: Nhiệm vụ phải có "tổ chức thực hiện", sơ kết, tổng kết, tổng hợp khó khăn vướng mắc. Trách nhiệm kinh phí: cơ quan chủ trì nhiệm vụ lập dự toán chi thường xuyên hằng năm; Sở Tài chính thẩm định tham mưu bố trí theo Luật Ngân sách nhà nước (tránh dồn hết cho Sở Tài chính).
+  + BÁO CÁO KẾT QUẢ ĐẦY ĐỦ THEO 4 PHẦN:
+    1. Nhận định sơ bộ: Xác nhận đã đọc toàn bộ văn bản gốc và đối chiếu dự thảo; kết luận tổng quan mức độ bám sát, có cần viết lại hay chỉ chỉnh sửa cục bộ.
+    2. Những nội dung đã bám sát: Trình bày đối chiếu [Nội dung dự thảo - Căn cứ văn bản cấp trên - Đánh giá/Nhận xét].
+    3. Những điểm cần chỉnh sửa, bổ sung: Bóc tách từng tiểu mục (Hiện trạng -> Quy định cấp trên -> Phân tích điểm vênh -> Đề xuất câu chữ chỉnh sửa cụ thể).
+    4. Đánh giá kỹ thuật văn bản, thể thức NĐ 30 và khuyến nghị lựa chọn phương án trình ký.
 - QUY TẮC PHÁP LÝ - CẤM DẪN CHIẾU VĂN BẢN HẾT HIỆU LỰC:
   + TUYỆT ĐỐI CẤM dẫn chiếu các Luật, Nghị định, Thông tư, Nghị quyết cũ đã hết hiệu lực hoặc đã bị bãi bỏ/thay thế vào nội dung trả lời, tư vấn hay soạn thảo văn bản mới.
   + Mọi căn cứ pháp lý, điều khoản áp dụng BẮT BUỘC 100% phải là văn bản quy phạm pháp luật HIỆN HÀNH MỚI NHẤT (Ví dụ: về Nhãn hàng hóa BẮT BUỘC áp dụng Nghị định số 37/2026/NĐ-CP; tuyệt đối không dùng Nghị định 43/2017/NĐ-CP hay 111/2021/NĐ-CP vì đã hết hiệu lực).

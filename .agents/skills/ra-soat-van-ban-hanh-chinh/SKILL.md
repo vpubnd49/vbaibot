@@ -19,6 +19,7 @@ Không chỉ sửa chính tả. Phải phát hiện cả lỗi có thể làm v�
    - `quick_review`: soát nhanh lỗi lớn;
    - `full_review`: rà soát toàn diện;
    - `cross_document_review`: đối chiếu nhiều tài liệu;
+   - `cross_level_implementation_review`: đối chiếu dự thảo triển khai cấp dưới (tỉnh/huyện/xã) so với văn bản cấp trên (Chính phủ, Thủ tướng, Bộ ngành TW);
    - `nd30_review`: tập trung thể thức;
    - `edit_docx`: sửa trực tiếp file Word;
    - `pre_signing_check`: kiểm tra trước trình ký.
@@ -145,6 +146,25 @@ Mặc định trả:
 - checklist trước trình ký.
 
 Nếu ứng dụng cần JSON, dùng schema trong `references/data_model.md`.
+
+## Đối chiếu văn bản triển khai cấp dưới với cấp trên (`cross_level_implementation_review`)
+
+Áp dụng khi người dùng yêu cầu kiểm tra xem dự thảo văn bản của cấp tỉnh/huyện/xã đã bám sát quyết định, chỉ thị, kế hoạch của cấp trên (Thủ tướng, Chính phủ, Bộ ngành) hay chưa.
+
+Quy trình bắt buộc gồm **Tư duy 5 bước** và **Đầu ra 4 phần**:
+
+### 1. Chuỗi tư duy 5 bước:
+- **Bước 1 (Trích yếu & Bản chất):** Xác định văn bản là "giao tham mưu xây dựng kế hoạch" hay "trực tiếp giao việc triển khai". Trích yếu phải khớp với toàn bộ nội dung.
+- **Bước 2 (Lọc độ phủ nhiệm vụ):** Lọc toàn bộ nhiệm vụ của cấp dưới trong văn bản TW (cả việc *chủ trì tại địa phương* và việc *phối hợp với Bộ ngành TW*). Không bê nhiệm vụ của Bộ ngành TW thành trách nhiệm của tỉnh.
+- **Bước 3 (Thẩm quyền & Quan hệ thể chế):** Kiểm tra cơ quan trong hệ thống UBND (dùng "giao/yêu cầu") vs ngoài hệ thống như Tòa án, Viện Kiểm sát, MTTQ (dùng "đề nghị/phối hợp"). Soi phạm vi rà soát văn bản (phải rà soát theo ngành/lĩnh vực để kiến nghị cấp có thẩm quyền xử lý, không được co hẹp chỉ rà soát văn bản do tỉnh ban hành).
+- **Bước 4 (Mốc thời gian 2 tầng & Chu kỳ):** Phân biệt mốc TW ấn định (bắt buộc) vs mốc nội bộ địa phương tự đặt sớm hơn để tạo khoảng đệm (buffer). Tách bạch việc ngắn hạn (hội nghị, quán triệt) với việc thường xuyên dài hạn (tuyên truyền, phổ biến).
+- **Bước 5 (Chu trình quản trị & Kinh phí):** Nhiệm vụ phải có "tổ chức thực hiện", "tổng hợp khó khăn vướng mắc", "sơ kết/tổng kết". Trách nhiệm kinh phí: cơ quan chủ trì lập dự toán ngân sách chi thường xuyên, Sở Tài chính thẩm định tham mưu bố trí (tránh dồn hết cho Sở Tài chính).
+
+### 2. Cấu trúc đầu ra chuẩn 4 phần:
+1. **Nhận định sơ bộ (Executive Summary):** Xác nhận đã đọc toàn bộ văn bản nguồn và dự thảo; chốt ngay kết luận tổng quan (mức độ bám sát, có cần viết lại hay chỉ chỉnh cục bộ).
+2. **Những nội dung đã bám sát:** Bảng ma trận 3 cột `[Nội dung trong Dự thảo | Căn cứ trong Văn bản cấp trên | Đánh giá / Nhận xét]`.
+3. **Những điểm cần chỉnh sửa, bổ sung (Bóc tách chuyên sâu):** Từng mục phân tích rõ: *Hiện trạng dự thảo $\rightarrow$ Quy định cấp trên $\rightarrow$ Phân tích rủi ro/điểm vênh $\rightarrow$ Đề xuất câu chữ chỉnh sửa (actionable wording)*.
+4. **Đánh giá kỹ thuật văn bản, thể thức & Khuyến nghị trình ký:** Thể thức NĐ 30, dấu kết thúc `./.`, tính tương thích của trích yếu, khuyến nghị lựa chọn phương án trình ký.
 
 ## Sửa file DOCX
 

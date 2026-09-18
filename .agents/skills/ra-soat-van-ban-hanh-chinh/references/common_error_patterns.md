@@ -94,3 +94,43 @@ phải kiểm tra:
 - có gắn với thời hạn/sản phẩm cụ thể không.
 
 Không tự thêm chế tài chỉ để làm câu mạnh hơn.
+
+## M. Co hẹp phạm vi rà soát văn bản
+
+**Dấu hiệu:** Dự thảo tỉnh ghi: *"Rà soát các văn bản quy phạm pháp luật của HĐND, UBND tỉnh ban hành..."*
+**Quy định cấp trên:** Rà soát trong phạm vi chức năng, nhiệm vụ, lĩnh vực quản lý nhà nước; đồng thời đề xuất xử lý hoặc kiến nghị cấp có thẩm quyền xử lý.
+**Lỗi sai:** Làm mất nhiệm vụ phát hiện, kiến nghị xử lý các quy định pháp luật liên quan nằm ngoài thẩm quyền ban hành của tỉnh (như Luật, Nghị định, Thông tư của Bộ ngành).
+**Cách xử lý:** Mở rộng thành: *"Rà soát văn bản QPPL có liên quan đến [lĩnh vực/Luật...] trong phạm vi quản lý của địa phương; tham mưu xử lý theo thẩm quyền hoặc kiến nghị cấp có thẩm quyền xử lý; lập danh mục văn bản được rà soát, báo cáo và đề xuất xử lý."*
+
+## N. Gộp nhiệm vụ ngắn hạn và dài hạn vào một mốc thời gian
+
+**Dấu hiệu:** Gộp "hội nghị quán triệt" và "truyền thông, phổ biến rộng rãi", rồi chốt hạn cuối *"hoàn thành trong quý I/2027"*.
+**Lỗi sai:** Khiến cấp dưới hiểu rằng việc truyền thông, phổ biến ra xã hội chỉ làm đến Quý I/2027 là dừng, trong khi cấp trên yêu cầu truyền thông kéo dài các năm tiếp theo.
+**Cách xử lý:** Tách bạch 2 mệnh đề: (1) Quán triệt nội bộ công chức: hoàn thành quý I/2027; (2) Truyền thông, phổ biến rộng rãi đến nhân dân/doanh nghiệp: thực hiện thường xuyên từ năm 2026 và các năm tiếp theo.
+
+## O. Dồn toàn bộ trách nhiệm kinh phí cho Sở Tài chính
+
+**Dấu hiệu:** Dự thảo chỉ ghi: *"Giao Sở Tài chính bố trí kinh phí thực hiện..."*
+**Nguyên tắc Luật NSNN:** Cơ quan, đơn vị được giao chủ trì nhiệm vụ phải chủ động lập dự toán, sắp xếp và bố trí kinh phí trong dự toán chi thường xuyên hằng năm được giao.
+**Lỗi sai:** Khiến các đơn vị ỷ lại, ngồi chờ Sở Tài chính cấp thêm tiền, gây đình trệ công việc.
+**Cách xử lý:** Bổ sung: *"Các cơ quan, đơn vị chủ trì nhiệm vụ chủ động lập dự toán, bố trí trong dự toán chi thường xuyên hằng năm; Sở Tài chính chủ trì tham mưu bảo đảm kinh phí theo quy định của Luật Ngân sách nhà nước."*
+
+## P. Bỏ sót trách nhiệm phối hợp với Trung ương
+
+**Dấu hiệu:** Dự thảo cấp tỉnh chỉ phân công việc trong tỉnh, bỏ qua các điều khoản TW giao UBND tỉnh phối hợp góp ý văn bản quy định chi tiết.
+**Cách xử lý:** Bổ sung nhiệm vụ cho Sở chủ quản: *"Chủ trì tham mưu ý kiến của UBND tỉnh đối với các dự thảo văn bản quy định chi tiết, hướng dẫn thi hành theo yêu cầu của cơ quan Trung ương chủ trì soạn thảo."*
+
+## Q. Vênh giữa Trích yếu và Nội dung văn bản
+
+**Dấu hiệu:** Trích yếu là *"V/v tham mưu triển khai thực hiện Quyết định X..."* (hàm ý giao Sở làm kế hoạch), nhưng bên dưới lại trực tiếp giao việc chi tiết cho các Sở, Ban, ngành, UBND cấp cơ sở.
+**Cách xử lý:** Đổi trích yếu thành *"V/v triển khai thực hiện Quyết định số X..."* nếu giữ việc phân công trực tiếp; hoặc nếu giữ trích yếu "tham mưu" thì rút gọn nội dung thành công văn giao một đầu mối xây dựng Kế hoạch.
+
+## R. Dừng ở mức "lập kế hoạch" mà thiếu "tổ chức thực hiện"
+
+**Dấu hiệu:** Ghi: *"Hằng năm xây dựng kế hoạch tổ chức tập huấn, bồi dưỡng..."*
+**Cách xử lý:** Sửa thành: *"Hằng năm xây dựng và tổ chức thực hiện kế hoạch tập huấn, bồi dưỡng..."* để bảo đảm đầy đủ trách nhiệm, không chỉ dừng ở văn bản trên giấy.
+
+## S. Nhầm lẫn mốc thời hạn TW ấn định vs Mốc đệm nội bộ
+
+**Dấu hiệu:** TW yêu cầu hoàn thành tháng 02/2027; dự thảo ghi "gửi báo cáo trước tháng 02/2027".
+**Nhận định:** Địa phương đặt mốc sớm hơn TW để kịp tổng hợp là cần thiết, nhưng người rà soát phải ghi rõ đây là *chủ ý của địa phương để tạo khoảng đệm (buffer)*, tránh nhầm với việc trích dẫn sai văn bản TW. Đồng thời nên tách riêng: mốc Sở trình UBND tỉnh (sớm hơn) và mốc UBND tỉnh báo cáo TW (đúng hạn TW).

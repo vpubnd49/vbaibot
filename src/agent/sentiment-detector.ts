@@ -69,7 +69,8 @@ const NEGATIVE_KEYWORDS = [
  * @param text Nội dung tin nhắn gốc (chưa normalize)
  * @returns Sentiment phát hiện được
  */
-export function detectSentiment(text: string): Sentiment {
+export function detectSentiment(text?: string): Sentiment {
+  if (!text || typeof text !== "string") return "neutral";
   const lower = text.toLowerCase();
 
   // Urgent check trước: gấp + bức xúc cùng lúc thì ưu tiên "gấp"

@@ -54,8 +54,8 @@ export function reviewAdminDocumentTool(_ctx: Ctx) {
         log.info({ chars: content.length, targetStandard }, "Bắt đầu rà soát văn bản hành chính");
         return (
           `Đã tiếp nhận văn bản (${content.length} ký tự) để rà soát theo chuẩn ${targetStandard}.\n` +
-          `Bối cảnh: ${contextNotes || "Không có"}.\n` +
-          `Hãy thực hiện rà soát theo 7 lớp tại skill ra-soat-van-ban-hanh-chinh và trả về kết quả đánh giá 4 mức độ (must_fix, verify, should_fix, editorial) trực tiếp cho người dùng.`
+          `Bối cảnh / Tài liệu cấp trên đối chiếu: ${contextNotes || "Không có"}.\n` +
+          `Hãy thực hiện rà soát theo 7 lớp tại skill ra-soat-van-ban-hanh-chinh và trả về kết quả đánh giá 4 mức độ (must_fix, verify, should_fix, editorial). Nếu có văn bản cấp trên để đối chiếu, bắt buộc thực hiện chuỗi tư duy 5 bước và xuất kết quả theo cấu trúc 4 phần chuẩn: (1) Nhận định sơ bộ, (2) Bảng đối chiếu nội dung đã bám sát, (3) Bóc tách điểm cần chỉnh kèm đề xuất sửa câu chữ, (4) Đánh giá kỹ thuật văn bản & khuyến nghị trình ký.`
         );
       } catch (err) {
         return ketQuaLoi(`Lỗi khi rà soát văn bản: ${String(err)}`);
