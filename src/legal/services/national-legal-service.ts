@@ -11,6 +11,7 @@ import {
   type TvplSearchResult,
 } from "./tvpl-crawler.js";
 import { searchVbpl, downloadVbplDocument } from "./vbpl-crawler.js";
+import { searchPhapLuat, downloadPhapLuatDocument } from "./phapluat-crawler.js";
 
 const log = createLogger("national-legal-service");
 
@@ -25,8 +26,8 @@ export type NationalLegalResult = {
   loaiVB: string;
   /** Ngày ban hành */
   ngayBanHanh: string;
-  /** Nguồn: "congbao" | "tvpl" | "vbpl" */
-  source: "congbao" | "tvpl" | "vbpl";
+  /** Nguồn chính thức */
+  source: "congbao" | "tvpl" | "vbpl" | "phapluat";
   /** URL trang chi tiết */
   detailUrl: string;
   /** ID dùng để tải (docId TVPL hoặc detail URL Công báo) */
@@ -37,7 +38,7 @@ export type NationalDownloadResult = {
   filePath: string | null;
   format: string;
   fileSize: number;
-  source: "congbao" | "tvpl" | "vbpl";
+  source: "congbao" | "tvpl" | "vbpl" | "phapluat";
   error?: string;
 };
 
@@ -50,14 +51,36 @@ export type NationalDownloadResult = {
 export async function searchNationalLegal(keyword: string): Promise<NationalLegalResult[]> {
   const results: NationalLegalResult[] = [];
 
-  // Chạy song song 3 nguồn
-  const [congbaoItems, vbplItems, tvplItems] = await Promise.allSettled([
+  // Chạy song song các nguồn chính thức; một nguồn lỗi không làm mất nguồn còn lại.
+  const [congbaoItems, vbplItems, tvplItems, phapLuatItems] = await Promise.allSettled([
     searchCongbao(keyword),
     searchVbpl(keyword),
     isTvplConfigured() ? searchTvpl(keyword) : Promise.resolve([] as TvplSearchResult[]),
+    searchPhapLuat(keyword),
   ]);
 
-  // 1. Xử lý kết quả VBPL trước (CSDL quốc gia về pháp luật - miễn phí, có sẵn file gốc trực tiếp từ MOJ)
+  // 1. Xử lý Cổng Pháp luật quốc gia (phapluat.gov.vn), ưu tiên dữ liệu hiệu lực.
+  if (phapLuatItems.status === "fulfilled") {
+    for (const item of phapLuatItems.value) {
+      const existing = results.find(
+        (r) => r.soHieu && item.soHieu && normalizeSoHieu(r.soHieu) === normalizeSoHieu(item.soHieu),
+      );
+      if (existing) continue;
+      results.push({
+        soHieu: item.soHieu,
+        trichYeu: item.trichYeu,
+        loaiVB: item.loaiVB,
+        ngayBanHanh: item.ngayBanHanh,
+        source: "phapluat",
+        detailUrl: item.detailUrl,
+        downloadId: item.downloadId,
+      });
+    }
+  } else {
+    log.warn({ err: phapLuatItems.reason }, "PhapLuat.gov.vn search failed");
+  }
+
+  // 2. Xử lý kết quả VBPL trước (CSDL quốc gia về pháp luật - miễn phí, có sẵn file gốc trực tiếp từ MOJ)
   if (vbplItems.status === "fulfilled") {
     for (const item of vbplItems.value) {
       const existing = results.find(
@@ -79,7 +102,7 @@ export async function searchNationalLegal(keyword: string): Promise<NationalLega
     log.warn({ err: vbplItems.reason }, "VBPL search failed");
   }
 
-  // 2. Xử lý kết quả Công báo
+  // 3. Xử lý kết quả Công báo
   if (congbaoItems.status === "fulfilled") {
     for (const item of congbaoItems.value) {
       const existing = results.find(
@@ -101,7 +124,7 @@ export async function searchNationalLegal(keyword: string): Promise<NationalLega
     log.warn({ err: congbaoItems.reason }, "Congbao search failed");
   }
 
-  // 3. Xử lý kết quả TVPL (cần đăng nhập)
+  // 4. Xử lý kết quả TVPL (cần đăng nhập)
   if (tvplItems.status === "fulfilled") {
     for (const item of tvplItems.value) {
       const existing = results.find(
@@ -132,13 +155,13 @@ export async function searchNationalLegal(keyword: string): Promise<NationalLega
 /**
  * Tải VB pháp luật cấp Trung ương.
  * @param downloadId ID/URL trả từ searchNationalLegal
- * @param source Nguồn: "congbao" | "tvpl" | "vbpl"
+ * @param source Nguồn chính thức: "phapluat" | "congbao" | "tvpl" | "vbpl"
  * @param format Định dạng tải (chỉ TVPL hỗ trợ chọn format)
  * @param soHieu Số hiệu dùng đặt tên file
  */
 export async function downloadNationalLegal(
   downloadId: string,
-  source: "congbao" | "tvpl" | "vbpl",
+  source: "congbao" | "tvpl" | "vbpl" | "phapluat",
   format: "pdf" | "doc" | "docx" = "pdf",
   soHieu?: string,
 ): Promise<NationalDownloadResult> {
@@ -147,6 +170,9 @@ export async function downloadNationalLegal(
   }
   if (source === "vbpl") {
     return downloadFromVbpl(downloadId, format === "doc" ? "docx" : (format as "pdf" | "docx"), soHieu);
+  }
+  if (source === "phapluat") {
+    return downloadFromPhapLuat(downloadId, format, soHieu);
   }
   return downloadFromTvpl(downloadId, format, soHieu);
 }
@@ -177,6 +203,20 @@ async function downloadFromCongbao(
   } catch (err) {
     log.error({ err, detailUrl }, "Congbao download failed");
     return { filePath: null, format: "pdf", fileSize: 0, source: "congbao", error: String(err) };
+  }
+}
+
+async function downloadFromPhapLuat(
+  downloadId: string,
+  format: "pdf" | "doc" | "docx",
+  soHieu?: string,
+): Promise<NationalDownloadResult> {
+  try {
+    const result = await downloadPhapLuatDocument(downloadId, format, soHieu);
+    return { ...result, source: "phapluat" };
+  } catch (err) {
+    log.error({ err, downloadId }, "PhapLuat.gov.vn download failed");
+    return { filePath: null, format, fileSize: 0, source: "phapluat", error: String(err) };
   }
 }
 

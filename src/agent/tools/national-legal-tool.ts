@@ -18,7 +18,7 @@ export function createNationalLegalTool({ api, account, message, ghiNhanDaGui }:
     description:
       "BẮT BUỘC GỌI TOOL NÀY khi người dùng hỏi, tra cứu hoặc yêu cầu TẢI FILE văn bản pháp luật CẤP TRUNG ƯƠNG " +
       "(Luật, Nghị định, Thông tư, Quyết định TTg, Nghị quyết QH/CP, Pháp lệnh...). " +
-      "Nguồn: CSDL quốc gia về pháp luật (vbpl.vn) + Công báo ĐT CP (congbao.chinhphu.vn) + Thư viện Pháp luật. " +
+      "Nguồn: Cổng Pháp luật quốc gia (phapluat.gov.vn) + CSDL quốc gia về pháp luật (vbpl.vn) + Công báo ĐT CP (congbao.chinhphu.vn) + Thư viện Pháp luật. " +
       "KHÔNG dùng cho VB tỉnh Lâm Đồng (dùng tool qppl_lamdong). " +
       "KHI NGƯỜI DÙNG YÊU CẦU TẢI FILE: đặt sendFileToChat=true.",
     inputSchema: z.object({
@@ -38,9 +38,9 @@ export function createNationalLegalTool({ api, account, message, ghiNhanDaGui }:
         .optional()
         .describe("ID/URL VB cần tải (lấy từ kết quả search). Dùng cho action 'download'."),
       source: z
-        .enum(["congbao", "tvpl", "vbpl"])
+        .enum(["congbao", "tvpl", "vbpl", "phapluat"])
         .optional()
-        .describe("Nguồn tải: 'congbao' = Công báo CP, 'tvpl' = Thư viện PL, 'vbpl' = CSDL quốc gia"),
+        .describe("Nguồn tải: 'phapluat' = Cổng Pháp luật quốc gia, 'congbao' = Công báo CP, 'tvpl' = Thư viện PL, 'vbpl' = CSDL quốc gia"),
       format: z
         .enum(["pdf", "doc", "docx"])
         .optional()
@@ -71,7 +71,7 @@ export function createNationalLegalTool({ api, account, message, ghiNhanDaGui }:
 
           if (results.length === 0) {
             return (
-              `Không tìm thấy văn bản nào khớp từ khóa "${keyword}" trên cả Công báo Chính phủ, CSDL quốc gia về pháp luật (vbpl.vn) và Thư viện Pháp luật.\n` +
+              `Không tìm thấy văn bản nào khớp từ khóa "${keyword}" trên Cổng Pháp luật quốc gia, Công báo Chính phủ, CSDL quốc gia về pháp luật (vbpl.vn) và Thư viện Pháp luật.\n` +
               `Vui lòng kiểm tra lại số hiệu hoặc cơ quan ban hành.`
             );
           }
@@ -140,7 +140,7 @@ export function createNationalLegalTool({ api, account, message, ghiNhanDaGui }:
             const searchResults = await searchNationalLegal(searchTarget);
             if (searchResults.length === 0) {
               return (
-                `Không tìm thấy văn bản nào khớp "${searchTarget}" trên CSDL quốc gia (vbpl.vn), Công báo hay TVPL để tải.\n` +
+                `Không tìm thấy văn bản nào khớp "${searchTarget}" trên Cổng Pháp luật quốc gia, CSDL quốc gia (vbpl.vn), Công báo hay TVPL để tải.\n` +
                 `Vui lòng kiểm tra lại số hiệu văn bản.`
               );
             }
@@ -209,7 +209,9 @@ export function createNationalLegalTool({ api, account, message, ghiNhanDaGui }:
               ? "Công báo ĐT Chính phủ"
               : targetSource === "vbpl"
                 ? "CSDL quốc gia về pháp luật"
-                : "Thư viện Pháp luật";
+                : targetSource === "phapluat"
+                  ? "Cổng Pháp luật quốc gia"
+                  : "Thư viện Pháp luật";
 
           // Gửi file vào chat nếu yêu cầu
           if (sendFileToChat) {
@@ -265,13 +267,15 @@ function formatSearchResults(results: NationalLegalResult[], keyword: string): s
 
   for (let i = 0; i < shown.length; i++) {
     const r = shown[i];
-    const srcIcon = r.source === "congbao" ? "🏛️" : r.source === "vbpl" ? "⚖️" : "📚";
+    const srcIcon = r.source === "congbao" ? "🏛️" : r.source === "vbpl" ? "⚖️" : r.source === "phapluat" ? "🇻🇳" : "📚";
     const srcName =
       r.source === "congbao"
         ? "Công báo CP"
         : r.source === "vbpl"
           ? "CSDL quốc gia (vbpl.vn)"
-          : "Thư viện Pháp luật";
+          : r.source === "phapluat"
+            ? "Cổng Pháp luật quốc gia"
+            : "Thư viện Pháp luật";
     text +=
       `${i + 1}. ${srcIcon} **${r.loaiVB}${r.soHieu ? ` ${r.soHieu}` : ""}**\n` +
       `   ${r.trichYeu}\n` +
