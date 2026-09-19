@@ -53,15 +53,18 @@ export async function searchNationalLegal(keyword: string): Promise<NationalLega
   const results: NationalLegalResult[] = [];
   const localMatch = findLegalDocumentByNumber(keyword) || findLegalDocumentByAlias(keyword);
   if (localMatch) {
+    const officialUrl = localMatch.officialSourceUrls.find((url) => url.includes("vanban.chinhphu.vn")) || localMatch.officialSourceUrls[0] || "";
     results.push({
       soHieu: localMatch.documentNumber,
       trichYeu: localMatch.title,
       loaiVB: localMatch.documentType,
       ngayBanHanh: localMatch.issueDate || "",
       source: "vbpl",
-      detailUrl: localMatch.officialSourceUrls.find((url) => url.includes("vbpl.vn")) || localMatch.officialSourceUrls[0] || "",
-      downloadId: localMatch.officialSourceUrls.find((url) => url.includes("vbpl.vn")) || localMatch.officialSourceUrls[0] || localMatch.documentNumber,
+      detailUrl: officialUrl,
+      downloadId: officialUrl || localMatch.documentNumber,
     });
+    log.info({ keyword, soHieu: localMatch.documentNumber }, "Using verified local legal match");
+    return results;
   }
 
   // Chạy song song các nguồn chính thức; một nguồn lỗi không làm mất nguồn còn lại.
