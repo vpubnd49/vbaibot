@@ -116,7 +116,8 @@ export function collectRecentFilePaths(ctx: ToolContext): string[] {
 
 export function createReadDocumentTool(ctx: ToolContext) {
   return tool({
-    description: "Đọc nội dung text từ file tài liệu (PDF, Word, Excel XLS/XLSX, CSV, TXT, MD, ảnh scan/chụp JPG/PNG/...) đã nhận trong hội thoại. " +
+    description: "Đọc nội dung text từ file tài liệu (PDF, Word, Excel XLS/XLSX, CSV, TXT, MD, ảnh scan/chụp JPG/PNG, hoặc file ZIP nén thư mục tài liệu) đã nhận trong hội thoại. " +
+      "ĐẶC BIỆT: Khi người dùng gửi file .ZIP nén thư mục chứa nhiều file (Word, PDF, Excel...), tool sẽ tự động giải nén và đọc toàn bộ nội dung từng file bên trong rồi tổng hợp lại. " +
       "File PDF dạng scan hoặc ảnh chụp tài liệu sẽ được tự động nhận diện chữ (OCR), kể cả bảng biểu nhiều cột. " +
       "Với PDF nhiều trang, có thể đọc theo phạm vi pageStart/pageEnd; nếu người dùng yêu cầu một khoảng dài, phải chia thành các chunk và đọc đủ từng chunk. " +
       "Dòng tô màu nền (vàng, xanh lá) sẽ được ghi chú [TÔ MÀU] trong kết quả.",

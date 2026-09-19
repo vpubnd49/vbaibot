@@ -66,8 +66,8 @@ const ALL_EXTS   = new Set([...IMAGE_EXTS, ...DOC_EXTS, ".zip"]);
 
 function isSupported(filePath: string, extensions?: string[]): boolean {
   const ext = path.extname(filePath).toLowerCase();
-  // ZIP duoc chap nhan nhu la container — chay magic bytes check
-  if (ext === ".zip" || isZipFile(filePath)) return true;
+  // ZIP duoc chap nhan nhu la container — chi kiem tra khi ext la .zip hoac khong co ext
+  if (ext === ".zip" || (ext === "" && isZipFile(filePath))) return true;
   if (extensions?.length) {
     const allowed = extensions.map((value) => {
       const normalized = value.trim().toLowerCase();
@@ -314,8 +314,8 @@ async function processFile(fp: string, cfg: OcrConfig): Promise<OcrPageResult[]>
   const ext = path.extname(fp).toLowerCase();
   if (IMAGE_EXTS.has(ext)) return processImageFile(fp, cfg);
   if (ext === ".pdf")       return processPdfFile(fp, cfg);
-  // ZIP: giai nen va xu ly tung file ben trong
-  if (ext === ".zip" || isZipFile(fp)) {
+  // ZIP: chi giai nen neu dung la container zip va KHONG phai file van ban (docx, xlsx...)
+  if (ext === ".zip" || (ext === "" && isZipFile(fp))) {
     return processZipFile(fp, cfg);
   }
   return processDocFile(fp);
@@ -429,7 +429,7 @@ export async function batchOcr(
   // Một PDF scan tạo nhiều page result nhưng vẫn chỉ là một file.
   // Với ZIP, filePath của page là file con trong tempDir; stats phản ánh số file đầu vào.
   const fileStatuses = filePaths.map((fp) => {
-    const isZip = path.extname(fp).toLowerCase() === ".zip" || isZipFile(fp);
+    const isZip = path.extname(fp).toLowerCase() === ".zip" || (path.extname(fp) === "" && isZipFile(fp));
     if (isZip) {
       return allPages.length > 0 && allPages.some((page) => !page.error);
     }

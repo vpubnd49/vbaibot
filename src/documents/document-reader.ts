@@ -299,6 +299,63 @@ export async function readDocument(filePath: string, options: DocumentReadOption
         }
         break;
       }
+      case '.zip': {
+        const { extractZipFile, cleanupZipTemp } = await import('./zip-extractor.js');
+        let tempDir: string | undefined;
+        try {
+          const zipResult = extractZipFile(filePath);
+          tempDir = zipResult.tempDir;
+          const files = zipResult.filePaths;
+          if (files.length === 0) {
+            text = `[File nén ZIP: ${path.basename(filePath)} không chứa tài liệu hợp lệ nào.]`;
+            break;
+          }
+
+          const maxChars = getTuning("DOCUMENT_READ_MAX_CHARS");
+          const sections: string[] = [];
+          sections.push(`=== TỔNG HỢP NỘI DUNG TỪ THƯ MỤC NÉN: ${path.basename(filePath)} (${files.length} tệp) ===\n`);
+
+          let totalChars = 0;
+          let fileIndex = 0;
+          for (const f of files) {
+            fileIndex++;
+            const baseName = path.basename(f);
+            try {
+              // Bỏ qua file zip lồng nhau để tránh đệ quy không mong muốn
+              if (path.extname(f).toLowerCase() === '.zip') continue;
+
+              const subDoc = await readDocument(f);
+              const cleanText = (subDoc.text || '').trim();
+              if (cleanText && !cleanText.startsWith('Lỗi: Định dạng file')) {
+                const header = `\n--- [Tệp ${fileIndex}/${files.length}]: ${baseName} (${subDoc.fileType}) ---\n`;
+                sections.push(header + cleanText);
+                totalChars += header.length + cleanText.length;
+              }
+            } catch (childErr) {
+              log.warn({ file: baseName, err: childErr }, "Không đọc được tệp con trong ZIP");
+              sections.push(`\n--- [Tệp ${fileIndex}/${files.length}]: ${baseName} (Lỗi đọc: ${String(childErr)}) ---\n`);
+            }
+
+            if (totalChars >= maxChars) {
+              sections.push(`\n[...Đã đạt giới hạn tối đa ${maxChars} ký tự đọc tài liệu. Còn ${files.length - fileIndex} tệp chưa hiển thị hết.]`);
+              break;
+            }
+          }
+
+          text = sections.join('\n');
+          pageCount = files.length;
+        } catch (zipErr) {
+          const msg = zipErr instanceof Error ? zipErr.message : String(zipErr);
+          log.error({ err: zipErr, filePath }, "Lỗi khi xử lý file ZIP");
+          readError = msg;
+          text = `Lỗi khi giải nén hoặc đọc file ZIP: ${msg}`;
+        } finally {
+          if (tempDir) {
+            cleanupZipTemp(tempDir);
+          }
+        }
+        break;
+      }
       default:
         text = `Lỗi: Định dạng file ${ext} không được hỗ trợ.`;
     }

@@ -81,4 +81,24 @@ test("Document reader: kiểm tra định dạng và đọc file văn bản", as
   assert.equal(imgResult.pageCount, 1);
   assert.ok(typeof imgResult.text === "string" && imgResult.text.length > 0);
   fs.unlinkSync(testImgPath);
+
+  // 7. Tạo file ZIP chứa nhiều file văn bản và kiểm tra readDocument tự động giải nén đọc trọn vẹn
+  const { zipSync, strToU8 } = await import("fflate");
+  const zipBuffer = zipSync({
+    "baocao_quy1.txt": strToU8("Nhiệm vụ Quý 1: Hoàn thành 100% kế hoạch triển khai."),
+    "baocao_quy2.txt": strToU8("Nhiệm vụ Quý 2: Tiếp tục xử lý khó khăn vướng mắc giải phóng mặt bằng."),
+  });
+  const testZipPath = path.join(tempDir, "test_folder_" + Date.now() + ".zip");
+  fs.writeFileSync(testZipPath, Buffer.from(zipBuffer));
+
+  const zipResult = await readDocument(testZipPath);
+  assert.equal(zipResult.fileType, ".zip");
+  assert.equal(zipResult.pageCount, 2);
+  assert.ok(zipResult.text.includes("TỔNG HỢP NỘI DUNG TỪ THƯ MỤC NÉN"));
+  assert.ok(zipResult.text.includes("baocao_quy1.txt"));
+  assert.ok(zipResult.text.includes("Hoàn thành 100% kế hoạch"));
+  assert.ok(zipResult.text.includes("baocao_quy2.txt"));
+  assert.ok(zipResult.text.includes("khó khăn vướng mắc"));
+  fs.unlinkSync(testZipPath);
 });
+

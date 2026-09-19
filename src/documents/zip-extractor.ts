@@ -119,10 +119,17 @@ export function cleanupZipTemp(tempDir: string): void {
 }
 
 /**
- * Kiem tra file co phai ZIP khong (kiem tra magic bytes, khong chi dua vao ext).
+ * Kiem tra file co phai ZIP khong (kiem tra magic bytes, nhung loai tru cac file co duoi khac .zip).
+ * Chu y: Cac dinh dang Office OpenXML (.docx, .xlsx, .pptx) ban chat la file zip nhung la
+ * tai lieu rieng le, TUYET DOI khong duoc coi la file zip can giai nen duyet cay file.
  */
 export function isZipFile(filePath: string): boolean {
   try {
+    const ext = path.extname(filePath).toLowerCase();
+    // Neu file da co phan mo rong va khong phai la .zip thi khong phai zip archive
+    if (ext && ext !== ".zip") {
+      return false;
+    }
     const fd = fs.openSync(filePath, "r");
     const buf = Buffer.alloc(4);
     fs.readSync(fd, buf, 0, 4, 0);
@@ -133,3 +140,4 @@ export function isZipFile(filePath: string): boolean {
     return false;
   }
 }
+
