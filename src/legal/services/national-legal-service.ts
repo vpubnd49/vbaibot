@@ -16,6 +16,9 @@ import { findLegalDocumentByAlias, findLegalDocumentByNumber } from "../reposito
 
 const log = createLogger("national-legal-service");
 
+/** Thứ tự nguồn tải: nguồn chính thức, ổn định và nhanh nhất trước. */
+export const NATIONAL_DOWNLOAD_SOURCE_PRIORITY = ["vbpl", "phapluat", "congbao", "tvpl"] as const;
+
 // ─── Types ─────────────────────────────────────────────────────────
 
 export type NationalLegalResult = {
@@ -51,7 +54,8 @@ export type NationalDownloadResult = {
  */
 export async function searchNationalLegal(keyword: string): Promise<NationalLegalResult[]> {
   const results: NationalLegalResult[] = [];
-  const localMatch = findLegalDocumentByNumber(keyword) || findLegalDocumentByAlias(keyword);
+  const explicitNumber = keyword.match(/\b\d+\/\d{4}\/[A-ZĐa-zđ0-9_-]+\b/)?.[0];
+  const localMatch = findLegalDocumentByNumber(explicitNumber || keyword) || findLegalDocumentByAlias(keyword);
   if (localMatch) {
     const officialUrl = localMatch.officialSourceUrls.find((url) => url.includes("vanban.chinhphu.vn")) || localMatch.officialSourceUrls[0] || "";
     results.push({
@@ -186,6 +190,7 @@ export async function downloadNationalLegal(
   format: "pdf" | "doc" | "docx" = "pdf",
   soHieu?: string,
 ): Promise<NationalDownloadResult> {
+  log.info({ source, soHieu, downloadId }, "Starting priority legal download");
   if (source === "congbao") {
     return downloadFromCongbao(downloadId, soHieu);
   }
