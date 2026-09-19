@@ -20,7 +20,7 @@ export function createNationalLegalTool({ api, account, message, ghiNhanDaGui }:
       "(Luật, Nghị định, Thông tư, Quyết định TTg, Nghị quyết QH/CP, Pháp lệnh...). " +
       "Nguồn: Cổng Pháp luật quốc gia (phapluat.gov.vn) + CSDL quốc gia về pháp luật (vbpl.vn) + Công báo ĐT CP (congbao.chinhphu.vn) + Thư viện Pháp luật. " +
       "KHÔNG dùng cho VB tỉnh Lâm Đồng (dùng tool qppl_lamdong). " +
-      "KHI NGƯỜI DÙNG YÊU CẦU TẢI FILE: đặt sendFileToChat=true.",
+      "KHI NGƯỜI DÙNG NÓI TẢI/DOWNLOAD/GỬI FILE, kể cả 'tải Luật Đất đai mới', phải dùng action='download' và sendFileToChat=true; không chỉ gọi search.",
     inputSchema: z.object({
       action: z
         .enum(["search", "download"])
@@ -129,15 +129,19 @@ export function createNationalLegalTool({ api, account, message, ghiNhanDaGui }:
         let targetSoHieu = soHieu;
 
         // Tự động tìm kiếm trước nếu chưa có downloadId hoặc source
-        if (!targetDownloadId || !targetSource) {
-          const searchTarget = targetSoHieu || keyword;
-          if (!searchTarget) {
+         if (!targetDownloadId || !targetSource) {
+           const searchTarget = targetSoHieu || keyword;
+           if (searchTarget && !targetSoHieu && /luật\s+đất\s+đai/i.test(searchTarget)) {
+             targetSoHieu = "31/2024/QH15";
+           }
+           const resolvedSearchTarget = targetSoHieu || searchTarget;
+           if (!resolvedSearchTarget) {
             return "Cần cung cấp từ khóa, số hiệu hoặc downloadId để tải văn bản pháp luật.";
           }
 
-          log.info({ searchTarget }, "Auto-searching before download in national-legal-tool");
-          try {
-            const searchResults = await searchNationalLegal(searchTarget);
+           log.info({ searchTarget: resolvedSearchTarget }, "Auto-searching before download in national-legal-tool");
+           try {
+             const searchResults = await searchNationalLegal(resolvedSearchTarget);
             if (searchResults.length === 0) {
               return (
                 `Không tìm thấy văn bản nào khớp "${searchTarget}" trên Cổng Pháp luật quốc gia, CSDL quốc gia (vbpl.vn), Công báo hay TVPL để tải.\n` +
@@ -146,7 +150,7 @@ export function createNationalLegalTool({ api, account, message, ghiNhanDaGui }:
             }
 
             // Kiểm tra xem yêu cầu có phải là tải nhiều văn bản không ("các nghị định", "danh sách", "những")
-            const isPlural = /\b(các|những|danh sách|toàn bộ|tất cả)\b/i.test(searchTarget) || !targetSoHieu;
+            const isPlural = /\b(các|những|danh sách|toàn bộ|tất cả)\b/i.test(resolvedSearchTarget) || !targetSoHieu;
             const countToDownload = isPlural ? Math.min(searchResults.length, limit > 1 ? limit : 3) : 1;
 
             if (countToDownload > 1 && sendFileToChat) {
@@ -187,10 +191,11 @@ export function createNationalLegalTool({ api, account, message, ghiNhanDaGui }:
               return msg;
             }
 
-            const best = searchResults[0];
-            targetDownloadId = best.downloadId;
-            targetSource = best.source;
-            targetSoHieu = targetSoHieu || best.soHieu;
+             const best = searchResults[0];
+             targetDownloadId = best.downloadId;
+             targetSource = best.source;
+             targetSoHieu = targetSoHieu || best.soHieu;
+             log.info({ selected: best.soHieu, source: best.source, downloadId: best.downloadId }, "Selected best national legal result");
           } catch (err) {
             log.error({ err, searchTarget }, "Auto-search error before download");
             return `Lỗi khi tra cứu văn bản để tải: ${String(err)}`;

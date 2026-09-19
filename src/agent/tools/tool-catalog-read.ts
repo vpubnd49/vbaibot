@@ -49,7 +49,7 @@ export const READ_TOOL_DEFINITIONS: ToolDefinition[] = [
     label: "VB Pháp luật cấp TW",
     description:
       "Tra cứu và tải file VB pháp luật cấp Trung ương: Luật, Nghị định, Thông tư, QĐ Thủ tướng, Nghị quyết QH/CP " +
-      "(nguồn: Công báo ĐT CP + Thư viện Pháp luật). Hỗ trợ tải PDF, DOC, DOCX.",
+       "(nguồn: Cổng Pháp luật quốc gia + CSDL quốc gia vbpl.vn + Công báo ĐT CP + Thư viện Pháp luật). Hỗ trợ tải PDF, DOC, DOCX.",
     group: "read",
     build: (ctx) => createNationalLegalTool(ctx),
   },

@@ -120,7 +120,7 @@ export async function downloadPhapLuatDocument(
   format: "pdf" | "doc" | "docx" = "pdf",
   soHieu?: string,
 ): Promise<{ filePath: string | null; format: string; fileSize: number; error?: string }> {
-  const detailUrl = buildPhapLuatDetailUrl(downloadId);
+  const detailUrl = /^https?:\/\//i.test(downloadId) ? downloadId : buildPhapLuatDetailUrl(downloadId);
   const response = await fetch(detailUrl, { headers: { "User-Agent": USER_AGENT }, signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
   if (!response.ok) return { filePath: null, format, fileSize: 0, error: `Không đọc được trang chi tiết (HTTP ${response.status})` };
   const urls = extractFileUrls(await response.text());

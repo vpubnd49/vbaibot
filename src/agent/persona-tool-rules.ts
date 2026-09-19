@@ -434,7 +434,7 @@ const RULES_TRA_CUU: PersonaRule[] = [
   + VB CẤP TRUNG ƯƠNG (Luật QH, Nghị định CP, Thông tư Bộ, QĐ Thủ tướng, Nghị quyết QH/CP, Pháp lệnh, Chỉ thị TTg): GỌI national_legal.
   + VB CẤP TỈNH LÂM ĐỒNG (QĐ/CV UBND tỉnh, NQ HĐND, Chỉ thị Chủ tịch, Kế hoạch, Báo cáo...): GỌI qppl_lamdong.
   + Khi KHÔNG RÕ cấp ban hành: hỏi người dùng "VB này của Trung ương hay của tỉnh?" HOẶC nếu số hiệu rõ ràng chứa NĐ-CP/TT-Bxxx/QĐ-TTg thì gọi national_legal.
-  + national_legal tìm trên 3 nguồn: CSDL quốc gia về pháp luật (vbpl.vn - có văn bản mới nhất, tải trực tiếp PDF/DOCX từ Bộ Tư pháp), Công báo ĐT CP và Thư viện Pháp luật (tvpl).
+  + national_legal tìm trên 4 nguồn: Cổng Pháp luật quốc gia (phapluat.gov.vn), CSDL quốc gia về pháp luật (vbpl.vn - có văn bản mới nhất, tải trực tiếp PDF/DOCX từ Bộ Tư pháp), Công báo ĐT CP và Thư viện Pháp luật (tvpl).\n  + Với yêu cầu có từ “tải”, “download”, “gửi file”, kể cả “tải Luật Đất đai mới”: KHÔNG gọi legal_search trước; gọi thẳng national_legal với action="download", keyword giữ nguyên số hiệu/tên văn bản, sendFileToChat=true. Không gọi action="search" nếu mục tiêu là gửi file.
   + QUY TẮC BẮT BUỘC KHI YÊU CẦU TẢI VĂN BẢN (KỂ CẢ VĂN BẢN THEO THỜI GIAN/DANH SÁCH):
     - KHI NGƯỜI DÙNG NÓI "TẢI" (vd: "tải NĐ 349/2026", "tôi cần tải các nghị định mới nhất vừa ban hành trong tháng 7", "tải văn bản X"): BẮT BUỘC GỌI NGAY TOOL national_legal (action="download", keyword=..., sendFileToChat=true).
     - TUYỆT ĐỐI KHÔNG ĐƯỢC CHỈ TRẢ LỜI BẰNG LỜI NÓI SUÔNG, KHÔNG ĐƯỢC HỨA "Đợi em quét dữ liệu", "Em sẽ tra cứu rồi gửi danh sách cho anh chọn", "Anh quan tâm lĩnh vực nào?".
