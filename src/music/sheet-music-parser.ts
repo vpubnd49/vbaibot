@@ -58,7 +58,7 @@ Trả về kết quả dưới định dạng JSON với các trường:
             role: "user",
             content: [
               { type: "text", text: prompt },
-              { type: "image", image: `data:${image.mediaType};base64,${image.base64}` },
+              { type: "file", data: image.base64, mediaType: image.mediaType },
             ],
           },
         ],

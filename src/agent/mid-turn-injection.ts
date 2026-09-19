@@ -1,4 +1,4 @@
-import type { FilePart, ImagePart, ModelMessage, TextPart, UserContent } from "ai";
+import type { FilePart, ModelMessage, TextPart, UserContent } from "ai";
 import { getTuning } from "../config/runtime-tuning-settings.js";
 import { createLogger } from "../shared/logger.js";
 import type { ParsedMessage } from "../zalo/zalo-message-parser.js";
@@ -7,8 +7,8 @@ import { nganSachAnToan, TOKEN_MOI_ANH_THEO_CO, uocLuongTokenTinNhan } from "./t
 
 /** Gộp hai nội dung user thành một mảng part hợp lệ */
 export function gopUserContent(a: UserContent, b: UserContent): UserContent {
-  const arrA: (TextPart | ImagePart | FilePart)[] = typeof a === "string" ? [{ type: "text", text: a }] : (a as (TextPart | ImagePart | FilePart)[]);
-  const arrB: (TextPart | ImagePart | FilePart)[] = typeof b === "string" ? [{ type: "text", text: b }] : (b as (TextPart | ImagePart | FilePart)[]);
+  const arrA: (TextPart | FilePart)[] = typeof a === "string" ? [{ type: "text", text: a }] : (a as (TextPart | FilePart)[]);
+  const arrB: (TextPart | FilePart)[] = typeof b === "string" ? [{ type: "text", text: b }] : (b as (TextPart | FilePart)[]);
   return [...arrA, ...arrB];
 }
 

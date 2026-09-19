@@ -6,6 +6,20 @@ import { dataDir } from "../../config/env.js";
 const BASE_URL = "https://phapluat.gov.vn";
 const SEARCH_URL = `${BASE_URL}/api/legal-documents`;
 const USER_AGENT = "Mozilla/5.0 (compatible; LegalResearchBot/1.0)";
+const REQUEST_TIMEOUT_MS = 20_000;
+const MAX_RETRIES = 2;
+
+/** Tạo liên kết tra cứu chuẩn, dùng khi API bị WAF hoặc người dùng muốn mở nguồn gốc. */
+export function buildPhapLuatSearchUrl(keyword: string): string {
+  const clean = keyword.replace(/[\u0000-\u001f\u007f]/g, " ").replace(/\s+/g, " ").trim();
+  return clean
+    ? `${BASE_URL}/he-thong-van-ban-phap-luat?search=${encodeURIComponent(clean)}`
+    : `${BASE_URL}/he-thong-van-ban-phap-luat`;
+}
+
+export function buildPhapLuatDetailUrl(id: string, tab = "noidung"): string {
+  return `${BASE_URL}/legal-documents/${encodeURIComponent(id.trim())}?tabName=${encodeURIComponent(tab)}`;
+}
 
 export type PhapLuatSearchResult = {
   soHieu: string;
@@ -52,7 +66,7 @@ function mapDocument(item: ApiDocument): PhapLuatSearchResult | null {
     loaiVB: extractType(title),
     ngayBanHanh: item.issueDate?.slice(0, 10) || "",
     hieuLuc: item.effectStatusName?.trim() || "",
-    detailUrl: `${BASE_URL}/legal-documents/${encodeURIComponent(id)}?tabName=noidung`,
+    detailUrl: buildPhapLuatDetailUrl(id),
     downloadId: id,
   };
 }
@@ -74,15 +88,24 @@ export async function searchPhapLuat(keyword: string): Promise<PhapLuatSearchRes
     qtdcListFilter: "all",
     qtdcListScope: "all",
   };
-  const response = await fetch(SEARCH_URL, {
-    method: "POST",
-    headers: headers(),
-    body: JSON.stringify(payload),
-    signal: AbortSignal.timeout(20_000),
-  });
-  if (!response.ok) throw new Error(`Pháp luật quốc gia HTTP ${response.status}`);
-  const body = await response.json() as { data?: { docs?: ApiDocument[] } };
-  return (body.data?.docs ?? []).map(mapDocument).filter((item): item is PhapLuatSearchResult => item !== null);
+  let lastError: unknown;
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      const response = await fetch(SEARCH_URL, {
+        method: "POST",
+        headers: headers(),
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+      });
+      if (!response.ok) throw new Error(`Pháp luật quốc gia HTTP ${response.status}`);
+      const body = await response.json() as { data?: { docs?: ApiDocument[] } };
+      return (body.data?.docs ?? []).map(mapDocument).filter((item): item is PhapLuatSearchResult => item !== null);
+    } catch (error) {
+      lastError = error;
+      if (attempt < MAX_RETRIES) await new Promise((resolve) => setTimeout(resolve, 500 * (attempt + 1)));
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error(String(lastError));
 }
 
 function extractFileUrls(html: string): string[] {
@@ -97,8 +120,8 @@ export async function downloadPhapLuatDocument(
   format: "pdf" | "doc" | "docx" = "pdf",
   soHieu?: string,
 ): Promise<{ filePath: string | null; format: string; fileSize: number; error?: string }> {
-  const detailUrl = `${BASE_URL}/legal-documents/${encodeURIComponent(downloadId)}?tabName=noidung`;
-  const response = await fetch(detailUrl, { headers: { "User-Agent": USER_AGENT }, signal: AbortSignal.timeout(20_000) });
+  const detailUrl = buildPhapLuatDetailUrl(downloadId);
+  const response = await fetch(detailUrl, { headers: { "User-Agent": USER_AGENT }, signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
   if (!response.ok) return { filePath: null, format, fileSize: 0, error: `Không đọc được trang chi tiết (HTTP ${response.status})` };
   const urls = extractFileUrls(await response.text());
   const preferred = urls.find((url) => format === "pdf" ? url.toLowerCase().includes(".pdf") : url.toLowerCase().includes(`.${format}`)) || urls[0];
