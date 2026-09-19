@@ -48,7 +48,7 @@ const envSchema = z.object({
   // ý, nên đó là đếm nhầm đơn vị. Đo trên DB thật: đã có lượt cộng dồn 184.835
   // token qua 8 step. Mặc định 128k khớp cửa sổ phổ thông của model hiện nay;
   // agent chạy model khác đặt riêng được ở trang Agents.
-  LLM_CONTEXT_WINDOW: z.coerce.number().int().min(4_000).max(2_000_000).default(128_000),
+  LLM_CONTEXT_WINDOW: z.coerce.number().int().min(4_000).max(2_000_000).default(1_000_000),
   // Chặn vòng lặp tool. Trước khi có ba biến này, chặn trên duy nhất là
   // LLM_MAX_STEPS: model gọi cùng một tool lỗi 5 lần liên tiếp thì đốt nửa số
   // bước mà không ai chặn. Số mặc định lấy đúng của `tool_guardrails.py`
@@ -79,7 +79,7 @@ const envSchema = z.object({
   // nếu không model bị cắt giữa tool call (finishReason "length") và mất cả lượt.
   // Đây là TRẦN, không phải mục tiêu - trả lời chat thường vẫn vài trăm token.
   // Model đang dùng đỡ được thoải mái: gpt-5.6-sol 128.000, deepseek-v4-pro 50.000.
-  LLM_MAX_OUTPUT_TOKENS: z.coerce.number().int().min(256).default(16_384),
+  LLM_MAX_OUTPUT_TOKENS: z.coerce.number().int().min(256).default(32_768),
   // Mức "suy nghĩ" (reasoning/thinking) của model - học Hermes: không bật thì
   // model lướt 50k token nội dung trang trong 1 lượt đọc, việc cần nghĩ từng
   // bước (đối chiếu số vé, đọc bảng) sẽ ẩu. off = tắt hẳn.
@@ -166,9 +166,9 @@ const envSchema = z.object({
   MEDIA_RETENTION_DAYS: z.coerce.number().int().min(1).max(365).default(7),
   // Giới hạn tool tạo file .docx/.xlsx. Bot đọc tin người lạ nên phải chặn
   // trước: nội dung khổng lồ vừa tốn CPU/đĩa vừa ra file không ai đọc nổi.
-  DOCUMENT_MAX_BLOCKS: z.coerce.number().int().min(1).max(500).default(60),
+  DOCUMENT_MAX_BLOCKS: z.coerce.number().int().min(1).max(500).default(200),
   DOCUMENT_MAX_ROWS: z.coerce.number().int().min(1).max(5000).default(200),
-  DOCUMENT_MAX_CHARS: z.coerce.number().int().min(500).max(500_000).default(20_000),
+  DOCUMENT_MAX_CHARS: z.coerce.number().int().min(500).max(500_000).default(80_000),
   // Báo cáo tử tế hay có 5-7 sheet (tổng quan, chi tiết, số liệu, rủi ro,
   // nguồn) - trần 5 chặn oan nên để 10
   DOCUMENT_MAX_SHEETS: z.coerce.number().int().min(1).max(50).default(10),

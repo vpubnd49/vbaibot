@@ -12,9 +12,38 @@ import { XLSX_THEME_NAMES } from "./xlsx-themes.js";
 
 // ===== Tài liệu văn bản (.docx) =====
 
+function normalizeString(val: unknown): string {
+  if (typeof val === "string") return val;
+  if (val && typeof val === "object") {
+    const obj = val as Record<string, unknown>;
+    const text = obj.text ?? obj.content ?? obj.line ?? obj.value ?? "";
+    let s = String(text);
+    if (obj.bold && !s.startsWith("**")) s = `**${s}**`;
+    if (obj.italic && !s.startsWith("*")) s = `*${s}*`;
+    return s;
+  }
+  return String(val ?? "");
+}
+
+function normalizeStringArray(val: unknown): string[] {
+  if (typeof val === "string") {
+    const lines = val.split("\n").map((l) => l.trim()).filter(Boolean);
+    return lines.length > 0 ? lines : [val];
+  }
+  if (Array.isArray(val)) {
+    const arr = val.map(normalizeString).filter((s) => s.trim().length > 0);
+    return arr.length > 0 ? arr : [""];
+  }
+  if (val && typeof val === "object") {
+    const s = normalizeString(val);
+    return s.trim().length > 0 ? [s] : [""];
+  }
+  return [""];
+}
+
 const headingBlock = z.object({
   type: z.literal("heading"),
-  text: z.string().min(1),
+  text: z.preprocess(normalizeString, z.string().min(1)),
   /**
    * Cấp tiêu đề 1-3. CỐ Ý dùng khoảng số chứ KHÔNG dùng union của literal, dù
    * union diễn tả đúng ý hơn: schema này bay thẳng sang nhà cung cấp LLM, mà
@@ -31,8 +60,7 @@ const headingBlock = z.object({
 const paragraphBlock = z.object({
   type: z.literal("paragraph"),
   text: z
-    .string()
-    .min(1)
+    .preprocess(normalizeString, z.string().min(1))
     .describe(
       "Đoạn văn xuôi. Đậm: **chữ đậm**, nghiêng: *chữ nghiêng*. " +
       "QUY TẮC BÔI ĐỎ KHI SỬA LỖI: Khi rà soát/sửa lỗi chính tả/biên tập câu từ, BẮT BUỘC dùng <red>từ đã sửa</red> (hoặc ~~từ cũ~~ <red>từ mới</red>) để bôi đỏ từ đã sửa trong file Word!"
@@ -46,15 +74,22 @@ const paragraphBlock = z.object({
 const bulletsBlock = z.object({
   type: z.literal("bullets"),
   items: z
-    .array(z.string().min(1))
-    .min(1)
+    .preprocess(normalizeStringArray, z.array(z.string().min(1)).min(1))
     .describe("Các gạch đầu dòng (hỗ trợ <red>từ đã sửa</red> để bôi đỏ)"),
 });
 
 const tableBlock = z.object({
   type: z.literal("table"),
-  headers: z.array(z.string()).min(1).max(8),
-  rows: z.array(z.array(z.string())).min(1),
+  headers: z.preprocess(normalizeStringArray, z.array(z.string()).min(1).max(8)),
+  rows: z.preprocess(
+    (val) => {
+      if (Array.isArray(val)) {
+        return val.map((row) => (Array.isArray(row) ? row.map(normalizeString) : normalizeStringArray(row)));
+      }
+      return [[""]];
+    },
+    z.array(z.array(z.string())).min(1),
+  ),
 });
 
 /**
@@ -66,8 +101,8 @@ const tableBlock = z.object({
  */
 const twoColumnsBlock = z.object({
   type: z.literal("two_columns"),
-  left: z.array(z.string()).min(1).describe("Các dòng cột trái"),
-  right: z.array(z.string()).min(1).describe("Các dòng cột phải"),
+  left: z.preprocess(normalizeStringArray, z.array(z.string()).min(1)).describe("Các dòng cột trái"),
+  right: z.preprocess(normalizeStringArray, z.array(z.string()).min(1)).describe("Các dòng cột phải"),
   left_align: z
     .enum(["left", "center"])
     .optional()
@@ -98,7 +133,7 @@ const separatorBlock = z.object({
     .describe("Chiều rộng đường kẻ (% bề rộng vùng nội dung): 33 cho cơ quan, 100 cho tiêu ngữ"),
 });
 
-export const documentBlockSchema = z.discriminatedUnion("type", [
+const baseDocumentBlockSchema = z.discriminatedUnion("type", [
   headingBlock,
   paragraphBlock,
   bulletsBlock,
@@ -106,6 +141,49 @@ export const documentBlockSchema = z.discriminatedUnion("type", [
   twoColumnsBlock,
   separatorBlock,
 ]);
+
+export const documentBlockSchema = z.preprocess((val: any) => {
+  if (val && typeof val === "object") {
+    const obj = { ...val };
+    if (obj.type === "two_columns") {
+      // Trường hợp model gửi `columns: [col1, col2]`
+      if (Array.isArray(obj.columns) && obj.columns.length >= 2) {
+        if (!obj.left) obj.left = obj.columns[0];
+        if (!obj.right) obj.right = obj.columns[1];
+      }
+      // Các biến thể tên cột: left_lines, left_column
+      if (!obj.left && (obj.left_lines || obj.left_column)) {
+        obj.left = obj.left_lines || obj.left_column;
+      }
+      if (!obj.right && (obj.right_lines || obj.right_column)) {
+        obj.right = obj.right_lines || obj.right_column;
+      }
+      if (!obj.left) obj.left = [""];
+      if (!obj.right) obj.right = [""];
+    } else if (obj.type === "paragraph") {
+      if (!obj.text && obj.paragraph) {
+        if (typeof obj.paragraph === "string") obj.text = obj.paragraph;
+        else if (typeof obj.paragraph === "object") {
+          const p = obj.paragraph as Record<string, unknown>;
+          obj.text = p.text ?? p.content ?? "";
+          if (p.align && !obj.align) obj.align = p.align;
+        }
+      } else if (!obj.text && obj.content) {
+        obj.text = typeof obj.content === "string" ? obj.content : JSON.stringify(obj.content);
+      }
+    } else if (obj.type === "heading") {
+      if (!obj.text && obj.heading) {
+        obj.text = typeof obj.heading === "string" ? obj.heading : obj.heading.text;
+      }
+    } else if (obj.type === "bullets") {
+      if (!obj.items && (obj.bullets || obj.lines || obj.list)) {
+        obj.items = obj.bullets || obj.lines || obj.list;
+      }
+    }
+    return obj;
+  }
+  return val;
+}, baseDocumentBlockSchema);
 
 export type DocumentBlock = z.infer<typeof documentBlockSchema>;
 

@@ -124,6 +124,25 @@ describe("documentBlockSchema", () => {
       { type: "bullets", items: ["a"] },
       { type: "table", headers: ["A"], rows: [["x"]] },
       { type: "two_columns", left: ["trái"], right: ["phải"] },
+      // Dạng object lồng format model hay sinh ra
+      {
+        type: "two_columns",
+        left: [{ text: "ĐẢNG BỘ XÃ", bold: true }],
+        right: [{ text: "ĐẢNG CỘNG SẢN VIỆT NAM", bold: true }, { text: "Ngày 10/9/2026", italic: true }],
+      },
+      // Dạng columns mảng 2 phần tử
+      {
+        type: "two_columns",
+        columns: [
+          { text: "UBND TỈNH" },
+          { text: "CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM" },
+        ],
+      },
+      // Dạng paragraph lồng
+      {
+        type: "paragraph",
+        paragraph: { text: "Nội dung nghị quyết...", align: "justify" },
+      },
     ];
     for (const block of blocks) {
       assert.doesNotThrow(() => documentBlockSchema.safeParse(block));
