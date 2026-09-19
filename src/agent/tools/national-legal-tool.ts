@@ -150,7 +150,7 @@ export function createNationalLegalTool({ api, account, message, ghiNhanDaGui }:
             }
 
             // Kiểm tra xem yêu cầu có phải là tải nhiều văn bản không ("các nghị định", "danh sách", "những")
-            const isPlural = /\b(các|những|danh sách|toàn bộ|tất cả)\b/i.test(resolvedSearchTarget) || !targetSoHieu;
+            const isPlural = /\b(các|những|danh sách|toàn bộ|tất cả)\b/i.test(resolvedSearchTarget);
             const countToDownload = isPlural ? Math.min(searchResults.length, limit > 1 ? limit : 3) : 1;
 
             if (countToDownload > 1 && sendFileToChat) {

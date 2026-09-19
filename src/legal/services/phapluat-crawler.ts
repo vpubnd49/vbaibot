@@ -31,6 +31,27 @@ export type PhapLuatSearchResult = {
   downloadId: string;
 };
 
+function isValidPdf(buffer: Buffer): boolean {
+  return buffer.length >= 1000 && buffer.subarray(0, 5).toString("ascii") === "%PDF-";
+}
+
+function normalizeSoHieu(value: string): string {
+  return value.replace(/[\s/-]/g, "").toUpperCase();
+}
+
+async function pdfContainsDocumentNumber(buffer: Buffer, soHieu?: string): Promise<boolean> {
+  if (!soHieu) return true;
+  try {
+    const pdfModule: any = await import("pdf-parse");
+    const parse = typeof pdfModule === "function" ? pdfModule : pdfModule.default;
+    if (!parse) return false;
+    const parsed = await parse(buffer, { max: 5 });
+    return normalizeSoHieu(String(parsed.text || "")).includes(normalizeSoHieu(soHieu));
+  } catch {
+    return false;
+  }
+}
+
 type ApiDocument = {
   docGUId?: string;
   docName?: string;
@@ -124,11 +145,18 @@ export async function downloadPhapLuatDocument(
   const response = await fetch(detailUrl, { headers: { "User-Agent": USER_AGENT }, signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
   if (!response.ok) return { filePath: null, format, fileSize: 0, error: `Không đọc được trang chi tiết (HTTP ${response.status})` };
   const urls = extractFileUrls(await response.text());
-  const preferred = urls.find((url) => format === "pdf" ? url.toLowerCase().includes(".pdf") : url.toLowerCase().includes(`.${format}`)) || urls[0];
-  if (!preferred) return { filePath: null, format, fileSize: 0, error: "Không tìm thấy tệp văn bản trên Cổng Pháp luật quốc gia" };
+  // Không fallback sang URL đầu tiên: trang có thể chứa phụ lục/tài liệu liên quan.
+  const preferred = urls.find((url) => format === "pdf" ? /\.pdf(?:\?|$)/i.test(url) : new RegExp(`\\.${format}(?:\\?|$)`, "i").test(url));
+  if (!preferred) return { filePath: null, format, fileSize: 0, error: `Không tìm thấy tệp ${format.toUpperCase()} đúng định dạng trên Cổng Pháp luật quốc gia` };
   const fileResponse = await fetch(preferred, { headers: { "User-Agent": USER_AGENT }, signal: AbortSignal.timeout(60_000) });
   if (!fileResponse.ok) return { filePath: null, format, fileSize: 0, error: `Tải tệp thất bại (HTTP ${fileResponse.status})` };
   const buffer = Buffer.from(await fileResponse.arrayBuffer());
+  if (format === "pdf" && !isValidPdf(buffer)) {
+    return { filePath: null, format, fileSize: 0, error: "File tải về không phải PDF hợp lệ hoặc nội dung rỗng" };
+  }
+  if (format === "pdf" && !(await pdfContainsDocumentNumber(buffer, soHieu))) {
+    return { filePath: null, format, fileSize: 0, error: `Nội dung PDF không chứa số hiệu yêu cầu ${soHieu || ""}` };
+  }
   const dir = path.join(dataDir, "phapluat");
   await fs.mkdir(dir, { recursive: true });
   const safe = (soHieu || downloadId).replace(/[^\p{L}\p{N}._-]+/gu, "-");

@@ -166,10 +166,29 @@ export async function searchNationalLegal(keyword: string): Promise<NationalLega
     log.warn({ err: tvplItems.reason }, "TVPL search failed");
   }
 
+  // Khi người dùng nêu số hiệu, chỉ chấp nhận khớp tuyệt đối. Không để API
+  // tìm OR trả văn bản khác rồi gắn tên số hiệu yêu cầu lên file đó.
+  const explicit = keyword.match(/\b\d+\/\d{4}\/[A-ZĐa-zđ0-9_-]+\b/);
+  if (explicit) {
+    const wanted = normalizeSoHieu(explicit[0]);
+    const exact = results.filter((r) => normalizeSoHieu(r.soHieu) === wanted);
+    results.splice(0, results.length, ...exact);
+  } else {
+    const short = keyword.match(/\b\d+\/\d{4}\b/);
+    if (short) {
+      const wanted = normalizeSoHieu(short[0]);
+      const exact = results.filter((r) => normalizeSoHieu(r.soHieu).startsWith(wanted));
+      results.splice(0, results.length, ...exact);
+    }
+  }
+
   // API các cổng thường tìm theo từng từ (OR), vì vậy phải ưu tiên bản ghi
   // khớp số hiệu/tên văn bản trước khi tool chọn bản ghi để tải.
   const normalizedQuery = normalizeSearchText(keyword);
-  results.sort((a, b) => scoreNationalResult(b, normalizedQuery) - scoreNationalResult(a, normalizedQuery));
+  results.sort((a, b) => {
+    const sourceRank = (source: NationalLegalResult["source"]) => NATIONAL_DOWNLOAD_SOURCE_PRIORITY.indexOf(source);
+    return sourceRank(a.source) - sourceRank(b.source) || scoreNationalResult(b, normalizedQuery) - scoreNationalResult(a, normalizedQuery);
+  });
 
   log.info({ keyword, total: results.length, top: results[0]?.soHieu }, "National legal search completed");
   return results;
