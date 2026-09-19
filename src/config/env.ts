@@ -42,13 +42,13 @@ const envSchema = z.object({
   // lượt gộp batch nhiều yêu cầu (vd tạo Word + PowerPoint) mà vẫn còn dư cho
   // tra cứu web. Mỗi bước là một lần gọi model, nhưng trần token ngữ cảnh và
   // trần thời gian lượt đã có chặn riêng nên 20 bước vẫn an toàn.
-  LLM_MAX_STEPS: z.coerce.number().int().min(1).max(30).default(20),
+  LLM_MAX_STEPS: z.coerce.number().int().min(1).max(50).default(30),
   // Trần token cho phần INPUT của một lần gọi model. Trước khi có nó, ngữ cảnh
   // chỉ bị chặn bằng SỐ TIN (HISTORY_CONTEXT_LIMIT) - mà một tin Zalo dài tùy
   // ý, nên đó là đếm nhầm đơn vị. Đo trên DB thật: đã có lượt cộng dồn 184.835
-  // token qua 8 step. Mặc định 128k khớp cửa sổ phổ thông của model hiện nay;
+  // token qua 8 step. Mặc định 2M khớp cửa sổ lớn nhất của Gemini/model hiện nay;
   // agent chạy model khác đặt riêng được ở trang Agents.
-  LLM_CONTEXT_WINDOW: z.coerce.number().int().min(4_000).max(2_000_000).default(1_000_000),
+  LLM_CONTEXT_WINDOW: z.coerce.number().int().min(4_000).max(2_000_000).default(2_000_000),
   // Chặn vòng lặp tool. Trước khi có ba biến này, chặn trên duy nhất là
   // LLM_MAX_STEPS: model gọi cùng một tool lỗi 5 lần liên tiếp thì đốt nửa số
   // bước mà không ai chặn. Số mặc định lấy đúng của `tool_guardrails.py`
@@ -79,7 +79,7 @@ const envSchema = z.object({
   // nếu không model bị cắt giữa tool call (finishReason "length") và mất cả lượt.
   // Đây là TRẦN, không phải mục tiêu - trả lời chat thường vẫn vài trăm token.
   // Model đang dùng đỡ được thoải mái: gpt-5.6-sol 128.000, deepseek-v4-pro 50.000.
-  LLM_MAX_OUTPUT_TOKENS: z.coerce.number().int().min(256).default(32_768),
+  LLM_MAX_OUTPUT_TOKENS: z.coerce.number().int().min(256).max(200_000).default(65_536),
   // Mức "suy nghĩ" (reasoning/thinking) của model - học Hermes: không bật thì
   // model lướt 50k token nội dung trang trong 1 lượt đọc, việc cần nghĩ từng
   // bước (đối chiếu số vé, đọc bảng) sẽ ẩu. off = tắt hẳn.
@@ -117,10 +117,9 @@ const envSchema = z.object({
   WEB_SEARCH_MAX_RESULTS: z.coerce.number().int().min(1).max(10).default(5),
   // Số ký tự tối đa web_fetch trả cho model. Từng để 8000 và dính lỗi thật:
   // trang xổ số phần đầu toàn menu, bảng kết quả nằm sau ký tự 8300 -> bị cắt
-  // mất, bot tưởng trang không có dữ liệu. GoClaw để 60000; mình để 15000 vì
-  // mỗi ký tự là token trả tiền, kèm lọc menu trong html-to-text để nội dung
-  // thật không bị rác đẩy ra khỏi cap.
-  WEB_FETCH_MAX_CHARS: z.coerce.number().int().min(2000).max(100_000).default(15_000),
+  // mất, bot tưởng trang không có dữ liệu. GoClaw để 60000; mình để 60000 vì
+  // context window hiện nay lên tới 2M token nên thoải mái chứa nội dung dài.
+  WEB_FETCH_MAX_CHARS: z.coerce.number().int().min(2000).max(200_000).default(60_000),
   // Fetch tự làm hỏng hoặc ra quá ít chữ (trang render bằng JavaScript, chặn
   // bot) thì đẩy URL qua Jina Reader - đo thực tế cứu được giavang.doji.vn và
   // vnexpress. Đánh đổi: chậm hơn nhiều và URL đi qua bên thứ ba, tắt được ở đây.
@@ -152,12 +151,11 @@ const envSchema = z.object({
   VISION_SIDECAR_MODEL: z.string().default(""),
   VISION_SIDECAR_API_KEY: z.string().default(""),
 
-  HISTORY_CONTEXT_LIMIT: z.coerce.number().int().min(1).max(200).default(20),
+  HISTORY_CONTEXT_LIMIT: z.coerce.number().int().min(1).max(500).default(50),
   // Ảnh cũ trong history được nạp lại vào context để model "nhớ" ảnh đã nhận.
   // MỖI ảnh tốn ~1500-2500 token và bị gửi lại ở MỌI step của lượt agent, nên
-  // để 3 là đắt gấp 3 lần cần thiết cho nhu cầu thường gặp (hỏi lại về ảnh
-  // vừa gửi). Mặc định 1; 0 = tắt hẳn.
-  HISTORY_IMAGE_CONTEXT_LIMIT: z.coerce.number().int().min(0).max(20).default(1),
+  // để 3 là vừa vặn. Mặc định 3; 0 = tắt hẳn.
+  HISTORY_IMAGE_CONTEXT_LIMIT: z.coerce.number().int().min(0).max(50).default(3),
   // Cỡ ảnh lấy từ payload Zalo: normal (mặc định, đủ đọc chữ số, rẻ),
   // hd (nét nhất, đắt gấp mấy lần), thumb (rẻ nhất nhưng hay mất chữ số).
   ZALO_IMAGE_QUALITY: z.enum(["thumb", "normal", "hd"]).default("normal"),
@@ -166,14 +164,14 @@ const envSchema = z.object({
   MEDIA_RETENTION_DAYS: z.coerce.number().int().min(1).max(365).default(7),
   // Giới hạn tool tạo file .docx/.xlsx. Bot đọc tin người lạ nên phải chặn
   // trước: nội dung khổng lồ vừa tốn CPU/đĩa vừa ra file không ai đọc nổi.
-  DOCUMENT_MAX_BLOCKS: z.coerce.number().int().min(1).max(500).default(200),
-  DOCUMENT_MAX_ROWS: z.coerce.number().int().min(1).max(5000).default(200),
-  DOCUMENT_MAX_CHARS: z.coerce.number().int().min(500).max(500_000).default(80_000),
+  DOCUMENT_MAX_BLOCKS: z.coerce.number().int().min(1).max(1000).default(500),
+  DOCUMENT_MAX_ROWS: z.coerce.number().int().min(1).max(5000).default(1000),
+  DOCUMENT_MAX_CHARS: z.coerce.number().int().min(500).max(500_000).default(180_000),
   // Báo cáo tử tế hay có 5-7 sheet (tổng quan, chi tiết, số liệu, rủi ro,
-  // nguồn) - trần 5 chặn oan nên để 10
-  DOCUMENT_MAX_SHEETS: z.coerce.number().int().min(1).max(50).default(10),
+  // nguồn) - trần 20 thoải mái cho mọi báo cáo lớn
+  DOCUMENT_MAX_SHEETS: z.coerce.number().int().min(1).max(50).default(20),
   // Số slide tối đa mỗi bài thuyết trình PowerPoint (.pptx)
-  DOCUMENT_MAX_SLIDES: z.coerce.number().int().min(1).max(50).default(30),
+  DOCUMENT_MAX_SLIDES: z.coerce.number().int().min(1).max(100).default(50),
   // Tông màu giao diện PowerPoint mặc định
   DOCUMENT_DEFAULT_PPTX_THEME: z.enum(["navy", "blue", "green", "burgundy", "slate", "teal"]).default("navy"),
   // Số file tối đa 1 thread được tạo trong 1 giờ - chặn spam \"xuất file\" liên tục.
@@ -181,15 +179,14 @@ const envSchema = z.object({
   // mà vẫn chặn được lạm dụng từ người lạ.
   DOCUMENT_MAX_PER_HOUR: z.coerce.number().int().min(1).max(200).default(30),
   // Trần ký tự trích xuất từ 1 file tài liệu người dùng gửi. File dài hơn bị
-  // cắt và bot được báo tài liệu bị cắt ngắn. Một trang Word ~3000 ký tự nên
-  // 50000 ký tự ≈ 16 trang - đủ cho hầu hết tài liệu thường gặp trên Zalo.
-  DOCUMENT_READ_MAX_CHARS: z.coerce.number().int().min(1000).max(200_000).default(50_000),
+  // cắt và bot được báo tài liệu bị cắt ngắn. Nâng lên 500.000 ký tự (~170 trang)
+  // để đọc trọn vẹn mọi tài liệu dày mà không bao giờ bị cắt xén.
+  DOCUMENT_READ_MAX_CHARS: z.coerce.number().int().min(1000).max(1_000_000).default(500_000),
   // Số trang tối đa tự động OCR nhận diện chữ khi người dùng gửi PDF scan
-  DOCUMENT_PDF_OCR_MAX_PAGES: z.coerce.number().int().min(1).max(30).default(10),
+  DOCUMENT_PDF_OCR_MAX_PAGES: z.coerce.number().int().min(1).max(100).default(50),
   // Chỉ đọc nội dung file từ N tin GẦN NHẤT trong history - file cũ hơn chỉ còn
-  // dòng mô tả "[gửi kèm file xxx.docx]". Giữ thấp vì mỗi file tốn hàng chục
-  // nghìn ký tự, kèm lại nhiều lượt thì context phình nhanh hơn cả ảnh.
-  DOCUMENT_READ_HISTORY_LIMIT: z.coerce.number().int().min(0).max(10).default(2),
+  // dòng mô tả "[gửi kèm file xxx.docx]".
+  DOCUMENT_READ_HISTORY_LIMIT: z.coerce.number().int().min(0).max(20).default(5),
 
   // Trần số mục tri thức dùng chung inject vào system prompt. Mỗi mục ~50-100 token.
   SHARED_KNOWLEDGE_MAX_ITEMS: z.coerce.number().int().min(0).max(200).default(50),

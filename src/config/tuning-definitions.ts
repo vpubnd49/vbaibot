@@ -161,7 +161,7 @@ const TUNING_BY_KEY = {
     label: "Số bước tối đa mỗi lượt",
     hint: "Một bước là một lần bot nói chuyện với model, có thể gọi nhiều công cụ cùng lúc. Trò chuyện thường tốn 1 bước, tra cứu web 3-5 bước. Hết bước mà chưa xong thì bot chạy thêm một lượt chốt để trả lời bằng dữ liệu đã có.",
     min: 1,
-    max: 30,
+    max: 50,
     unit: "bước",
   },
   LLM_MAX_OUTPUT_TOKENS: {
@@ -245,7 +245,7 @@ const TUNING_BY_KEY = {
     label: "Số tin nhắn nạp lại",
     hint: "Bot đọc lại bấy nhiêu tin gần nhất mỗi lượt. Tăng thì bot nhớ dai hơn nhưng mỗi lượt tốn thêm token, và mỗi bước đều gửi lại toàn bộ.",
     min: 1,
-    max: 200,
+    max: 500,
     unit: "tin",
   },
   LLM_CONTEXT_WINDOW: {
@@ -263,7 +263,7 @@ const TUNING_BY_KEY = {
     label: "Số ảnh cũ kèm lại",
     hint: "Để bot xem lại được ảnh gửi vài phút trước. Ảnh rất tốn token nên đừng để cao.",
     min: 0,
-    max: 20,
+    max: 50,
     unit: "ảnh",
   },
   SUMMARY_TRIGGER_MESSAGES: {
@@ -310,7 +310,7 @@ const TUNING_BY_KEY = {
     label: "Trần chữ đọc từ mỗi trang",
     hint: "Cắt bớt trang quá dài. Đặt thấp quá thì phần cần tìm nằm sau chỗ cắt - đã gặp thật: bảng dữ liệu cần đọc nằm sau ký tự thứ 8.300.",
     min: 2000,
-    max: 100_000,
+    max: 200_000,
     unit: "ký tự",
   },
 
@@ -330,7 +330,7 @@ const TUNING_BY_KEY = {
     label: "Số phần tối đa",
     hint: "Mỗi tiêu đề, đoạn văn hay bảng tính là một phần.",
     min: 1,
-    max: 500,
+    max: 1000,
     unit: "phần",
   },
   DOCUMENT_MAX_ROWS: {
@@ -366,7 +366,7 @@ const TUNING_BY_KEY = {
     label: "Số slide PowerPoint tối đa",
     hint: "Trần số lượng slide cho một bài trình chiếu .pptx do bot tạo.",
     min: 1,
-    max: 50,
+    max: 100,
     unit: "slide",
   },
   DOCUMENT_DEFAULT_PPTX_THEME: {
@@ -382,7 +382,7 @@ const TUNING_BY_KEY = {
     label: "Trần ký tự đọc từ file tải lên",
     hint: "Người dùng gửi file .docx/.pdf/.xlsx thì bot đọc nội dung để phân tích. File dài hơn mức này bị cắt ngắn. Một trang Word ≈ 3000 ký tự.",
     min: 1000,
-    max: 200_000,
+    max: 1_000_000,
     unit: "ký tự",
   },
   DOCUMENT_PDF_OCR_MAX_PAGES: {
@@ -391,7 +391,7 @@ const TUNING_BY_KEY = {
     label: "Số trang tối đa khi OCR PDF Scan",
     hint: "Khi người dùng gửi file PDF scan/ảnh chụp, hệ thống tự động chuyển trang thành ảnh và nhận diện chữ bằng vision model. Cắt bớt nếu vượt quá số trang này.",
     min: 1,
-    max: 30,
+    max: 100,
     unit: "trang",
   },
   DOCUMENT_READ_HISTORY_LIMIT: {
@@ -400,7 +400,7 @@ const TUNING_BY_KEY = {
     label: "Số tin cũ kèm lại nội dung file",
     hint: "Chỉ đọc lại file từ bấy nhiêu tin gần nhất. File cũ hơn chỉ còn dòng mô tả tên file, không kèm nội dung. Mỗi file tốn hàng chục nghìn ký tự nên để thấp.",
     min: 0,
-    max: 10,
+    max: 20,
     unit: "tin",
   },
 

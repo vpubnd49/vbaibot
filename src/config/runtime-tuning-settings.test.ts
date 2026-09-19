@@ -120,8 +120,13 @@ describe("validateTuning - ràng buộc chéo", () => {
   });
 
   it("mặc định 128.000 với 16.384 thì hợp lệ - đối chứng cho ca trên", () => {
-    const loi = tuning.validateTuning({ LLM_CONTEXT_WINDOW: 128_000, LLM_MAX_OUTPUT_TOKENS: 16_384 });
+    const loi = tuning.validateTuning({ LLM_CONTEXT_WINDOW: 128_000, LLM_MAX_OUTPUT_TOKENS: 16_384, DOCUMENT_MAX_CHARS: 20_000 });
     assert.deepEqual(loi, [], "cấu hình mặc định không được báo lỗi");
+  });
+
+  it("bộ cấu hình mới 2.000.000 với 65.536 và 180.000 ký tự hợp lệ", () => {
+    const loi = tuning.validateTuning({ LLM_CONTEXT_WINDOW: 2_000_000, LLM_MAX_OUTPUT_TOKENS: 65_536, DOCUMENT_MAX_CHARS: 180_000 });
+    assert.deepEqual(loi, [], "cấu hình mới phải hợp lệ");
   });
 
   it("bộ mặc định KHI PHÁT HÀNH hợp lệ - không tự chặn chính mình", () => {

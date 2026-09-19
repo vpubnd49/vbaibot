@@ -42,7 +42,7 @@ const patchSchema = z.object({
   // null = bỏ override, quay về cấu hình Providers chung
   modelProvider: z.enum(LLM_PROVIDER_KINDS).nullable().optional(),
   modelName: z.string().min(1).nullable().optional(),
-  maxSteps: z.number().int().min(1).max(30).nullable().optional(),
+  maxSteps: z.number().int().min(1).max(50).nullable().optional(),
   reasoningEffort: z.enum(["off", "low", "medium", "high", "xhigh"]).nullable().optional(),
   // Tool agent này KHÔNG dùng. Chặn key lạ ngay ở biên bằng chính TOOL_KEYS
   // (đúng nếp account-routes.ts) - key rác lọt vào DB thì im lặng vô hại nhưng
