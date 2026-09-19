@@ -130,6 +130,20 @@ export function upsertQpplDoc(doc: {
  * Tìm LIKE trên: số ký hiệu, trích yếu, cơ quan, lĩnh vực.
  * dateFrom/dateTo lọc theo ngay_ban_hanh (ISO date, VD "2026-01-01").
  */
+function normalizeQpplNumber(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[–—−]/g, "-")
+    .replace(/[\s/-]/g, "")
+    .toUpperCase();
+}
+
+function extractQpplNumber(value: string): string | null {
+  const match = value.match(/\b\d+\s*\/\s*[A-ZĐÀ-Ỹ0-9][A-ZĐÀ-Ỹ0-9-]*\b/i);
+  return match?.[0] ? normalizeQpplNumber(match[0]) : null;
+}
+
 export function searchQpplDocs(opts?: {
   keyword?: string;
   loaiVanBan?: string;
@@ -140,6 +154,7 @@ export function searchQpplDocs(opts?: {
 }): QpplDoc[] {
   const max = Math.max(1, Math.min(opts?.limit ?? 10, 30));
   const kw = opts?.keyword?.trim();
+  const requestedNumber = kw ? extractQpplNumber(kw) : null;
   const loai = opts?.loaiVanBan?.trim();
   const nguon = opts?.nguon;
   const dateFrom = opts?.dateFrom?.trim();
@@ -149,6 +164,19 @@ export function searchQpplDocs(opts?: {
   const params: (string | number | null)[] = [];
 
   if (kw && kw.toLowerCase() !== "mới nhất" && kw.toLowerCase() !== "latest") {
+    if (requestedNumber) {
+      const rows = db
+        .prepare("SELECT * FROM qppl_documents WHERE nguon = COALESCE(?, nguon)")
+        .all(nguon ?? null) as Row[];
+      const exact = rows
+        .filter((row) => normalizeQpplNumber(String(row.so_ky_hieu || "")) === requestedNumber)
+        .filter((row) => !loai || String(row.loai_van_ban || "").toLowerCase().includes(loai.toLowerCase()))
+        .filter((row) => !dateFrom || String(row.ngay_ban_hanh || "") >= dateFrom)
+        .filter((row) => !dateTo || String(row.ngay_ban_hanh || "") < dateTo)
+        .sort((a, b) => String(b.modified_at || "").localeCompare(String(a.modified_at || "")))
+        .slice(0, max);
+      return exact.map(toDoc);
+    }
     const term = `%${kw}%`;
     conditions.push(
       "(so_ky_hieu LIKE ? OR trich_yeu LIKE ? OR co_quan LIKE ? OR linh_vuc LIKE ?)",

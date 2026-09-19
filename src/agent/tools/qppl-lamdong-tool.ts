@@ -309,8 +309,11 @@ export function createQpplLamdongTool({ api, account, message, ghiNhanDaGui }: T
         }
       }
 
-      // Fallback 3: Có targetNguon nhưng không ra kết quả từ keyword (hoặc keyword quá hẹp) → lấy mới nhất từ nguồn này
-      if (docs.length === 0 && targetNguon) {
+      // Không được lấy văn bản mới nhất khi người dùng yêu cầu tải theo số hiệu:
+      // fallback này có thể gửi nhầm một văn bản khác nhưng vẫn mang file hợp lệ.
+      const hasExplicitNumber = /\b\d+\s*\/\s*[A-ZĐÀ-Ỹ0-9][A-ZĐÀ-Ỹ0-9-]*\b/i.test(keyword || "");
+      // Fallback 3: chỉ dùng cho yêu cầu thật sự là "mới nhất", không có số hiệu cụ thể.
+      if (docs.length === 0 && targetNguon && !hasExplicitNumber) {
         docs = await liveSearchAndUpsert("", 30, targetNguon);
         if (loaiVanBan) {
           const lvbLower = loaiVanBan.toLowerCase();

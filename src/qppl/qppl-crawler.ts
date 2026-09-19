@@ -313,6 +313,20 @@ export async function fetchQpplItems(
  * trên mỗi site).
  * Hỗ trợ chỉ định cơ quan (targetNguon) hoặc tự động quét toàn bộ Tier 1.
  */
+function normalizeQpplNumber(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[–—−]/g, "-")
+    .replace(/[\s/-]/g, "")
+    .toUpperCase();
+}
+
+function extractQpplNumber(value: string): string | null {
+  const match = value.match(/\b\d+\s*\/\s*[A-ZĐÀ-Ỹ0-9][A-ZĐÀ-Ỹ0-9-]*\b/i);
+  return match?.[0] ? normalizeQpplNumber(match[0]) : null;
+}
+
 export async function searchQpplItemsLive(
   keyword: string,
   limit = 10,
@@ -330,9 +344,8 @@ export async function searchQpplItemsLive(
   // SharePoint OData `substringof` phá vỡ khi chuỗi chứa `/` hoặc `'`.
   // "15187/KH-UBND" → dùng "15187" (phần số) để tìm trên Số/Ký hiệu,
   // và dùng nguyên chuỗi gốc để tìm trên Title (Title chứa đầy đủ).
-  const safeKw = kw.includes("/")
-    ? kw.split("/").sort((a, b) => a.length - b.length).pop() || kw.split("/")[0] || kw
-    : kw;
+  const requestedNumber = extractQpplNumber(kw);
+  const safeKw = requestedNumber ? kw.split("/")[0]!.trim() : kw;
   // Thoát dấu nháy đơn cho OData
   const escapedKw = safeKw.replace(/'/g, "''");
 
@@ -381,10 +394,15 @@ export async function searchQpplItemsLive(
       }
 
       const data = (await res.json()) as { d?: { results?: QpplRawItem[] } };
-      const items = data?.d?.results || [];
-      for (const item of items) {
-        results.push({ nguon, item });
-      }
+       const items = data?.d?.results || [];
+       for (const item of items) {
+         if (requestedNumber) {
+           const itemNumber = extractQpplNumber(String(item.S_x1ed1__x002f_K_x00fd__x0020_hi || item.Title || ""));
+           if (itemNumber !== requestedNumber) continue;
+         }
+         results.push({ nguon, item });
+       }
+
       log.debug({ nguon, kw, found: items.length }, "Live search QPPL");
     } catch (err) {
       log.warn({ err, nguon, kw }, "Lỗi live search QPPL");
@@ -417,9 +435,25 @@ function looksLikeKnownFile(buffer: Buffer, contentType: string): boolean {
 }
 
 /** Tải file vào file tạm, xác minh response rồi đổi tên nguyên tử. */
+async function pdfMatchesDocumentNumber(buffer: Buffer, expectedSoKyHieu?: string): Promise<boolean> {
+  if (!expectedSoKyHieu) return true;
+  try {
+    const pdfModule: any = await import("pdf-parse");
+    const parse = typeof pdfModule === "function" ? pdfModule : pdfModule.default;
+    if (!parse) return false;
+    const parsed = await parse(buffer, { max: 5 });
+    const text = String(parsed.text || "");
+    if (!text.trim()) return true; // PDF scan: magic bytes vẫn được kiểm tra; không OCR trong đường tải nhanh.
+    return normalizeQpplNumber(text).includes(normalizeQpplNumber(expectedSoKyHieu));
+  } catch {
+    return true; // Không chặn file scan hợp lệ chỉ vì parser không đọc được text.
+  }
+}
+
 export async function downloadQpplFile(
   fileUrl: string,
   destPath: string,
+  expectedSoKyHieu?: string,
 ): Promise<number> {
   const res = await fetch(fileUrl, {
     headers: {
@@ -439,6 +473,9 @@ export async function downloadQpplFile(
   const contentType = res.headers.get("content-type") || "";
   if (!looksLikeKnownFile(buffer, contentType)) {
     throw new Error(`Response không phải file hợp lệ (content-type: ${contentType || "unknown"})`);
+  }
+  if (contentType.toLowerCase().includes("pdf") && !(await pdfMatchesDocumentNumber(buffer, expectedSoKyHieu))) {
+    throw new Error(`Nội dung PDF không khớp số/ký hiệu ${expectedSoKyHieu}`);
   }
 
   fs.mkdirSync(path.dirname(destPath), { recursive: true });

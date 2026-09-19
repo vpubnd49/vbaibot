@@ -308,14 +308,16 @@ export async function downloadAllFilesForDoc(docId: number): Promise<QpplDownloa
     const absPath = path.join(storageDir, baseName);
 
     // Chỉ bỏ qua file đã có nội dung; file rỗng/hỏng phải được tải lại.
-    if (fs.existsSync(absPath) && fs.statSync(absPath).size > 0) {
+    // Tên file chứa số thứ tự/metadata cũ không đủ để chứng minh nội dung còn đúng.
+    // Luôn xác minh lại file cache PDF; file cache cũ sai nội dung sẽ bị tải lại.
+    if (fs.existsSync(absPath) && fs.statSync(absPath).size > 0 && !path.extname(absPath).toLowerCase().endsWith(".pdf")) {
       downloadedPaths.push(absPath);
       totalBytes += fs.statSync(absPath).size;
       continue;
     }
 
     try {
-      const fileSize = await downloadQpplFile(link.url, absPath);
+      const fileSize = await downloadQpplFile(link.url, absPath, doc.soKyHieu);
       totalBytes += fileSize;
       downloadedPaths.push(absPath);
       log.debug({ docId, file: baseName, bytes: fileSize, idx: i + 1 }, "Đã tải file VB");
