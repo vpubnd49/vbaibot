@@ -319,7 +319,8 @@ export async function searchQpplItemsLive(
   targetNguon?: QpplNguon,
 ): Promise<{ nguon: QpplNguon; item: QpplRawItem }[]> {
   const kw = keyword.trim();
-  if (!kw) return [];
+  // Nếu không có keyword VÀ không chỉ định nguồn → không biết tìm gì
+  if (!kw && !targetNguon) return [];
 
   const results: { nguon: QpplNguon; item: QpplRawItem }[] = [];
   const nguons: QpplNguon[] = targetNguon
@@ -349,13 +350,16 @@ export async function searchQpplItemsLive(
     }
 
     const cfg = getAgencyConfig(nguon);
-    // SharePoint OData chỉ hỗ trợ substringof trên Title (Single line of text).
-    // Title của văn bản trên SharePoint luôn có dạng: "Trục liên thông: 4480/QĐ-BDD".
-    const filter = `substringof('${escapedKw}',Title)`;
+    // Khi có keyword → filter theo substringof; khi keyword rỗng → lấy mới nhất (không filter)
+    const filter = kw
+      ? `substringof('${escapedKw}',Title)`
+      : "";
+    const filterParam = filter
+      ? `?$filter=${encodeURIComponent(filter)}&`
+      : "?";
     const url =
       `${cfg.baseUrl}('${encodeURIComponent(cfg.listTitle)}')/items` +
-      `?$filter=${encodeURIComponent(filter)}` +
-      `&$orderby=Modified desc` +
+      `${filterParam}$orderby=Modified desc` +
       `&$select=${SP_SELECT_FIELDS}` +
       `&$top=${Math.min(limit, 20)}`;
 
