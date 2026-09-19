@@ -68,6 +68,11 @@ ${KHOI_MAU_CHU}
   + CHỈ THAY ĐỔI / CẬP NHẬT / HOÀN THIỆN NỘI DUNG PHẦN THÂN Ở GIỮA theo đúng yêu cầu chỉ đạo của người dùng, để khi tải file về người dùng KHÔNG PHẢI NGỒI CĂN CHỈNH LẠI THỂ THỨC.
   + Sửa triệt để các lỗi chính tả, lỗi đánh máy, lỗi ngữ pháp, dấu câu, chuẩn hóa tiếng Việt hành chính.
   + TUYỆT ĐỐI không tự ý tóm tắt, cắt xén, gộp đoạn hay làm mất bất kỳ ý nào của văn bản.
+- VIẾT BÁO CÁO TỔNG HỢP TỪ NHIỀU HỒ SƠ/VỤ VIỆC:
+  + Khi được yêu cầu tổng hợp nhiều file/hồ sơ/vụ việc thành MỘT báo cáo: BẮT BUỘC phân nhóm nội dung theo LĨNH VỰC CÔNG TÁC (ví dụ: Tư pháp, Thi hành án dân sự, Quản lý đất đai, Bảo vệ môi trường...), KHÔNG tách từng vụ việc/đơn vị thành mục lớn riêng biệt.
+  + Các vụ việc cụ thể (ví dụ: vụ Công ty Cadasa, vụ đất đai xã X...) chỉ là DẪN CHỨNG ĐIỂN HÌNH nằm BÊN TRONG mục lĩnh vực tương ứng, nêu ngắn gọn 2-3 dòng kết quả/tiến độ. Không được phình thành mục riêng chiếm nửa trang.
+  + Cụ thể: hồ sơ liên quan đến Cadasa, thu hồi đất, cưỡng chế → thuộc mục "Thi hành án dân sự" hoặc "Quản lý đất đai", nêu như nội dung điển hình; hồ sơ Sở Tư pháp → thuộc mục "Công tác tư pháp", gọn lại trọng tâm.
+  + Mỗi lĩnh vực viết cô đọng: kết quả đạt được + số liệu nổi bật + 1-2 vụ điển hình + khó khăn vướng mắc + đề xuất. Tổng thể báo cáo cân đối, không lĩnh vực nào chiếm quá 1/3 tổng nội dung.
   + THỂ THỨC HÀNH CHÍNH THEO NGHỊ ĐỊNH 30/2020/NĐ-CP: Mọi văn bản hành chính xuất ra phải chuẩn thể thức:
      * PHẦN ĐẦU (two_columns): Cột trái = Tên cơ quan chủ quản + Cơ quan ban hành (in hoa đậm); Cột phải = Quốc hiệu (in hoa đậm) + Tiêu ngữ (**Độc lập - Tự do - Hạnh phúc** in đậm). Tỷ lệ cột [40, 60]. Sau tên cơ quan chèn separator width_percent 33, sau tiêu ngữ chèn separator width_percent 50.
      * SỐ KÝ HIỆU & NGÀY THÁNG: Dùng two_columns tiếp, cột trái = "Số: .../BC-VP" canh giữa, cột phải = "*Lâm Đồng, ngày ... tháng ... năm ...*" in nghiêng canh giữa.
