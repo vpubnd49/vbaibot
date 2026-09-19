@@ -773,10 +773,12 @@ export async function runAgentTurn({
   const exportIntent = laNguoiDungYeuCauXuatFile(latest.text);
   for (let lanEp = 0; lanEp < 3; lanEp += 1) {
     const allToolCalls = layAllToolCalls(result);
-    if (
-      canLuotChot({ lastStepToolCalls }) ||
-      (!exportIntent && !laTinNhanAoGiacGuiFile(result.text, allToolCalls, latest.text))
-    ) {
+    const coGoiToolFile = allToolCalls.some((t) => FILE_SEND_TOOLS.has(t));
+    const laAoGiac =
+      laTinNhanAoGiacGuiFile(result.text, allToolCalls, latest.text) ||
+      (exportIntent && !coGoiToolFile);
+
+    if (canLuotChot({ lastStepToolCalls }) || !laAoGiac) {
       break;
     }
 
@@ -817,19 +819,21 @@ export async function runAgentTurn({
   }
 
   // Nếu sau 3 lần ép mà vẫn chỉ có lời hứa, không được gửi lời hứa xuống Zalo.
-  // Trả lỗi rõ ràng để người dùng nhắn lại thay vì tưởng đã nhận được Excel.
-  if (
-    !canLuotChot({ lastStepToolCalls }) &&
-    (laTinNhanAoGiacGuiFile(result.text, layAllToolCalls(result), latest.text) ||
-      (exportIntent && !layAllToolCalls(result).some((t) => FILE_SEND_TOOLS.has(t))))
-  ) {
+  // Trả lỗi rõ ràng để người dùng nhắn lại thay vì tưởng đã nhận được file.
+  const allCallsCuoi = layAllToolCalls(result);
+  const coGoiToolFileCuoi = allCallsCuoi.some((t) => FILE_SEND_TOOLS.has(t));
+  const laAoGiacCuoi =
+    laTinNhanAoGiacGuiFile(result.text, allCallsCuoi, latest.text) ||
+    (exportIntent && !coGoiToolFileCuoi);
+
+  if (!canLuotChot({ lastStepToolCalls }) && laAoGiacCuoi) {
     log.error(
-      { toolCalls: layAllToolCalls(result), lanChay },
+      { toolCalls: allCallsCuoi, lanChay },
       "Model vẫn không gọi tool gửi file sau 3 lần ép - chặn câu trả lời ảo giác",
     );
     result = {
       ...result,
-      text: "Mình chưa tạo/gửi được file Excel vì công cụ xuất file chưa thực thi thành công. Bạn nhắn lại yêu cầu xuất file để mình thử lại.",
+      text: "Mình chưa tạo/gửi được file vì công cụ xuất file chưa thực thi thành công. Bạn nhắn lại yêu cầu xuất file để mình thử lại.",
     };
   }
 

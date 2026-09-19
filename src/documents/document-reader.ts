@@ -408,6 +408,19 @@ const IMAGE_MEDIA_TYPES: Record<string, string> = {
  * Đọc file → base64 → vision sidecar (askAboutImage) → text trích xuất.
  */
 async function ocrScannedImage(filePath: string, ext: string): Promise<string> {
+  // Cache trên đĩa: kiểm tra nếu đã có file .ocr.txt thì tái sử dụng ngay lập tức
+  const cachePath = `${filePath}.ocr.txt`;
+  try {
+    if (fs.existsSync(cachePath)) {
+      const srcStat = fs.statSync(filePath);
+      const cacheStat = fs.statSync(cachePath);
+      if (cacheStat.mtimeMs >= srcStat.mtimeMs) {
+        log.info({ filePath, cachePath }, 'Tái sử dụng kết quả OCR ảnh từ cache đĩa');
+        return fs.readFileSync(cachePath, 'utf-8');
+      }
+    }
+  } catch { /* ignore cache read error */ }
+
   // Lazy import vision sidecar — tránh circular dependency
   const { isSidecarConfigured: checkSidecar } = await import('../config/runtime-vision-settings.js');
   const visionModule = await import('../agent/vision-sidecar.js');
@@ -428,7 +441,9 @@ async function ocrScannedImage(filePath: string, ext: string): Promise<string> {
     const result = await visionModule.callVisionForBatchOcr(sidecarImage.base64, sidecarImage.mediaType, OCR_PROMPT);
     const ocrText = result.text.trim();
     const suffix = result.truncated ? '\n\n[Nội dung còn tiếp theo nhưng đã chạm giới hạn OCR — trang rất dài. Nhắn lại nếu cần phần tiếp theo.]' : '';
-    return (ocrText || '[Ảnh scan không có chữ hoặc chữ quá mờ không nhận dạng được.]') + suffix;
+    const finalContent = (ocrText || '[Ảnh scan không có chữ hoặc chữ quá mờ không nhận dạng được.]') + suffix;
+    try { fs.writeFileSync(cachePath, finalContent, 'utf-8'); } catch { /* ignore */ }
+    return finalContent;
   } catch (err) {
     const errMsg = err instanceof Error ? err.message : String(err);
     log.warn({ filePath, err }, 'OCR file ảnh scan thất bại');
@@ -471,11 +486,25 @@ async function ocrScannedPdf(
   const endPage = Math.max(startPage, Math.min(totalPages, requestedLast));
   const pagesToOcr = Math.min(endPage - startPage + 1, configuredMaxPages);
   const actualEnd = startPage + pagesToOcr - 1;
+
+  // Cache trên đĩa: kiểm tra nếu đã có cache OCR dải trang này thì dùng luôn
+  const cachePath = `${filePath}.ocr_${startPage}_${actualEnd}.txt`;
+  try {
+    if (fs.existsSync(cachePath)) {
+      const srcStat = fs.statSync(filePath);
+      const cacheStat = fs.statSync(cachePath);
+      if (cacheStat.mtimeMs >= srcStat.mtimeMs) {
+        log.info({ filePath, cachePath, startPage, actualEnd }, 'Tái sử dụng kết quả OCR PDF scan từ cache đĩa');
+        return fs.readFileSync(cachePath, 'utf-8');
+      }
+    }
+  } catch { /* ignore cache read error */ }
+
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'pdf-ocr-'));
 
   try {
     // Chuyển PDF → PNG bằng pdftoppm (200 DPI, đủ nét cho OCR)
-            log.info({ filePath, totalPages, pageStart: startPage, pageEnd: actualEnd, pagesToOcr, dpi: 200 }, 'Bắt đầu auto-OCR PDF scan');
+    log.info({ filePath, totalPages, pageStart: startPage, pageEnd: actualEnd, pagesToOcr, dpi: 200 }, 'Bắt đầu auto-OCR PDF scan');
     await runPdftoppm(filePath, tmpDir, startPage, actualEnd);
 
     // Đọc các file PNG đã render
@@ -522,7 +551,9 @@ async function ocrScannedPdf(
     const nonEmptyPages = results.filter((result) => !result.includes('[OCR không trả về dữ liệu') && !result.includes('[OCR thất bại')).length;
     const emptyPages = results.length - nonEmptyPages;
     log.info({ filePath, pageStart: startPage, pageEnd: actualEnd, renderedPages: pngFiles.length, nonEmptyPages, emptyPages }, 'Hoàn thành OCR chunk PDF');
-    return results.join('\n\n') + suffix;
+    const finalContent = results.join('\n\n') + suffix;
+    try { fs.writeFileSync(cachePath, finalContent, 'utf-8'); } catch { /* ignore */ }
+    return finalContent;
   } finally {
     // Dọn dẹp thư mục tạm
     try {
