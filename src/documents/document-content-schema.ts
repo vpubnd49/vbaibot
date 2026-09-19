@@ -151,12 +151,19 @@ export const documentBlockSchema = z.preprocess((val: any) => {
         if (!obj.left) obj.left = obj.columns[0];
         if (!obj.right) obj.right = obj.columns[1];
       }
-      // Các biến thể tên cột: left_lines, left_column
-      if (!obj.left && (obj.left_lines || obj.left_column)) {
-        obj.left = obj.left_lines || obj.left_column;
+      // Pattern thực tế: model Đảng gửi col1/col2 thay vì left/right
+      if (!obj.left && (obj.col1 || obj.column1 || obj.left_lines || obj.left_column)) {
+        obj.left = obj.col1 || obj.column1 || obj.left_lines || obj.left_column;
       }
-      if (!obj.right && (obj.right_lines || obj.right_column)) {
-        obj.right = obj.right_lines || obj.right_column;
+      if (!obj.right && (obj.col2 || obj.column2 || obj.right_lines || obj.right_column)) {
+        obj.right = obj.col2 || obj.column2 || obj.right_lines || obj.right_column;
+      }
+      // Pattern thực tế: widths → ratio (model gửi widths: [45,55] thay vì ratio)
+      if (!obj.ratio && Array.isArray(obj.widths) && obj.widths.length === 2) {
+        obj.ratio = obj.widths;
+      }
+      if (!obj.ratio && Array.isArray(obj.width) && obj.width.length === 2) {
+        obj.ratio = obj.width;
       }
       if (!obj.left) obj.left = [""];
       if (!obj.right) obj.right = [""];
@@ -168,16 +175,49 @@ export const documentBlockSchema = z.preprocess((val: any) => {
           obj.text = p.text ?? p.content ?? "";
           if (p.align && !obj.align) obj.align = p.align;
         }
-      } else if (!obj.text && obj.content) {
+      }
+      // Pattern thực tế: model dùng content/value/description thay vì text
+      if (!obj.text && obj.content) {
         obj.text = typeof obj.content === "string" ? obj.content : JSON.stringify(obj.content);
       }
+      if (!obj.text && obj.value) {
+        obj.text = typeof obj.value === "string" ? obj.value : JSON.stringify(obj.value);
+      }
+      if (!obj.text && obj.description) {
+        obj.text = String(obj.description);
+      }
     } else if (obj.type === "heading") {
+      // Pattern thực tế: model gửi heading thay vì text, hoặc title thay vì text
       if (!obj.text && obj.heading) {
         obj.text = typeof obj.heading === "string" ? obj.heading : obj.heading.text;
       }
+      if (!obj.text && obj.title) {
+        obj.text = typeof obj.title === "string" ? obj.title : String(obj.title);
+      }
+      if (!obj.text && obj.content) {
+        obj.text = typeof obj.content === "string" ? obj.content : String(obj.content);
+      }
+      if (!obj.text && obj.value) {
+        obj.text = typeof obj.value === "string" ? obj.value : String(obj.value);
+      }
+      // Pattern thực tế: model gửi {type: "heading"} rỗng → default text
+      if (!obj.text) {
+        obj.text = "—";
+      }
     } else if (obj.type === "bullets") {
-      if (!obj.items && (obj.bullets || obj.lines || obj.list)) {
-        obj.items = obj.bullets || obj.lines || obj.list;
+      if (!obj.items && (obj.bullets || obj.lines || obj.list || obj.content)) {
+        obj.items = obj.bullets || obj.lines || obj.list || obj.content;
+      }
+    } else if (obj.type === "table") {
+      // Pattern thực tế: model dùng data/body thay vì rows, columns thay vì headers
+      if (!obj.rows && (obj.data || obj.body)) {
+        obj.rows = obj.data || obj.body;
+      }
+      if (!obj.headers && obj.columns && Array.isArray(obj.columns)) {
+        // Chỉ khi columns là string[] (tên cột), không phải object[]
+        if (obj.columns.every((c: unknown) => typeof c === "string")) {
+          obj.headers = obj.columns;
+        }
       }
     }
     return obj;

@@ -149,6 +149,77 @@ describe("documentBlockSchema", () => {
       assert.equal(documentBlockSchema.safeParse(block).success, true, JSON.stringify(block));
     }
   });
+
+  it("HỒI QUY 69 lỗi log: two_columns + col1/col2 thay vì left/right", () => {
+    // Model Đảng hay gửi col1/col2 thay vì left/right
+    const block = {
+      type: "two_columns",
+      col1: [{ bold: true, align: "center", text: "ĐẢNG BỘ TỈNH LÂM ĐỒNG" }],
+      col2: [{ bold: true, align: "center", text: "ĐẢNG CỘNG SẢN VIỆT NAM" }],
+      widths: [45, 55],
+    };
+    const ket = documentBlockSchema.safeParse(block);
+    assert.equal(ket.success, true, `col1/col2 lẽ ra phải pass: ${JSON.stringify(ket.success ? {} : ket.error.issues)}`);
+    if (ket.success) {
+      // Kiểm tra ratio cũng được chuyển đổi từ widths
+      assert.deepEqual(ket.data.type, "two_columns");
+    }
+  });
+
+  it("HỒI QUY 69 lỗi log: two_columns + widths → ratio", () => {
+    const block = {
+      type: "two_columns",
+      left: ["UBND TỈNH"],
+      right: ["CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM"],
+      widths: [40, 60],
+    };
+    const ket = documentBlockSchema.safeParse(block);
+    assert.equal(ket.success, true);
+    if (ket.success && ket.data.type === "two_columns") {
+      assert.deepEqual(ket.data.ratio, [40, 60]);
+    }
+  });
+
+  it("HỒI QUY 69 lỗi log: heading rỗng {type: 'heading'} → default text", () => {
+    const block = { type: "heading" };
+    const ket = documentBlockSchema.safeParse(block);
+    assert.equal(ket.success, true, "heading rỗng lẽ ra phải pass với text mặc định");
+  });
+
+  it("HỒI QUY 69 lỗi log: heading dùng title thay vì text", () => {
+    const block = { type: "heading", title: "BÁO CÁO TỔNG HỢP", level: 1 };
+    const ket = documentBlockSchema.safeParse(block);
+    assert.equal(ket.success, true);
+    if (ket.success) {
+      assert.equal(ket.data.type === "heading" && ket.data.text, "BÁO CÁO TỔNG HỢP");
+    }
+  });
+
+  it("HỒI QUY: paragraph dùng value/description thay vì text", () => {
+    for (const variant of [
+      { type: "paragraph", value: "Nội dung đoạn văn" },
+      { type: "paragraph", description: "Mô tả chi tiết" },
+    ]) {
+      const ket = documentBlockSchema.safeParse(variant);
+      assert.equal(ket.success, true, `${JSON.stringify(variant)} lẽ ra phải pass`);
+    }
+  });
+
+  it("HỒI QUY: table dùng data thay vì rows, columns thay vì headers", () => {
+    const block = {
+      type: "table",
+      columns: ["Cột A", "Cột B"],
+      data: [["x", "y"]],
+    };
+    const ket = documentBlockSchema.safeParse(block);
+    assert.equal(ket.success, true, "table + columns/data lẽ ra phải pass");
+  });
+
+  it("HỒI QUY: bullets dùng content thay vì items", () => {
+    const block = { type: "bullets", content: ["Điểm 1", "Điểm 2"] };
+    const ket = documentBlockSchema.safeParse(block);
+    assert.equal(ket.success, true, "bullets + content lẽ ra phải pass");
+  });
 });
 
 /**
