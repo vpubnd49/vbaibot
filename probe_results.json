@@ -1,0 +1,154 @@
+[
+  {
+    "tag": "01_qppl_home",
+    "url": "https://lamdong.gov.vn/sites/qppl/SitePages/Home.aspx",
+    "status": 200,
+    "title": "Home",
+    "webparts": []
+  },
+  {
+    "tag": "02_nghi_quyet",
+    "url": "https://lamdong.gov.vn/sites/qppl/qppl/nghi-quyet/SitePages/Home.aspx",
+    "status": 200,
+    "title": "Home",
+    "webparts": []
+  },
+  {
+    "tag": "03_quyet_dinh",
+    "url": "https://lamdong.gov.vn/sites/qppl/qppl/quyet-dinh/SitePages/Home.aspx",
+    "status": 200,
+    "title": "Home",
+    "webparts": []
+  },
+  {
+    "tag": "04_the_loai_toan_bo",
+    "url": "https://lamdong.gov.vn/sites/qppl/the-loai/toan-bo/SitePages/Home.aspx",
+    "status": 200,
+    "title": "Home",
+    "webparts": []
+  },
+  {
+    "tag": "05_the_loai_quyet_dinh",
+    "url": "https://lamdong.gov.vn/sites/qppl/the-loai/quyet-dinh/SitePages/Home.aspx",
+    "status": 200,
+    "title": "Home",
+    "webparts": []
+  },
+  {
+    "tag": "06_so_dbnd",
+    "url": "https://lamdong.gov.vn/sites/qppl/so-ban-nganh/dbnd/SitePages/Home.aspx",
+    "status": 200,
+    "title": "Home",
+    "webparts": []
+  },
+  {
+    "tag": "07_so_vpubnd",
+    "url": "https://lamdong.gov.vn/sites/qppl/so-ban-nganh/vpubnd/SitePages/Home.aspx",
+    "status": 200,
+    "title": "Home",
+    "webparts": []
+  },
+  {
+    "tag": "08_so_bqlkhucn",
+    "url": "https://lamdong.gov.vn/sites/qppl/so-ban-nganh/bqlkhucn/SitePages/Home.aspx",
+    "status": 200,
+    "title": "Home",
+    "webparts": []
+  },
+  {
+    "tag": "09_so_bqlgt",
+    "url": "https://lamdong.gov.vn/sites/qppl/so-ban-nganh/bqlgt/SitePages/Home.aspx",
+    "status": 200,
+    "title": "Home",
+    "webparts": []
+  },
+  {
+    "tag": "10_so_socongthuong",
+    "url": "https://lamdong.gov.vn/sites/qppl/so-ban-nganh/socongthuong/SitePages/Home.aspx",
+    "status": 200,
+    "title": "Home",
+    "webparts": []
+  },
+  {
+    "tag": "11_so_bandantoc",
+    "url": "https://lamdong.gov.vn/sites/qppl/so-ban-nganh/bandantoc/SitePages/Home.aspx",
+    "status": 200,
+    "title": "Home",
+    "webparts": []
+  },
+  {
+    "tag": "12_sgd_edu",
+    "url": "https://lamdong.edu.vn/vi/sgd-van-ban/?param=sgd_document",
+    "error": "'charmap' codec can't encode character '\\u0103' in position 24: character maps to <undefined>"
+  },
+  {
+    "tag": "13_so_skhcn",
+    "url": "https://lamdong.gov.vn/sites/qppl/so-ban-nganh/skhcn/SitePages/Home.aspx",
+    "status": 200,
+    "title": "Home",
+    "webparts": []
+  },
+  {
+    "tag": "14_so_snv",
+    "url": "https://lamdong.gov.vn/sites/qppl/so-ban-nganh/snv/SitePages/Home.aspx",
+    "status": 200,
+    "title": "Home",
+    "webparts": []
+  },
+  {
+    "tag": "15_so_snnptnt",
+    "url": "https://lamdong.gov.vn/sites/qppl/so-ban-nganh/snnptnt/SitePages/Home.aspx",
+    "status": 200,
+    "title": "Home",
+    "webparts": []
+  },
+  {
+    "tag": "16_so_sngv",
+    "url": "https://lamdong.gov.vn/sites/qppl/so-ban-nganh/sngv/SitePages/Home.aspx",
+    "status": 200,
+    "title": "Home",
+    "webparts": []
+  },
+  {
+    "tag": "17_so_stc",
+    "url": "https://lamdong.gov.vn/sites/qppl/so-ban-nganh/stc/SitePages/Home.aspx",
+    "status": 200,
+    "title": "Home",
+    "webparts": []
+  },
+  {
+    "tag": "18_so_stp",
+    "url": "https://lamdong.gov.vn/sites/qppl/so-ban-nganh/stp/SitePages/Home.aspx",
+    "status": 200,
+    "title": "Home",
+    "webparts": []
+  },
+  {
+    "tag": "19_so_svhttdl",
+    "url": "https://lamdong.gov.vn/sites/qppl/so-ban-nganh/svhttdl/SitePages/Home.aspx",
+    "status": 200,
+    "title": "Home",
+    "webparts": []
+  },
+  {
+    "tag": "20_so_sxd",
+    "url": "https://lamdong.gov.vn/sites/qppl/so-ban-nganh/sxd/SitePages/Home.aspx",
+    "status": 200,
+    "title": "Home",
+    "webparts": []
+  },
+  {
+    "tag": "21_so_syt",
+    "url": "https://lamdong.gov.vn/sites/qppl/so-ban-nganh/syt/SitePages/Home.aspx",
+    "status": 200,
+    "title": "Home",
+    "webparts": []
+  },
+  {
+    "tag": "22_so_thanhtra",
+    "url": "https://lamdong.gov.vn/sites/qppl/so-ban-nganh/thanh-tra-tinh/SitePages/Home.aspx",
+    "status": 200,
+    "title": "Home",
+    "webparts": []
+  }
+]

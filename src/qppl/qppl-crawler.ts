@@ -2,28 +2,31 @@ import fs from "node:fs";
 import path from "node:path";
 import { createLogger } from "../shared/logger.js";
 import type { QpplFileLink, QpplNguon, QpplRawItem } from "./qppl-types.js";
+import { AGENCY_REGISTRY, getTier1Agencies } from "./qppl-registry.js";
+import { fetchEduDocuments } from "./qppl-edu-crawler.js";
 
 const log = createLogger("qppl-crawler");
 
 const API_PROXY_URL = "https://api.lamdong.gov.vn/RestApi/Readjson";
 
 /**
- * Endpoint SharePoint REST API cho từng nguồn.
- *
- * Tên cột $select khớp chính xác với Unicode-encoded field names mà SharePoint
- * trả về — đã xác nhận bằng probe thật (09/2026). Thay đổi tên cột sẽ khiến
- * response trả `undefined` mà không báo lỗi.
+ * Lấy cấu hình endpoint SharePoint REST API cho từng nguồn hoặc Sở ban ngành / địa phương.
  */
-const NGUON_CONFIG: Record<QpplNguon, { baseUrl: string; listTitle: string }> = {
-  ubnd: {
+function getAgencyConfig(nguon: QpplNguon): { baseUrl: string; listTitle: string } {
+  const reg = AGENCY_REGISTRY[nguon];
+  if (reg) {
+    return {
+      baseUrl: `${reg.baseUrl}/_api/web/lists/getByTitle`,
+      listTitle: reg.listTitle,
+    };
+  }
+  // Mặc định về UBND tỉnh
+  return {
     baseUrl: "https://w3.lamdong.gov.vn/sites/vpubnd/_api/web/lists/getByTitle",
     listTitle: "Quản lý văn bản chỉ đạo",
-  },
-  hdnd: {
-    baseUrl: "https://w3.lamdong.gov.vn/sites/dbnd/_api/web/lists/getByTitle",
-    listTitle: "Quản lý văn bản",
-  },
-};
+  };
+}
+
 
 const SP_SELECT_FIELDS = [
   "ID",
@@ -242,7 +245,11 @@ export async function fetchQpplItems(
   nguon: QpplNguon,
   limit = 200,
 ): Promise<QpplRawItem[]> {
-  const cfg = NGUON_CONFIG[nguon];
+  if (nguon === "sgd_edu") {
+    return fetchEduDocuments("", limit);
+  }
+
+  const cfg = getAgencyConfig(nguon);
   const pageSize = Math.min(limit, 100);
   let nextUrl: string | null =
     `${cfg.baseUrl}('${encodeURIComponent(cfg.listTitle)}')/items` +
@@ -302,21 +309,22 @@ export async function fetchQpplItems(
 /**
  * Tra cứu trực tiếp trên API SharePoint theo số hiệu hoặc từ khóa.
  *
- * Dùng làm fallback khi kho local chưa sync đến VB cần tìm (63.000+ VB mà
- * mỗi lần sync chỉ lấy 200 mới nhất). SharePoint `substringof` filter tìm
- * chuỗi con trên trường Số/Ký hiệu hoặc Trích yếu.
- *
- * Thử cả UBND lẫn HĐND rồi gộp kết quả.
+ * Dùng làm fallback khi kho local chưa sync đến VB cần tìm (hàng chục nghìn VB
+ * trên mỗi site).
+ * Hỗ trợ chỉ định cơ quan (targetNguon) hoặc tự động quét toàn bộ Tier 1.
  */
 export async function searchQpplItemsLive(
   keyword: string,
   limit = 10,
+  targetNguon?: QpplNguon,
 ): Promise<{ nguon: QpplNguon; item: QpplRawItem }[]> {
   const kw = keyword.trim();
   if (!kw) return [];
 
   const results: { nguon: QpplNguon; item: QpplRawItem }[] = [];
-  const nguons: QpplNguon[] = ["ubnd", "hdnd"];
+  const nguons: QpplNguon[] = targetNguon
+    ? [targetNguon]
+    : getTier1Agencies().map((a) => a.code);
 
   // SharePoint OData `substringof` phá vỡ khi chuỗi chứa `/` hoặc `'`.
   // "15187/KH-UBND" → dùng "15187" (phần số) để tìm trên Số/Ký hiệu,
@@ -328,10 +336,20 @@ export async function searchQpplItemsLive(
   const escapedKw = safeKw.replace(/'/g, "''");
 
   for (const nguon of nguons) {
-    const cfg = NGUON_CONFIG[nguon];
+    if (nguon === "sgd_edu") {
+      try {
+        const eduItems = await fetchEduDocuments(kw, limit);
+        for (const item of eduItems) {
+          results.push({ nguon, item });
+        }
+      } catch (err) {
+        log.warn({ err }, "Lỗi live search Sở GD&ĐT");
+      }
+      continue;
+    }
+
+    const cfg = getAgencyConfig(nguon);
     // SharePoint OData chỉ hỗ trợ substringof trên Title (Single line of text).
-    // Các trường Unicode-encoded khác (Trích yếu, Số/Ký hiệu) là Note/Calculated
-    // nên sẽ bị SharePoint trả lỗi HTTP 400 Bad Request nếu dùng substringof.
     // Title của văn bản trên SharePoint luôn có dạng: "Trục liên thông: 4480/QĐ-BDD".
     const filter = `substringof('${escapedKw}',Title)`;
     const url =
@@ -449,18 +467,33 @@ export async function searchQpplByDateRange(opts: {
   keyword?: string;
   loaiVanBan?: string;
   limit?: number;
+  targetNguon?: QpplNguon;
 }): Promise<{ nguon: QpplNguon; item: QpplRawItem }[]> {
-  const { dateFrom, dateTo, keyword, loaiVanBan, limit = 50 } = opts;
+  const { dateFrom, dateTo, keyword, loaiVanBan, limit = 50, targetNguon } = opts;
   if (!dateFrom || !dateTo) return [];
 
   const results: { nguon: QpplNguon; item: QpplRawItem }[] = [];
-  const nguons: QpplNguon[] = ["ubnd", "hdnd"];
+  const nguons: QpplNguon[] = targetNguon
+    ? [targetNguon]
+    : getTier1Agencies().map((a) => a.code);
 
   const kwLower = keyword?.trim().toLowerCase() ?? "";
   const loaiLower = loaiVanBan?.trim().toLowerCase() ?? "";
 
   for (const nguon of nguons) {
-    const cfg = NGUON_CONFIG[nguon];
+    if (nguon === "sgd_edu") {
+      try {
+        const eduItems = await fetchEduDocuments(kwLower, limit);
+        for (const item of eduItems) {
+          results.push({ nguon, item });
+        }
+      } catch (err) {
+        log.warn({ err }, "Lỗi live search date range Sở GD&ĐT");
+      }
+      continue;
+    }
+
+    const cfg = getAgencyConfig(nguon);
     const dateFilter =
       `Ng_x00e0_y ge datetime'${dateFrom}T00:00:00' and Ng_x00e0_y lt datetime'${dateTo}T00:00:00'`;
 

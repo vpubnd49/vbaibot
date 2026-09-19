@@ -71,5 +71,37 @@ export type QpplSyncResult = {
   errors: number;
 };
 
-/** Nguồn dữ liệu: UBND tỉnh hoặc HĐND tỉnh */
-export type QpplNguon = "ubnd" | "hdnd";
+/** Nguồn dữ liệu: ubnd, hdnd, các Sở ban ngành hoặc địa phương (huyện/thị) */
+export type QpplNguon =
+  | "ubnd"
+  | "hdnd"
+  | "qppl_chung"
+  | "stp"
+  | "stc"
+  | "snv"
+  | "thanhtra"
+  | "syt"
+  | "sxd"
+  | "svhttdl"
+  | "sct"
+  | "skhcn"
+  | "snnptnt"
+  | "songoaivu"
+  | "bandantoc"
+  | "liza"
+  | "bqlgt"
+  | "ductrong"
+  | "dilinh"
+  | "dateh"
+  | "dalat"
+  | "baoloc"
+  | "donduong"
+  | "lacduong"
+  | "lamha"
+  | "damrong"
+  | "baolam"
+  | "dahuoai"
+  | "cattien"
+  | "sgd_edu"
+  | (string & {});
+

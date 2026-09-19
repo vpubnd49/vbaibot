@@ -38,9 +38,9 @@ export const READ_TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     key: "qppl_lamdong",
-    label: "Văn bản QPPL tỉnh Lâm Đồng",
+    label: "VB Chỉ đạo & QPPL tỉnh Lâm Đồng",
     description:
-      "Tra cứu và tải file văn bản chỉ đạo điều hành, QPPL của UBND tỉnh và HĐND tỉnh Lâm Đồng (Công văn, Quyết định, Nghị quyết, Chỉ thị...)",
+      "Tra cứu và tải file văn bản chỉ đạo điều hành, báo cáo, quyết định, công văn của UBND tỉnh, HĐND tỉnh, các Sở ban ngành (Tư pháp, Tài chính, GD&ĐT, Nội vụ...) và các địa phương cấp huyện (Đức Trọng, Di Linh...)",
     group: "read",
     build: (ctx) => createQpplLamdongTool(ctx),
   },

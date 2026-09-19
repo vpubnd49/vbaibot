@@ -5,6 +5,8 @@ import { createLogger } from "../shared/logger.js";
 import { extractFileUrls, fetchQpplItems, downloadQpplFile, searchQpplItemsLive, searchQpplByDateRange } from "./qppl-crawler.js";
 import { countQpplDocs, getQpplDocById, updateQpplLocalPath, upsertQpplDoc } from "./qppl-store.js";
 import type { QpplDoc, QpplFileLink, QpplNguon, QpplSyncResult } from "./qppl-types.js";
+import { getTier1Agencies } from "./qppl-registry.js";
+import { fetchEduDocumentAttachments } from "./qppl-edu-crawler.js";
 
 const log = createLogger("qppl-service");
 
@@ -94,8 +96,9 @@ export async function syncQpplDocuments(
 export async function liveSearchAndUpsert(
   keyword: string,
   limit = 10,
+  targetNguon?: QpplNguon,
 ): Promise<QpplDoc[]> {
-  const liveResults = await searchQpplItemsLive(keyword, limit);
+  const liveResults = await searchQpplItemsLive(keyword, limit, targetNguon);
   if (liveResults.length === 0) return [];
 
   const docs: QpplDoc[] = [];
@@ -106,7 +109,15 @@ export async function liveSearchAndUpsert(
       "";
     if (!soKyHieu) continue;
 
-    const fileLinks = extractFileUrls(item.Urls);
+    let fileLinks = extractFileUrls(item.Urls);
+    if (fileLinks.length === 0 && typeof item.Urls === "string" && item.Urls.includes("eduId")) {
+      try {
+        const parsed = JSON.parse(item.Urls);
+        if (parsed.eduId) {
+          fileLinks = await fetchEduDocumentAttachments(parsed.eduId);
+        }
+      } catch {}
+    }
 
     try {
       const doc = upsertQpplDoc({
@@ -128,7 +139,7 @@ export async function liveSearchAndUpsert(
     }
   }
 
-  log.info({ keyword, found: docs.length }, "Live search QPPL → upsert xong");
+  log.info({ keyword, found: docs.length, targetNguon }, "Live search QPPL → upsert xong");
   return docs;
 }
 
@@ -147,6 +158,7 @@ export async function liveSearchByDateRange(opts: {
   keyword?: string;
   loaiVanBan?: string;
   limit?: number;
+  targetNguon?: QpplNguon;
 }): Promise<QpplDoc[]> {
   const liveResults = await searchQpplByDateRange({
     dateFrom: opts.dateFrom,
@@ -154,6 +166,7 @@ export async function liveSearchByDateRange(opts: {
     keyword: opts.keyword,
     loaiVanBan: opts.loaiVanBan,
     limit: opts.limit ?? 30,
+    targetNguon: opts.targetNguon,
   });
 
   if (liveResults.length === 0) return [];
@@ -328,16 +341,21 @@ export async function downloadAllFilesForDoc(docId: number): Promise<QpplDownloa
 }
 
 /**
- * Khởi động tiến trình đồng bộ định kỳ VB QPPL tỉnh Lâm Đồng.
+ * Khởi động tiến trình đồng bộ định kỳ VB QPPL và văn bản chỉ đạo các Sở/Ngành trọng điểm (Tier 1).
  */
 export function startQpplSyncTask(): void {
   const run = (): void => {
     void (async () => {
-      try {
-        await syncQpplDocuments("ubnd", 200);
-        await syncQpplDocuments("hdnd", 100);
-      } catch (err) {
-        log.error({ err }, "Đồng bộ VB QPPL định kỳ thất bại");
+      const tier1 = getTier1Agencies();
+      log.info({ agencies: tier1.map(a => a.code) }, "Bắt đầu chu kỳ đồng bộ QPPL & Sở ngành Tier 1");
+      for (const ag of tier1) {
+        try {
+          const limit = ag.code === "ubnd" ? 200 : 100;
+          const res = await syncQpplDocuments(ag.code, limit);
+          log.info({ agency: ag.code, inserted: res.newInserted, updated: res.updated }, "Đã đồng bộ cơ quan Tier 1");
+        } catch (err) {
+          log.warn({ agency: ag.code, err }, "Đồng bộ định kỳ thất bại cho cơ quan");
+        }
       }
     })();
   };

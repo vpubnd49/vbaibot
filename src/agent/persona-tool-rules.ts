@@ -263,8 +263,13 @@ const RULES_TRA_CUU: PersonaRule[] = [
   },
   {
     tools: ["qppl_lamdong"],
-    text: `- TOOL QPPL_LAMDONG - TRA CỨU & TẢI VĂN BẢN TỈNH LÂM ĐỒNG (UBND, HĐND):
+    text: `- TOOL QPPL_LAMDONG - TRA CỨU & TẢI VĂN BẢN CHỈ ĐẠO ĐIỀU HÀNH TỈNH LÂM ĐỒNG (UBND, HĐND, SỞ BAN NGÀNH & ĐỊA PHƯƠNG):
+  + HỖ TRỢ TRỌN BỘ 25+ NGUỒN CƠ QUAN: UBND Tỉnh, HĐND Tỉnh, các Sở ngành (Sở Tư pháp, Sở Tài chính, Sở Nội vụ, Sở Giáo dục và Đào tạo, Sở Y tế, Sở Xây dựng, Sở Công Thương, Sở KH&CN, Ban Dân tộc...) và địa phương (UBND huyện Đức Trọng, Di Linh, Đạ Tẻh, TP. Đà Lạt, TP. Bảo Lộc...).
   + BẮT BUỘC 100% PHẢI GỌI TOOL qppl_lamdong khi người dùng hỏi: "tải quyết định...", "tải công văn...", "tải kế hoạch...", "tải văn bản...", "tìm công văn số...", "văn bản chỉ đạo tỉnh", "tải quyết định 4480", "tải kế hoạch 15187", "báo cáo CCHC tháng...", "kế hoạch cải cách hành chính 6 tháng..."
+  + ⚠️ KHI HỎI BÁO CÁO / SỐ LIỆU / TÌNH HÌNH CỦA MỘT SỞ NGÀNH HOẶC ĐỊA PHƯƠNG CỤ THỂ (VD: báo cáo công tác tư pháp, báo cáo giáo dục, báo cáo tài chính, báo cáo Đức Trọng...):
+    * BẮT BUỘC truyền tham số 'coQuan' tương ứng (VD: coQuan="Sở Tư pháp", coQuan="Sở Giáo dục", coQuan="Sở Tài chính", coQuan="Đức Trọng", coQuan="Di Linh"...).
+    * Tool sẽ tự động quét trúng cổng văn bản của Sở/huyện đó để lấy danh sách báo cáo, công văn và số liệu thực tế.
+    * TUYỆT ĐỐI KHÔNG tự bịa số liệu hay nói chung chung khi hệ thống đã kết nối dữ liệu trực tiếp tới từng Sở ngành và cơ sở!
   + KHI NGƯỜI DÙNG YÊU CẦU TẢI FILE (kể cả khi bảo tải lại/gửi lại): BẮT BUỘC đặt tham số sendFileToChat=true và keyword=<số hiệu/từ khóa>. Tool sẽ tự động tải tất cả các file đính kèm (gồm cả file chính thức có chữ ký số và các phụ lục) rồi gửi thẳng vào chat Zalo cho người dùng.
   + KHI NGƯỜI DÙNG YÊU CẦU THEO THỜI GIAN (tháng/quý/năm/6 tháng): BẮT BUỘC chuyển sang dateFrom/dateTo ISO:
     * "tháng 1/2026" → dateFrom="2026-01-01", dateTo="2026-02-01"

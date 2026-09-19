@@ -9,6 +9,7 @@ import { guiFileKemCaption } from "./send-attachment-with-caption.js";
 import { ghiChuDaGuiFile } from "./sent-by-tool-note.js";
 import type { ToolContext } from "./tool-catalog-types.js";
 import type { QpplDoc, QpplFileLink, QpplNguon } from "../../qppl/qppl-types.js";
+import { resolveAgency, getAgencyConfig } from "../../qppl/qppl-registry.js";
 import { createQpplArchive } from "../../qppl/qppl-archive.js";
 import { createLogger } from "../../shared/logger.js";
 
@@ -26,10 +27,11 @@ function parseFileLinks(fileUrls: string): QpplFileLink[] {
 export function createQpplLamdongTool({ api, account, message, ghiNhanDaGui }: ToolContext) {
   return tool({
     description:
-      "BẮT BUỘC GỌI TOOL NÀY khi người dùng yêu cầu tra cứu, tìm kiếm hoặc TẢI FILE văn bản chỉ đạo điều hành của tỉnh Lâm Đồng " +
-      "(Quyết định UBND/BĐD, Công văn, Kế hoạch, Nghị quyết HĐND, Chỉ thị, Báo cáo, Tờ trình...). " +
-      "Hỗ trợ lọc theo khoảng thời gian (tháng, quý, năm) kết hợp loại VB và từ khóa. " +
-      "KHI NGƯỜI DÙNG YÊU CẦU TẢI FILE (VD: 'tải quyết định 4480', 'tải kế hoạch 15187', 'gửi file quyết định...'): " +
+      "BẮT BUỘC GỌI TOOL NÀY khi người dùng yêu cầu tra cứu, tìm kiếm hoặc TẢI FILE văn bản chỉ đạo điều hành, " +
+      "báo cáo, quyết định, công văn, kế hoạch của UBND Tỉnh, HĐND Tỉnh hoặc BẤT KỲ SỞ BAN NGÀNH, ĐỊA PHƯƠNG CỦA LÂM ĐỒNG " +
+      "(Sở Tư pháp, Sở Tài chính, Sở Giáo dục & Đào tạo, Sở Nội vụ, Thanh tra tỉnh, UBND huyện Đức Trọng, Di Linh, Đạ Tẻh, TP. Đà Lạt...). " +
+      "Khi người dùng hỏi báo cáo/văn bản của ngành hoặc huyện nào, LUÔN truyền 'coQuan' tương ứng để tìm chính xác tại nguồn đó. " +
+      "KHI NGƯỜI DÙNG YÊU CẦU TẢI FILE (VD: 'tải quyết định 4480', 'tải kế hoạch 15187', 'gửi file...'): " +
       "BẮT BUỘC đặt sendFileToChat=true và keyword là số hiệu văn bản để tool tải toàn bộ file đính kèm gửi thẳng vào chat.",
     inputSchema: z.object({
       action: z
@@ -42,7 +44,13 @@ export function createQpplLamdongTool({ api, account, message, ghiNhanDaGui }: T
         .string()
         .optional()
         .describe(
-          "Từ khóa tìm kiếm: số ký hiệu (VD: '4496/QĐ-UBND'), trích yếu, tên cơ quan, lĩnh vực, hoặc 'mới nhất'",
+          "Từ khóa tìm kiếm: số ký hiệu (VD: '4496/QĐ-UBND'), trích yếu, tên văn bản, lĩnh vực, hoặc 'mới nhất'",
+        ),
+      coQuan: z
+        .string()
+        .optional()
+        .describe(
+          "Tên cơ quan, Sở ban ngành hoặc huyện/thành phố để tra cứu đích danh (VD: 'Sở Tư pháp', 'Sở Tài chính', 'Sở Giáo dục', 'Đức Trọng', 'UBND tỉnh'...). Hệ thống sẽ tự động đối chiếu và quét đúng cơ quan tương ứng.",
         ),
       loaiVanBan: z
         .string()
@@ -51,9 +59,9 @@ export function createQpplLamdongTool({ api, account, message, ghiNhanDaGui }: T
           "Lọc theo loại VB: 'Công văn', 'Quyết định', 'Nghị quyết', 'Chỉ thị', 'Báo cáo', 'Tờ trình'",
         ),
       nguon: z
-        .enum(["ubnd", "hdnd"])
+        .string()
         .optional()
-        .describe("Nguồn: 'ubnd' = UBND tỉnh, 'hdnd' = HĐND tỉnh"),
+        .describe("Mã nguồn cơ quan nếu biết (VD: 'ubnd', 'hdnd', 'stp', 'stc', 'snv', 'ductrong', 'sgd_edu'...)"),
       docId: z
         .number()
         .optional()
@@ -91,13 +99,31 @@ export function createQpplLamdongTool({ api, account, message, ghiNhanDaGui }: T
           "Đặt >1 khi user yêu cầu 'tất cả', 'mấy cái', 'các VB' — VD: 'gửi tất cả báo cáo CCHC' → maxSendDocs=10.",
         ),
     }),
-    execute: async ({ action, keyword, loaiVanBan, nguon, docId, dateFrom, dateTo, sendFileToChat, archiveFiles, maxSendDocs }) => {
+    execute: async ({ action, keyword, coQuan, loaiVanBan, nguon, docId, dateFrom, dateTo, sendFileToChat, archiveFiles, maxSendDocs }) => {
+      // 1. Phân giải targetNguon từ coQuan, nguon hoặc keyword
+      let targetNguon: QpplNguon | undefined = undefined;
+      if (coQuan) {
+        const ag = resolveAgency(coQuan);
+        if (ag) targetNguon = ag.code;
+      }
+      if (!targetNguon && nguon) {
+        const ag = resolveAgency(nguon);
+        targetNguon = ag ? ag.code : (nguon as QpplNguon);
+      }
+      if (!targetNguon && keyword) {
+        const ag = resolveAgency(keyword);
+        if (ag && ag.code !== "ubnd") {
+          targetNguon = ag.code;
+        }
+      }
+
       // === SYNC ===
       if (action === "sync") {
-        const target = (nguon as QpplNguon) || "ubnd";
+        const target = targetNguon || "ubnd";
         const syncRes = await syncQpplDocuments(target, 200);
+        const agConfig = getAgencyConfig(target);
         return (
-          `Đã đồng bộ VB QPPL tỉnh Lâm Đồng (nguồn: ${target.toUpperCase()}): ` +
+          `Đã đồng bộ văn bản (nguồn: ${agConfig?.name || target.toUpperCase()}): ` +
           `Quét ${syncRes.totalScanned} mục, cập nhật ${syncRes.updated} mục. ` +
           `Tổng: ${countQpplDocs(target)} văn bản trong kho.`
         );
@@ -247,27 +273,31 @@ export function createQpplLamdongTool({ api, account, message, ghiNhanDaGui }: T
       let docs = searchQpplDocs({
         keyword,
         loaiVanBan,
-        nguon: nguon as QpplNguon | undefined,
+        nguon: targetNguon,
         dateFrom,
         dateTo,
         limit: 50,
       });
 
-      // Nếu kho rỗng (lần đầu), auto-sync rồi tìm lại
-      if (docs.length === 0 && countQpplDocs() === 0) {
-        await syncQpplDocuments("ubnd", 100);
-        await syncQpplDocuments("hdnd", 50);
-        docs = searchQpplDocs({ keyword, loaiVanBan, nguon: nguon as QpplNguon | undefined, dateFrom, dateTo, limit: 50 });
+      // Nếu kho rỗng cho nguồn này (lần đầu), auto-sync rồi tìm lại
+      if (docs.length === 0 && countQpplDocs(targetNguon) === 0) {
+        if (targetNguon) {
+          await syncQpplDocuments(targetNguon, 100);
+        } else {
+          await syncQpplDocuments("ubnd", 100);
+          await syncQpplDocuments("hdnd", 50);
+        }
+        docs = searchQpplDocs({ keyword, loaiVanBan, nguon: targetNguon, dateFrom, dateTo, limit: 50 });
       }
 
       // Fallback 1: nếu có dateFrom/dateTo → tra API theo khoảng ngày
       if (docs.length === 0 && dateFrom && dateTo) {
-        docs = await liveSearchByDateRange({ dateFrom, dateTo, keyword, loaiVanBan, limit: 30 });
+        docs = await liveSearchByDateRange({ dateFrom, dateTo, keyword, loaiVanBan, targetNguon, limit: 30 });
       }
 
       // Fallback 2: local DB không có + không có dateRange → tra cứu live bằng keyword
       if (docs.length === 0 && keyword) {
-        docs = await liveSearchAndUpsert(keyword, 30);
+        docs = await liveSearchAndUpsert(keyword, 30, targetNguon);
         // Nếu tìm được bằng keyword nhưng có dateFrom/dateTo → lọc lại theo ngày
         if (dateFrom || dateTo) {
           docs = docs.filter((d) => {
@@ -279,10 +309,21 @@ export function createQpplLamdongTool({ api, account, message, ghiNhanDaGui }: T
         }
       }
 
+      // Fallback 3: Có targetNguon nhưng không ra kết quả từ keyword (hoặc keyword quá hẹp) → lấy mới nhất từ nguồn này
+      if (docs.length === 0 && targetNguon) {
+        docs = await liveSearchAndUpsert("", 30, targetNguon);
+        if (loaiVanBan) {
+          const lvbLower = loaiVanBan.toLowerCase();
+          const filtered = docs.filter((d) => d.loaiVanBan.toLowerCase().includes(lvbLower));
+          if (filtered.length > 0) docs = filtered;
+        }
+      }
+
       if (docs.length === 0) {
+        const agencyName = targetNguon ? (getAgencyConfig(targetNguon)?.name || targetNguon) : "Lâm Đồng";
         return (
-          `Không tìm thấy văn bản QPPL nào phù hợp với "${keyword || ""}". ` +
-          `Thử từ khóa rộng hơn (VD: số hiệu, tên cơ quan, loại VB, năm ban hành).`
+          `Không tìm thấy văn bản nào của ${agencyName} phù hợp với "${keyword || ""}". ` +
+          `Thử từ khóa rộng hơn (VD: số hiệu, loại VB, năm ban hành).`
         );
       }
 
@@ -415,16 +456,20 @@ export function createQpplLamdongTool({ api, account, message, ghiNhanDaGui }: T
           : fileLinks.length > 0
             ? `[Có ${fileLinks.length} file trực tuyến]`
             : "[Không có file]";
+        const coQuanHienThi = d.coQuanBanHanh || (getAgencyConfig(d.nguon as QpplNguon)?.name ?? d.nguon.toUpperCase());
         return (
           `${idx + 1}. **[ID #${d.id}]** ${d.soKyHieu}\n` +
-          `   - ${d.loaiVanBan} | ${dateStr} | ${d.hieuLuc}\n` +
+          `   - ${d.loaiVanBan} | ${dateStr} | CQ: ${coQuanHienThi} | ${d.hieuLuc}\n` +
           `   - ${d.trichYeu.slice(0, 120)}${d.trichYeu.length > 120 ? "..." : ""}\n` +
           `   - ${fileStatus}`
         );
       });
 
+      const agencyInfo = targetNguon ? getAgencyConfig(targetNguon) : undefined;
+      const titleHeader = agencyInfo ? agencyInfo.name.toUpperCase() : "TỈNH LÂM ĐỒNG (UBND, SỞ NGÀNH, ĐỊA PHƯƠNG)";
+
       return (
-        `🔍 **DANH SÁCH VĂN BẢN QPPL TỈNH LÂM ĐỒNG** (Tìm: "${keyword || "Mới nhất"}"):\n\n` +
+        `🔍 **DANH SÁCH VĂN BẢN CHỈ ĐẠO & ĐIỀU HÀNH [${titleHeader}]** (Tìm: "${keyword || "Mới nhất"}"):\n\n` +
         lines.join("\n\n") +
         sendStatusNote +
         `\n\n*(Mẹo: Nhắn "tải file VB số [ký hiệu]" hoặc chỉ ID cụ thể để bot gửi file.)*`
