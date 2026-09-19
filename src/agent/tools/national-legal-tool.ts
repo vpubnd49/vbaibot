@@ -150,7 +150,9 @@ export function createNationalLegalTool({ api, account, message, ghiNhanDaGui }:
             }
 
             // Kiểm tra xem yêu cầu có phải là tải nhiều văn bản không ("các nghị định", "danh sách", "những")
-            const isPlural = /\b(các|những|danh sách|toàn bộ|tất cả)\b/i.test(resolvedSearchTarget);
+             const hasExplicitDocumentRequest = /\b(?:qđ|quyết định|nghị định|thông tư|luật)\b/i.test(resolvedSearchTarget) && /\b\d{2,6}\b/.test(resolvedSearchTarget);
+             const isPlural = !hasExplicitDocumentRequest && /\b(các|những|danh sách|toàn bộ|tất cả)\b/i.test(resolvedSearchTarget);
+
             const countToDownload = isPlural ? Math.min(searchResults.length, limit > 1 ? limit : 3) : 1;
 
             if (countToDownload > 1 && sendFileToChat) {
@@ -191,8 +193,10 @@ export function createNationalLegalTool({ api, account, message, ghiNhanDaGui }:
               return msg;
             }
 
-             const best = searchResults[0];
-             targetDownloadId = best.downloadId;
+              const best = searchResults[0];
+              if (!best) return `Không xác định được văn bản chính xác từ yêu cầu "${resolvedSearchTarget}".`;
+              targetDownloadId = best.downloadId;
+
              targetSource = best.source;
              targetSoHieu = targetSoHieu || best.soHieu;
              log.info({ selected: best.soHieu, source: best.source, downloadId: best.downloadId }, "Selected best national legal result");

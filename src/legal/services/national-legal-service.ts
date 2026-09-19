@@ -54,7 +54,11 @@ export type NationalDownloadResult = {
  */
 export async function searchNationalLegal(keyword: string): Promise<NationalLegalResult[]> {
   const results: NationalLegalResult[] = [];
-  const explicitNumber = keyword.match(/\b\d+\/\d{4}\/[A-ZĐa-zđ0-9_-]+\b/)?.[0];
+  // Nhận cả cách nói tự nhiên: "qđ 1805 ngày 18/9/2026 của thủ tướng".
+  // Không để query tự do bị hiểu thành yêu cầu soạn DOCX hoặc khớp OR sai văn bản.
+  const shorthand = keyword.match(/(?:qđ|quyết định)\s*(\d{1,6})(?:[^\d]|$)/i);
+  const explicitNumber = keyword.match(/\b\d+\/\d{4}\/[A-ZĐa-zđ0-9_-]+\b/)?.[0]
+    || (shorthand?.[1] && /thủ\s*tướng|ttg/i.test(keyword) ? `${shorthand[1]}/${new Date().getFullYear()}/QĐ-TTg` : undefined);
   const localMatch = findLegalDocumentByNumber(explicitNumber || keyword) || findLegalDocumentByAlias(keyword);
   if (localMatch) {
     const officialUrl = localMatch.officialSourceUrls.find((url) => url.includes("vanban.chinhphu.vn")) || localMatch.officialSourceUrls[0] || "";
@@ -184,6 +188,20 @@ export async function searchNationalLegal(keyword: string): Promise<NationalLega
 
   // API các cổng thường tìm theo từng từ (OR), vì vậy phải ưu tiên bản ghi
   // khớp số hiệu/tên văn bản trước khi tool chọn bản ghi để tải.
+  if (shorthand?.[1]) {
+    const wantedNumber = shorthand[1];
+    const wantedYear = keyword.match(/(?:ngày\s+\d{1,2}\/\d{1,2}\/|\b)(20\d{2})\b/)?.[1];
+    const wantedIssuer = /thủ\s*tướng|ttg/i.test(keyword);
+    const filtered = results.filter((r) => {
+      const normalized = normalizeSoHieu(r.soHieu);
+      const numberMatches = normalized.startsWith(normalizeSoHieu(wantedNumber)) && normalized.includes("QDTTG");
+      const yearMatches = !wantedYear || r.ngayBanHanh.startsWith(wantedYear);
+      const issuerMatches = !wantedIssuer || /thủ\s*tướng|ttg/i.test(`${r.trichYeu} ${r.loaiVB} ${r.soHieu}`);
+      return numberMatches && yearMatches && issuerMatches;
+    });
+    results.splice(0, results.length, ...filtered);
+  }
+
   const normalizedQuery = normalizeSearchText(keyword);
   results.sort((a, b) => {
     const sourceRank = (source: NationalLegalResult["source"]) => NATIONAL_DOWNLOAD_SOURCE_PRIORITY.indexOf(source);
@@ -273,11 +291,20 @@ async function downloadFromOfficialDetailPage(
   try {
     const response = await fetch(detailUrl, { headers: { "User-Agent": "Mozilla/5.0" }, signal: AbortSignal.timeout(20_000) });
     if (!response.ok) return { filePath: null, format, fileSize: 0, source: "vbpl", error: `Nguồn Chính phủ HTTP ${response.status}` };
-    const html = await response.text();
-    const links = [...html.matchAll(/https?:[^"'\\\s<>]+\.(?:pdf|docx?)(?:\?[^"'\\\s<>]*)?/gi)]
-      .map((m) => m[0].replace(/&amp;/g, "&"))
-      .filter((url) => /^https:\/\/datafiles\.chinhphu\.vn\/cpp\/files\/vbpq\/\d{4}\/\d{1,2}\/[^/?#]+\.(?:pdf|docx?)(?:[?#].*)?$/i.test(url));
+    const html = (await response.text())
+      .replace(/&amp;/g, "&")
+      .replace(/\\u002F|\\\//g, "/")
+      .replace(/\\u003A/g, ":");
+    const rawLinks = [...html.matchAll(/(?:https?:)?[^"'\\\s<>]+\.(?:pdf|docx?)(?:\?[^"'\\\s<>]*)?/gi)]
+      .map((m) => m[0].startsWith("/") ? new URL(m[0], detailUrl).toString() : m[0]);
+    const links = rawLinks.filter((url) => {
+      try {
+        const parsed = new URL(url, detailUrl);
+        return parsed.protocol === "https:" && parsed.hostname.toLowerCase() === "datafiles.chinhphu.vn" && /\/cpp\/files\/vbpq\/\d{4}\/\d{1,2}\/[^/?#]+\.(?:pdf|docx?)(?:[?#].*)?$/i.test(parsed.toString());
+      } catch { return false; }
+    });
     const preferred = links.find((url) => format === "pdf" ? /\.pdf(?:\?|$)/i.test(url) : /\.docx?(?:\?|$)/i.test(url));
+    log.info({ detailUrl, candidateCount: links.length, selectedUrl: preferred, format }, "Official Government document link selected");
     if (!preferred) return { filePath: null, format, fileSize: 0, source: "vbpl", error: `Không tìm thấy file ${format.toUpperCase()} chính thức trên trang Chính phủ` };
     const fileResponse = await fetch(preferred, {
       headers: { "User-Agent": "Mozilla/5.0", Accept: format === "pdf" ? "application/pdf" : "application/vnd.openxmlformats-officedocument.wordprocessingml.document" },
