@@ -231,6 +231,40 @@ describe("đánh dấu người ngoài allowlist", () => {
     assert.equal(ra[0]!.content, "Dạ vâng");
   });
 
+  it("không preload ZIP trong history và không để ZIP chiếm ngân sách tài liệu", () => {
+    const history: StoredMessage[] = [
+      {
+        role: "user",
+        content: "tài liệu cũ [gửi kèm 1 file: luu-tru.zip]",
+        files: [{ fileName: "luu-tru.zip", localPath: "media/a/t/luu-tru.zip", extension: ".zip" }],
+      },
+      {
+        role: "user",
+        content: "tài liệu cần đọc [gửi kèm 1 file: luat.docx]",
+        files: [{ fileName: "luat.docx", localPath: "media/a/t/luat.docx", extension: ".docx" }],
+      },
+    ];
+
+    const plan = planDocumentBudget(history, 1);
+    assert.equal(plan.size, 1);
+    assert.deepEqual(collectDocumentPathsWithinBudget(history, 1), ["media/a/t/luat.docx"]);
+
+    let loadedPath: string | undefined;
+    historyToModelMessages(
+      history,
+      0,
+      () => null,
+      undefined,
+      undefined,
+      1,
+      (relPath) => {
+        loadedPath = relPath;
+        return { text: `Nội dung của ${relPath}` };
+      },
+    );
+    assert.equal(loadedPath, "media/a/t/luat.docx");
+  });
+
   it("ngân sách tài liệu history ưu tiên tin mới nhất, tin cũ rơi về text", () => {
     const history: StoredMessage[] = [
       {

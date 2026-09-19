@@ -82,7 +82,13 @@ export function planDocumentBudget(
   for (let i = history.length - 1; i >= 0 && budget > 0; i--) {
     const message = history[i]!;
     if (message.role !== "user" || !message.files || message.files.length === 0) continue;
-    const validFiles = message.files.filter((f) => Boolean(f.localPath));
+    // ZIP history không được preload: việc đọc ZIP sẽ giải nén/OCR toàn bộ
+    // archive trước cả khi biết lượt hiện tại có cần nội dung đó hay không.
+    // ZIP vẫn được xử lý bình thường khi là file của lượt hiện tại hoặc khi
+    // người dùng chủ động gọi tool đọc/OCR.
+    const validFiles = message.files.filter(
+      (f) => Boolean(f.localPath) && f.extension.toLowerCase() !== ".zip" && !/\.zip$/i.test(f.localPath!),
+    );
     if (validFiles.length > 0) {
       docBudgetByIndex.set(i, validFiles);
       budget--;

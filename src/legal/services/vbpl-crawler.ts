@@ -55,6 +55,21 @@ export type VbplDownloadResult = {
   error?: string;
 };
 
+/**
+ * Kiểm tra nhanh bytes trước khi ghi xuống đĩa. Không tin extension hoặc
+ * Content-Type vì các endpoint lỗi đôi khi trả HTML với HTTP 200.
+ */
+export function isValidDocumentBuffer(buffer: Buffer, format: "pdf" | "docx"): boolean {
+  if (buffer.length < 1000) return false;
+  if (format === "pdf") return buffer.subarray(0, 5).toString("ascii") === "%PDF-";
+  // DOCX là một OOXML package (ZIP). Kiểm tra cả local-file và empty archive.
+  return buffer[0] === 0x50 && buffer[1] === 0x4b && (buffer[2] === 0x03 || buffer[2] === 0x05 || buffer[2] === 0x07);
+}
+
+function normalizeDocumentNumber(value: string): string {
+  return value.replace(/[\s/-]/g, "").toUpperCase();
+}
+
 const DOC_TYPE_MAP: Record<string, string> = {
   "nghi-dinh": "0d08b84c-7de7-4800-8760-2a68265e7890",
 };
@@ -376,9 +391,20 @@ async function downloadFromMojGateway(
     return { filePath: null, format, fileSize: 0, error: "Không tìm thấy dữ liệu văn bản trên MOJ" };
   }
 
+  // Không đoán tên DOCX bằng cách đổi đuôi PDF: hai file có thể không tồn tại
+  // đồng thời, hoặc endpoint có thể trả HTML lỗi nhưng HTTP 200.
   const exactFileName = format === "docx"
-    ? data.documentContentFileDocName || data.documentContentFileName?.replace(/\.pdf$/i, ".docx")
+    ? data.documentContentFileDocName
     : data.documentContentFileName;
+
+  if (soHieu && data.docNum && normalizeDocumentNumber(soHieu) !== normalizeDocumentNumber(data.docNum)) {
+    return {
+      filePath: null,
+      format,
+      fileSize: 0,
+      error: `Metadata không khớp số hiệu (yêu cầu ${soHieu}, nguồn trả ${data.docNum})`,
+    };
+  }
 
   if (!exactFileName) {
     return { filePath: null, format, fileSize: 0, error: `Không có file ${format} cho văn bản này` };
@@ -389,7 +415,7 @@ async function downloadFromMojGateway(
   log.info({ docId, exactFileName, fileUrl }, "Downloading from MOJ MinIO");
 
   const fileRes = await fetch(fileUrl, {
-    headers: { "User-Agent": BROWSER_HEADERS["User-Agent"] },
+    headers: { "User-Agent": BROWSER_HEADERS["User-Agent"], Accept: format === "pdf" ? "application/pdf" : "application/vnd.openxmlformats-officedocument.wordprocessingml.document" },
     signal: AbortSignal.timeout(60_000),
   });
 
@@ -400,8 +426,13 @@ async function downloadFromMojGateway(
   const arrayBuffer = await fileRes.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
 
-  if (buffer.length < 1000) {
-    return { filePath: null, format, fileSize: 0, error: "File tải về dung lượng quá nhỏ" };
+  if (!isValidDocumentBuffer(buffer, format)) {
+    return {
+      filePath: null,
+      format,
+      fileSize: 0,
+      error: `File tải về không phải ${format.toUpperCase()} hợp lệ hoặc nội dung rỗng`,
+    };
   }
 
   const effectiveSoHieu = soHieu || data.docNum || exactFileName.replace(/\.(pdf|docx)$/i, "");
@@ -477,21 +508,22 @@ async function downloadWithPuppeteer(
     await page.setUserAgent(BROWSER_HEADERS["User-Agent"]);
 
     let capturedBuf: Buffer | null = null;
+    let captureError: string | undefined;
+    const expectedExtension = format === "pdf" ? ".pdf" : ".docx";
 
-    // Intercept network response containing the file
+    // Chỉ nhận response đúng format và xác minh bytes; không bắt nhầm PDF phụ,
+    // ảnh preview hoặc HTML lỗi trong cùng trang chi tiết.
     page.on("response", async (res: any) => {
-      const ct = res.headers()["content-type"] || "";
+      const ct = String(res.headers()["content-type"] || "").toLowerCase();
       const url = res.url();
-      if (
-        (ct.includes("octet-stream") || ct.includes("pdf")) &&
-        (url.includes("vbpl-bientap-gateway") || url.includes("minio") || url.includes(".pdf"))
-      ) {
-        try {
-          const buf = await res.buffer();
-          if (buf.length > 5000) {
-            capturedBuf = buf;
-          }
-        } catch {}
+      const urlMatchesFormat = new RegExp(`${expectedExtension.replace(".", "\\\\.")}(?:[?#]|$)`, "i").test(url);
+      const contentMatchesFormat = format === "pdf" ? ct.includes("pdf") : ct.includes("wordprocessingml") || ct.includes("octet-stream");
+      if (!contentMatchesFormat || !urlMatchesFormat) return;
+      try {
+        const buf = await res.buffer();
+        if (isValidDocumentBuffer(buf, format)) capturedBuf = buf;
+      } catch (err) {
+        captureError = String(err);
       }
     });
 
@@ -514,8 +546,13 @@ async function downloadWithPuppeteer(
       await new Promise((r) => setTimeout(r, 1000));
     }
 
-    if (!capturedBuf || (capturedBuf as Buffer).length < 1000) {
-      return { filePath: null, format, fileSize: 0, error: "Browser timeout waiting for file stream" };
+    if (!capturedBuf || !isValidDocumentBuffer(capturedBuf, format)) {
+      return {
+        filePath: null,
+        format,
+        fileSize: 0,
+        error: captureError || `Browser không nhận được file ${format.toUpperCase()} hợp lệ trong thời gian chờ`,
+      };
     }
 
     const safeName = (soHieu || docIdOrSlug.slice(0, 60)).replace(/[/\\:*?"<>|]/g, "-");

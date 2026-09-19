@@ -255,18 +255,27 @@ async function downloadFromOfficialDetailPage(
     const response = await fetch(detailUrl, { headers: { "User-Agent": "Mozilla/5.0" }, signal: AbortSignal.timeout(20_000) });
     if (!response.ok) return { filePath: null, format, fileSize: 0, source: "vbpl", error: `Nguồn Chính phủ HTTP ${response.status}` };
     const html = await response.text();
-    const links = [...html.matchAll(/https?:[^"'\\\s<>]+\.(?:pdf|docx?)(?:\?[^"'\\\s<>]*)?/gi)].map((m) => m[0].replace(/&amp;/g, "&"));
-    const preferred = links.find((url) => format === "pdf" ? /\.pdf(?:\?|$)/i.test(url) : /\.docx?(?:\?|$)/i.test(url)) || links[0];
-    if (!preferred) return { filePath: null, format, fileSize: 0, source: "vbpl", error: "Không tìm thấy file trên trang Chính phủ" };
-    const fileResponse = await fetch(preferred, { headers: { "User-Agent": "Mozilla/5.0" }, signal: AbortSignal.timeout(60_000) });
+    const links = [...html.matchAll(/https?:[^"'\\\s<>]+\.(?:pdf|docx?)(?:\?[^"'\\\s<>]*)?/gi)]
+      .map((m) => m[0].replace(/&amp;/g, "&"))
+      .filter((url) => /^https:\/\/datafiles\.chinhphu\.vn\/cpp\/files\/vbpq\/\d{4}\/\d{1,2}\/[^/?#]+\.(?:pdf|docx?)(?:[?#].*)?$/i.test(url));
+    const preferred = links.find((url) => format === "pdf" ? /\.pdf(?:\?|$)/i.test(url) : /\.docx?(?:\?|$)/i.test(url));
+    if (!preferred) return { filePath: null, format, fileSize: 0, source: "vbpl", error: `Không tìm thấy file ${format.toUpperCase()} chính thức trên trang Chính phủ` };
+    const fileResponse = await fetch(preferred, {
+      headers: { "User-Agent": "Mozilla/5.0", Accept: format === "pdf" ? "application/pdf" : "application/vnd.openxmlformats-officedocument.wordprocessingml.document" },
+      signal: AbortSignal.timeout(60_000),
+    });
     if (!fileResponse.ok) return { filePath: null, format, fileSize: 0, source: "vbpl", error: `Tải file Chính phủ HTTP ${fileResponse.status}` };
     const buffer = Buffer.from(await fileResponse.arrayBuffer());
+    const valid = format === "pdf"
+      ? buffer.length >= 1000 && buffer.subarray(0, 5).toString("ascii") === "%PDF-"
+      : buffer.length >= 1000 && buffer[0] === 0x50 && buffer[1] === 0x4b && (buffer[2] === 0x03 || buffer[2] === 0x05 || buffer[2] === 0x07);
+    if (!valid) return { filePath: null, format, fileSize: 0, source: "vbpl", error: `File Chính phủ không phải ${format.toUpperCase()} hợp lệ` };
     const fs = await import("node:fs/promises");
     const path = await import("node:path");
     const dir = path.join(process.cwd(), "data", "vbpl");
     await fs.mkdir(dir, { recursive: true });
     const safe = (soHieu || "van-ban").replace(/[/\\:*?"<>|]/g, "-");
-    const ext = path.extname(new URL(preferred).pathname) || `.${format}`;
+    const ext = path.extname(new URL(preferred).pathname).toLowerCase();
     const filePath = path.join(dir, `${safe}${ext}`);
     await fs.writeFile(filePath, buffer);
     return { filePath, format: ext.slice(1), fileSize: buffer.length, source: "vbpl" };
