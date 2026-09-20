@@ -1,6 +1,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import {
+  laNguoiDungYeuCauXuatFile,
   laTinNhanAoGiacGuiFile,
   taoTinNhanNhacGoiTool,
   xoaNhanAoGiacGuiFile,
@@ -51,6 +52,11 @@ describe("file-send-guard", () => {
     it("trả về false cho hội thoại thông thường không liên quan đến gửi file", () => {
       const text = "Theo quy định tại Nghị định 30/2020/NĐ-CP thì phông chữ sử dụng là Times New Roman.";
       assert.equal(laTinNhanAoGiacGuiFile(text, []), false);
+    });
+
+    it("không coi yêu cầu gửi lời chào thành yêu cầu gửi file", () => {
+      const userPrompt = "Hãy gửi lời chào đến các thành viên mới tham gia nhóm";
+      assert.equal(laNguoiDungYeuCauXuatFile(userPrompt), false);
     });
 
     // ── Hồi quy cho các lỗ hổng regex phát hiện ngày 10/09/2026 ──

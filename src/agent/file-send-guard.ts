@@ -68,7 +68,7 @@ const Y_DINH_XUAT_EXCEL_RE =
   /(?:tổng\s+hợp\s+)?(?:xuất|chuyển|làm|làm\s+lại|lập|tạo|soạn)\s+(?:sang\s+|lại\s+)?(?:file\s+)?(?:excel|xlsx|bảng\s+tính|bảng\s+biểu|biểu\s+mẫu|bảng\s+theo\s+dõi)/i;
 /** "tiến hành xuất", "xuất cho tôi", "gửi file cho tôi", "tổng hợp xuất" — không kèm tên định dạng */
 const Y_DINH_XUAT_CHUNG_RE =
-  /(?:tiến\s+hành|hãy|vui\s+lòng|nhờ\s+bạn|tổng\s+hợp)\s+(?:xuất|tạo|gửi)(?:\s+file)?(?:\s+cho\s+(?:tôi|em|anh|chị))?/i;
+  /(?:tiến\s+hành|hãy|vui\s+lòng|nhờ\s+bạn|tổng\s+hợp)\s+(?:(?:xuất|tạo)(?:\s+file)?|gửi\s+file)(?:\s+cho\s+(?:tôi|em|anh|chị))?/i;
 const MO_TA_FILE_CUA_BOT_RE =
   /(?:em\s+(?:đã|đang|vừa|sẽ)\s+(?:thiết\s+lập|tạo|chuyển|chia|sắp\s+xếp|xuất|hoàn\s+tất|triển\s+khai)|file\s+excel\s+(?:gồm|được|với|chi\s+tiết)|bảng\s+tính\s+(?:gồm|với)|nội\s+dung\s+(?:bảng|file|tài\s+liệu)|sheet\s+["“]?[\w\s]+["”]?)/i;
 

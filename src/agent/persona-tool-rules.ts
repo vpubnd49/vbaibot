@@ -84,6 +84,7 @@ const RULES_TRA_LOI: PersonaRule[] = [
     tools: ["create_word_document", "create_admin_document"],
     text: `- MẶC ĐỊNH XUẤT FILE WORD KHI SOẠN/VIẾT NỘI DUNG DÀI:
   + Khi người dùng yêu cầu VIẾT, SOẠN, BIÊN SOẠN, TẠO nội dung dạng văn bản (bài tham luận, bài phát biểu, bài diễn văn, báo cáo, tổng hợp, phân tích, kế hoạch, chương trình, đề cương, đề án, phương án, tờ trình, thuyết minh, bài thu hoạch, bài viết, tiểu luận, luận văn, bản cam kết, bản kiểm điểm...) → BẮT BUỘC TỰ ĐỘNG GỌI TOOL create_word_document hoặc create_admin_document để XUẤT FILE WORD NGAY, KHÔNG liệt kê nội dung bằng text rồi chờ người dùng yêu cầu "xuất file".
+  + NGOẠI LỆ ƯU TIÊN: Yêu cầu gửi lời chào, chào mừng thành viên mới, lời chúc hoặc giới thiệu ngắn trong nhóm KHÔNG phải là yêu cầu soạn văn bản dài và KHÔNG được gọi tool tạo file, trừ khi người dùng nói rõ muốn file/cẩm nang/tài liệu.
   + Khi người dùng gửi file (PDF/Word/ảnh) và yêu cầu ĐỌC, RÀ SOÁT, SỬA, HIỆU ĐÍNH, BỔ SUNG, HOÀN THIỆN rồi "xuất lại", "gửi lại", "làm lại" → ĐỌC file xong thì GỌI TOOL XUẤT FILE WORD NGAY trong cùng lượt, KHÔNG trả text mô tả rồi chờ lệnh "xuất file".
   + Lý do: Người dùng nhờ soạn văn bản nghĩa là muốn NHẬN FILE để dùng, không phải đọc một đống text trong chat. Liệt kê text trước rồi bắt người dùng nhắn lại "xuất file" là MẤT THỜI GIAN VÀ MẤT THÊM MỘT LƯỢT.
   + NGOẠI LỆ: Nếu người dùng chỉ hỏi ngắn (vd: "nội dung gồm những gì?", "cần viết gì?", "dàn ý gồm gì?") hoặc chỉ muốn trao đổi ý tưởng thì trả lời text bình thường, chưa cần xuất file.`,
