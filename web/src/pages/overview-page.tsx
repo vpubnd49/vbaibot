@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import type { OverviewData, UsageGranularity } from "../dashboard-api-client";
 import { api } from "../dashboard-api-client";
@@ -16,6 +16,7 @@ import {
   IconSignal,
   IconUsers,
 } from "../shared/dashboard-icons";
+import { useConfirmDialog } from "../shared/confirm-dialog";
 import {
   Badge,
   formatNumber,
@@ -456,8 +457,78 @@ export function OverviewPage() {
             ))}
           </div>
         </div>
+
+        {/* Nút restart bot */}
+        <RestartBotSection />
       </SectionCard>
     </div>
+  );
+}
+
+/**
+ * Nút restart bot trong section Tình trạng hệ thống.
+ * Confirm dialog chống bấm nhầm. Sau khi restart, tự reload trang sau 4 giây.
+ */
+function RestartBotSection() {
+  const { confirm, confirmDialog } = useConfirmDialog();
+  const [dangRestart, setDangRestart] = useState(false);
+  const [trangThai, setTrangThai] = useState<"idle" | "restarting" | "done" | "error">("idle");
+
+  const handleRestart = useCallback(async () => {
+    const ok = await confirm({
+      title: "Restart bot?",
+      message:
+        "Bot sẽ tắt và tự khởi động lại (qua PM2). " +
+        "Trong vài giây bot sẽ không phản hồi tin nhắn. Bạn có chắc?",
+      confirmLabel: "Restart",
+    });
+    if (!ok) return;
+
+    setDangRestart(true);
+    setTrangThai("restarting");
+    try {
+      await api.restartBot();
+      setTrangThai("done");
+      // Đợi bot restart xong rồi reload trang
+      setTimeout(() => window.location.reload(), 4000);
+    } catch {
+      setTrangThai("error");
+      setDangRestart(false);
+    }
+  }, [confirm]);
+
+  return (
+    <>
+      <div className="mt-5 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-amber-200 bg-amber-50/40 px-5 py-4 dark:border-amber-800/50 dark:bg-amber-950/20">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2 text-[14px] font-semibold text-ink">
+            ⚡ Restart bot
+          </div>
+          <p className="mt-1 max-w-2xl text-[13px] leading-[1.7] text-ink-soft">
+            Khởi động lại toàn bộ process. PM2 sẽ tự start lại sau khi tắt. Dùng khi bot bị treo hoặc cần áp dụng cấu hình mới.
+          </p>
+          {trangThai === "done" && (
+            <p className="mt-2 text-[13px] text-emerald-600 dark:text-emerald-400">
+              ✓ Đã gửi lệnh restart. Trang sẽ tự tải lại...
+            </p>
+          )}
+          {trangThai === "error" && (
+            <p className="mt-2 text-[13px] text-red-600 dark:text-red-400">
+              ✗ Không thể restart. Kiểm tra kết nối hoặc thử lại.
+            </p>
+          )}
+        </div>
+        <button
+          type="button"
+          onClick={() => void handleRestart()}
+          disabled={dangRestart}
+          className="shrink-0 rounded-xl border border-amber-300 bg-amber-100 px-4 py-2.5 text-[13px] font-semibold text-amber-800 hover:bg-amber-200 disabled:opacity-50 dark:border-amber-700 dark:bg-amber-900/50 dark:text-amber-200 dark:hover:bg-amber-800/50"
+        >
+          {dangRestart ? "Đang restart..." : "Restart"}
+        </button>
+      </div>
+      {confirmDialog}
+    </>
   );
 }
 

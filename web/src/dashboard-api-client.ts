@@ -454,6 +454,12 @@ export const api = {
       method: "PATCH",
       body: JSON.stringify(update),
     }),
+
+  // ── System ──────────────────────────────────────────────────────────────────
+  restartBot: () =>
+    request<{ ok: boolean; message: string }>("/api/system/restart", {
+      method: "POST",
+    }),
 };
 
 export type ManagedAccount = {
