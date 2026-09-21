@@ -16,6 +16,13 @@ import { extractZipFile, isZipFile, cleanupZipTemp } from "./zip-extractor.js";
 
 const log = createLogger("batch-ocr-engine");
 
+// ── Safeguards ───────────────────────────────────────────────────────────────
+
+/** So file toi da xu ly tu 1 file ZIP (tranh treo hang gio) */
+const MAX_ZIP_FILES = 50;
+/** Timeout tong the cho toan bo batch OCR (ms) — mac dinh 10 phut */
+const MAX_BATCH_TIMEOUT_MS = 10 * 60 * 1000;
+
 // ── Types ────────────────────────────────────────────────────────────────────
 
 export type OcrSource =
@@ -34,6 +41,10 @@ export type OcrConfig = {
   sortColumn?: string;     // Mac dinh: "tong_diem"
   dedupKey?: string;       // Ten cot dedup (vd: "so_bao_danh")
   maxFiles?: number;       // Gioi han so file (mac dinh: 200)
+  maxZipFiles?: number;    // Gioi han so file trong 1 ZIP (mac dinh: MAX_ZIP_FILES)
+  timeoutMs?: number;      // Timeout tong the (mac dinh: MAX_BATCH_TIMEOUT_MS)
+  /** AbortSignal — batch OCR se dung som khi signal bi abort */
+  signal?: AbortSignal;
 };
 
 export type OcrRow = Record<string, string | number | null>;
@@ -322,8 +333,9 @@ async function processFile(fp: string, cfg: OcrConfig): Promise<OcrPageResult[]>
 }
 
 /**
- * Giai nen file ZIP roi OCR toan bo file ben trong.
- * Sau khi xong don sach thu muc tam.
+ * Giai nen file ZIP roi OCR cac file ben trong.
+ * Co gioi han so file (maxZipFiles, mac dinh 50) va ton trong AbortSignal timeout.
+ * Tra ket qua partial khi vuot gioi han thay vi treo mai.
  */
 async function processZipFile(fp: string, cfg: OcrConfig): Promise<OcrPageResult[]> {
   let tempDir: string | undefined;
@@ -334,13 +346,41 @@ async function processZipFile(fp: string, cfg: OcrConfig): Promise<OcrPageResult
       log.warn({ fp, skippedCount }, "ZIP khong co file hop le nao");
       return [{ filePath: fp, error: `ZIP khong chua file hop le (bo qua: ${skippedCount} file)` }];
     }
-    log.info({ fp, count: filePaths.length }, "ZIP: bat dau OCR cac file ben trong");
+
+    const limit = cfg.maxZipFiles ?? MAX_ZIP_FILES;
+    const truncated = filePaths.length > limit;
+    const toProcess = truncated ? filePaths.slice(0, limit) : filePaths;
+
+    if (truncated) {
+      log.warn(
+        { fp, total: filePaths.length, limit, skipped: filePaths.length - limit },
+        "ZIP qua nhieu file — chi xu ly %d/%d file dau tien",
+        limit, filePaths.length,
+      );
+    }
+
+    log.info({ fp, count: toProcess.length, total: filePaths.length, truncated }, "ZIP: bat dau OCR cac file ben trong");
     const results: OcrPageResult[] = [];
-    // Xu ly noi tiep (concurrency da duoc quan ly o tang ngoai)
-    for (const innerFile of filePaths) {
+
+    for (const innerFile of toProcess) {
+      // Kiem tra abort signal (timeout batch)
+      if (cfg.signal?.aborted) {
+        log.warn({ fp, processed: results.length, remaining: toProcess.length - results.length }, "ZIP OCR bi abort do timeout");
+        results.push({ filePath: fp, error: `Batch OCR timeout — da xu ly ${results.length}/${toProcess.length} file trong ZIP` });
+        break;
+      }
       const pages = await processFile(innerFile, cfg);
       results.push(...pages);
     }
+
+    if (truncated) {
+      results.push({
+        filePath: fp,
+        error: `ZIP chua ${filePaths.length} file — chi xu ly ${limit} file dau. ` +
+               `Bo qua ${filePaths.length - limit} file con lai de tranh qua tai.`,
+      });
+    }
+
     return results;
   } catch (err) {
     return [{ filePath: fp, error: `Loi xu ly ZIP: ${String(err)}` }];
@@ -392,14 +432,33 @@ export async function batchOcr(
 ): Promise<{ pages: OcrPageResult[]; rows: OcrRow[]; text: string; stats: OcrStats }> {
   const t0 = Date.now();
   const filePaths = collectFiles(source, cfg.maxFiles ?? 200);
-  log.info({ totalFiles: filePaths.length, mode: cfg.mode, source: source.kind }, "Bat dau batch OCR");
+  const timeoutMs = cfg.timeoutMs ?? MAX_BATCH_TIMEOUT_MS;
+  log.info({ totalFiles: filePaths.length, mode: cfg.mode, source: source.kind, timeoutMs }, "Bat dau batch OCR");
+
+  // Tao AbortController de timeout toan bo batch
+  const ac = new AbortController();
+  const timer = setTimeout(() => {
+    log.warn({ elapsed: Date.now() - t0, totalFiles: filePaths.length }, "Batch OCR TIMEOUT — dang abort");
+    ac.abort();
+  }, timeoutMs);
+
+  // Truyen signal xuong cfg de processZipFile va processFile co the kiem tra
+  const cfgWithSignal: OcrConfig = { ...cfg, signal: cfg.signal ?? ac.signal };
 
   const tasks = filePaths.map((fp, i) => async () => {
+    if (ac.signal.aborted) {
+      return [{ filePath: fp, error: "Batch OCR timeout — file nay bi bo qua" }] as OcrPageResult[];
+    }
     log.debug({ i: i + 1, total: filePaths.length, file: path.basename(fp) }, "OCR file");
-    return processFile(fp, cfg);
+    return processFile(fp, cfgWithSignal);
   });
 
-  const nestedResults = await withConcurrency(tasks, cfg.concurrency ?? 3);
+  let nestedResults: OcrPageResult[][];
+  try {
+    nestedResults = await withConcurrency(tasks, cfg.concurrency ?? 3);
+  } finally {
+    clearTimeout(timer);
+  }
   const allPages = nestedResults.flat();
 
   // Gom rows (table mode)
