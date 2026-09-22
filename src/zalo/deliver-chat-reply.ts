@@ -56,9 +56,21 @@ export async function deliverChatReply(
 
   // Kiểm rỗng SAU khi dịch: câu chỉ toàn dấu markdown (vd đúng một hàng rào
   // code trống) còn chữ trước bước này nhưng rỗng sau, gửi đi là gửi tin trắng.
-  if (!chuGui.trim()) {
+  //
+  // Guard JSON junk: text chỉ toàn ký tự đóng JSON (`}`, `})`, `}]`) là artifact
+  // của tool call bị rò ra — model kết thúc bằng tool call mà stream chỉ capture
+  // ký tự cuối JSON. Đã xảy ra 4 lần trong production (09/2026). Xem danh-gia-
+  // chat-zalobot.md nhóm 1. Kiểu `u` đơn lẻ cũng bị bắt (case thật: user gửi
+  // file .doc, bot trả `u`).
+  const trimmed = chuGui.trim();
+  if (!trimmed) {
     log.debug("Câu trả lời rỗng sau khi làm sạch - không gửi");
     return { daGui: "", hong: false };
+  }
+  if (/^[\s{}()\[\],;:.]+$/.test(trimmed) || trimmed.length <= 2) {
+    log.warn({ raw: trimmed }, "Text quá ngắn hoặc chỉ toàn JSON fragment - không gửi");
+    await notifyTechnicalError(target);
+    return { daGui: "", hong: true };
   }
 
   // Tin dài bị Zalo chặn (error_code 118) nên phải cắt thành nhiều đoạn

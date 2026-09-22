@@ -46,6 +46,71 @@ export type KetQuaLamSach = {
   chan: boolean;
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+// GUARD: Chain-of-thought leak — model tự nói planning/reasoning chứa tên tool
+// nội bộ rồi gửi thẳng cho user. Case thật: "Dữ liệu local chưa có... Hãy thử
+// xem knowledge_research hoặc developer_research... Ờ, trong danh sách công cụ
+// được cấp: legal_search_ide, weather_lookup..." (thread ...2300927626970532512,
+// 08/09/2026). Chỉ strip ĐOẠN thinking, không chặn toàn bộ response.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Tên tool NỘI BỘ - không bao giờ xuất hiện trong câu trả lời hợp lệ cho user.
+ * Regex TUYẾN TÍNH (alternation thuần, không lượng từ lồng).
+ */
+const TOOL_NAME_RE =
+  /\b(?:knowledge_research|developer_research|legal_search_ide|web_fetch|web_search|create_image|create_word_document|create_excel_file|create_text_document|create_powerpoint|create_admin_document|send_file|save_memory|read_image|ocr_folder_to_file|weather_lookup|add_reaction|legal_search|edit_memory)\b/;
+
+/**
+ * Dấu hiệu model đang TỰ NÓI (planning): "Hãy thử xem...", "Kiểm tra xem
+ * có tool...", "Dùng ... hoặc ... hoặc ...". Bắt DÒNG chứa pattern, strip cả
+ * dòng. Không cắt quá sâu: chỉ cắt từ dòng chứa tool name trở đi nếu nó ở
+ * cuối response, hoặc cắt riêng đoạn thinking nếu ở giữa.
+ */
+function locChainOfThought(text: string, daSua: string[]): string {
+  if (!TOOL_NAME_RE.test(text)) return text;
+
+  // Cắt từng dòng: bỏ dòng nào chứa tên tool nội bộ
+  const dong = text.split("\n");
+  const sach = dong.filter((d) => !TOOL_NAME_RE.test(d));
+
+  if (sach.length === dong.length) return text;
+  daSua.push("chain-of-thought leak");
+
+  // Dọn dòng trống thừa sau khi cắt
+  const result = sach.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+  return result;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GUARD: Safety — chặn CỨNG response hướng dẫn brute-force / tấn công mạng.
+// Case thật: user gửi wordlist, bot soạn script Python brute-force kèm hướng
+// dẫn 3 bước (thread ...3767885770605790468, 10/09/2026).
+// Vi phạm Điều 289, 290 Bộ luật Hình sự 2015.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const CAU_THAY_THE_SAFETY =
+  "Mình không thể hỗ trợ các yêu cầu liên quan đến dò mật khẩu, brute-force " +
+  "hoặc khai thác lỗ hổng bảo mật. Đây là hành vi có thể vi phạm pháp luật " +
+  "(Điều 289, 290 Bộ luật Hình sự 2015). Nếu bạn cần hỗ trợ bảo mật hợp pháp, " +
+  "mình sẵn lòng giúp theo hướng phòng thủ (defensive security).";
+
+/**
+ * Regex TUYẾN TÍNH - mỗi nhánh chỉ có 1 lượng từ, không lồng nhau.
+ * Chỉ bắt khi response THẬT SỰ chứa hướng dẫn tấn công, không phải khi
+ * user đề cập từ khóa (kiểm trên output, không phải input).
+ */
+const SAFETY_BLOCK_RE =
+  /\b(?:brute[- ]?force|password[- ]?crack(?:ing|er)?|wordlist|dò\s+mật\s+khẩu|chạy\s+brute|script.*(?:dò|crack|tấn\s+công)|hydra|hashcat|john\s+the\s+ripper|sql[- ]?injection.*(?:payload|script|code)|khai\s+thác\s+lỗ\s+hổng)\b/i;
+
+/**
+ * Trả `true` nếu text chứa hướng dẫn tấn công → phải chặn.
+ * Export cho test.
+ */
+export function laHuongDanTanCong(text: string): boolean {
+  return SAFETY_BLOCK_RE.test(text);
+}
+
 
 function boInlineCode(text: string, daSua: string[]): string {
   const sau = text.replace(/`([^`\n]+)`/g, "$1");
@@ -346,13 +411,22 @@ export function lamSachTraLoi(text: string): KetQuaLamSach {
     return { text: "", daSua: [`CHẶN: rò system prompt [${dauHieuRo}]`], chan: true };
   }
 
+  // Safety: chặn CỨNG hướng dẫn tấn công mạng — trước mọi bước xử lý khác.
+  // Thay TOÀN BỘ response, không cắt từng phần (nửa hướng dẫn cũng nguy hiểm).
+  if (laHuongDanTanCong(text)) {
+    return { text: CAU_THAY_THE_SAFETY, daSua: ["CHẶN: hướng dẫn tấn công mạng"], chan: false };
+  }
+
   const daSua: string[] = [];
+
+  // Chain-of-thought: lọc dòng chứa tên tool nội bộ TRƯỚC khi xử lý markdown
+  let sachCoT = locChainOfThought(text, daSua);
 
   // Dọn ký tự NUL của model TRƯỚC khi dùng nó làm mốc. Docstring của MOC_KHOI
   // nói "model không sinh ra nó" - đó là giả định, không phải bất biến: JSON
   // escape NUL là hợp lệ. Một chuỗi có dạng NUL + số + NUL sẽ va đúng mốc
   // và `traKhoiCodeVe` nhét nội dung khối code vào nhầm chỗ.
-  const sachNul = text.includes(MOC_KHOI) ? text.split(MOC_KHOI).join("") : text;
+  const sachNul = sachCoT.includes(MOC_KHOI) ? sachCoT.split(MOC_KHOI).join("") : sachCoT;
 
   // Khối code ra khỏi thân TRƯỚC mọi bước khác, trả về SAU cùng - nội dung bên
   // trong khối là code, không phải văn bản để dọn định dạng
@@ -390,9 +464,18 @@ export function lamSachGiuDinhDang(text: string): KetQuaLamSach {
     return { text: "", daSua: [`CHẶN: rò system prompt [${dauHieuRo}]`], chan: true };
   }
 
+  // Safety: chặn CỨNG hướng dẫn tấn công mạng — cùng luật với `lamSachTraLoi`
+  if (laHuongDanTanCong(text)) {
+    return { text: CAU_THAY_THE_SAFETY, daSua: ["CHẶN: hướng dẫn tấn công mạng"], chan: false };
+  }
+
   const daSua: string[] = [];
+
+  // Chain-of-thought: lọc dòng chứa tên tool nội bộ
+  let sachCoT = locChainOfThought(text, daSua);
+
   // NUL không phải markdown, là rác - không có lý do gì gửi nó lên Zalo
-  const sachNul = text.includes(MOC_KHOI) ? text.split(MOC_KHOI).join("") : text;
+  const sachNul = sachCoT.includes(MOC_KHOI) ? sachCoT.split(MOC_KHOI).join("") : sachCoT;
   // LaTeX không phải markdown - phải dọn ở cả hai đường
   const sachLatex = boLatex(sachNul, daSua);
   return { text: boSentinel(sachLatex, daSua), daSua, chan: false };
