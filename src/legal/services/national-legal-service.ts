@@ -447,32 +447,60 @@ async function searchVanbanChinhphu(keyword: string): Promise<NationalLegalResul
 
   const html = await response.text();
   const results: NationalLegalResult[] = [];
-
-  // Pattern 1: Link chi tiết VB dạng <a href="?pageid=27160&docid=XXXXX">Tiêu đề</a>
-  const linkRe = /href=["'](?:https?:\/\/vanban\.chinhphu\.vn\/)?\?pageid=27160[^"']*docid=(\d+)[^"']*["'][^>]*>([^<]+)/gi;
-  let match: RegExpExecArray | null;
   const seen = new Set<string>();
+
+  // HTML thực tế trên vanban.chinhphu.vn (ASP.NET GridView):
+  // <a href='/?pageid=27160&docid=219579'>
+  //     <span class="code">139/2026/VBHN-LQ-VPQH</span>
+  //     <span class="issue-v2">21/09/2026</span>
+  // </a>
+  // ...
+  // <span class="issued-date">21/09/2026</span>
+  // ...tiếp theo là <td> chứa trích yếu
+
+  // Step 1: Tìm tất cả link dạng /?pageid=27160&docid=XXXXX
+  const linkRe = /href\s*=\s*['"]\/?\?pageid=27160[&\s]docid=(\d+)[^'"]*['"]/gi;
+  let match: RegExpExecArray | null;
 
   while ((match = linkRe.exec(html)) !== null) {
     const docid = match[1];
-    const rawTitle = match[2].replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").trim();
-    if (!docid || !rawTitle || seen.has(docid)) continue;
+    if (!docid || seen.has(docid)) continue;
     seen.add(docid);
 
-    // Trích số hiệu từ tiêu đề: "Văn bản hợp nhất số 139/2026/VBHN-LQ-VPQH của ..."
-    const soHieuMatch = rawTitle.match(/(?:số\s+)?(\d+\/\d{4}\/[A-ZĐa-zđ0-9_-]+)/i);
-    const soHieu = soHieuMatch?.[1] || "";
+    // Step 2: Tìm <span class="code">SỐ HIỆU</span> gần link này
+    const afterLink = html.substring(match.index, Math.min(html.length, match.index + 500));
+    const codeMatch = afterLink.match(/<span\s+class="code">\s*([^<]+?)\s*<\/span>/i);
+    const soHieu = codeMatch?.[1]?.trim() || "";
 
-    // Trích loại VB
-    const loaiMatch = rawTitle.match(/^(Văn bản hợp nhất|Luật|Nghị định|Thông tư|Quyết định|Nghị quyết|Pháp lệnh|Chỉ thị)/i);
-    const loaiVB = loaiMatch?.[1] || "Văn bản";
+    // Step 3: Tìm ngày ban hành
+    const dateMatch = afterLink.match(/<span\s+class="(?:issue-v2|issued-date)">\s*(\d{2}\/\d{2}\/\d{4})\s*<\/span>/i);
+    const rawDate = dateMatch?.[1] || "";
+    // Chuyển DD/MM/YYYY → YYYY-MM-DD
+    const ngayBanHanh = rawDate ? rawDate.split("/").reverse().join("-") : "";
+
+    // Step 4: Tìm trích yếu — thường ở <td> tiếp theo sau <td> chứa link
+    const trichYeuBlock = html.substring(match.index, Math.min(html.length, match.index + 2000));
+    // Trích yếu nằm trong <td> thứ 2 sau link, hoặc trong <a> title attribute
+    const titleMatch = trichYeuBlock.match(/class="title"[^>]*>\s*([^<]+)/i)
+      || trichYeuBlock.match(/<\/td>\s*<td[^>]*>\s*<\/td>\s*<td[^>]*>\s*([^<]+)/i)
+      || trichYeuBlock.match(/<a[^>]*title=["']([^"']+)/i);
+    const trichYeu = titleMatch?.[1]?.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").trim() || soHieu;
+
+    // Phát hiện loại VB
+    const loaiVB = /VBHN/i.test(soHieu) ? "Văn bản hợp nhất"
+      : soHieu.match(/\/(NĐ|ND)-/i) ? "Nghị định"
+      : soHieu.match(/\/(TT)-/i) ? "Thông tư"
+      : soHieu.match(/\/(QĐ|QD)-/i) ? "Quyết định"
+      : soHieu.match(/\/(NQ)-/i) ? "Nghị quyết"
+      : soHieu.match(/\/(L)-/i) ? "Luật"
+      : "Văn bản";
 
     const detailUrl = `https://vanban.chinhphu.vn/?pageid=27160&docid=${docid}`;
     results.push({
       soHieu,
-      trichYeu: rawTitle,
+      trichYeu,
       loaiVB,
-      ngayBanHanh: "",
+      ngayBanHanh,
       source: "vbpl", // route through downloadFromVbpl → downloadFromOfficialDetailPage
       detailUrl,
       downloadId: detailUrl,
@@ -481,6 +509,6 @@ async function searchVanbanChinhphu(keyword: string): Promise<NationalLegalResul
     if (results.length >= 10) break;
   }
 
-  log.debug({ kw, found: results.length, docids: [...seen] }, "vanban.chinhphu.vn search completed");
+  log.info({ kw, found: results.length, docids: [...seen].slice(0, 5) }, "vanban.chinhphu.vn search completed");
   return results;
 }
