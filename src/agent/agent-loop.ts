@@ -818,6 +818,30 @@ export async function runAgentTurn({
     }
   }
 
+  // Chống model tự trả lời "không tìm thấy VB" mà không gọi tool tra cứu.
+  // Xảy ra khi conversation history chứa nhiều lượt thất bại trước đó → model
+  // "học" rằng VB không tồn tại và skip tool hoàn toàn.
+  const allToolCallsFinal = layAllToolCalls(result);
+  const khongGoiToolNao = allToolCallsFinal.length === 0;
+  const laYeuCauTraCuuVB = /tải|download|gửi file|tra cứu|tìm|vbhn|văn bản hợp nhất|\d+\/\d{4}\/[a-zA-ZĐđ]/i.test(latest.text);
+  const traLoiKhongTimThay = /không\s*(tìm\s*thấy|có\s*kết\s*quả)|chưa\s*(được\s*)?cập\s*nhật|chưa\s*kịp/i.test(result.text);
+  if (khongGoiToolNao && laYeuCauTraCuuVB && traLoiKhongTimThay) {
+    log.warn(
+      { text: result.text.slice(0, 150), request: latest.text.slice(0, 100) },
+      "Model tự trả lời 'không tìm thấy' mà không gọi tool - ép gọi tool tra cứu",
+    );
+    lanChay++;
+    guard.datLai();
+    messages = [
+      ...messages,
+      { role: "user", content: "[HỆ THỐNG] BẮT BUỘC gọi tool national_legal hoặc qppl_lamdong để tra cứu. KHÔNG ĐƯỢC tự trả lời mà không tra cứu trước." },
+    ];
+    result = await runOnce({
+      toolChoice: "required",
+      timeoutMs: Math.max(60_000, getTuning("LLM_TURN_TIMEOUT_MS") - 120_000),
+    });
+  }
+
   // Nếu sau 3 lần ép mà vẫn chỉ có lời hứa, không được gửi lời hứa xuống Zalo.
   // Trả lỗi rõ ràng để người dùng nhắn lại thay vì tưởng đã nhận được file.
   const allCallsCuoi = layAllToolCalls(result);
