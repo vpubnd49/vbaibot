@@ -84,9 +84,18 @@ export async function searchNationalLegal(keyword: string): Promise<NationalLega
     searchVbpl(keyword),
     isTvplConfigured() ? searchTvpl(keyword) : Promise.resolve([] as TvplSearchResult[]),
     searchPhapLuat(keyword),
-    // vanban.chinhphu.vn: song song cho VBHN, fallback cho tất cả (sẽ dùng ở cuối)
-    isVbhnQuery ? searchVanbanChinhphu(keyword) : Promise.resolve([] as NationalLegalResult[]),
+    // vanban.chinhphu.vn: LUÔN search song song (nguồn ưu tiên cho VBHN + VB mới nhất)
+    searchVanbanChinhphu(keyword),
   ]);
+
+  // 0. vanban.chinhphu.vn — ƯU TIÊN CAO NHẤT, merge trước để không bị filter loại bỏ
+  if (chinhphuItems.status === "fulfilled" && chinhphuItems.value.length > 0) {
+    // Chèn ĐẦU mảng để ưu tiên khi download
+    results.unshift(...chinhphuItems.value);
+    log.info({ keyword, found: chinhphuItems.value.length }, "vanban.chinhphu.vn results (priority source)");
+  } else if (chinhphuItems.status === "rejected") {
+    log.warn({ err: chinhphuItems.reason }, "vanban.chinhphu.vn search failed");
+  }
 
   // 1. Xử lý Cổng Pháp luật quốc gia (phapluat.gov.vn), ưu tiên dữ liệu hiệu lực.
   if (phapLuatItems.status === "fulfilled") {
@@ -209,38 +218,15 @@ export async function searchNationalLegal(keyword: string): Promise<NationalLega
 
   const normalizedQuery = normalizeSearchText(keyword);
   results.sort((a, b) => {
+    // vanban.chinhphu.vn (detailUrl chứa chinhphu.vn) luôn ưu tiên đầu
+    const isChinhphuA = a.detailUrl?.includes("chinhphu.vn") ? 0 : 1;
+    const isChinhphuB = b.detailUrl?.includes("chinhphu.vn") ? 0 : 1;
+    if (isChinhphuA !== isChinhphuB) return isChinhphuA - isChinhphuB;
     const sourceRank = (source: NationalLegalResult["source"]) => NATIONAL_DOWNLOAD_SOURCE_PRIORITY.indexOf(source);
     return sourceRank(a.source) - sourceRank(b.source) || scoreNationalResult(b, normalizedQuery) - scoreNationalResult(a, normalizedQuery);
   });
 
-  // 5. Kết quả vanban.chinhphu.vn (song song cho VBHN, hoặc fallback)
-  if (chinhphuItems.status === "fulfilled" && chinhphuItems.value.length > 0) {
-    for (const item of chinhphuItems.value) {
-      const existing = results.find(
-        (r) => r.soHieu && item.soHieu && normalizeSoHieu(r.soHieu) === normalizeSoHieu(item.soHieu),
-      );
-      if (existing) continue;
-      results.push(item);
-    }
-    log.info({ keyword, found: chinhphuItems.value.length }, "vanban.chinhphu.vn results merged");
-  } else if (chinhphuItems.status === "rejected") {
-    log.warn({ err: chinhphuItems.reason }, "vanban.chinhphu.vn search failed");
-  }
-
-  // 5b. Fallback khi 0 kết quả: tìm trên vanban.chinhphu.vn (nếu chưa tìm ở trên)
-  if (results.length === 0 && keyword.trim() && !isVbhnQuery) {
-    try {
-      const chinhphuResults = await searchVanbanChinhphu(keyword);
-      results.push(...chinhphuResults);
-      if (chinhphuResults.length > 0) {
-        log.info({ keyword, found: chinhphuResults.length }, "Fallback vanban.chinhphu.vn found results");
-      }
-    } catch (err) {
-      log.warn({ err, keyword }, "Fallback vanban.chinhphu.vn search failed");
-    }
-  }
-
-  // 5c. Cho VBHN: ưu tiên kết quả MỚI NHẤT (năm gần nhất) lên đầu
+  // Cho VBHN: ưu tiên kết quả MỚI NHẤT (năm gần nhất) lên đầu
   if (isVbhnQuery && results.length > 1) {
     results.sort((a, b) => {
       const yearA = parseInt(a.ngayBanHanh?.slice(0, 4) || a.soHieu?.match(/(\d{4})/)?.[1] || "0", 10);
