@@ -82,12 +82,17 @@ export function planDocumentBudget(
   for (let i = history.length - 1; i >= 0 && budget > 0; i--) {
     const message = history[i]!;
     if (message.role !== "user" || !message.files || message.files.length === 0) continue;
-    // ZIP history không được preload: việc đọc ZIP sẽ giải nén/OCR toàn bộ
-    // archive trước cả khi biết lượt hiện tại có cần nội dung đó hay không.
-    // ZIP vẫn được xử lý bình thường khi là file của lượt hiện tại hoặc khi
-    // người dùng chủ động gọi tool đọc/OCR.
+    // File nén (ZIP, RAR, 7Z, ...) trong history không được preload: việc đọc nén
+    // sẽ giải nén/OCR hàng loạt file con trước cả khi biết lượt hiện tại có cần hay không.
+    // File nén vẫn được xử lý bình thường ở lượt hiện tại hoặc khi người dùng gọi tool đọc/OCR.
+    const isArchive = (ext: string, localPath?: string): boolean => {
+      const e = ext.toLowerCase();
+      if (e === ".zip" || e === ".rar" || e === ".7z" || e === ".tar" || e === ".gz") return true;
+      if (localPath && /\.(zip|rar|7z|tar|gz|bz2)$/i.test(localPath)) return true;
+      return false;
+    };
     const validFiles = message.files.filter(
-      (f) => Boolean(f.localPath) && f.extension.toLowerCase() !== ".zip" && !/\.zip$/i.test(f.localPath!),
+      (f) => Boolean(f.localPath) && !isArchive(f.extension, f.localPath),
     );
     if (validFiles.length > 0) {
       docBudgetByIndex.set(i, validFiles);

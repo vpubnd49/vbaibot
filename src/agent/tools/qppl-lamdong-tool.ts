@@ -9,7 +9,7 @@ import { guiFileKemCaption } from "./send-attachment-with-caption.js";
 import { ghiChuDaGuiFile } from "./sent-by-tool-note.js";
 import type { ToolContext } from "./tool-catalog-types.js";
 import type { QpplDoc, QpplFileLink, QpplNguon } from "../../qppl/qppl-types.js";
-import { resolveAgency, getAgencyConfig } from "../../qppl/qppl-registry.js";
+import { resolveAgency, getAgencyConfig, resolvePortalUrl } from "../../qppl/qppl-registry.js";
 import { createQpplArchive } from "../../qppl/qppl-archive.js";
 import { createLogger } from "../../shared/logger.js";
 
@@ -30,7 +30,8 @@ export function createQpplLamdongTool({ api, account, message, ghiNhanDaGui }: T
       "BẮT BUỘC GỌI TOOL NÀY khi người dùng yêu cầu tra cứu, tìm kiếm hoặc TẢI FILE văn bản chỉ đạo điều hành, " +
       "báo cáo, quyết định, công văn, kế hoạch của UBND Tỉnh, HĐND Tỉnh hoặc BẤT KỲ SỞ BAN NGÀNH, ĐỊA PHƯƠNG CỦA LÂM ĐỒNG " +
       "(Sở Tư pháp, Sở Tài chính, Sở Giáo dục & Đào tạo, Sở Nội vụ, Thanh tra tỉnh, UBND huyện Đức Trọng, Di Linh, Đạ Tẻh, TP. Đà Lạt...). " +
-      "Khi người dùng hỏi báo cáo/văn bản của ngành hoặc huyện nào, LUÔN truyền 'coQuan' tương ứng để tìm chính xác tại nguồn đó. " +
+      "Hỗ trợ nhận diện tự động đường link trực tiếp từ Cổng VBQPPL và các trang Sở ban ngành tỉnh Lâm Đồng (tham số 'url'). " +
+      "Khi người dùng hỏi báo cáo/văn bản của ngành hoặc huyện nào, LUÔN truyền 'coQuan' hoặc 'url' tương ứng để tìm chính xác tại nguồn đó. " +
       "KHI NGƯỜI DÙNG YÊU CẦU TẢI FILE (VD: 'tải quyết định 4480', 'tải kế hoạch 15187', 'gửi file...'): " +
       "BẮT BUỘC đặt sendFileToChat=true và keyword là số hiệu văn bản để tool tải toàn bộ file đính kèm gửi thẳng vào chat.",
     inputSchema: z.object({
@@ -39,6 +40,12 @@ export function createQpplLamdongTool({ api, account, message, ghiNhanDaGui }: T
         .default("search")
         .describe(
           "Hành động: 'search' tìm kiếm, 'get' xem chi tiết/tải file theo ID, 'sync' quét cập nhật mới",
+        ),
+      url: z
+        .string()
+        .optional()
+        .describe(
+          "Đường link Cổng VBQPPL Lâm Đồng hoặc phân hệ Sở ngành (VD: 'https://lamdong.gov.vn/sites/qppl/so-ban-nganh/sngv/SitePages/Home.aspx' hoặc 'https://lamdong.gov.vn/sites/qppl/qppl/nghi-quyet/SitePages/Home.aspx'). Hệ thống sẽ tự động đối chiếu và quét đúng cơ quan tương ứng.",
         ),
       keyword: z
         .string()
@@ -99,10 +106,23 @@ export function createQpplLamdongTool({ api, account, message, ghiNhanDaGui }: T
           "Đặt >1 khi user yêu cầu 'tất cả', 'mấy cái', 'các VB' — VD: 'gửi tất cả báo cáo CCHC' → maxSendDocs=10.",
         ),
     }),
-    execute: async ({ action, keyword, coQuan, loaiVanBan, nguon, docId, dateFrom, dateTo, sendFileToChat, archiveFiles, maxSendDocs }) => {
-      // 1. Phân giải targetNguon từ coQuan, nguon hoặc keyword
+    execute: async ({ action, url, keyword, coQuan, loaiVanBan, nguon, docId, dateFrom, dateTo, sendFileToChat, archiveFiles, maxSendDocs }) => {
+      // 1. Phân giải targetNguon từ url, coQuan, nguon hoặc keyword
       let targetNguon: QpplNguon | undefined = undefined;
-      if (coQuan) {
+      let targetLoaiVanBan: string | undefined = loaiVanBan;
+
+      const urlCandidate = url || (coQuan?.includes("http") ? coQuan : undefined) || (keyword?.includes("http") ? keyword : undefined);
+      if (urlCandidate) {
+        const portal = resolvePortalUrl(urlCandidate);
+        if (portal) {
+          targetNguon = portal.code;
+          if (portal.loaiVanBan && !targetLoaiVanBan) {
+            targetLoaiVanBan = portal.loaiVanBan;
+          }
+        }
+      }
+
+      if (!targetNguon && coQuan) {
         const ag = resolveAgency(coQuan);
         if (ag) targetNguon = ag.code;
       }
@@ -272,7 +292,7 @@ export function createQpplLamdongTool({ api, account, message, ghiNhanDaGui }: T
       // Lấy nhiều kết quả để không bỏ sót văn bản khi người dùng yêu cầu tải hết
       let docs = searchQpplDocs({
         keyword,
-        loaiVanBan,
+        loaiVanBan: targetLoaiVanBan,
         nguon: targetNguon,
         dateFrom,
         dateTo,
@@ -287,12 +307,12 @@ export function createQpplLamdongTool({ api, account, message, ghiNhanDaGui }: T
           await syncQpplDocuments("ubnd", 100);
           await syncQpplDocuments("hdnd", 50);
         }
-        docs = searchQpplDocs({ keyword, loaiVanBan, nguon: targetNguon, dateFrom, dateTo, limit: 50 });
+        docs = searchQpplDocs({ keyword, loaiVanBan: targetLoaiVanBan, nguon: targetNguon, dateFrom, dateTo, limit: 50 });
       }
 
       // Fallback 1: nếu có dateFrom/dateTo → tra API theo khoảng ngày
       if (docs.length === 0 && dateFrom && dateTo) {
-        docs = await liveSearchByDateRange({ dateFrom, dateTo, keyword, loaiVanBan, targetNguon, limit: 30 });
+        docs = await liveSearchByDateRange({ dateFrom, dateTo, keyword, loaiVanBan: targetLoaiVanBan, targetNguon, limit: 30 });
       }
 
       // Fallback 2: local DB không có + không có dateRange → tra cứu live bằng keyword
@@ -315,8 +335,8 @@ export function createQpplLamdongTool({ api, account, message, ghiNhanDaGui }: T
       // Fallback 3: chỉ dùng cho yêu cầu thật sự là "mới nhất", không có số hiệu cụ thể.
       if (docs.length === 0 && targetNguon && !hasExplicitNumber) {
         docs = await liveSearchAndUpsert("", 30, targetNguon);
-        if (loaiVanBan) {
-          const lvbLower = loaiVanBan.toLowerCase();
+        if (targetLoaiVanBan) {
+          const lvbLower = targetLoaiVanBan.toLowerCase();
           const filtered = docs.filter((d) => d.loaiVanBan.toLowerCase().includes(lvbLower));
           if (filtered.length > 0) docs = filtered;
         }

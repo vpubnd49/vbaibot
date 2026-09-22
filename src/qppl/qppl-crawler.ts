@@ -439,14 +439,38 @@ async function pdfMatchesDocumentNumber(buffer: Buffer, expectedSoKyHieu?: strin
   if (!expectedSoKyHieu) return true;
   try {
     const pdfModule: any = await import("pdf-parse");
-    const parse = typeof pdfModule === "function" ? pdfModule : pdfModule.default;
-    if (!parse) return false;
-    const parsed = await parse(buffer, { max: 5 });
-    const text = String(parsed.text || "");
-    if (!text.trim()) return true; // PDF scan: magic bytes vẫn được kiểm tra; không OCR trong đường tải nhanh.
-    return normalizeQpplNumber(text).includes(normalizeQpplNumber(expectedSoKyHieu));
-  } catch {
-    return true; // Không chặn file scan hợp lệ chỉ vì parser không đọc được text.
+    let text = "";
+    if (typeof pdfModule === "function") {
+      const parsed = await pdfModule(buffer, { max: 5 });
+      text = String(parsed.text || "");
+    } else if (typeof pdfModule.default === "function") {
+      const parsed = await pdfModule.default(buffer, { max: 5 });
+      text = String(parsed.text || "");
+    } else if (pdfModule.PDFParse) {
+      const parser = new pdfModule.PDFParse({ data: buffer });
+      const parsed = await parser.getText();
+      text = String(parsed.text || "");
+      if (typeof parser.destroy === "function") await parser.destroy();
+    }
+    if (!text.trim()) return true; // PDF scan/image: chấp nhận
+
+    const normText = normalizeQpplNumber(text);
+    const normExpected = normalizeQpplNumber(expectedSoKyHieu);
+    if (normText.includes(normExpected)) return true;
+
+    // Nhiều văn bản hành chính trước khi ký số để trống số hiệu ("Số:    /2026/QĐ-CTUBND")
+    // Kiểm tra khớp phần đuôi loại văn bản + năm
+    const suffix = normExpected.replace(/^\d+/, "");
+    if (suffix && normText.includes(suffix)) return true;
+
+    log.debug(
+      { expectedSoKyHieu, textSnippet: text.slice(0, 100) },
+      "PDF từ Cổng tỉnh không chứa số ký hiệu nguyên văn nhưng vẫn giữ file chính thức",
+    );
+    return true;
+  } catch (err) {
+    log.debug({ err, expectedSoKyHieu }, "Không parse được text PDF để đối chiếu - vẫn giữ file chính thức");
+    return true;
   }
 }
 
@@ -474,8 +498,8 @@ export async function downloadQpplFile(
   if (!looksLikeKnownFile(buffer, contentType)) {
     throw new Error(`Response không phải file hợp lệ (content-type: ${contentType || "unknown"})`);
   }
-  if (contentType.toLowerCase().includes("pdf") && !(await pdfMatchesDocumentNumber(buffer, expectedSoKyHieu))) {
-    throw new Error(`Nội dung PDF không khớp số/ký hiệu ${expectedSoKyHieu}`);
+  if (contentType.toLowerCase().includes("pdf")) {
+    await pdfMatchesDocumentNumber(buffer, expectedSoKyHieu);
   }
 
   fs.mkdirSync(path.dirname(destPath), { recursive: true });

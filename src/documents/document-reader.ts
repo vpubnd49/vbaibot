@@ -1,11 +1,39 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import crypto from 'node:crypto';
 import { execFile } from 'node:child_process';
 import os from 'node:os';
 import { getTuning } from '../config/runtime-tuning-settings.js';
+import { dataDir } from '../config/env.js';
 import { createLogger } from '../shared/logger.js';
 
 const log = createLogger('document-reader');
+
+const docMemoryCache = new Map<string, DocumentContent>();
+const MAX_MEM_CACHE_ENTRIES = 200;
+
+function getCacheDir(): string {
+  const dir = path.join(dataDir || os.tmpdir(), 'cache', 'documents');
+  if (!fs.existsSync(dir)) {
+    try {
+      fs.mkdirSync(dir, { recursive: true });
+    } catch {
+      // ignore
+    }
+  }
+  return dir;
+}
+
+function computeCacheKey(filePath: string, stat: fs.Stats, options: DocumentReadOptions): string {
+  const parts = [
+    path.resolve(filePath),
+    stat.mtimeMs,
+    stat.size,
+    options.pageStart ?? 0,
+    options.pageEnd ?? 0,
+  ];
+  return crypto.createHash('sha256').update(parts.join(':')).digest('hex');
+}
 
 /**
  * Chuyển HTML (từ mammoth) thành text CÓ CẤU TRÚC: giữ bảng biểu, heading,
@@ -95,6 +123,39 @@ export async function readDocument(filePath: string, options: DocumentReadOption
   let text = '';
   let pageCount: number | undefined;
   let readError: string | undefined;
+
+  let stat: fs.Stats | undefined;
+  try {
+    stat = fs.statSync(filePath);
+  } catch {
+    // File không tồn tại hoặc lỗi filesystem, để khối đọc xử lý tự nhiên
+  }
+
+  let cacheKey: string | undefined;
+  let cacheFile: string | undefined;
+
+  if (stat && stat.isFile()) {
+    cacheKey = computeCacheKey(filePath, stat, options);
+    const fromMem = docMemoryCache.get(cacheKey);
+    if (fromMem) {
+      log.debug({ filePath, cacheKey }, 'Phục hồi nội dung tài liệu từ memory cache');
+      return fromMem;
+    }
+    try {
+      cacheFile = path.join(getCacheDir(), `${cacheKey}.json`);
+      if (fs.existsSync(cacheFile)) {
+        const cachedRaw = fs.readFileSync(cacheFile, 'utf8');
+        const parsed = JSON.parse(cachedRaw) as DocumentContent;
+        if (parsed && typeof parsed.text === 'string') {
+          docMemoryCache.set(cacheKey, parsed);
+          log.debug({ filePath, cacheKey }, 'Phục hồi nội dung tài liệu từ disk cache');
+          return parsed;
+        }
+      }
+    } catch (cacheErr) {
+      log.warn({ err: cacheErr, filePath }, 'Không đọc được disk cache tài liệu');
+    }
+  }
 
   try {
     switch (ext) {
@@ -366,7 +427,7 @@ export async function readDocument(filePath: string, options: DocumentReadOption
     text = `Lỗi khi đọc nội dung file: ${errorMessage}`;
   }
 
-  return {
+  const result: DocumentContent = {
     text,
     pageCount,
     truncated: false,
@@ -374,6 +435,23 @@ export async function readDocument(filePath: string, options: DocumentReadOption
     fileType: ext,
     ...(readError ? { error: readError } : {}),
   };
+
+  if (cacheKey && stat && stat.isFile() && result.text && !result.text.startsWith('Lỗi khi đọc file ZIP')) {
+    if (docMemoryCache.size >= MAX_MEM_CACHE_ENTRIES) {
+      const firstKey = docMemoryCache.keys().next().value;
+      if (firstKey) docMemoryCache.delete(firstKey);
+    }
+    docMemoryCache.set(cacheKey, result);
+    if (cacheFile) {
+      try {
+        fs.writeFileSync(cacheFile, JSON.stringify(result), 'utf8');
+      } catch (writeErr) {
+        log.warn({ err: writeErr, cacheFile }, 'Không ghi được disk cache tài liệu');
+      }
+    }
+  }
+
+  return result;
 }
 
 // ─── Document OCR Shared ─────────────────────────────────────────────────────
