@@ -17,10 +17,11 @@ export function createNationalLegalTool({ api, account, message, ghiNhanDaGui }:
   return tool({
     description:
       "BẮT BUỘC GỌI TOOL NÀY khi người dùng hỏi, tra cứu hoặc yêu cầu TẢI FILE văn bản pháp luật CẤP TRUNG ƯƠNG " +
-      "(Luật, Nghị định, Thông tư, Quyết định TTg, Nghị quyết QH/CP, Pháp lệnh...). " +
-      "Nguồn: Cổng Pháp luật quốc gia (phapluat.gov.vn) + CSDL quốc gia về pháp luật (vbpl.vn) + Công báo ĐT CP (congbao.chinhphu.vn) + Thư viện Pháp luật. " +
+      "(Luật, Nghị định, Thông tư, Quyết định TTg, Nghị quyết QH/CP, Pháp lệnh, VĂN BẢN HỢP NHẤT (VBHN)...). " +
+      "Nguồn: Cổng Pháp luật quốc gia (phapluat.gov.vn) + CSDL quốc gia về pháp luật (vbpl.vn) + Công báo ĐT CP (congbao.chinhphu.vn) + Thư viện Pháp luật + vanban.chinhphu.vn (cho VBHN). " +
       "KHÔNG dùng cho VB tỉnh Lâm Đồng (dùng tool qppl_lamdong). " +
-      "KHI NGƯỜI DÙNG NÓI TẢI/DOWNLOAD/GỬI FILE, kể cả 'tải Luật Đất đai mới', phải dùng action='download' và sendFileToChat=true; không chỉ gọi search.",
+      "KHI NGƯỜI DÙNG NÓI TẢI/DOWNLOAD/GỬI FILE, kể cả 'tải Luật Đất đai mới', phải dùng action='download' và sendFileToChat=true; không chỉ gọi search. " +
+      "LUÔN GỌI TOOL NÀY mỗi lần người dùng yêu cầu, KHÔNG BAO GIỜ tự trả lời 'không tìm thấy' mà không gọi tool trước.",
     inputSchema: z.object({
       action: z
         .enum(["search", "download"])
