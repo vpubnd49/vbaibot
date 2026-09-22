@@ -21,7 +21,7 @@ export const AGENCY_REGISTRY: Record<string, AgencyConfig> = {
     listTitle: "Quản lý văn bản chỉ đạo",
     type: "tinh",
     tier: 1,
-    aliases: ["ubnd", "ubnd tỉnh", "vpubnd", "văn phòng ubnd", "chủ tịch ubnd", "ủy ban", "uy ban", "tỉnh", "tinh", "so-ban-nganh/vpubnd", "qppl/quyet-dinh", "the-loai/quyet-dinh", "the-loai/toan-bo", "sites/qppl"]
+    aliases: ["ubnd", "ubnd tỉnh", "vpubnd", "văn phòng ubnd", "chủ tịch ubnd", "ủy ban", "uy ban", "tỉnh", "tinh"]
   },
   hdnd: {
     code: "hdnd",
@@ -31,7 +31,7 @@ export const AGENCY_REGISTRY: Record<string, AgencyConfig> = {
     listTitle: "Quản lý văn bản",
     type: "tinh",
     tier: 1,
-    aliases: ["hdnd", "hđnd", "hđnd tỉnh", "hội đồng nhân dân", "đoàn đbqh", "dbnd", "đại biểu nhân dân", "so-ban-nganh/dbnd", "qppl/nghi-quyet"]
+    aliases: ["hdnd", "hđnd", "hđnd tỉnh", "hội đồng nhân dân", "đoàn đbqh", "dbnd", "đại biểu nhân dân"]
   },
   stp: {
     code: "stp",
@@ -41,7 +41,7 @@ export const AGENCY_REGISTRY: Record<string, AgencyConfig> = {
     listTitle: "Quản lý văn bản",
     type: "so_nganh",
     tier: 1,
-    aliases: ["stp", "tư pháp", "sở tư pháp", "tu phap", "so tu phap", "giám định tư pháp", "lý lịch tư pháp", "thads", "so-ban-nganh/stp"]
+    aliases: ["stp", "tư pháp", "sở tư pháp", "tu phap", "so tu phap", "giám định tư pháp", "lý lịch tư pháp", "thads"]
   },
   stc: {
     code: "stc",
@@ -51,7 +51,7 @@ export const AGENCY_REGISTRY: Record<string, AgencyConfig> = {
     listTitle: "Quản Lý Văn Bản",
     type: "so_nganh",
     tier: 1,
-    aliases: ["stc", "tài chính", "sở tài chính", "tai chinh", "so tai chinh", "ngân sách", "ngan sach", "so-ban-nganh/stc"]
+    aliases: ["stc", "tài chính", "sở tài chính", "tai chinh", "so tai chinh", "ngân sách", "ngan sach"]
   },
   snv: {
     code: "snv",
@@ -61,7 +61,7 @@ export const AGENCY_REGISTRY: Record<string, AgencyConfig> = {
     listTitle: "Quản lý văn bản",
     type: "so_nganh",
     tier: 1,
-    aliases: ["snv", "nội vụ", "sở nội vụ", "noi vu", "so noi vu", "tổ chức bộ máy", "công chức", "viên chức", "thi đua", "so-ban-nganh/snv"]
+    aliases: ["snv", "nội vụ", "sở nội vụ", "noi vu", "so noi vu", "tổ chức bộ máy", "công chức", "viên chức", "thi đua"]
   },
   thanhtra: {
     code: "thanhtra",
@@ -71,7 +71,7 @@ export const AGENCY_REGISTRY: Record<string, AgencyConfig> = {
     listTitle: "Quản lý văn bản",
     type: "so_nganh",
     tier: 1,
-    aliases: ["thanhtra", "thanh tra", "thanh tra tỉnh", "thanh-tra-tinh", "so-ban-nganh/thanh-tra-tinh", "khieunai", "khiếu nại", "tố cáo", "phòng chống tham nhũng"]
+    aliases: ["thanhtra", "thanh tra", "thanh tra tỉnh", "khieunai", "khiếu nại", "tố cáo", "phòng chống tham nhũng"]
   },
 
   // === KHỐI CÁC SỞ, BAN, NGÀNH CHUYÊN MÔN (TIER 2 - LIVE SEARCH) ===
@@ -83,7 +83,7 @@ export const AGENCY_REGISTRY: Record<string, AgencyConfig> = {
     listTitle: "Quản lý văn bản",
     type: "so_nganh",
     tier: 2,
-    aliases: ["syt", "y tế", "sở y tế", "y te", "so y te", "bệnh viện", "dược", "y tế dự phòng", "so-ban-nganh/syt"]
+    aliases: ["syt", "y tế", "sở y tế", "y te", "so y te", "bệnh viện", "dược", "y tế dự phòng"]
   },
   sxd: {
     code: "sxd",
@@ -93,7 +93,7 @@ export const AGENCY_REGISTRY: Record<string, AgencyConfig> = {
     listTitle: "Quản lý văn bản",
     type: "so_nganh",
     tier: 2,
-    aliases: ["sxd", "xây dựng", "sở xây dựng", "xay dung", "so xay dung", "quy hoạch", "giấy phép xây dựng", "bất động sản", "so-ban-nganh/sxd"]
+    aliases: ["sxd", "xây dựng", "sở xây dựng", "xay dung", "so xay dung", "quy hoạch", "giấy phép xây dựng", "bất động sản"]
   },
   svhttdl: {
     code: "svhttdl",
@@ -103,7 +103,7 @@ export const AGENCY_REGISTRY: Record<string, AgencyConfig> = {
     listTitle: "Quản lý văn bản",
     type: "so_nganh",
     tier: 2,
-    aliases: ["svhttdl", "văn hóa", "thể thao", "du lịch", "sở văn hóa", "van hoa", "du lich", "festival hoa", "so-ban-nganh/svhttdl"]
+    aliases: ["svhttdl", "văn hóa", "thể thao", "du lịch", "sở văn hóa", "van hoa", "du lich", "festival hoa"]
   },
   sct: {
     code: "sct",
@@ -113,7 +113,7 @@ export const AGENCY_REGISTRY: Record<string, AgencyConfig> = {
     listTitle: "Quản lý văn bản",
     type: "so_nganh",
     tier: 2,
-    aliases: ["sct", "công thương", "sở công thương", "cong thuong", "so cong thuong", "socongthuong", "so-ban-nganh/socongthuong", "thương mại", "quản lý thị trường", "điện lực"]
+    aliases: ["sct", "công thương", "sở công thương", "cong thuong", "so cong thuong", "thương mại", "quản lý thị trường", "điện lực"]
   },
   skhcn: {
     code: "skhcn",
@@ -123,7 +123,7 @@ export const AGENCY_REGISTRY: Record<string, AgencyConfig> = {
     listTitle: "Quản lý văn bản",
     type: "so_nganh",
     tier: 2,
-    aliases: ["skhcn", "khoa học", "công nghệ", "sở khoa học", "khoa hoc cong nghe", "đổi mới sáng tạo", "so-ban-nganh/skhcn"]
+    aliases: ["skhcn", "khoa học", "công nghệ", "sở khoa học", "khoa hoc cong nghe", "đổi mới sáng tạo"]
   },
   snnptnt: {
     code: "snnptnt",
@@ -133,7 +133,7 @@ export const AGENCY_REGISTRY: Record<string, AgencyConfig> = {
     listTitle: "Quản lý văn bản",
     type: "so_nganh",
     tier: 2,
-    aliases: ["snnptnt", "snn", "nông nghiệp", "môi trường", "sở nông nghiệp", "lâm nghiệp", "bảo vệ rừng", "trồng trọt", "so-ban-nganh/snnptnt"]
+    aliases: ["snnptnt", "snn", "nông nghiệp", "môi trường", "sở nông nghiệp", "lâm nghiệp", "bảo vệ rừng", "trồng trọt"]
   },
   songoaivu: {
     code: "songoaivu",
@@ -143,7 +143,7 @@ export const AGENCY_REGISTRY: Record<string, AgencyConfig> = {
     listTitle: "Quản lý văn bản",
     type: "so_nganh",
     tier: 2,
-    aliases: ["songoaivu", "sngv", "ngoại vụ", "sở ngoại vụ", "ngoai vu", "so ngoai vu", "hợp tác quốc tế", "biên giới", "so-ban-nganh/sngv"]
+    aliases: ["songoaivu", "sngv", "ngoại vụ", "sở ngoại vụ", "ngoai vu", "so ngoai vu", "hợp tác quốc tế", "biên giới"]
   },
   bandantoc: {
     code: "bandantoc",
@@ -153,7 +153,7 @@ export const AGENCY_REGISTRY: Record<string, AgencyConfig> = {
     listTitle: "Quản lý văn bản",
     type: "so_nganh",
     tier: 2,
-    aliases: ["bandantoc", "dân tộc", "tôn giáo", "sở dân tộc", "dan toc", "ton giao", "đồng bào", "so-ban-nganh/bandantoc"]
+    aliases: ["bandantoc", "dân tộc", "tôn giáo", "sở dân tộc", "dan toc", "ton giao", "đồng bào"]
   },
   liza: {
     code: "liza",
@@ -163,7 +163,7 @@ export const AGENCY_REGISTRY: Record<string, AgencyConfig> = {
     listTitle: "Quản lý văn bản",
     type: "so_nganh",
     tier: 2,
-    aliases: ["liza", "khu công nghiệp", "kcn", "ban quản lý khu công nghiệp", "lộc sơn", "phú hội", "bqlkhucn", "so-ban-nganh/bqlkhucn"]
+    aliases: ["liza", "khu công nghiệp", "kcn", "ban quản lý khu công nghiệp", "lộc sơn", "phú hội"]
   },
   bqlgt: {
     code: "bqlgt",
@@ -173,7 +173,59 @@ export const AGENCY_REGISTRY: Record<string, AgencyConfig> = {
     listTitle: "Quản lý văn bản",
     type: "so_nganh",
     tier: 2,
-    aliases: ["bqlgt", "giao thông", "ban giao thông", "dự án giao thông", "đường bộ", "cao tốc", "so-ban-nganh/bqlgt"]
+    aliases: ["bqlgt", "giao thông", "ban giao thông", "dự án giao thông", "đường bộ", "cao tốc"]
+  },
+
+  // === KHỐI CÁC SỞ ĐÃ SÁP NHẬP (CŨ) - DỮ LIỆU LỊCH SỬ ===
+  sgtvt: {
+    code: "sgtvt",
+    name: "Sở Giao thông Vận tải tỉnh Lâm Đồng (cũ)",
+    shortName: "Sở GTVT (cũ)",
+    baseUrl: "https://w3.lamdong.gov.vn/sites/sgtvt",
+    listTitle: "Quản lý văn bản",
+    type: "so_nganh",
+    tier: 2,
+    aliases: ["sgtvt", "giao thông vận tải", "sở giao thông", "giao thong", "đường bộ cũ", "vận tải"]
+  },
+  skhdt: {
+    code: "skhdt",
+    name: "Sở Kế hoạch và Đầu tư tỉnh Lâm Đồng (cũ)",
+    shortName: "Sở KH&ĐT (cũ)",
+    baseUrl: "https://w3.lamdong.gov.vn/sites/skhdt",
+    listTitle: "Quản lý văn bản",
+    type: "so_nganh",
+    tier: 2,
+    aliases: ["skhdt", "kế hoạch đầu tư", "sở kế hoạch", "ke hoach", "đầu tư", "dau tu", "đăng ký kinh doanh"]
+  },
+  sldtbxh: {
+    code: "sldtbxh",
+    name: "Sở Lao động - TB & XH tỉnh Lâm Đồng (cũ)",
+    shortName: "Sở LĐ-TB&XH (cũ)",
+    baseUrl: "https://w3.lamdong.gov.vn/sites/sldtbxh",
+    listTitle: "Quản lý văn bản",
+    type: "so_nganh",
+    tier: 2,
+    aliases: ["sldtbxh", "lao động", "thương binh", "xã hội", "lao dong", "bảo trợ xã hội", "việc làm"]
+  },
+  stnmt: {
+    code: "stnmt",
+    name: "Sở Tài nguyên và Môi trường tỉnh Lâm Đồng (cũ)",
+    shortName: "Sở TN&MT (cũ)",
+    baseUrl: "https://w3.lamdong.gov.vn/sites/stnmt",
+    listTitle: "Quản lý văn bản",
+    type: "so_nganh",
+    tier: 2,
+    aliases: ["stnmt", "tài nguyên", "môi trường cũ", "tai nguyen", "moi truong", "đất đai", "khoáng sản"]
+  },
+  stttt: {
+    code: "stttt",
+    name: "Sở Thông tin và Truyền thông tỉnh Lâm Đồng (cũ)",
+    shortName: "Sở TT&TT (cũ)",
+    baseUrl: "https://w3.lamdong.gov.vn/sites/stttt",
+    listTitle: "Quản lý văn bản",
+    type: "so_nganh",
+    tier: 2,
+    aliases: ["stttt", "thông tin truyền thông", "thong tin", "truyen thong", "cntt", "chuyển đổi số", "báo chí"]
   },
 
   // === KHỐI ĐỊA PHƯƠNG / CẤP CƠ SỞ (TIER 2 - LIVE SEARCH) ===
@@ -307,333 +359,33 @@ export const AGENCY_REGISTRY: Record<string, AgencyConfig> = {
     listTitle: "Cổng Văn bản Giáo dục",
     type: "khac",
     tier: 2,
-    aliases: ["sgd_edu", "giáo dục", "sở giáo dục", "giao duc", "so giao duc", "học sinh", "giáo viên", "trường học", "sgd-van-ban", "lamdong.edu.vn"]
+    aliases: ["sgd_edu", "giáo dục", "sở giáo dục", "giao duc", "so giao duc", "học sinh", "giáo viên", "trường học"]
   }
 };
 
-export interface LamDongPortalMapping {
-  /** URL chính thức được cung cấp */
-  url: string;
-  /** Slug nhận diện ngắn gọn (vd "so-ban-nganh/sngv", "qppl/nghi-quyet") */
-  slug: string;
-  /** Mã nguồn nội bộ (ubnd, hdnd, sct, liza, songoaivu, sgd_edu...) */
-  code: QpplNguon;
-  /** Tên trang/phân hệ hiển thị */
-  title: string;
-  /** Tên cơ quan phụ trách */
-  agencyName: string;
-  /** Subsite SharePoint thực tế tại w3 */
-  subsite: string;
-  /** Tên danh sách SharePoint */
-  listTitle: string;
-  /** Bộ lọc loại văn bản (nếu trang là chuyên mục lọc) */
-  loaiVanBan?: string;
-  /** Cho phép tải file đính kèm từ danh mục này */
-  canDownload: boolean;
-}
-
 /**
- * Danh bạ cấu trúc chuẩn hóa cho 26 đường dẫn Cổng VBQPPL & Sở ngành tỉnh Lâm Đồng.
- * Đảm bảo mọi URL người dùng cung cấp đều giải mã được chính xác subsite, list và bộ lọc tương ứng.
- */
-export const LAMDONG_PORTAL_MAPPINGS: LamDongPortalMapping[] = [
-  {
-    url: "https://lamdong.gov.vn/sites/qppl/SitePages/Home.aspx",
-    slug: "sites/qppl",
-    code: "ubnd",
-    title: "Cổng thông tin Văn bản QPPL tỉnh Lâm Đồng",
-    agencyName: "UBND tỉnh Lâm Đồng",
-    subsite: "vpubnd",
-    listTitle: "Quản lý văn bản chỉ đạo",
-    canDownload: true,
-  },
-  {
-    url: "https://lamdong.gov.vn/sites/qppl/qppl/nghi-quyet/SitePages/Home.aspx",
-    slug: "qppl/nghi-quyet",
-    code: "hdnd",
-    title: "Nghị quyết QPPL HĐND tỉnh Lâm Đồng",
-    agencyName: "HĐND tỉnh Lâm Đồng",
-    subsite: "dbnd",
-    listTitle: "Quản lý văn bản",
-    loaiVanBan: "Nghị quyết QPPL",
-    canDownload: true,
-  },
-  {
-    url: "https://lamdong.gov.vn/sites/qppl/qppl/quyet-dinh/SitePages/Home.aspx",
-    slug: "qppl/quyet-dinh",
-    code: "ubnd",
-    title: "Quyết định QPPL UBND tỉnh Lâm Đồng",
-    agencyName: "UBND tỉnh Lâm Đồng",
-    subsite: "vpubnd",
-    listTitle: "Quản lý văn bản chỉ đạo",
-    loaiVanBan: "Quyết định QPPL",
-    canDownload: true,
-  },
-  {
-    url: "https://lamdong.gov.vn/sites/qppl/the-loai/toan-bo/SitePages/Home.aspx",
-    slug: "the-loai/toan-bo",
-    code: "ubnd",
-    title: "Toàn bộ thể loại văn bản chỉ đạo điều hành",
-    agencyName: "UBND tỉnh Lâm Đồng",
-    subsite: "vpubnd",
-    listTitle: "Quản lý văn bản chỉ đạo",
-    canDownload: true,
-  },
-  {
-    url: "https://lamdong.gov.vn/sites/qppl/the-loai/quyet-dinh/SitePages/Home.aspx",
-    slug: "the-loai/quyet-dinh",
-    code: "ubnd",
-    title: "Thể loại Quyết định tỉnh Lâm Đồng",
-    agencyName: "UBND tỉnh Lâm Đồng",
-    subsite: "vpubnd",
-    listTitle: "Quản lý văn bản chỉ đạo",
-    loaiVanBan: "Quyết định",
-    canDownload: true,
-  },
-  {
-    url: "https://lamdong.gov.vn/sites/qppl/so-ban-nganh/dbnd/SitePages/Home.aspx",
-    slug: "so-ban-nganh/dbnd",
-    code: "hdnd",
-    title: "Đoàn ĐBQH và HĐND tỉnh Lâm Đồng",
-    agencyName: "HĐND tỉnh Lâm Đồng",
-    subsite: "dbnd",
-    listTitle: "Quản lý văn bản",
-    canDownload: true,
-  },
-  {
-    url: "https://lamdong.gov.vn/sites/qppl/so-ban-nganh/vpubnd/SitePages/Home.aspx",
-    slug: "so-ban-nganh/vpubnd",
-    code: "ubnd",
-    title: "Văn phòng UBND tỉnh Lâm Đồng",
-    agencyName: "UBND tỉnh Lâm Đồng",
-    subsite: "vpubnd",
-    listTitle: "Quản lý văn bản chỉ đạo",
-    canDownload: true,
-  },
-  {
-    url: "https://lamdong.gov.vn/sites/qppl/so-ban-nganh/bqlkhucn/SitePages/Home.aspx",
-    slug: "so-ban-nganh/bqlkhucn",
-    code: "liza",
-    title: "Ban Quản lý các Khu công nghiệp tỉnh Lâm Đồng",
-    agencyName: "Ban Quản lý các KCN tỉnh Lâm Đồng",
-    subsite: "liza",
-    listTitle: "Quản lý văn bản",
-    canDownload: true,
-  },
-  {
-    url: "https://lamdong.gov.vn/sites/qppl/so-ban-nganh/bqlgt/SitePages/Home.aspx",
-    slug: "so-ban-nganh/bqlgt",
-    code: "bqlgt",
-    title: "Ban QLDA Giao thông tỉnh Lâm Đồng",
-    agencyName: "Ban QLDA Giao thông tỉnh Lâm Đồng",
-    subsite: "bqlgt",
-    listTitle: "Quản lý văn bản",
-    canDownload: true,
-  },
-  {
-    url: "https://lamdong.gov.vn/sites/qppl/so-ban-nganh/socongthuong/SitePages/Home.aspx",
-    slug: "so-ban-nganh/socongthuong",
-    code: "sct",
-    title: "Sở Công thương tỉnh Lâm Đồng",
-    agencyName: "Sở Công thương tỉnh Lâm Đồng",
-    subsite: "sct",
-    listTitle: "Quản lý văn bản",
-    canDownload: true,
-  },
-  {
-    url: "https://lamdong.gov.vn/sites/qppl/so-ban-nganh/bandantoc/SitePages/Home.aspx",
-    slug: "so-ban-nganh/bandantoc",
-    code: "bandantoc",
-    title: "Sở Dân tộc và Tôn giáo / Ban Dân tộc tỉnh Lâm Đồng",
-    agencyName: "Sở Dân tộc và Tôn giáo tỉnh Lâm Đồng",
-    subsite: "bandantoc",
-    listTitle: "Quản lý văn bản",
-    canDownload: true,
-  },
-  {
-    url: "https://lamdong.edu.vn/vi/sgd-van-ban/?param=sgd_document",
-    slug: "sgd-van-ban",
-    code: "sgd_edu",
-    title: "Cổng Văn bản Sở Giáo dục & Đào tạo tỉnh Lâm Đồng",
-    agencyName: "Sở Giáo dục và Đào tạo tỉnh Lâm Đồng",
-    subsite: "lamdong.edu.vn",
-    listTitle: "Cổng Văn bản Giáo dục",
-    canDownload: true,
-  },
-  {
-    url: "https://lamdong.gov.vn/sites/qppl/so-ban-nganh/skhcn/SitePages/Home.aspx",
-    slug: "so-ban-nganh/skhcn",
-    code: "skhcn",
-    title: "Sở Khoa học và Công nghệ tỉnh Lâm Đồng",
-    agencyName: "Sở KH&CN tỉnh Lâm Đồng",
-    subsite: "skhcn",
-    listTitle: "Quản lý văn bản",
-    canDownload: true,
-  },
-  {
-    url: "https://lamdong.gov.vn/sites/qppl/so-ban-nganh/snv/SitePages/Home.aspx",
-    slug: "so-ban-nganh/snv",
-    code: "snv",
-    title: "Sở Nội vụ tỉnh Lâm Đồng",
-    agencyName: "Sở Nội vụ tỉnh Lâm Đồng",
-    subsite: "snv",
-    listTitle: "Quản lý văn bản",
-    canDownload: true,
-  },
-  {
-    url: "https://lamdong.gov.vn/sites/qppl/so-ban-nganh/snnptnt/SitePages/Home.aspx",
-    slug: "so-ban-nganh/snnptnt",
-    code: "snnptnt",
-    title: "Sở Nông nghiệp và Môi trường tỉnh Lâm Đồng",
-    agencyName: "Sở Nông nghiệp và Môi trường tỉnh Lâm Đồng",
-    subsite: "snnptnt",
-    listTitle: "Quản lý văn bản",
-    canDownload: true,
-  },
-  {
-    url: "https://lamdong.gov.vn/sites/qppl/so-ban-nganh/sngv/SitePages/Home.aspx",
-    slug: "so-ban-nganh/sngv",
-    code: "songoaivu",
-    title: "Sở Ngoại vụ tỉnh Lâm Đồng",
-    agencyName: "Sở Ngoại vụ tỉnh Lâm Đồng",
-    subsite: "songoaivu",
-    listTitle: "Quản lý văn bản",
-    canDownload: true,
-  },
-  {
-    url: "https://lamdong.gov.vn/sites/qppl/so-ban-nganh/stc/SitePages/Home.aspx",
-    slug: "so-ban-nganh/stc",
-    code: "stc",
-    title: "Sở Tài chính tỉnh Lâm Đồng",
-    agencyName: "Sở Tài chính tỉnh Lâm Đồng",
-    subsite: "stc",
-    listTitle: "Quản Lý Văn Bản",
-    canDownload: true,
-  },
-  {
-    url: "https://lamdong.gov.vn/sites/qppl/so-ban-nganh/stp/SitePages/Home.aspx",
-    slug: "so-ban-nganh/stp",
-    code: "stp",
-    title: "Sở Tư pháp tỉnh Lâm Đồng",
-    agencyName: "Sở Tư pháp tỉnh Lâm Đồng",
-    subsite: "stp",
-    listTitle: "Quản lý văn bản",
-    canDownload: true,
-  },
-  {
-    url: "https://lamdong.gov.vn/sites/qppl/so-ban-nganh/svhttdl/SitePages/Home.aspx",
-    slug: "so-ban-nganh/svhttdl",
-    code: "svhttdl",
-    title: "Sở Văn hóa, Thể thao và Du lịch tỉnh Lâm Đồng",
-    agencyName: "Sở VHTT&DL tỉnh Lâm Đồng",
-    subsite: "svhttdl",
-    listTitle: "Quản lý văn bản",
-    canDownload: true,
-  },
-  {
-    url: "https://lamdong.gov.vn/sites/qppl/so-ban-nganh/sxd/SitePages/Home.aspx",
-    slug: "so-ban-nganh/sxd",
-    code: "sxd",
-    title: "Sở Xây dựng tỉnh Lâm Đồng",
-    agencyName: "Sở Xây dựng tỉnh Lâm Đồng",
-    subsite: "sxd",
-    listTitle: "Quản lý văn bản",
-    canDownload: true,
-  },
-  {
-    url: "https://lamdong.gov.vn/sites/qppl/so-ban-nganh/syt/SitePages/Home.aspx",
-    slug: "so-ban-nganh/syt",
-    code: "syt",
-    title: "Sở Y tế tỉnh Lâm Đồng",
-    agencyName: "Sở Y tế tỉnh Lâm Đồng",
-    subsite: "syt",
-    listTitle: "Quản lý văn bản",
-    canDownload: true,
-  },
-  {
-    url: "https://lamdong.gov.vn/sites/qppl/so-ban-nganh/thanh-tra-tinh/SitePages/Home.aspx",
-    slug: "so-ban-nganh/thanh-tra-tinh",
-    code: "thanhtra",
-    title: "Thanh tra tỉnh Lâm Đồng",
-    agencyName: "Thanh tra tỉnh Lâm Đồng",
-    subsite: "thanhtra",
-    listTitle: "Quản lý văn bản",
-    canDownload: true,
-  },
-];
-
-/**
- * Phân giải URL Cổng VBQPPL Lâm Đồng về cấu hình cơ quan và bộ lọc tương ứng.
- */
-export function resolvePortalUrl(inputUrl: string | undefined): LamDongPortalMapping | null {
-  if (!inputUrl) return null;
-  const raw = inputUrl.trim().toLowerCase();
-  for (const m of LAMDONG_PORTAL_MAPPINGS) {
-    if (
-      raw === m.url.toLowerCase() ||
-      raw.includes(m.slug) ||
-      raw.includes(m.url.toLowerCase().replace("https://", "")) ||
-      raw.includes(m.url.toLowerCase().replace("/sitepages/home.aspx", ""))
-    ) {
-      return m;
-    }
-  }
-  return null;
-}
-
-/**
- * Tìm kiếm cấu hình cơ quan dựa trên từ khóa, URL hoặc tên người dùng nhập.
+ * Tìm kiếm cấu hình cơ quan dựa trên từ khóa hoặc tên người dùng nhập.
  */
 export function resolveAgency(input: string | undefined): AgencyConfig | null {
   if (!input) return null;
   const normalized = input.trim().toLowerCase();
-
-  // 1. Kiểm tra đối chiếu URL Cổng tỉnh trước
-  const portal = resolvePortalUrl(normalized);
-  if (portal && AGENCY_REGISTRY[portal.code]) {
-    return AGENCY_REGISTRY[portal.code];
-  }
   
-  // 2. Khớp chính xác code
+  // 1. Khớp chính xác code
   if (AGENCY_REGISTRY[normalized]) {
     return AGENCY_REGISTRY[normalized];
   }
 
-  // 3. Khớp chính xác alias (exact match)
+  // 2. Khớp trong alias hoặc tên viết tắt / tên đầy đủ
   for (const cfg of Object.values(AGENCY_REGISTRY)) {
-    if (cfg.aliases.some(a => normalized === a.toLowerCase())) {
+    if (cfg.aliases.some(a => normalized === a || normalized.includes(a) || a.includes(normalized))) {
+      return cfg;
+    }
+    if (cfg.name.toLowerCase().includes(normalized) || cfg.shortName.toLowerCase().includes(normalized)) {
       return cfg;
     }
   }
 
-  // 4. Khớp tên đầy đủ hoặc tên viết tắt chính xác
-  for (const cfg of Object.values(AGENCY_REGISTRY)) {
-    if (cfg.name.toLowerCase() === normalized || cfg.shortName.toLowerCase() === normalized) {
-      return cfg;
-    }
-  }
-
-  // 5. Khớp mờ: ưu tiên alias dài nhất khớp với input để tránh các từ ngắn như "tinh" cướp lượt
-  let bestMatch: { cfg: AgencyConfig; matchedLen: number } | null = null;
-  for (const cfg of Object.values(AGENCY_REGISTRY)) {
-    for (const a of cfg.aliases) {
-      const aLower = a.toLowerCase();
-      if (aLower.length < 3) continue;
-      if (normalized.includes(aLower) || aLower.includes(normalized)) {
-        if (!bestMatch || aLower.length > bestMatch.matchedLen) {
-          bestMatch = { cfg, matchedLen: aLower.length };
-        }
-      }
-    }
-    const nameLower = cfg.name.toLowerCase();
-    if (normalized.includes(nameLower) || nameLower.includes(normalized)) {
-      if (!bestMatch || nameLower.length > bestMatch.matchedLen) {
-        bestMatch = { cfg, matchedLen: nameLower.length };
-      }
-    }
-  }
-
-  return bestMatch ? bestMatch.cfg : null;
+  return null;
 }
 
 /**
@@ -655,4 +407,69 @@ export function getAllAgencies(): AgencyConfig[] {
  */
 export function getAgencyConfig(code: string): AgencyConfig | undefined {
   return AGENCY_REGISTRY[code];
+}
+
+/**
+ * Bảng ánh xạ Sở cũ → Sở mới sau sắp xếp 2025.
+ *
+ * Theo NQ390–395/NQ-HĐND ngày 18/02/2025, hiệu lực từ 01/03/2025:
+ * - Sở TN&MT + Sở NN&PTNT → Sở Nông nghiệp và Môi trường
+ * - Sở TT&TT + Sở KH&CN → Sở Khoa học và Công nghệ
+ * - Sở LĐ-TB&XH + Sở Nội vụ → Sở Nội vụ
+ * - Sở GTVT + Sở Xây dựng → Sở Xây dựng
+ * - Sở KH&ĐT + Sở Tài chính → Sở Tài chính
+ */
+export const MERGER_MAP: Record<string, { newCode: string; oldCode: string }> = {
+  // key = code cũ, value = { newCode, oldCode }
+  stnmt:   { newCode: "snnptnt", oldCode: "stnmt" },
+  stttt:   { newCode: "skhcn",   oldCode: "stttt" },
+  sldtbxh: { newCode: "snv",     oldCode: "sldtbxh" },
+  sgtvt:   { newCode: "sxd",     oldCode: "sgtvt" },
+  skhdt:   { newCode: "stc",     oldCode: "skhdt" },
+  // key = code mới (để tra ngược)
+  snnptnt: { newCode: "snnptnt", oldCode: "stnmt" },
+  skhcn:   { newCode: "skhcn",   oldCode: "stttt" },
+  snv:     { newCode: "snv",     oldCode: "sldtbxh" },
+  sxd:     { newCode: "sxd",     oldCode: "sgtvt" },
+  stc:     { newCode: "stc",     oldCode: "skhdt" },
+};
+
+/** Mốc các Sở mới đi vào hoạt động: 01/03/2025 */
+export const MERGER_EFFECTIVE_DATE = "2025-03-01";
+
+/**
+ * Routing thông minh: trả danh sách nguồn cần tìm dựa trên mốc thời gian.
+ *
+ * Khi người dùng nhập từ khóa khớp alias Sở (ví dụ "đất đai" → stnmt):
+ * - Nếu đang tìm VB từ 2025 trở đi → ưu tiên Sở MỚI (snnptnt), đồng thời
+ *   vẫn tìm Sở cũ (stnmt) để bắt VB ban hành trước 01/03 nhưng Modified sau.
+ * - Nếu đang tìm VB trước 2025 → chỉ tìm Sở CŨ (stnmt).
+ * - Nếu không rõ thời gian → tìm CẢ HAI.
+ *
+ * @param nguon  Code Sở mà resolveAgency() đã resolve
+ * @param year   Năm tham chiếu (từ query hoặc dateFrom). Undefined = không rõ.
+ * @returns      Mảng nguồn cần tìm, đã sắp theo ưu tiên (nguồn chính trước).
+ */
+export function resolveSmartAgencies(
+  nguon: string,
+  year?: number,
+): string[] {
+  const merger = MERGER_MAP[nguon];
+  if (!merger) {
+    // Không phải Sở sáp nhập → trả nguyên
+    return [nguon];
+  }
+
+  if (year === undefined) {
+    // Không rõ năm → tìm cả Sở mới lẫn cũ
+    return [merger.newCode, merger.oldCode];
+  }
+
+  if (year >= 2025) {
+    // Từ 2025 → ưu tiên Sở mới, kèm Sở cũ (VB có thể ban hành đầu năm trước sáp nhập)
+    return [merger.newCode, merger.oldCode];
+  }
+
+  // Trước 2025 → chỉ tìm Sở cũ
+  return [merger.oldCode];
 }

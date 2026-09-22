@@ -291,14 +291,20 @@ export async function downloadAllFilesForDoc(docId: number): Promise<QpplDownloa
   // Sắp xếp ưu tiên: văn bản chính (signed/quyết định) lên trước, phụ lục/danh mục ra sau
   const sortedLinks = [...links].sort((a, b) => rankFile(b.name) - rankFile(a.name));
 
+  // Chỉ tải file PDF — bỏ qua DOC/DOCX/XLSX (bản chính thức có chữ ký số luôn là PDF)
+  const pdfLinks = sortedLinks.filter(link => {
+    const ext = link.name.split('.').pop()?.toLowerCase() ?? '';
+    return ext === 'pdf' || link.url.toLowerCase().endsWith('.pdf');
+  });
+
   const storageDir = getQpplStorageDir();
   const downloadedPaths: string[] = [];
   const failed: QpplDownloadFailure[] = [];
   let totalBytes = 0;
   const safeSoKyHieu = doc.soKyHieu.replace(/[\/\\:*?"<>|]/g, "-").trim();
 
-  for (let i = 0; i < sortedLinks.length; i++) {
-    const link = sortedLinks[i]!;
+  for (let i = 0; i < pdfLinks.length; i++) {
+    const link = pdfLinks[i]!;
     // Giữ tên gốc của file từ cổng tỉnh để người dùng dễ nhận biết (QD chính vs Phụ lục)
     const cleanOriginalName = sanitizeFileName(link.name);
     // Giữ tên dễ nhận biết nhưng thêm chỉ số khi nhiều URL có cùng tên file.
@@ -339,7 +345,7 @@ export async function downloadAllFilesForDoc(docId: number): Promise<QpplDownloa
     );
   }
 
-  return { expected: sortedLinks.length, downloaded: downloadedPaths, failed };
+  return { expected: pdfLinks.length, downloaded: downloadedPaths, failed };
 }
 
 /**

@@ -227,17 +227,19 @@ export async function downloadNationalLegal(
   format: "pdf" | "doc" | "docx" = "pdf",
   soHieu?: string,
 ): Promise<NationalDownloadResult> {
-  log.info({ source, soHieu, downloadId }, "Starting priority legal download");
+  // Chỉ tải PDF — bản chính thức trên datafiles.chinhphu.vn là .signed.pdf
+  const effectiveFormat = "pdf" as const;
+  log.info({ source, soHieu, downloadId, requestedFormat: format, effectiveFormat }, "Starting priority legal download (PDF only)");
   if (source === "congbao") {
     return downloadFromCongbao(downloadId, soHieu);
   }
   if (source === "vbpl") {
-    return downloadFromVbpl(downloadId, format === "doc" ? "docx" : (format as "pdf" | "docx"), soHieu);
+    return downloadFromVbpl(downloadId, effectiveFormat, soHieu);
   }
   if (source === "phapluat") {
-    return downloadFromPhapLuat(downloadId, format, soHieu);
+    return downloadFromPhapLuat(downloadId, effectiveFormat, soHieu);
   }
-  return downloadFromTvpl(downloadId, format, soHieu);
+  return downloadFromTvpl(downloadId, effectiveFormat, soHieu);
 }
 
 async function downloadFromCongbao(
