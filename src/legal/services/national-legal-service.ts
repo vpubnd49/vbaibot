@@ -208,6 +208,20 @@ export async function searchNationalLegal(keyword: string): Promise<NationalLega
     return sourceRank(a.source) - sourceRank(b.source) || scoreNationalResult(b, normalizedQuery) - scoreNationalResult(a, normalizedQuery);
   });
 
+  // 5. Fallback: tìm trực tiếp trên vanban.chinhphu.vn nếu 4 nguồn chính không trả kết quả.
+  // Đặc biệt cần thiết cho VBHN (Văn bản hợp nhất) mà các cổng khác thường không index.
+  if (results.length === 0 && keyword.trim()) {
+    try {
+      const chinhphuResults = await searchVanbanChinhphu(keyword);
+      results.push(...chinhphuResults);
+      if (chinhphuResults.length > 0) {
+        log.info({ keyword, found: chinhphuResults.length }, "Fallback vanban.chinhphu.vn found results");
+      }
+    } catch (err) {
+      log.warn({ err, keyword }, "Fallback vanban.chinhphu.vn search failed");
+    }
+  }
+
   log.info({ keyword, total: results.length, top: results[0]?.soHieu }, "National legal search completed");
   return results;
 }
@@ -395,4 +409,78 @@ function scoreNationalResult(result: NationalLegalResult, query: string): number
   if (normalizeSoHieu(result.soHieu) && query.replace(/[^a-z0-9]/g, "") === normalizeSoHieu(result.soHieu).toLowerCase()) score += 200;
   if (normalizeSearchText(result.trichYeu).includes(query)) score += 50;
   return score;
+}
+
+// ─── Fallback: vanban.chinhphu.vn ──────────────────────────────────
+
+/**
+ * Tìm trực tiếp trên vanban.chinhphu.vn — cổng duy nhất index đầy đủ VBHN.
+ *
+ * Trang dùng ASP.NET WebForms, render server-side. HTML chứa danh sách VB dạng:
+ * ```html
+ * <a href="?pageid=27160&docid=219579">Văn bản hợp nhất số 139/2026/VBHN-LQ-VPQH ...</a>
+ * ```
+ *
+ * Chiến lược: fetch HTML từ trang listing + query string, parse regex để lấy
+ * docid + tiêu đề + số hiệu. Mỗi docid cho URL detail page dùng để download.
+ */
+async function searchVanbanChinhphu(keyword: string): Promise<NationalLegalResult[]> {
+  const kw = keyword.trim();
+  if (!kw) return [];
+
+  // vanban.chinhphu.vn search: thêm tham số vào URL listing
+  // pageid=41852 là trang tra cứu, mode=0 là tất cả VB
+  const searchUrl = `https://vanban.chinhphu.vn/?pageid=41852&mode=0&keyword=${encodeURIComponent(kw)}`;
+  
+  const response = await fetch(searchUrl, {
+    headers: {
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+      Accept: "text/html",
+    },
+    signal: AbortSignal.timeout(15_000),
+  });
+
+  if (!response.ok) {
+    log.warn({ status: response.status, kw }, "vanban.chinhphu.vn search HTTP error");
+    return [];
+  }
+
+  const html = await response.text();
+  const results: NationalLegalResult[] = [];
+
+  // Pattern 1: Link chi tiết VB dạng <a href="?pageid=27160&docid=XXXXX">Tiêu đề</a>
+  const linkRe = /href=["'](?:https?:\/\/vanban\.chinhphu\.vn\/)?\?pageid=27160[^"']*docid=(\d+)[^"']*["'][^>]*>([^<]+)/gi;
+  let match: RegExpExecArray | null;
+  const seen = new Set<string>();
+
+  while ((match = linkRe.exec(html)) !== null) {
+    const docid = match[1];
+    const rawTitle = match[2].replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").trim();
+    if (!docid || !rawTitle || seen.has(docid)) continue;
+    seen.add(docid);
+
+    // Trích số hiệu từ tiêu đề: "Văn bản hợp nhất số 139/2026/VBHN-LQ-VPQH của ..."
+    const soHieuMatch = rawTitle.match(/(?:số\s+)?(\d+\/\d{4}\/[A-ZĐa-zđ0-9_-]+)/i);
+    const soHieu = soHieuMatch?.[1] || "";
+
+    // Trích loại VB
+    const loaiMatch = rawTitle.match(/^(Văn bản hợp nhất|Luật|Nghị định|Thông tư|Quyết định|Nghị quyết|Pháp lệnh|Chỉ thị)/i);
+    const loaiVB = loaiMatch?.[1] || "Văn bản";
+
+    const detailUrl = `https://vanban.chinhphu.vn/?pageid=27160&docid=${docid}`;
+    results.push({
+      soHieu,
+      trichYeu: rawTitle,
+      loaiVB,
+      ngayBanHanh: "",
+      source: "vbpl", // route through downloadFromVbpl → downloadFromOfficialDetailPage
+      detailUrl,
+      downloadId: detailUrl,
+    });
+
+    if (results.length >= 10) break;
+  }
+
+  log.debug({ kw, found: results.length, docids: [...seen] }, "vanban.chinhphu.vn search completed");
+  return results;
 }
