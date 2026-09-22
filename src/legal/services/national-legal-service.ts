@@ -88,10 +88,16 @@ export async function searchNationalLegal(keyword: string): Promise<NationalLega
     searchVanbanChinhphu(keyword),
   ]);
 
-  // 0. vanban.chinhphu.vn — ƯU TIÊN CAO NHẤT, merge trước để không bị filter loại bỏ
+  // 0. vanban.chinhphu.vn — merge vào pool, dedup, để qua filter exact match cùng các nguồn khác.
+  //    Ưu tiên chinhphu.vn bằng sort score (detailUrl chứa chinhphu.vn), KHÔNG bằng vị trí insert.
   if (chinhphuItems.status === "fulfilled" && chinhphuItems.value.length > 0) {
-    // Chèn ĐẦU mảng để ưu tiên khi download
-    results.unshift(...chinhphuItems.value);
+    for (const item of chinhphuItems.value) {
+      const existing = results.find(
+        (r) => r.soHieu && item.soHieu && normalizeSoHieu(r.soHieu) === normalizeSoHieu(item.soHieu),
+      );
+      if (existing) continue;
+      results.push(item);
+    }
     log.info({ keyword, found: chinhphuItems.value.length }, "vanban.chinhphu.vn results (priority source)");
   } else if (chinhphuItems.status === "rejected") {
     log.warn({ err: chinhphuItems.reason }, "vanban.chinhphu.vn search failed");
@@ -197,6 +203,20 @@ export async function searchNationalLegal(keyword: string): Promise<NationalLega
       const wanted = normalizeSoHieu(short[0]);
       const exact = results.filter((r) => normalizeSoHieu(r.soHieu).startsWith(wanted));
       results.splice(0, results.length, ...exact);
+    } else {
+      // Pattern: "1805/QĐ-TTg", "66/CĐ-TTg", "139/VBHN-LQ-VPQH" (số/loại, không có năm)
+      const soLoai = keyword.match(/\b(\d+)\/([\wĐđ]+-[\wĐđ]+(?:-[\wĐđ]+)*)\b/);
+      if (soLoai) {
+        const wantedNum = soLoai[1];
+        const wantedType = normalizeSoHieu(soLoai[2]);
+        const exact = results.filter((r) => {
+          const norm = normalizeSoHieu(r.soHieu);
+          return norm.includes(wantedNum) && norm.includes(wantedType);
+        });
+        if (exact.length > 0) {
+          results.splice(0, results.length, ...exact);
+        }
+      }
     }
   }
 
