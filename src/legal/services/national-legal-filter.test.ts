@@ -59,7 +59,8 @@ describe("filter soLoai (số/loại, không năm)", () => {
       const norm = normalizeSoHieu(sh);
       return leadingNum === wantedNum && norm.includes(wantedType);
     });
-    return exact.length > 0 ? exact : soHieus;
+    // BẮT BUỘC splice — kể cả exact=0
+    return exact;
   }
 
   it("'1805/QĐ-TTg' giữ đúng 1805/2026/QĐ-TTg, loại 66/2026/CĐ-TTg", () => {
@@ -103,12 +104,12 @@ describe("filter soLoai (số/loại, không năm)", () => {
     assert.deepEqual(r, ["1805/2026/QĐ-TTg"]);
   });
 
-  it("không có VB nào match thì giữ nguyên (fallback)", () => {
+  it("không có VB nào match thì trả rỗng (KHÔNG fallback VB sai)", () => {
     const r = simulateSoLoaiFilter("9999/QĐ-TTg", [
       "66/2026/CĐ-TTg",
       "1805/2026/QĐ-TTg",
     ]);
-    assert.deepEqual(r, ["66/2026/CĐ-TTg", "1805/2026/QĐ-TTg"]);
+    assert.deepEqual(r, []);
   });
 });
 
@@ -142,6 +143,7 @@ describe("filter shorthand - guard soLoai", () => {
             return leadingNum === wantedNum && norm.includes(wantedType);
           });
           if (exact.length > 0) results = exact;
+          else results = []; // Bắt buộc: không trả VB sai
         }
       }
     }

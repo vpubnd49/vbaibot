@@ -220,9 +220,9 @@ export async function searchNationalLegal(keyword: string): Promise<NationalLega
           const norm = normalizeSoHieu(r.soHieu);
           return leadingNum === wantedNum && norm.includes(wantedType);
         });
-        if (exact.length > 0) {
-          results.splice(0, results.length, ...exact);
-        }
+        // BẮT BUỘC splice — kể cả exact=0: user đã nêu số hiệu cụ thể,
+        // trả VB khác là SAI NGHIÊM TRỌNG hơn trả "không tìm thấy".
+        results.splice(0, results.length, ...exact);
       }
     }
   }
@@ -549,7 +549,7 @@ async function searchVanbanChinhphu(keyword: string): Promise<NationalLegalResul
       downloadId: detailUrl,
     });
 
-    if (results.length >= 10) break;
+    if (results.length >= 50) break;
   }
 
   log.info({ kw, found: results.length, docids: [...seen].slice(0, 5) }, "vanban.chinhphu.vn search completed");
