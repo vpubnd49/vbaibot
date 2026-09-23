@@ -192,6 +192,8 @@ export async function searchNationalLegal(keyword: string): Promise<NationalLega
 
   // Khi người dùng nêu số hiệu, chỉ chấp nhận khớp tuyệt đối. Không để API
   // tìm OR trả văn bản khác rồi gắn tên số hiệu yêu cầu lên file đó.
+  // `soLoai` hoist lên đây để shorthand guard bên dưới tham chiếu được.
+  let soLoai: RegExpMatchArray | null = null;
   const explicit = keyword.match(/\b\d+\/\d{4}\/[A-ZĐa-zđ0-9_-]+\b/);
   if (explicit) {
     const wanted = normalizeSoHieu(explicit[0]);
@@ -205,13 +207,18 @@ export async function searchNationalLegal(keyword: string): Promise<NationalLega
       results.splice(0, results.length, ...exact);
     } else {
       // Pattern: "1805/QĐ-TTg", "66/CĐ-TTg", "139/VBHN-LQ-VPQH" (số/loại, không có năm)
-      const soLoai = keyword.match(/\b(\d+)\/([\wĐđ]+-[\wĐđ]+(?:-[\wĐđ]+)*)\b/);
+      soLoai = keyword.match(/\b(\d+)\/([\wĐđ]+-[\wĐđ]+(?:-[\wĐđ]+)*)\b/)
+        // Fallback: "1805 QĐ-TTg" (space thay slash — model đôi khi format lại keyword)
+        || keyword.match(/\b(\d+)\s+([\wĐđ]+-[\wĐđ]+(?:-[\wĐđ]+)*)\b/);
       if (soLoai) {
         const wantedNum = soLoai[1];
         const wantedType = normalizeSoHieu(soLoai[2]);
         const exact = results.filter((r) => {
+          // Tách số đầu tiên từ soHieu GỐC (trước normalize) để so chính xác.
+          // VD: "1805/2026/QĐ-TTg" → "1805", "66/CĐ-TTg" → "66"
+          const leadingNum = r.soHieu.match(/^(\d+)/)?.[1];
           const norm = normalizeSoHieu(r.soHieu);
-          return norm.includes(wantedNum) && norm.includes(wantedType);
+          return leadingNum === wantedNum && norm.includes(wantedType);
         });
         if (exact.length > 0) {
           results.splice(0, results.length, ...exact);
@@ -222,13 +229,16 @@ export async function searchNationalLegal(keyword: string): Promise<NationalLega
 
   // API các cổng thường tìm theo từng từ (OR), vì vậy phải ưu tiên bản ghi
   // khớp số hiệu/tên văn bản trước khi tool chọn bản ghi để tải.
-  if (shorthand?.[1]) {
+  // Chỉ dùng shorthand khi soLoai chưa filter — tránh đè lên kết quả chính xác hơn.
+  // Fix: dùng normalizeSoHieu("QĐ-TTg") thay literal "QDTTG" (bug Unicode Đ≠D).
+  if (shorthand?.[1] && !soLoai) {
     const wantedNumber = shorthand[1];
     const wantedYear = keyword.match(/(?:ngày\s+\d{1,2}\/\d{1,2}\/|\b)(20\d{2})\b/)?.[1];
     const wantedIssuer = /thủ\s*tướng|ttg/i.test(keyword);
+    const qdttgNorm = normalizeSoHieu("QĐ-TTg");
     const filtered = results.filter((r) => {
       const normalized = normalizeSoHieu(r.soHieu);
-      const numberMatches = normalized.startsWith(normalizeSoHieu(wantedNumber)) && normalized.includes("QDTTG");
+      const numberMatches = normalized.startsWith(normalizeSoHieu(wantedNumber)) && normalized.includes(qdttgNorm);
       const yearMatches = !wantedYear || r.ngayBanHanh.startsWith(wantedYear);
       const issuerMatches = !wantedIssuer || /thủ\s*tướng|ttg/i.test(`${r.trichYeu} ${r.loaiVB} ${r.soHieu}`);
       return numberMatches && yearMatches && issuerMatches;
@@ -423,9 +433,9 @@ async function downloadFromVbpl(
 
 // ─── Helpers ───────────────────────────────────────────────────────
 
-/** Chuẩn hóa số hiệu VB để so sánh (bỏ dấu cách, slash, viết hoa) */
+/** Chuẩn hóa số hiệu VB để so sánh (bỏ dấu cách, slash, viết hoa, Đ→D) */
 function normalizeSoHieu(sh: string): string {
-  return sh.replace(/[\s/-]/g, "").toUpperCase();
+  return sh.replace(/[\s/-]/g, "").toUpperCase().replace(/Đ/g, "D");
 }
 
 function normalizeSearchText(value: string): string {

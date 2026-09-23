@@ -823,7 +823,7 @@ export async function runAgentTurn({
   // "học" rằng VB không tồn tại và skip tool hoàn toàn.
   const allToolCallsFinal = layAllToolCalls(result);
   const khongGoiToolNao = allToolCallsFinal.length === 0;
-  const laYeuCauTraCuuVB = /tải|download|gửi file|tra cứu|tìm|vbhn|văn bản hợp nhất|\d+\/\d{4}\/[a-zA-ZĐđ]/i.test(latest.text);
+  const laYeuCauTraCuuVB = /tải|download|gửi file|tra cứu|tìm|vbhn|văn bản hợp nhất|\d+\/\d{4}\/[a-zA-ZĐđ]|\d+\/[A-ZĐđa-z]+-[A-Za-z]/i.test(latest.text);
   const traLoiKhongTimThay = /không\s*(tìm\s*thấy|có\s*kết\s*quả)|chưa\s*(được\s*)?cập\s*nhật|chưa\s*kịp/i.test(result.text);
   if (khongGoiToolNao && laYeuCauTraCuuVB && traLoiKhongTimThay) {
     log.warn(
