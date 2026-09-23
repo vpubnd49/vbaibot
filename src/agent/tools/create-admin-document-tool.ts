@@ -59,6 +59,39 @@ async function guard(
   }
 }
 
+/** Tự động làm sạch các placeholder phổ biến trong căn cứ pháp lý và nội dung */
+function cleanDocumentPlaceholders(doc: AdminDocument): AdminDocument {
+  if (doc.canCuPhapLy) {
+    doc.canCuPhapLy = doc.canCuPhapLy.map((cc) => {
+      let s = cc;
+      // Thông tư 01/2025/TT-BYT
+      if (/01\/2025\/TT-BYT/i.test(s)) {
+        if (/quy định về\s*\[/i.test(s) || /\[(?:tên đầy đủ|tên thông tư|điền)[^\]]*\]/i.test(s)) {
+          s = s.replace(
+            /(?:của Bộ Y tế\s+)?(?:quy định về\s+)?\[(?:tên đầy đủ của thông tư|tên thông tư|điền tên|tên đầy đủ)[^\]]*\]/gi,
+            "ngày 01/01/2025 của Bộ trưởng Bộ Y tế quy định chi tiết và hướng dẫn thi hành một số điều của Luật Bảo hiểm y tế",
+          );
+        }
+      }
+      // Placeholder generic [tên đầy đủ...] hoặc [...]
+      s = s.replace(/\s*\[(?:tên đầy đủ|điền tên|chèn tên|tên chính thức)[^\]]*\]/gi, "");
+      return s;
+    });
+  }
+
+  if (doc.sections) {
+    for (const sec of doc.sections) {
+      if (sec.paragraphs) {
+        sec.paragraphs = sec.paragraphs.map((p) =>
+          p.replace(/\s*\[(?:tên đầy đủ|điền tên|chèn tên|ghi rõ)[^\]]*\]/gi, ""),
+        );
+      }
+    }
+  }
+
+  return doc;
+}
+
 export function createAdminDocumentTool(ctx: Ctx) {
   return tool({
     description:
@@ -66,6 +99,7 @@ export function createAdminDocumentTool(ctx: Ctx) {
       "(hoặc Hướng dẫn 05-HD/VPTW của Ban Chấp hành Trung ương Đảng) rồi gửi luôn cho người dùng.\n" +
       "Hỗ trợ 24 loại văn bản: Tờ trình (to_trinh), Quyết định (quyet_dinh), Công văn (cong_van), Giấy mời (giay_moi), " +
       "Kế hoạch (ke_hoach), Báo cáo (bao_cao), Thông báo (thong_bao), Biên bản (bien_ban), Quy chế (quy_che), Quy định (quy_dinh), v.v.\n" +
+      "⚠️ QUY TẮC CĂN CỨ PHÁP LÝ & PLACEHOLDER: Tuyệt đối KHÔNG để lại placeholder chưa điền như '[tên đầy đủ của thông tư]', '[căn cứ...]', '[điền...]', '[...]'. Mọi căn cứ pháp lý phải ghi rõ ràng, chính xác tên đầy đủ của văn bản.\n" +
       "⚠️ QUY TẮC NỘI DUNG BẮT BUỘC: Mỗi section trong 'document.sections' PHẢI chứa NỘI DUNG THỰC CHẤT đầy đủ. " +
       "CẤM chỉ viết câu dẫn mở đầu (ví dụ 'có ý kiến chỉ đạo như sau:') rồi bỏ trống. " +
       "Nếu là công văn giao việc: PHẢI ghi rõ đơn vị chủ trì, đơn vị phối hợp, nội dung công việc cụ thể, thời hạn, cơ quan nhận báo cáo trong paragraphs. " +
@@ -86,7 +120,9 @@ export function createAdminDocumentTool(ctx: Ctx) {
         const rate = checkDocumentRateLimit(`${ctx.account.id}:${ctx.message.threadId}`);
         if (!rate.ok) return ketQuaLoi(rate.reason);
 
-        const sanitizedDoc = replaceOutdatedOrgNames(docData) as AdminDocument;
+        const sanitizedDoc = cleanDocumentPlaceholders(
+          replaceOutdatedOrgNames(docData) as AdminDocument,
+        );
 
         // ── Validation: phát hiện công văn giao/chuyển bỏ trống nội dung ──
         // Bot hay viết phần dẫn "có ý kiến chỉ đạo như sau:" rồi TRỐNG nội

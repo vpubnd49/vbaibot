@@ -118,6 +118,18 @@ Thay vì chỉ là một bảng liệt kê, em thiết kế file này thành m�
 Em tiến hành gọi tool xuất file Excel cho anh ngay đây ạ!`;
       assert.equal(laTinNhanAoGiacGuiFile(botText, [], userPrompt), true);
     });
+
+    // ── Hồi quy vụ Nguyễn Phúc An (23/09/2026): 'soạn giúp tôi 1 công văn' & 'Em tiến hành gọi tool để xuất file Word' ──
+
+    it("nhận diện người dùng yêu cầu 'soạn giúp tôi 1 công văn' là ý định xuất file", () => {
+      const userPrompt = "căn cứ điều 8 thông tư 01/2025/TT-BYT... Bạn hãy soạn giúp tôi 1 công văn để yêu cầu nội dung trên";
+      assert.equal(laNguoiDungYeuCauXuatFile(userPrompt), true);
+    });
+
+    it("bắt câu 'Em tiến hành gọi tool để xuất file Word chuẩn thể thức cho anh ngay đây ạ.' có từ 'để'", () => {
+      const botText = "Để giải quyết việc này, em sẽ soạn cho anh một Công văn từ Bệnh viện An Phước gửi Sở Y tế và Bảo hiểm xã hội.\n\nEm tiến hành gọi tool để xuất file Word chuẩn thể thức cho anh ngay đây ạ.";
+      assert.equal(laTinNhanAoGiacGuiFile(botText, []), true);
+    });
   });
 
   describe("xoaNhanAoGiacGuiFile", () => {
@@ -137,5 +149,13 @@ Em tiến hành gọi tool xuất file Excel cho anh ngay đây ạ!`;
       assert.ok(msg.includes("CẢNH BÁO"));
       assert.ok(msg.includes("create_excel_file"));
     });
+
+    it("yêu cầu SOẠN văn bản (công văn/tờ trình) phải nhắc create_admin_document, không ép qppl_lamdong", () => {
+      const userPrompt = "Bạn hãy soạn giúp tôi 1 công văn để yêu cầu nội dung trên";
+      const msg = taoTinNhanNhacGoiTool(userPrompt);
+      assert.ok(msg.includes("create_admin_document"), "phải nhắc create_admin_document");
+      assert.ok(!msg.includes("qppl_lamdong"), "không được ép qppl_lamdong khi đang soạn VB");
+    });
   });
 });
+

@@ -49,17 +49,17 @@ const CAU_DANG_XUAT_CHO_RE =
   /(?:đang|đã|sẽ|em\s+(?:đang|đã|sẽ))\s+(?:xuất|gửi|thực\s+hiện(?:\s+lệnh|\s+quá\s+trình)?\s+(?:xuất|tạo|gửi))\s+(?:một\s+|các\s+|cả\s+|bộ\s+|[0-9]+\s+)?file\s+.*?(?:cho|đến|tới)\s+(?:anh|chị|bạn)(?:\s+\p{Lu}\p{Ll}+)?/iu;
 /**
  * "đang thực hiện lệnh xuất file Excel" / "em đang thực hiện xuất file" / "em tiến hành xuất file"
- * "em tiến hành gọi tool xuất file" / "gọi tool xuất file" / "tiến hành gọi tool"
+ * "em tiến hành gọi tool xuất file" / "gọi tool để xuất file" / "tiến hành gọi tool"
  */
 const CAU_THUC_HIEN_XUAT_RE =
-  /(?:đang|đã|sẽ|em\s+(?:đang|đã|sẽ|tiến\s+hành|thực\s+hiện))\s+(?:thực\s+hiện|tiến\s+hành)?(?:\s+(?:lệnh|quá\s+trình|việc|bước))?\s*(?:gọi\s+tool\s+)?(?:xuất|tạo|gửi|lập)\s+(?:một\s+|các\s+|cả\s+|bộ\s+|[0-9]+\s+)?file/i;
+  /(?:đang|đã|sẽ|em\s+(?:đang|đã|sẽ|tiến\s+hành|thực\s+hiện))\s+(?:thực\s+hiện|tiến\s+hành)?(?:\s+(?:lệnh|quá\s+trình|việc|bước))?\s*(?:gọi\s+tool(?:\s+để)?\s*)?(?:xuất|tạo|gửi|lập|soạn)\s+(?:một\s+|các\s+|cả\s+|bộ\s+|[0-9]+\s+)?(?:file|văn\s+bản|tài\s+liệu)/i;
 
 const CAU_SE_XUAT_FILE_RE =
-  /(?:em\s+)?(?:sẽ|đang|tiến\s+hành)\s*(?:gọi\s+tool\s+)?(?:xuất|tạo|gửi|lập)\s+(?:một\s+|các\s+|cả\s+|bộ\s+|[0-9]+\s+)?file\s+(?:excel|word|docx|xlsx|pdf|pptx)/i;
+  /(?:em\s+)?(?:sẽ|đang|tiến\s+hành)\s*(?:gọi\s+tool(?:\s+để)?\s*)?(?:xuất|tạo|gửi|lập|soạn)\s+(?:một\s+|các\s+|cả\s+|bộ\s+|[0-9]+\s+)?(?:file|văn\s+bản|tài\s+liệu)?\s*(?:excel|word|docx|xlsx|pdf|pptx|chuẩn\s+thể\s+thức)/i;
 
-/** Model nói trực tiếp "gọi tool" hoặc "tiến hành gọi tool" tạo/xuất */
+/** Model nói trực tiếp "gọi tool" hoặc "tiến hành gọi tool" tạo/xuất/soạn */
 const CAU_GOI_TOOL_XUAT_RE =
-  /(?:gọi|kích\s+hoạt)\s+tool\s+(?:xuất|tạo|gửi|lập)/i;
+  /(?:gọi|kích\s+hoạt)\s+tool(?:\s+\S+){0,3}\s+(?:xuất|tạo|gửi|lập|soạn)/i;
 
 /** Người dùng có ý định rõ ràng muốn xuất/chuyển sang file */
 const Y_DINH_XUAT_FILE_RE =
@@ -69,6 +69,11 @@ const Y_DINH_XUAT_EXCEL_RE =
 /** "tiến hành xuất", "xuất cho tôi", "gửi file cho tôi", "tổng hợp xuất" — không kèm tên định dạng */
 const Y_DINH_XUAT_CHUNG_RE =
   /(?:tiến\s+hành|hãy|vui\s+lòng|nhờ\s+bạn|tổng\s+hợp)\s+(?:(?:xuất|tạo)(?:\s+file)?|gửi\s+file)(?:\s+cho\s+(?:tôi|em|anh|chị))?/i;
+
+/** Người dùng yêu cầu soạn/viết văn bản hành chính (công văn, tờ trình, quyết định, kế hoạch, báo cáo...) */
+const Y_DINH_SOAN_VB_RE =
+  /(?:soạn|viết|dự\s+thảo|biên\s+soạn|tạo|lập|làm|ban\s+hành)(?:\s+(?:giúp|hộ)(?:\s+(?:tôi|em|anh|chị))?)?\s+(?:cho\s+(?:tôi|em|anh|chị)\s+)?(?:1\s+|một\s+)?(?:bản\s+|văn\s+bản\s+)?(?:công\s+văn|tờ\s+trình|quyết\s+định|kế\s+hoạch|báo\s+cáo|thông\s+báo|giấy\s+mời|biên\s+bản|quy\s+chế|quy\s+định|hướng\s+dẫn|chương\s+trình)/i;
+
 const MO_TA_FILE_CUA_BOT_RE =
   /(?:em\s+(?:đã|đang|vừa|sẽ)\s+(?:thiết\s+lập|tạo|chuyển|chia|sắp\s+xếp|xuất|hoàn\s+tất|triển\s+khai)|file\s+excel\s+(?:gồm|được|với|chi\s+tiết)|bảng\s+tính\s+(?:gồm|với)|nội\s+dung\s+(?:bảng|file|tài\s+liệu)|sheet\s+["“]?[\w\s]+["”]?)/i;
 
@@ -83,7 +88,8 @@ export function laNguoiDungYeuCauXuatFile(userPrompt: string): boolean {
   return (
     Y_DINH_XUAT_FILE_RE.test(userPrompt) ||
     Y_DINH_XUAT_EXCEL_RE.test(userPrompt) ||
-    Y_DINH_XUAT_CHUNG_RE.test(userPrompt)
+    Y_DINH_XUAT_CHUNG_RE.test(userPrompt) ||
+    Y_DINH_SOAN_VB_RE.test(userPrompt)
   );
 }
 
@@ -117,12 +123,9 @@ export function laTinNhanAoGiacGuiFile(
     return true;
   }
 
-  // 3. Người dùng yêu cầu xuất file/bảng biểu, model nói kiểu "em đã thiết lập file...", cấu trúc sheet nhưng không gọi tool
+  // 3. Người dùng yêu cầu xuất file/bảng biểu/soạn văn bản, model nói kiểu "em đã thiết lập file...", cấu trúc sheet nhưng không gọi tool
   if (userPrompt) {
-    const coYChuyenFile =
-      Y_DINH_XUAT_FILE_RE.test(userPrompt) ||
-      Y_DINH_XUAT_EXCEL_RE.test(userPrompt) ||
-      Y_DINH_XUAT_CHUNG_RE.test(userPrompt);
+    const coYChuyenFile = laNguoiDungYeuCauXuatFile(userPrompt);
     if (coYChuyenFile && MO_TA_FILE_CUA_BOT_RE.test(textChuan)) {
       return true;
     }
@@ -136,15 +139,47 @@ export function laTinNhanAoGiacGuiFile(
  */
 export function taoTinNhanNhacGoiTool(userPrompt?: string): string {
   const p = userPrompt?.toLowerCase() || "";
+
+  // 1. Người dùng yêu cầu SOẠN văn bản hành chính mới (NĐ 30 / HD 05)
+  const laYeuCauSoanVB =
+    p.includes("soạn") ||
+    p.includes("dự thảo") ||
+    p.includes("viết") ||
+    p.includes("biên soạn") ||
+    p.includes("tạo mới") ||
+    p.includes("làm văn bản") ||
+    p.includes("làm công văn") ||
+    p.includes("làm tờ trình") ||
+    p.includes("làm báo cáo") ||
+    p.includes("làm quyết định") ||
+    Y_DINH_SOAN_VB_RE.test(p);
+
+  if (laYeuCauSoanVB) {
+    return (
+      "CẢNH BÁO HỆ THỐNG: Người dùng đang yêu cầu SOẠN THẢO VĂN BẢN (Công văn, Tờ trình, Quyết định, Báo cáo, Kế hoạch... theo Nghị định 30/2020/NĐ-CP hoặc Hướng dẫn 05 Đảng). " +
+      "Bạn BẮT BUỘC PHẢI GỌI CÔNG CỤ `create_admin_document` (hoặc `create_word_document`) NGAY BÂY GIỜ để xuất file .docx gửi trực tiếp cho người dùng! " +
+      "Yêu cầu: Điền đầy đủ cơ quan ban hành, số ký hiệu, trích yếu, căn cứ pháp lý chính xác (tên đầy đủ văn bản, TUYỆT ĐỐI KHÔNG để placeholder '[tên đầy đủ của thông tư]'), " +
+      "sections chứa nội dung chi tiết thực chất, nơi nhận và khối ký. " +
+      "TUYỆT ĐỐI KHÔNG ĐƯỢC trả lời bằng văn bản suông hay chỉ hứa hẹn 'em sẽ soạn/tiến hành gọi tool' mà không gọi công cụ tạo file!"
+    );
+  }
+
+  // 2. Người dùng yêu cầu TẢI văn bản QPPL tỉnh Lâm Đồng có sẵn
   const laYeuCauTaiVB =
-    p.includes("tải") ||
-    p.includes("quyết định") ||
-    p.includes("công văn") ||
-    p.includes("kế hoạch") ||
-    p.includes("thông báo") ||
-    p.includes("văn bản") ||
-    p.includes("qđ") ||
-    p.includes("ubnd");
+    (p.includes("tải") ||
+      p.includes("download") ||
+      p.includes("xin file") ||
+      p.includes("gửi file") ||
+      p.includes("tra cứu") ||
+      p.includes("tìm văn bản") ||
+      p.includes("văn bản số")) &&
+    (p.includes("quyết định") ||
+      p.includes("công văn") ||
+      p.includes("kế hoạch") ||
+      p.includes("thông báo") ||
+      p.includes("văn bản") ||
+      p.includes("qđ") ||
+      p.includes("ubnd"));
 
   if (laYeuCauTaiVB) {
     return (
