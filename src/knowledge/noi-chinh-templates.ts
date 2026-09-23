@@ -155,28 +155,48 @@ Khi nội dung liên quan công tác Đảng hoặc cần ý kiến Đảng ủy
 - Sở tham mưu → UBND tỉnh gửi Đảng ủy UBND tỉnh
 - VB giao triển khai CV Đảng ủy: soKyHieu "Số:     /UBND-NC", trichYeu: "V/v triển khai CV số ...-CV/ĐU của Đảng ủy UBND tỉnh"
 
-**MẪU CV GIAO — 2 DẠNG (BẮT BUỘC CHỌN 1):**
+**MẪU CV GIAO — TỪ 57 VĂN BẢN THẬT (BẮT BUỘC CHỌN 1 DẠNG):**
 
-**DẠNG 1: GIAO NGẮN (1 đoạn duy nhất)** — dùng khi chỉ giao 1 Sở nghiên cứu đơn giản:
+⚠️ QUY TẮC VÀNG: Sau câu "có ý kiến chỉ đạo như sau:" / "có ý kiến như sau:" BẮT BUỘC phải có NỘI DUNG GIAO CỤ THỂ (ai làm gì, thời hạn nào). TUYỆT ĐỐI CẤM chỉ viết câu dẫn rồi kết thúc bằng "./." — đó là văn bản TRỐNG, VÔ GIÁ TRỊ.
+
+**THÔNG SỐ CHUNG MỌI DẠNG:**
 - coQuanBanHanh: "ỦY BAN NHÂN DÂN TỈNH LÂM ĐỒNG"
 - soKyHieu: "Số:     /UBND-NC"
-- kinhGui: [Sở chuyên ngành]
-- chucVuNguoiKy: "TL. CHỦ TỊCH\\nKT. CHÁNH VĂN PHÒNG\\nPHÓ CHÁNH VĂN PHÒNG"
-- sections (BẮT BUỘC có NỘI DUNG — TUYỆT ĐỐI CẤM bỏ trống):
-  paragraphs gồm 2 đoạn:
-  + Đoạn 1 (dẫn nhập): "Ủy ban nhân dân tỉnh nhận được Công văn số [số]/[ký hiệu] ngày [ngày] của [cơ quan] về việc [nội dung] (đính kèm Công văn số [số] gửi kèm). Chủ tịch Ủy ban nhân dân tỉnh có ý kiến chỉ đạo như sau:"
-  + Đoạn 2 (NỘI DUNG GIAO — BẮT BUỘC): "Giao [Sở X] chủ trì, phối hợp với các cơ quan, đơn vị có liên quan khẩn trương triển khai thực hiện theo yêu cầu tại [VB nêu trên]; văn bản phản hồi gửi trực tiếp cho [cơ quan TW] theo quy định. Kết quả thực hiện báo cáo Ủy ban nhân dân tỉnh biết, theo dõi./."
+- chucVuNguoiKy: "TL. CHỦ TỊCH\\nKT. CHÁNH VĂN PHÒNG\\nPHÓ CHÁNH VĂN PHÒNG" (hoặc "TL. CHỦ TỊCH\\nCHÁNH VĂN PHÒNG" khi CVP ký trực tiếp)
+- noiNhan: ["Như trên", "Chủ tịch, PCT UBND tỉnh (Đ/c [tên])", "Chánh, PCVP UBND tỉnh (Đ/c [tên])", "Lưu: VT, NC"]
 
-**DẠNG 2: GIAO CHI TIẾT (nhiều mục)** — dùng khi QĐ/CV TW yêu cầu nhiều nhóm nhiệm vụ:
+**DẠNG 1: GIAO THAM GIA Ý KIẾN TW** — giao 1 Sở góp ý dự thảo VB Bộ/TW rồi gửi trực tiếp:
+- kinhGui: [tên 1 Sở]
+- sections paragraphs gồm 2 đoạn:
+  + Đoạn dẫn: "Ủy ban nhân dân tỉnh nhận được [CV số X] ngày [ngày] của [Bộ/cơ quan TW] về [nội dung] ([VB] kèm theo). Chủ tịch Ủy ban nhân dân tỉnh có ý kiến như sau:"
+  + Đoạn giao: "Giao [Sở X] nghiên cứu, tham gia ý kiến theo yêu cầu của [Bộ X] và gửi trực tiếp văn bản cho [Bộ X] theo thời gian quy định; đồng thời gửi Ủy ban nhân dân tỉnh biết, theo dõi./."
+
+**DẠNG 2: GIAO THAM MƯU ĐỀ XUẤT** — giao 1 Sở nghiên cứu rồi tham mưu UBND tỉnh:
+- kinhGui: [tên 1 Sở]
+- sections paragraphs gồm 2 đoạn:
+  + Đoạn dẫn: "Ủy ban nhân dân tỉnh nhận được [CV/QĐ số X] ngày [ngày] của [cơ quan] về [nội dung] (sao gửi/đính kèm [VB]). Chủ tịch Ủy ban nhân dân tỉnh có ý kiến như sau:"
+  + Đoạn giao: "Giao [Sở X] chủ trì, phối hợp với các cơ quan, đơn vị có liên quan nghiên cứu [nội dung chỉ đạo tại VB nêu trên] để tham mưu, đề xuất Ủy ban nhân dân tỉnh [chỉ đạo triển khai/xem xét, giải quyết]. Trường hợp vượt thẩm quyền báo cáo, đề xuất Ủy ban nhân dân tỉnh./."
+  HOẶC (khi có thời hạn cụ thể): "Giao [Sở X] chủ trì, phối hợp với các cơ quan, đơn vị có liên quan [nội dung cụ thể]. Văn bản tham mưu gửi về Ủy ban nhân dân tỉnh trước ngày DD/MM/YYYY./."
+
+**DẠNG 3: GIAO TỐ TỤNG** — giao Sở cung cấp hồ sơ cho Tòa:
+- kinhGui: ["Sở Nông nghiệp và Môi trường"] (hoặc Sở chuyên ngành theo lĩnh vực vụ án)
+- sections paragraphs gồm 2 đoạn:
+  + Đoạn dẫn: "UBND tỉnh nhận được [Thông báo/Công văn] số [X] ngày [ngày] của [Tòa án nhân dân khu vực/tỉnh Lâm Đồng] về [nội dung yêu cầu] đối với vụ án [loại] do [tên nguyên đơn] khiếu kiện [nội dung] ([VB tòa] gửi kèm). Chủ tịch UBND tỉnh có ý kiến như sau:"
+  + Đoạn giao: "Giao [Sở X] chủ trì, phối hợp [UBND phường/xã liên quan] nghiên cứu vụ việc và các yêu cầu của [Tòa án] tại [CV nêu trên] để có văn bản nêu ý kiến và cung cấp toàn bộ hồ sơ, tài liệu, chứng cứ có liên quan đến việc khởi kiện [loại]; qua đó, cung cấp trực tiếp cho [Tòa án] theo quy định; đồng thời, gửi danh sách (là lãnh đạo Sở) để UBND tỉnh cử người bảo vệ quyền, lợi ích hợp pháp của UBND tỉnh. Kết quả thực hiện báo cáo UBND tỉnh trước ngày [hạn]./."
+
+**DẠNG 4: GIAO CHI TIẾT (nhiều mục 1. 2. 3.)** — khi QĐ/CV TW yêu cầu nhiều nhóm nhiệm vụ:
 - kinhGui: ["Sở Tư pháp", "Các sở, ban, ngành thuộc tỉnh", "Ủy ban nhân dân các xã, phường, đặc khu"]
-- chucVuNguoiKy: "TL. CHỦ TỊCH\\nKT. CHÁNH VĂN PHÒNG\\nPHÓ CHÁNH VĂN PHÒNG"
-- sections (BẮT BUỘC có NỘI DUNG chi tiết theo từng mục):
-  + Section 1 (dẫn nhập, không heading): paragraphs = ["Thực hiện Quyết định số [số] ngày [ngày] của [cơ quan] về [nội dung] (Quyết định số [số] gửi kèm); Chủ tịch Ủy ban nhân dân tỉnh có ý kiến chỉ đạo như sau:"]
-  + Section 2 (heading: "1."): paragraphs = ["Giao Sở Tư pháp chủ trì, phối hợp với các sở, ban, ngành, Ủy ban nhân dân các xã, phường, đặc khu tham mưu Ủy ban nhân dân tỉnh ban hành Kế hoạch triển khai...; trong đó xác định rõ lộ trình, nhiệm vụ rà soát văn bản quy phạm pháp luật... hoàn thành, trình Ủy ban nhân dân tỉnh trước ngày 15/10/2026."]
-  + Section 3 (heading: "2."): paragraphs = ["Các sở, ban, ngành thuộc tỉnh, Ủy ban nhân dân các xã, phường, đặc khu: Căn cứ chức năng, nhiệm vụ và lĩnh vực quản lý được giao, có trách nhiệm phối hợp chặt chẽ với Sở Tư pháp trong quá trình triển khai..."]
-  + Section 4 (heading: "3."): paragraphs = ["Đề nghị Tòa án nhân dân tỉnh, Viện Kiểm sát nhân dân tỉnh, Ủy ban Mặt trận Tổ quốc Việt Nam tỉnh phối hợp thực hiện..."]
+- sections gồm nhiều section có heading:
+  + Section 1 (không heading): paragraphs = ["Thực hiện [QĐ/CV số X] ngày [ngày] của [cơ quan] về [nội dung] ([VB] gửi kèm); Chủ tịch Ủy ban nhân dân tỉnh có ý kiến chỉ đạo như sau:"]
+  + Section 2 (heading "1."): paragraphs = ["Giao [Sở A] chủ trì, phối hợp với [danh sách đơn vị] tham mưu Ủy ban nhân dân tỉnh [nhiệm vụ cụ thể + thời hạn]..."]
+  + Section 3 (heading "2."): paragraphs = ["Các sở, ban, ngành thuộc tỉnh, UBND các xã, phường, đặc khu: Căn cứ chức năng, nhiệm vụ [nội dung phối hợp]..."]
+  + Section 4 (heading "3."): paragraphs = ["Đề nghị [Tòa án/VKS/MTTQ] phối hợp [nội dung]..."]
 
-⚠️ QUY TẮC VÀNG: Sau câu "có ý kiến chỉ đạo như sau:" BẮT BUỘC phải có NỘI DUNG GIAO CỤ THỂ (ai làm gì, thời hạn nào). TUYỆT ĐỐI CẤM chỉ viết câu dẫn rồi kết thúc bằng "./." — đó là văn bản TRỐNG, VÔ GIÁ TRỊ.
+**DẠNG 5: GIAO TRIỂN KHAI TOÀN HỆ THỐNG** — chỉ đạo toàn tỉnh thực hiện, nhiều nhóm nhiệm vụ dài:
+- kinhGui: ["Các sở, ban, ngành thuộc tỉnh", "UBND các xã, phường, đặc khu"]
+- Dùng "Chủ tịch Ủy ban nhân dân tỉnh đề nghị..." (vì gửi toàn hệ thống)
+- sections gồm nhiều section (heading "1.", "2.", "3.") với nội dung chi tiết từng nhóm nhiệm vụ
+- Section cuối: "[Giao đơn vị đầu mối tổng hợp, báo cáo UBND tỉnh + thời hạn]./."
 
 **MẪU CV CHUYỂN (VP ký thay):**
 - coQuanCapTren: "UBND TỈNH LÂM ĐỒNG", coQuanBanHanh: "VĂN PHÒNG"
