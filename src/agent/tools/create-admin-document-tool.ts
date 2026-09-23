@@ -88,6 +88,33 @@ export function createAdminDocumentTool(ctx: Ctx) {
 
         const sanitizedDoc = replaceOutdatedOrgNames(docData) as AdminDocument;
 
+        // ── Validation: phát hiện công văn giao/chuyển bỏ trống nội dung ──
+        // Bot hay viết phần dẫn "có ý kiến chỉ đạo như sau:" rồi TRỐNG nội
+        // dung giao. Bắt bằng cách đo tổng ký tự thực sự trong sections.
+        if (sanitizedDoc.loaiVanBan === "cong_van") {
+          const allText = sanitizedDoc.sections
+            .flatMap((s) => [...(s.paragraphs ?? []), ...(s.items ?? []), s.heading ?? ""])
+            .join(" ");
+          // Đếm ký tự chữ (loại bỏ khoảng trắng, dấu câu, thẻ html)
+          const cleanText = allText.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
+          const MIN_CONTENT_CHARS = 80; // Một đoạn giao ngắn nhất cũng ~80 ký tự
+          if (cleanText.length < MIN_CONTENT_CHARS) {
+            log.warn(
+              { chars: cleanText.length, preview: cleanText.substring(0, 200) },
+              "Công văn sections quá ngắn — thiếu nội dung giao/chuyển",
+            );
+            return ketQuaLoi(
+              `Nội dung sections quá ngắn (${cleanText.length} ký tự < ${MIN_CONTENT_CHARS}). ` +
+              "Công văn giao việc PHẢI có đoạn nêu rõ: (1) Giao đơn vị nào chủ trì, (2) Phối hợp ai, " +
+              "(3) Nội dung công việc cụ thể, (4) Thời hạn hoàn thành. " +
+              "Hãy gọi lại tool với paragraphs ĐẦY ĐỦ nội dung giao việc, " +
+              "tham khảo mẫu: 'Giao Sở Tư pháp chủ trì, phối hợp với các sở, ban, ngành " +
+              "nghiên cứu, triển khai theo yêu cầu tại Quyết định nêu trên; " +
+              "gửi báo cáo cho UBND tỉnh trước ngày .../.../.../.'",
+            );
+          }
+        }
+
         const data =
           sanitizedDoc.heThong === "dang_hd05"
             ? await renderPartyDocx(sanitizedDoc)
