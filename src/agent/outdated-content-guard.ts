@@ -25,7 +25,7 @@ type OutdatedPattern = {
   /** Regex khớp cụm từ lỗi thời. Flag `i` để case-insensitive. */
   pattern: RegExp;
   /** Nhóm phân loại để log */
-  group: "cap_huyen" | "so_cu_lamdong";
+  group: "cap_huyen" | "so_cu_lamdong" | "bo_cu_tw";
   /** Mô tả ngắn */
   label: string;
 };
@@ -48,6 +48,14 @@ const PATTERNS: OutdatedPattern[] = [
   { pattern: /sở lao động[\s,–\-]*thương binh(?:\s+và\s+xã\s+hội)?/i, group: "so_cu_lamdong", label: "Sở LĐ-TB&XH (cũ)" },
   { pattern: /sở thông tin và truyền thông/i, group: "so_cu_lamdong", label: "Sở TT&TT (cũ)" },
   { pattern: /ban dân tộc(?:\s+tỉnh)?/i, group: "so_cu_lamdong", label: "Ban Dân tộc tỉnh (cũ)" },
+  // ── Bộ ngành TW cũ (đã hợp nhất từ 01/03/2025) ──
+  { pattern: /bộ nông nghiệp và phát triển nông thôn/i, group: "bo_cu_tw", label: "Bộ NN&PTNT (cũ)" },
+  { pattern: /bộ tài nguyên và môi trường/i, group: "bo_cu_tw", label: "Bộ TN&MT (cũ)" },
+  { pattern: /bộ kế hoạch và đầu tư/i, group: "bo_cu_tw", label: "Bộ KH&ĐT (cũ)" },
+  { pattern: /bộ giao thông vận tải/i, group: "bo_cu_tw", label: "Bộ GTVT (cũ)" },
+  { pattern: /bộ lao động[\s,–\-]*thương binh(?:\s+và\s+xã\s+hội)?/i, group: "bo_cu_tw", label: "Bộ LĐ-TB&XH (cũ)" },
+  { pattern: /bộ thông tin và truyền thông/i, group: "bo_cu_tw", label: "Bộ TT&TT (cũ)" },
+  { pattern: /ủy ban dân tộc/i, group: "bo_cu_tw", label: "Ủy ban Dân tộc (cũ)" },
 ];
 
 // ───────── Bảng thay thế tên Sở cũ → mới ─────────
@@ -64,6 +72,7 @@ const PATTERNS: OutdatedPattern[] = [
 type OrgReplacement = { pattern: RegExp; replacement: string };
 
 const ORG_REPLACEMENTS: OrgReplacement[] = [
+  // ── Sở cấp tỉnh (Lâm Đồng) ──
   // "Sở Nông nghiệp và Phát triển nông thôn" → "Sở Nông nghiệp và Môi trường"
   { pattern: /Sở Nông nghiệp và Phát triển nông thôn/gi, replacement: "Sở Nông nghiệp và Môi trường" },
   // "Sở Tài nguyên và Môi trường" → "Sở Nông nghiệp và Môi trường"
@@ -76,8 +85,25 @@ const ORG_REPLACEMENTS: OrgReplacement[] = [
   { pattern: /Sở Lao động[\s,–\-]*Thương binh(?:\s+và\s+Xã\s+hội)?/gi, replacement: "Sở Nội vụ" },
   // "Sở Thông tin và Truyền thông" → "Sở Khoa học và Công nghệ"
   { pattern: /Sở Thông tin và Truyền thông/gi, replacement: "Sở Khoa học và Công nghệ" },
+  // ⚠️ "Ủy ban Dân tộc" PHẢI đặt TRƯỚC "Ban Dân tộc" vì "Ủy ban" chứa "ban"
+  // "Ủy ban Dân tộc" → "Bộ Dân tộc và Tôn giáo"
+  { pattern: /Ủy ban Dân tộc/gi, replacement: "Bộ Dân tộc và Tôn giáo" },
   // "Ban Dân tộc tỉnh" / "Ban Dân tộc" → "Sở Dân tộc và Tôn giáo"
   { pattern: /Ban Dân tộc(?:\s+tỉnh)?/gi, replacement: "Sở Dân tộc và Tôn giáo" },
+
+  // ── Bộ ngành Trung ương (hợp nhất từ 01/03/2025) ──
+  // "Bộ Nông nghiệp và Phát triển nông thôn" → "Bộ Nông nghiệp và Môi trường"
+  { pattern: /Bộ Nông nghiệp và Phát triển nông thôn/gi, replacement: "Bộ Nông nghiệp và Môi trường" },
+  // "Bộ Tài nguyên và Môi trường" → "Bộ Nông nghiệp và Môi trường"
+  { pattern: /Bộ Tài nguyên và Môi trường/gi, replacement: "Bộ Nông nghiệp và Môi trường" },
+  // "Bộ Kế hoạch và Đầu tư" → "Bộ Tài chính"
+  { pattern: /Bộ Kế hoạch và Đầu tư/gi, replacement: "Bộ Tài chính" },
+  // "Bộ Giao thông vận tải" → "Bộ Xây dựng"
+  { pattern: /Bộ Giao thông [Vv]ận tải/gi, replacement: "Bộ Xây dựng" },
+  // "Bộ Lao động - Thương binh và Xã hội" → "Bộ Nội vụ"
+  { pattern: /Bộ Lao động[\s,–\-]*Thương binh(?:\s+và\s+Xã\s+hội)?/gi, replacement: "Bộ Nội vụ" },
+  // "Bộ Thông tin và Truyền thông" → "Bộ Khoa học và Công nghệ"
+  { pattern: /Bộ Thông tin và Truyền thông/gi, replacement: "Bộ Khoa học và Công nghệ" },
 ];
 
 // ───────── Ngoại lệ: context so sánh cũ/mới ─────────
@@ -153,6 +179,9 @@ const CANH_BAO_CAP_HUYEN =
 const CANH_BAO_SO_CU =
   "\n\n⚠️ **Lưu ý:** Nội dung trên nhắc đến tên Sở cũ đã hợp nhất từ 01/03/2025 theo Nghị quyết HĐND tỉnh Lâm Đồng. Em đã tự động sửa sang tên Sở mới, anh/chị kiểm tra lại cho chính xác nhé.";
 
+const CANH_BAO_BO_CU =
+  "\n\n⚠️ **Lưu ý:** Nội dung trên nhắc đến tên Bộ/cơ quan ngang Bộ cũ đã hợp nhất từ 01/03/2025 (14 Bộ + 3 cơ quan ngang Bộ). Em đã tự động sửa sang tên mới, anh/chị kiểm tra lại cho chính xác nhé.";
+
 /**
  * Scan text tìm cụm từ lỗi thời.
  */
@@ -199,7 +228,14 @@ export function guardOutdatedContent(text: string): string {
     warnings.push(CANH_BAO_CAP_HUYEN);
   }
   if ((detection.found && detection.groups.has("so_cu_lamdong")) || didReplace) {
-    warnings.push(CANH_BAO_SO_CU);
+    // Phân biệt cảnh báo Sở cấp tỉnh vs Bộ cấp TW
+    if (detection.found && detection.groups.has("bo_cu_tw")) {
+      warnings.push(CANH_BAO_BO_CU);
+    } else {
+      warnings.push(CANH_BAO_SO_CU);
+    }
+  } else if (detection.found && detection.groups.has("bo_cu_tw")) {
+    warnings.push(CANH_BAO_BO_CU);
   }
 
   return replaced + warnings.join("");

@@ -161,6 +161,43 @@ describe("replaceOutdatedOrgNamesInText", () => {
     const input = "Sở Nội vụ chủ trì triển khai kế hoạch";
     assert.equal(replaceOutdatedOrgNamesInText(input), input);
   });
+
+  // ── Bộ ngành TW ──
+  it("thay 'Bộ Nông nghiệp và Phát triển nông thôn' → 'Bộ Nông nghiệp và Môi trường'", () => {
+    const result = replaceOutdatedOrgNamesInText("theo Quyết định của Bộ Nông nghiệp và Phát triển nông thôn");
+    assert.ok(result.includes("Bộ Nông nghiệp và Môi trường"));
+    assert.ok(!result.includes("Phát triển nông thôn"));
+  });
+
+  it("thay 'Bộ Tài nguyên và Môi trường' → 'Bộ Nông nghiệp và Môi trường'", () => {
+    const result = replaceOutdatedOrgNamesInText("Bộ Tài nguyên và Môi trường ban hành");
+    assert.ok(result.includes("Bộ Nông nghiệp và Môi trường"));
+  });
+
+  it("thay 'Bộ Kế hoạch và Đầu tư' → 'Bộ Tài chính'", () => {
+    const result = replaceOutdatedOrgNamesInText("Bộ Kế hoạch và Đầu tư hướng dẫn");
+    assert.ok(result.includes("Bộ Tài chính"));
+  });
+
+  it("thay 'Bộ Giao thông vận tải' → 'Bộ Xây dựng'", () => {
+    const result = replaceOutdatedOrgNamesInText("Bộ Giao thông vận tải quy định");
+    assert.ok(result.includes("Bộ Xây dựng"));
+  });
+
+  it("thay 'Bộ Lao động - Thương binh và Xã hội' → 'Bộ Nội vụ'", () => {
+    const result = replaceOutdatedOrgNamesInText("Bộ Lao động - Thương binh và Xã hội chủ trì");
+    assert.ok(result.includes("Bộ Nội vụ"));
+  });
+
+  it("thay 'Bộ Thông tin và Truyền thông' → 'Bộ Khoa học và Công nghệ'", () => {
+    const result = replaceOutdatedOrgNamesInText("Bộ Thông tin và Truyền thông triển khai");
+    assert.ok(result.includes("Bộ Khoa học và Công nghệ"));
+  });
+
+  it("thay 'Ủy ban Dân tộc' → 'Bộ Dân tộc và Tôn giáo'", () => {
+    const result = replaceOutdatedOrgNamesInText("theo hướng dẫn của Ủy ban Dân tộc");
+    assert.ok(result.includes("Bộ Dân tộc và Tôn giáo"));
+  });
 });
 
 describe("replaceOutdatedOrgNames (deep-replace)", () => {
