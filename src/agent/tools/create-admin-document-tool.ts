@@ -66,6 +66,11 @@ export function createAdminDocumentTool(ctx: Ctx) {
       "(hoặc Hướng dẫn 05-HD/VPTW của Ban Chấp hành Trung ương Đảng) rồi gửi luôn cho người dùng.\n" +
       "Hỗ trợ 24 loại văn bản: Tờ trình (to_trinh), Quyết định (quyet_dinh), Công văn (cong_van), Giấy mời (giay_moi), " +
       "Kế hoạch (ke_hoach), Báo cáo (bao_cao), Thông báo (thong_bao), Biên bản (bien_ban), Quy chế (quy_che), Quy định (quy_dinh), v.v.\n" +
+      "⚠️ QUY TẮC NỘI DUNG BẮT BUỘC: Mỗi section trong 'document.sections' PHẢI chứa NỘI DUNG THỰC CHẤT đầy đủ. " +
+      "CẤM chỉ viết câu dẫn mở đầu (ví dụ 'có ý kiến chỉ đạo như sau:') rồi bỏ trống. " +
+      "Nếu là công văn giao việc: PHẢI ghi rõ đơn vị chủ trì, đơn vị phối hợp, nội dung công việc cụ thể, thời hạn, cơ quan nhận báo cáo trong paragraphs. " +
+      "Nếu là tờ trình: PHẢI ghi rõ sự cần thiết, cơ sở pháp lý, nội dung đề xuất. " +
+      "File xuất ra PHẢI đọc được hoàn chỉnh không thiếu nội dung.\n" +
       "QUY TẮC BÔI ĐỎ TỪ ĐÃ SỬA KHI RÀ SOÁT / SỬA LỖI: Khi người dùng nhờ rà soát, sửa lỗi chính tả, biên tập lại văn bản, " +
       "BẮT BUỘC trong các đoạn văn của 'document.sections' phải dùng thẻ `<red>từ đã sửa</red>` (hoặc `~~từ sai~~ <red>từ đúng</red>`) " +
       "để bôi đỏ nổi bật tất cả các từ đã sửa trong file Word (.docx) xuất ra cho người dùng dễ nhìn thấy.\n" +

@@ -123,7 +123,7 @@ export const adminDocumentSchema = z.object({
     .array(z.string().min(1))
     .optional()
     .describe("Hệ thống căn cứ pháp lý (Căn cứ Luật..., Căn cứ Nghị định...), tự động in nghiêng và chấm phẩy chuẩn"),
-  sections: z.array(adminSectionSchema).min(1).describe("Các phần nội dung chính của văn bản"),
+  sections: z.array(adminSectionSchema).min(1).describe("Các phần nội dung chính của văn bản. PHẢI chứa NỘI DUNG THỰC CHẤT đầy đủ — CẤM bỏ trống hoặc chỉ viết câu mở đầu. Công văn giao việc: phải ghi rõ giao đơn vị nào, làm gì, phối hợp ai, thời hạn. Tờ trình: phải có sự cần thiết + đề xuất cụ thể."),
   chucVuNguoiKy: z
     .string()
     .min(1)
