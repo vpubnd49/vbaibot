@@ -589,7 +589,7 @@ function buildAdminSignature(doc: AdminDocument): Table {
   // --- CỘT PHẢI: CHỨC VỤ & CHỮ KÝ ---
   const rightChildren: Paragraph[] = [];
 
-  const chucVuLines = doc.chucVuNguoiKy.split("\n");
+  const chucVuLines = doc.chucVuNguoiKy.split(/\\n|\n/);
   for (const line of chucVuLines) {
     rightChildren.push(
       new Paragraph({

@@ -128,7 +128,7 @@ export const adminDocumentSchema = z.object({
     .string()
     .min(1)
     .default("GIÁM ĐỐC")
-    .describe("Chức vụ người ký, ví dụ: 'GIÁM ĐỐC', 'TM. ỦY BAN NHÂN DÂN\\nCHỦ TỊCH', 'KT. CHỦ TỊCH\\nPHÓ CHỦ TỊCH'"),
+    .describe("Chức vụ người ký (IN HOA ĐẬM). Nhiều dòng cách nhau bằng ký tự xuống dòng \\n. Ví dụ 1 dòng: 'GIÁM ĐỐC'. Ví dụ 2 dòng: 'TM. ỦY BAN NHÂN DÂN\\nCHỦ TỊCH'. Ví dụ 3 dòng: 'TL. CHỦ TỊCH\\nKT. CHÁNH VĂN PHÒNG\\nPHÓ CHÁNH VĂN PHÒNG'"),
   hoTenNguoiKy: z.string().optional().describe("Họ và tên người ký (in đậm cuối khối chữ ký)"),
   noiNhan: z
     .array(z.string().min(1))

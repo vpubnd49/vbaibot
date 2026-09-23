@@ -420,7 +420,7 @@ function buildPartySignature(doc: AdminDocument): Table {
 
   // Chuẩn hóa T/M, K/T, T/L
   let chucVu = doc.chucVuNguoiKy.replace(/\bTM\./g, "T/M ").replace(/\bKT\./g, "K/T ").replace(/\bTL\./g, "T/L ");
-  const chucVuLines = chucVu.split("\n");
+  const chucVuLines = chucVu.split(/\\n|\n/);
   for (const line of chucVuLines) {
     rightChildren.push(
       new Paragraph({
