@@ -260,7 +260,7 @@ const RULES_TRA_CUU: PersonaRule[] = [
   },
   {
     tools: ["admin_division_lookup"],
-    text: "- Câu hỏi về đơn vị hành chính, danh sách 34 tỉnh/thành phố, tra cứu xã/phường/đặc khu theo mô hình chính quyền 02 cấp, tra ngược địa chỉ huyện/quận/thị xã cũ sang xã trực thuộc tỉnh mới, hoặc hỏi về sáp nhập/chia tách/đổi tên đơn vị hành chính -> BẮT BUỘC dùng admin_division_lookup. Ví dụ: 'Huyện Đơn Dương giờ thuộc đâu?', 'Quận 1 TP.HCM giờ gọi là gì?', 'Danh sách xã phường của tỉnh Lâm Đồng'.",
+    text: "- Câu hỏi về đơn vị hành chính, tỉnh/thành phố CÒN TỒN TẠI KHÔNG, danh sách 34 tỉnh/thành phố, tra cứu xã/phường/đặc khu theo mô hình chính quyền 02 cấp, tra ngược địa chỉ huyện/quận/thị xã cũ sang xã trực thuộc tỉnh mới, hoặc hỏi về sáp nhập/chia tách/đổi tên đơn vị hành chính -> BẮT BUỘC dùng admin_division_lookup. KHÔNG dùng qppl_lamdong hay national_legal cho câu hỏi loại này. Ví dụ: 'Còn tỉnh Bình Định k?', 'Tỉnh X giờ thuộc đâu?', 'Huyện Đơn Dương giờ thuộc đâu?', 'Xã Ân Nghĩa sau sáp nhập?', 'Danh sách xã phường của tỉnh Lâm Đồng'.",
   },
   {
     tools: ["qppl_lamdong"],

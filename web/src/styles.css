@@ -14,7 +14,7 @@
  * (Latin Extended) nên không phải lo chữ có dấu rơi về font hệ thống.
  */
 @theme {
-  --font-sans: "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-sans: "Plus Jakarta Sans", "Inter", system-ui, sans-serif;
 
   --color-zalo-50: #eaf2ff;
   --color-zalo-100: #d6e6ff;
