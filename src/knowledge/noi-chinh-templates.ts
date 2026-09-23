@@ -324,6 +324,37 @@ Khi nội dung liên quan công tác Đảng hoặc cần ý kiến Đảng ủy
 
 ---
 
+### MẪU THÔNG BÁO (2 dạng từ VB thật)
+
+**DẠNG 1: THÔNG BÁO KẾT LUẬN (TBKL)** — ghi kết luận chỉ đạo của PCT/CT tại cuộc họp:
+- coQuanBanHanh: "ỦY BAN NHÂN DÂN TỈNH LÂM ĐỒNG"
+- soKyHieu: "Số:     /TB-UBND"
+- trichYeu: "Kết luận của đồng chí [Họ tên] - [chức vụ đầy đủ] tại cuộc họp [nội dung cuộc họp]"
+- chucVuNguoiKy: "TL. CHỦ TỊCH\\nKT. CHÁNH VĂN PHÒNG\\nPHÓ CHÁNH VĂN PHÒNG"
+- CẤU TRÚC NỘI DUNG CHUẨN (từ VB thật):
+  Đoạn mở đầu: "[Thời gian], đồng chí [Họ tên] - [chức vụ] đã chủ trì cuộc họp [nghe/về] [nội dung](). Sau khi nghe báo cáo của [đơn vị báo cáo](); ý kiến tham gia của các thành viên tham dự, đồng chí [Họ tên] - [chức vụ] có ý kiến kết luận, chỉ đạo như sau:"
+  Các mục đánh số (1. 2. 3...): Nội dung kết luận theo từng vấn đề
+    - Mỗi mục có: tên đơn vị được giao + nhiệm vụ cụ thể + thời hạn
+    - Có thể chia thành a), b), c) nếu nhiều nhiệm vụ con
+    - Dùng "Giao [đơn vị]..." cho nhiệm vụ bắt buộc
+  Kết thúc: "Trân trọng thông báo kết luận của đồng chí [Họ tên] - [chức vụ] đến các sở, ban, ngành, địa phương và các đơn vị có liên quan biết, triển khai thực hiện./."
+- noiNhan: ["Chủ tịch, các PCT UBND tỉnh", "Như thành phần tham dự", "Lãnh đạo VP UBND tỉnh", "Lưu: VT, [mã phòng]"]
+
+**DẠNG 2: THÔNG BÁO PHÂN CÔNG NHIỆM VỤ** — phân công CV trong đơn vị:
+- coQuanCapTren: (tùy cấp: "UBND TỈNH LÂM ĐỒNG" nếu VP UBND, hoặc "VĂN PHÒNG UBND TỈNH" nếu phòng)
+- coQuanBanHanh: "[TÊN ĐƠN VỊ]" (VD: "VĂN PHÒNG" hoặc "PHÒNG NỘI CHÍNH")
+- soKyHieu: "Số:     /TB-[viết tắt]" (VD: "/TB-VP", "/TB-NC")
+- trichYeu: "Về việc phân công nhiệm vụ [công chức/viên chức] [đơn vị]"
+- CẤU TRÚC NỘI DUNG:
+  Căn cứ: "Căn cứ Quyết định số .../QĐ-[đơn vị] ngày ... về việc [quy định chức năng, nhiệm vụ];"
+  Mở đầu: "[Đơn vị] thông báo phân công nhiệm vụ cho từng [công chức/viên chức] như sau:"
+  Các mục đánh số (1. 2. 3...): Mỗi mục 1 người
+    + "Ông/Bà [Họ tên] - [Chức vụ]"
+    + Liệt kê các đầu mục nhiệm vụ (gạch đầu dòng)
+    + Cuối mỗi người: "Xử lý công việc khác do [Lãnh đạo] giao."
+
+---
+
 ### QUY TRÌNH E: VĂN BẢN TƯ PHÁP
 
 - Bổ nhiệm giám định viên/thừa hành viên → QĐ bổ nhiệm
