@@ -222,6 +222,108 @@ Khi nội dung liên quan công tác Đảng hoặc cần ý kiến Đảng ủy
 
 ---
 
+### BẢNG CHỮ KÝ CHUẨN THEO LOẠI VĂN BẢN (từ scan 1784 VB thật)
+
+| Loại VB | Cấp tỉnh (UBND tỉnh ban hành) | Cấp Sở (Sở ban hành) |
+|---------|------|------|
+| **Công văn giao** | TL. CHỦ TỊCH\nKT. CHÁNH VĂN PHÒNG\nPHÓ CHÁNH VĂN PHÒNG | — |
+| **Tờ trình** | KT. CHỦ TỊCH\nPHÓ CHỦ TỊCH | GIÁM ĐỐC (hoặc KT. GĐ\nPHÓ GĐ) |
+| **Quyết định** | KT. CHỦ TỊCH\nPHÓ CHỦ TỊCH (hoặc TM. UBND\nCHỦ TỊCH) | GIÁM ĐỐC |
+| **Kế hoạch** | KT. CHỦ TỊCH\nPHÓ CHỦ TỊCH | GIÁM ĐỐC |
+| **Báo cáo** | TL. CHỦ TỊCH\nKT. CHÁNH VĂN PHÒNG\nPHÓ CHÁNH VĂN PHÒNG (hoặc KT. CHỦ TỊCH\nPHÓ CHỦ TỊCH nếu nội dung quan trọng) | GIÁM ĐỐC |
+| **Giấy mời** | TL. CHỦ TỊCH\nKT. CHÁNH VĂN PHÒNG\nPHÓ CHÁNH VĂN PHÒNG | — |
+| **Giấy ủy quyền** | TM. ỦY BAN NHÂN DÂN\nCHỦ TỊCH (100%) | — |
+| **Thông báo** | KT. CHỦ TỊCH\nPHÓ CHỦ TỊCH | — |
+
+---
+
+### MẪU BÁO CÁO CẤP TỈNH (UBND tỉnh ban hành)
+
+**2 DẠNG BÁO CÁO:**
+
+**DẠNG 1: BÁO CÁO GỬI BỘ/TW** — VP ký thừa lệnh:
+- coQuanBanHanh: "ỦY BAN NHÂN DÂN TỈNH LÂM ĐỒNG"
+- soKyHieu: "Số:     /BC-UBND"
+- trichYeu: "V/v báo cáo [tình hình/kết quả] [nội dung] năm [năm]" hoặc "Báo cáo [nội dung]"
+- kinhGui: ["Bộ [tên]"] hoặc ["Văn phòng Chính phủ"]
+- chucVuNguoiKy: "TL. CHỦ TỊCH\\nKT. CHÁNH VĂN PHÒNG\\nPHÓ CHÁNH VĂN PHÒNG"
+- CẤU TRÚC NỘI DUNG CHUẨN (từ VB thật):
+  Section 1 (không heading): "Thực hiện [CV/Công điện số X] ngày [ngày] của [Bộ/VPCP] về [nội dung], Ủy ban nhân dân tỉnh Lâm Đồng báo cáo [kết quả/tình hình] như sau:"
+  Section 2 (heading "I."): "THỰC TRẠNG / TÌNH HÌNH TRIỂN KHAI" — trình bày kết quả đã làm
+  Section 3 (heading "II."): "KẾT QUẢ THỰC HIỆN" — số liệu, thành tích, hạn chế
+  Section 4 (heading "III."): "ĐÁNH GIÁ CHUNG" hoặc "KHÓ KHĂN, VƯỚNG MẮC"
+  Section 5 (heading "IV."): "ĐỀ XUẤT, KIẾN NGHỊ"
+  Kết thúc: "Trên đây là báo cáo [nội dung] của UBND tỉnh Lâm Đồng, kính gửi [Bộ/VPCP] xem xét./."
+- noiNhan: ["Như trên", "Chủ tịch, PCT UBND tỉnh (để b/c)", "Lưu: VT, NC"]
+
+**DẠNG 2: BÁO CÁO QUAN TRỌNG** — PCT hoặc CT ký:
+- chucVuNguoiKy: "KT. CHỦ TỊCH\\nPHÓ CHỦ TỊCH"
+- Dùng khi nội dung liên quan chính sách lớn, trình HĐND, hoặc báo cáo kết quả toàn diện
+
+---
+
+### MẪU KẾ HOẠCH CẤP TỈNH (UBND tỉnh ban hành)
+
+- coQuanBanHanh: "ỦY BAN NHÂN DÂN TỈNH LÂM ĐỒNG"
+- soKyHieu: "Số:     /KH-UBND"
+- trichYeu: "Kế hoạch [nội dung]" (VD: "Kế hoạch kiểm tra cải cách hành chính năm 2026")
+- kinhGui: KHÔNG CÓ (Kế hoạch là VB ban hành chung, không gửi riêng ai)
+- chucVuNguoiKy: "KT. CHỦ TỊCH\\nPHÓ CHỦ TỊCH"
+- CẤU TRÚC NỘI DUNG CHUẨN (từ VB thật):
+  Section 1 (heading "I."): "MỤC ĐÍCH, YÊU CẦU"
+    + 1. Mục đích: [liệt kê]
+    + 2. Yêu cầu: [liệt kê]
+  Section 2 (heading "II."): "NỘI DUNG" hoặc "NỘI DUNG TRIỂN KHAI"
+    + Các mục 1, 2, 3... chi tiết từng hoạt động, thời gian, đơn vị chủ trì
+  Section 3 (heading "III."): "TỔ CHỨC THỰC HIỆN"
+    + 1. Sở [A]: chủ trì [nhiệm vụ]
+    + 2. Sở [B]: phối hợp [nhiệm vụ]
+    + 3. UBND các xã, phường, đặc khu: [nhiệm vụ tại địa phương]
+  Kết thúc: "Trên đây là Kế hoạch [nội dung] của UBND tỉnh; yêu cầu các sở, ban, ngành, UBND các xã, phường, đặc khu nghiêm túc triển khai thực hiện./."
+- noiNhan: ["Các sở, ban, ngành thuộc tỉnh", "UBND các xã, phường, đặc khu", "Chủ tịch, PCT UBND tỉnh", "Lưu: VT, NC"]
+- Có thể kèm PHỤ LỤC (Bảng phân công nhiệm vụ, tiến độ)
+
+---
+
+### MẪU GIẤY MỜI (VP UBND tỉnh ban hành)
+
+- coQuanCapTren: "UBND TỈNH LÂM ĐỒNG"
+- coQuanBanHanh: "VĂN PHÒNG"
+- soKyHieu: "Số:     /GM-VP" (hoặc "/GM-UBND" nếu UBND tỉnh mời)
+- trichYeu: "V/v mời [dự cuộc họp/làm việc/hội nghị] [nội dung]"
+- kinhGui: [danh sách đơn vị được mời]
+- chucVuNguoiKy: "TL. CHỦ TỊCH\\nKT. CHÁNH VĂN PHÒNG\\nPHÓ CHÁNH VĂN PHÒNG"
+- CẤU TRÚC NỘI DUNG:
+  "Thừa lệnh Chủ tịch Ủy ban nhân dân tỉnh, Văn phòng UBND tỉnh trân trọng kính mời [đại diện/lãnh đạo] [đơn vị] tham dự cuộc họp [nội dung], cụ thể:
+  - Thời gian: [giờ], ngày [ngày tháng năm]
+  - Địa điểm: [Phòng họp], [tầng], trụ sở [UBND tỉnh / VP UBND tỉnh]
+  - Thành phần: [Giám đốc hoặc Phó Giám đốc phụ trách] [lĩnh vực]
+  - Nội dung: [Nội dung cuộc họp]
+  Kính mời [quý đơn vị] sắp xếp tham dự đúng thành phần, thời gian./."
+- noiNhan: ["Như trên", "Chủ tịch, PCT UBND tỉnh (Đ/c chủ trì)", "Lưu: VT, NC"]
+
+---
+
+### MẪU GIẤY ỦY QUYỀN (CHỦ TỊCH UBND TỈNH ký)
+
+- coQuanBanHanh: "ỦY BAN NHÂN DÂN TỈNH LÂM ĐỒNG"
+- soKyHieu: "Số:     /GUQ-UBND"
+- trichYeu: "V/v ủy quyền [tham gia tố tụng/dự họp/đại diện]"
+- chucVuNguoiKy: "TM. ỦY BAN NHÂN DÂN\\nCHỦ TỊCH" (100% — CHỈ CT ký, KHÔNG ai khác)
+- CẤU TRÚC NỘI DUNG:
+  "GIẤY ỦY QUYỀN
+  Chủ tịch Ủy ban nhân dân tỉnh Lâm Đồng ủy quyền cho:
+  Ông/Bà: [họ tên]
+  Chức vụ: [Giám đốc/Phó Giám đốc Sở X]
+  Được thay mặt Ủy ban nhân dân tỉnh Lâm Đồng [nội dung ủy quyền cụ thể]:
+  [- Tham gia tố tụng tại [Tòa án] trong vụ án [loại] do [tên] khởi kiện]
+  [- Ký các văn bản liên quan đến [nội dung] thuộc thẩm quyền của UBND tỉnh]
+  Thời hạn ủy quyền: Kể từ ngày ký đến khi [hoàn thành/có QĐ mới].
+  Người được ủy quyền có trách nhiệm thực hiện đúng nội dung ủy quyền và chịu trách nhiệm trước pháp luật về các quyết định trong phạm vi ủy quyền./."
+- noiNhan: ["Ông/Bà [tên] (để th/hiện)", "[Tòa án/cơ quan liên quan]", "Sở [tên]", "Lưu: VT, NC"]
+
+---
+
 ### QUY TRÌNH E: VĂN BẢN TƯ PHÁP
 
 - Bổ nhiệm giám định viên/thừa hành viên → QĐ bổ nhiệm
