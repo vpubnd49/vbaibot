@@ -41,13 +41,30 @@ function readApiKey(): string {
   const stored = read(API_KEY_KEY);
   if (stored) {
     try {
-      return decryptSecret(stored);
+      const decrypted = decryptSecret(stored);
+      if (decrypted) return decrypted;
     } catch {
-      // Key hỏng (đổi CREDENTIALS_ENCRYPTION_KEY) - rơi về env thay vì chết tool
-      return env.IMAGE_GEN_API_KEY;
+      // Key hỏng (đổi CREDENTIALS_ENCRYPTION_KEY) - rơi xuống fallback
     }
   }
-  return env.IMAGE_GEN_API_KEY;
+  if (env.IMAGE_GEN_API_KEY) return env.IMAGE_GEN_API_KEY;
+
+  // Tự động dùng chung khóa LLM nếu endpoint vẽ ảnh cùng router (như 9router)
+  const baseUrl = read(BASE_URL_KEY) ?? env.IMAGE_GEN_BASE_URL ?? "";
+  const llmBaseUrl = read("llm_base_url") ?? env.LLM_BASE_URL ?? "";
+  if (baseUrl && llmBaseUrl && (baseUrl === llmBaseUrl || baseUrl.includes("9router"))) {
+    const llmStored = read("llm_api_key");
+    if (llmStored) {
+      try {
+        const decrypted = decryptSecret(llmStored);
+        if (decrypted) return decrypted;
+      } catch {
+        // bỏ qua
+      }
+    }
+  }
+
+  return "";
 }
 
 export function getImageSettings(): ImageGenSettings {

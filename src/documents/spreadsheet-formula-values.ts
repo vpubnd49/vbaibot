@@ -62,6 +62,15 @@ export function computeSheetValues(sheet: Sheet): (number | null)[][] {
   return values;
 }
 
+function parseNumericCell(val: string): number | null {
+  const trimmed = val.trim().replace(/,/g, "");
+  if (/^-?(?:0|[1-9]\d*)(?:\.\d+)?$/.test(trimmed)) {
+    const n = Number(trimmed);
+    return isNaN(n) ? null : n;
+  }
+  return null;
+}
+
 function evaluateCell(
   cell: SpreadsheetCell,
   rowIndex: number,
@@ -69,7 +78,31 @@ function evaluateCell(
   currentRow: (number | null)[],
 ): number | null {
   if (cell.kind === "number") return cell.value;
-  if (cell.kind === "text") return null;
+  if (cell.kind === "text") {
+    // Nếu ô text chứa công thức =SUM(C2:C7)
+    if (cell.value.startsWith("=")) {
+      const sumMatch = cell.value.slice(1).trim().match(/^SUM\(\s*([A-Za-z]{1,2})(\d+)\s*:\s*([A-Za-z]{1,2})(\d+)\s*\)$/i);
+      if (sumMatch && sumMatch[1].toUpperCase() === sumMatch[3].toUpperCase()) {
+        const colIndex = columnLetterToIndex(sumMatch[1]);
+        const fromRow = Number(sumMatch[2]);
+        const toRow = Number(sumMatch[4]);
+        let total = 0;
+        let counted = 0;
+        for (let excelRow = fromRow; excelRow <= toRow; excelRow++) {
+          const dataIndex = excelRow - 2;
+          if (dataIndex < 0) continue;
+          const value = dataIndex === rowIndex ? currentRow[colIndex] : doneRows[dataIndex]?.[colIndex];
+          if (typeof value === "number") {
+            total += value;
+            counted++;
+          }
+        }
+        return counted > 0 ? total : null;
+      }
+    }
+    // Nếu ô text chứa số thuần (vd "6", "120")
+    return parseNumericCell(cell.value);
+  }
 
   if (cell.op === "multiply") {
     const a = currentRow[columnLetterToIndex(cell.columns[0])];

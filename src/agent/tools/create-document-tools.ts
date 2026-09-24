@@ -143,11 +143,11 @@ export function createExcelFileTool(ctx: Ctx) {
     description:
       "Tạo file Excel (.xlsx) trình bày sẵn đẹp (banner, header nổi, sọc xen kẽ, số liệu tô màu) rồi gửi luôn cho người dùng. " +
       "Hợp với báo giá, danh sách, bảng số liệu, báo cáo tổng hợp.\n" +
-      'Ô trong rows: chuỗi, số, hoặc công thức dạng chuỗi "=B2*C2" (nhân 2 ô cùng dòng) / "=SUM(D2:D9)" (cộng 1 cột, đánh số coi header là dòng 1). ' +
-      "Dùng công thức cho ô tính toán để người nhận sửa số là tự tính lại.\n" +
-       "BẮT BUỘC gọi tool khi người dùng yêu cầu xuất Excel; không chỉ mô tả hoặc hứa hẹn. " +
-       "Cho phép rows rỗng khi người dùng yêu cầu file mẫu chỉ gồm tiêu đề và cột; nếu là báo cáo có số liệu thì điền đầy đủ các dòng. " +
-       "VIẾT ĐẦY ĐỦ như một báo cáo thật, đừng tóm tắt cụt lủn: báo cáo tổng hợp nên tách nhiều sheet " +
+      'Ô trong rows: chuỗi, số (BẮT BUỘC dùng số thực/nguyên cho các cột số lượng, kinh phí, tiến độ để Excel tính toán được), hoặc công thức dạng chuỗi "=B2*C2" (nhân 2 ô cùng dòng) / "=SUM(D2:D9)" (cộng 1 cột, đánh số coi header là dòng 1). ' +
+      "HÀNG TỔNG CỘNG: Cột số lượng/tổng BẮT BUỘC dùng công thức SUM (ví dụ: '=SUM(C2:C7)') thay vì ghi số chết hoặc ghi text thô, để người dùng sửa số là bảng tự động cập nhật lại.\n" +
+      "BẮT BUỘC gọi tool khi người dùng yêu cầu xuất Excel; không chỉ mô tả hoặc hứa hẹn. " +
+      "Cho phép rows rỗng khi người dùng yêu cầu file mẫu chỉ gồm tiêu đề và cột; nếu là báo cáo có số liệu thì điền đầy đủ các dòng. " +
+      "VIẾT ĐẦY ĐỦ như một báo cáo thật, đừng tóm tắt cụt lủn: báo cáo tổng hợp nên tách nhiều sheet " +
       "(tổng quan, chi tiết từng mục, số liệu, rủi ro/kết luận, nguồn tham khảo), mỗi sheet có title + subtitle + note, " +
       "mỗi ô mô tả trọn ý chứ không phải vài chữ. Đã bỏ công tạo file thì nội dung phải đáng để mở ra đọc.\n" +
       'MỌI chữ (tên sheet, tên file, header, nội dung) GIỮ NGUYÊN dấu tiếng Việt - viết "Tổng quan" chứ không "Tong quan".',

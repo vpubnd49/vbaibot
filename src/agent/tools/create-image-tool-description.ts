@@ -51,9 +51,10 @@ const KHI_BI_CHE_XAU =
   "nhiều màu hơn...), giữ nguyên phần chữ. Đừng gửi lại prompt cũ, cũng đừng tự đổi sang hướng họ không nhắc tới.";
 
 export const CREATE_IMAGE_DESCRIPTION =
-  "Vẽ ảnh mới bằng AI hoặc SỬA ảnh người dùng vừa gửi, rồi gửi thẳng vào cuộc trò chuyện. " +
+  "Vẽ ảnh mới bằng AI hoặc SỬA / VẼ LẠI ảnh người dùng vừa gửi, rồi gửi thẳng vào cuộc trò chuyện. " +
   "Dùng khi người dùng nhờ vẽ/tạo/thiết kế ảnh (poster, banner, cover, e-magazine, minh họa), " +
-  "hoặc nhờ sửa ảnh họ gửi (đổi màu, xóa vật thể, đổi phong cách).\n" +
+  "hoặc khi người dùng gửi ảnh rồi nhờ vẽ lại / sửa ảnh / làm lại dựa theo ảnh đó (đổi màu, xóa vật thể, đổi phong cách). " +
+  "LƯU Ý: Nếu người dùng gửi ảnh và nói 'vẽ lại ảnh', 'sửa ảnh', 'làm lại' -> BẮT BUỘC chọn mode 'sua_anh_da_gui' để AI dùng ảnh gốc làm mẫu tham chiếu.\n" +
   "Mất 1-3 phút mỗi ảnh nên chỉ gọi khi người dùng thật sự muốn có ảnh.\n" +
   `${CHU_PHAI_NGUYEN_VAN}\n` +
   `${TI_LE_NOI_TRONG_PROMPT}\n` +

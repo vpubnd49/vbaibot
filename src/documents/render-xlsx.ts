@@ -133,7 +133,21 @@ function cellValue(
   rowOffset: number,
   computed: number | null,
 ): ExcelJS.CellValue {
-  if (cell.kind === "text") return textCellValue(cell.value);
+  if (cell.kind === "text") {
+    // Bảo vệ nhiều lớp: nếu text bắt đầu bằng "=", tuyệt đối không ghi dạng chuỗi thuần
+    if (cell.value.startsWith("=")) {
+      const raw = cell.value.slice(1).trim();
+      const sumMatch = raw.match(/^SUM\(\s*([A-Za-z]{1,2})(\d+)\s*:\s*([A-Za-z]{1,2})(\d+)\s*\)$/i);
+      if (sumMatch && sumMatch[1].toUpperCase() === sumMatch[3].toUpperCase()) {
+        const col = sumMatch[1].toUpperCase();
+        const from = Number(sumMatch[2]) + rowOffset;
+        const to = Number(sumMatch[4]) + rowOffset;
+        return { formula: `SUM(${col}${from}:${col}${to})`, result: computed ?? 0 };
+      }
+      return { formula: raw, result: computed ?? 0 };
+    }
+    return textCellValue(cell.value);
+  }
   if (cell.kind === "number") return cell.value;
 
   const formula =
@@ -163,6 +177,11 @@ function styleDataCell(
     target.fill = { type: "pattern", pattern: "solid", fgColor: { argb: theme.stripe } };
   }
   if (cell.kind === "text") {
+    if (cell.value.startsWith("=")) {
+      target.font = { name: FONT_NAME, size: FONT_SIZE };
+      target.numFmt = NUMBER_FORMAT.plain;
+      return;
+    }
     target.font = { name: FONT_NAME, size: FONT_SIZE };
     target.alignment = { wrapText: true, vertical: "top" };
     return;

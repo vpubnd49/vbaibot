@@ -64,6 +64,24 @@ export const knowledgeRoutes = new Hono()
     return c.json({ ok: true, id: result.id });
   })
 
+  // ── Static routes MUST come before parameterized /:id routes ──
+  .post("/approve-all", (c) => {
+    const accountId = c.req.query("accountId");
+    if (!accountId) return c.json({ error: "Thiếu accountId" }, 400);
+
+    const count = approveAllKnowledge(accountId, "admin");
+    return c.json({ ok: true, count });
+  })
+
+  .get("/pending-count", (c) => {
+    const accountId = c.req.query("accountId");
+    if (!accountId) return c.json({ error: "Thiếu accountId" }, 400);
+
+    const count = countPending(accountId);
+    return c.json({ count });
+  })
+
+  // ── Parameterized routes ──
   .post("/:id/approve", (c) => {
     const accountId = c.req.query("accountId");
     if (!accountId) return c.json({ error: "Thiếu accountId" }, 400);
@@ -72,14 +90,6 @@ export const knowledgeRoutes = new Hono()
     if (!ok) return c.json({ error: "Knowledge không tồn tại hoặc đã duyệt" }, 404);
     
     return c.json({ ok: true });
-  })
-
-  .post("/approve-all", (c) => {
-    const accountId = c.req.query("accountId");
-    if (!accountId) return c.json({ error: "Thiếu accountId" }, 400);
-
-    const count = approveAllKnowledge(accountId, "admin");
-    return c.json({ ok: true, count });
   })
 
   .post("/:id/reject", (c) => {
@@ -100,12 +110,4 @@ export const knowledgeRoutes = new Hono()
     if (!ok) return c.json({ error: "Knowledge không tồn tại" }, 404);
     
     return c.json({ ok: true });
-  })
-
-  .get("/pending-count", (c) => {
-    const accountId = c.req.query("accountId");
-    if (!accountId) return c.json({ error: "Thiếu accountId" }, 400);
-
-    const count = countPending(accountId);
-    return c.json({ count });
   });

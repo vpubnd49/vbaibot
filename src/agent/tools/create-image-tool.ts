@@ -59,9 +59,9 @@ export function createImageTool(ctx: ToolContext, generate = generateImage) {
       mode: z
         .enum(["ve_moi", "sua_anh_da_gui"])
         .describe(
-          'BẮT BUỘC chọn. "ve_moi" = vẽ ảnh hoàn toàn mới từ mô tả (dùng cho hầu hết yêu cầu: poster, banner, ' +
-            'e-magazine, minh họa). "sua_anh_da_gui" = CHỈ khi người dùng đã gửi ảnh trong hội thoại và nhờ sửa ' +
-            "chính tấm đó (đổi màu, xóa vật thể, đổi phong cách)",
+          'BẮT BUỘC chọn. "ve_moi" = vẽ ảnh hoàn toàn mới từ mô tả (khi người dùng KHÔNG gửi ảnh hoặc không yêu cầu ' +
+            'dựa vào ảnh đã gửi). "sua_anh_da_gui" = BẮT BUỘC khi người dùng đã gửi ảnh trong hội thoại và yêu cầu ' +
+            'vẽ lại / sửa / biến đổi / làm lại dựa theo ảnh đó (vd: "vẽ lại ảnh", "sửa ảnh này", "đổi phong cách", "làm nét hơn")',
         ),
       prompt: z
         .string()

@@ -268,10 +268,51 @@ const sumFormula = z.object({
   toRow: z.number().int().min(1),
 });
 
-const textCell = z.object({
-  kind: z.literal("text"),
-  value: z.string(),
-});
+const textCell = z
+  .object({
+    kind: z.literal("text"),
+    value: z.string(),
+  })
+  .transform((cell) => {
+    // Nếu text bắt đầu bằng "=", tự động chuyển sang formula
+    if (cell.value.startsWith("=")) {
+      const mul = cell.value.match(MULTIPLY_RE);
+      if (mul) {
+        return {
+          kind: "formula" as const,
+          op: "multiply" as const,
+          columns: [mul[1]!.toUpperCase(), mul[2]!.toUpperCase()],
+        };
+      }
+      const sum = cell.value.match(SUM_RE);
+      if (sum && sum[1]!.toUpperCase() === sum[3]!.toUpperCase()) {
+        return {
+          kind: "formula" as const,
+          op: "sum" as const,
+          column: sum[1]!.toUpperCase(),
+          fromRow: Number(sum[2]),
+          toRow: Number(sum[4]),
+        };
+      }
+    }
+
+    // Nếu text là số nguyên hoặc số thập phân thuần (vd "6", "120", "0"),
+    // tự động chuyển thành number cell để Excel không cảnh báo "Number stored as text"
+    // và để các hàm SUM tính toán được
+    const trimmed = cell.value.trim();
+    if (/^-?(?:0|[1-9]\d*)(?:\.\d+)?$/.test(trimmed)) {
+      const num = Number(trimmed);
+      if (!isNaN(num)) {
+        return {
+          kind: "number" as const,
+          value: num,
+          format: "plain" as const,
+        };
+      }
+    }
+
+    return cell;
+  });
 
 const numberCell = z.object({
   kind: z.literal("number"),
@@ -339,7 +380,16 @@ export const spreadsheetCellSchema = z.union([
   z
     .string()
     .refine((s) => !s.startsWith("="))
-    .transform((value) => ({ kind: "text", value }) as const),
+    .transform((value) => {
+      const trimmed = value.trim();
+      if (/^-?(?:0|[1-9]\d*)(?:\.\d+)?$/.test(trimmed)) {
+        const num = Number(trimmed);
+        if (!isNaN(num)) {
+          return { kind: "number" as const, value: num, format: "plain" as const };
+        }
+      }
+      return { kind: "text" as const, value };
+    }),
   z.number().transform((value) => ({ kind: "number", value, format: "plain" }) as const),
 ]);
 
