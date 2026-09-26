@@ -8,6 +8,8 @@ import { createLogger } from "./shared/logger.js";
 import { startTempFileCleanupSchedule } from "./shared/temp-file-store.js";
 import { startThanhtraSyncTask } from "./thanhtra/thanhtra-service.js";
 import { startQpplSyncTask } from "./qppl/qppl-service.js";
+import { seedDefaultFacebookPages } from "./realtime/facebook/facebook-service.js";
+import { startFacebookCrawler, stopFacebookCrawler } from "./realtime/facebook/facebook-page-crawler.js";
 import { startAllAccounts, stopAllAccounts } from "./zalo/account-manager.js";
 
 // Vòng đời tiến trình cũng cần scope: không có thì badge scope trên trang Logs
@@ -36,6 +38,7 @@ function shutdown(signal: string): void {
   if (shuttingDown) return;
   shuttingDown = true;
   logger.info({ signal }, "Đang tắt zalo-agent...");
+  stopFacebookCrawler();
   stopScheduler();
   stopDashboardServer();
   stopAllAccounts();
@@ -72,6 +75,10 @@ startTempFileCleanupSchedule();
 startThanhtraSyncTask();
 // Tự động quét VB QPPL tỉnh Lâm Đồng: UBND + HĐND (ngay + mỗi 6h)
 startQpplSyncTask();
+// Seed danh sách Facebook pages mặc định (1 lần đầu tiên)
+seedDefaultFacebookPages();
+// Cào bài Facebook mới mỗi 30 phút
+startFacebookCrawler();
 
 startDashboardServer();
 startAllAccounts()

@@ -1,10 +1,11 @@
 import { crawlRssFeed } from "../crawler/rss-crawler.js";
 import { searchWeb } from "../../shared/web-search-providers.js";
+import { getLatestFacebookNews } from "../facebook/facebook-service.js";
 import { createLogger } from "../../shared/logger.js";
 
 const log = createLogger("news-service");
 
-export type NewsCategory = "lam_dong" | "kinh_te" | "xa_hoi" | "quoc_phong_an_ninh" | "cntt" | "tong_hop";
+export type NewsCategory = "lam_dong" | "kinh_te" | "xa_hoi" | "quoc_phong_an_ninh" | "cntt" | "tong_hop" | "facebook";
 
 export type NewsArticle = {
   title: string;
@@ -21,6 +22,31 @@ export async function fetchNewsArticles(
 ): Promise<{ category: NewsCategory; articles: NewsArticle[]; formattedSummary: string }> {
   const articles: NewsArticle[] = [];
   const todayStr = new Date().toLocaleDateString("vi-VN");
+
+  // 0. Kéo bài Facebook từ cache (nếu có) — ưu tiên dữ liệu FB
+  if (category === "facebook" || category === "lam_dong" || category === "tong_hop") {
+    try {
+      const fbCategory = category === "facebook" ? undefined : category;
+      const { posts } = getLatestFacebookNews(fbCategory, 4);
+      for (const p of posts) {
+        articles.push({
+          title: p.message.split("\n")[0]?.slice(0, 80) ?? "Bài viết Facebook",
+          link: p.permalink,
+          source: `FB: ${p.pageName}`,
+          snippet: p.message.length > 150 ? p.message.slice(0, 147) + "..." : p.message,
+          pubDate: new Date(p.createdAt).toLocaleDateString("vi-VN"),
+        });
+      }
+    } catch (err) {
+      log.warn({ err }, "Lỗi khi lấy tin Facebook từ cache");
+    }
+  }
+
+  // Nếu chỉ xem Facebook, bỏ qua RSS + web search
+  if (category === "facebook") {
+    const formattedSummary = formatSummary(articles, todayStr, category);
+    return { category, articles: articles.slice(0, 6), formattedSummary };
+  }
 
   // 1. Thử cào RSS feeds theo chuyên mục
   if (category === "lam_dong" || category === "tong_hop") {
@@ -135,6 +161,16 @@ export async function fetchNewsArticles(
   }
 
   // 3. Format báo cáo tóm tắt
+  const formattedSummary = formatSummary(articles, todayStr, category);
+
+  return {
+    category,
+    articles: articles.slice(0, 6),
+    formattedSummary,
+  };
+}
+
+function formatSummary(articles: NewsArticle[], todayStr: string, category: NewsCategory): string {
   let formattedSummary = `📰 **ĐIỂM BÁO & TIN TỨC THỜI SỰ (${todayStr})**\n`;
   formattedSummary += `*Chuyên mục: ${getCategoryLabel(category)}*\n\n`;
 
@@ -149,11 +185,7 @@ export async function fetchNewsArticles(
     });
   }
 
-  return {
-    category,
-    articles: articles.slice(0, 6),
-    formattedSummary: formattedSummary.trim(),
-  };
+  return formattedSummary.trim();
 }
 
 function getCategoryLabel(cat: NewsCategory): string {
@@ -168,6 +200,8 @@ function getCategoryLabel(cat: NewsCategory): string {
       return "Quốc phòng & An ninh trật tự";
     case "cntt":
       return "Công nghệ thông tin & Chuyển đổi số";
+    case "facebook":
+      return "Tin từ Facebook";
     default:
       return "Thời sự Tổng hợp Toàn quốc & Lâm Đồng";
   }

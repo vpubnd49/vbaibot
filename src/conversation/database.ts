@@ -495,6 +495,35 @@ function runMigrations(): void {
 
   // ===== Phase 5: Shared Knowledge Priority =====
   addColumnIfMissing("shared_knowledge", "priority", "TEXT NOT NULL DEFAULT 'normal'");
+
+  // ===== Phase 6: Facebook Page Crawler =====
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS facebook_pages (
+      page_id TEXT PRIMARY KEY,
+      page_name TEXT NOT NULL DEFAULT '',
+      page_url TEXT NOT NULL DEFAULT '',
+      encrypted_token TEXT NOT NULL DEFAULT '',
+      category TEXT NOT NULL DEFAULT 'tong_hop',
+      enabled INTEGER NOT NULL DEFAULT 1,
+      last_crawled_at TEXT,
+      created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS facebook_posts (
+      post_id TEXT PRIMARY KEY,
+      page_id TEXT NOT NULL,
+      page_name TEXT NOT NULL,
+      message TEXT NOT NULL DEFAULT '',
+      permalink TEXT NOT NULL DEFAULT '',
+      image_url TEXT,
+      created_at TEXT NOT NULL,
+      fetched_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
+      category TEXT NOT NULL DEFAULT 'tong_hop'
+    );
+    CREATE INDEX IF NOT EXISTS idx_fb_posts_created ON facebook_posts (created_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_fb_posts_page ON facebook_posts (page_id, created_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_fb_posts_category ON facebook_posts (category, created_at DESC);
+  `);
 }
 
 function addColumnIfMissing(table: string, column: string, definition: string): void {
