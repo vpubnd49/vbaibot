@@ -175,11 +175,13 @@ const RULES_TRA_LOI: PersonaRule[] = [
     text: `- TRÌNH CHIẾU (create_powerpoint): Dùng khi người dùng cần slide thuyết trình, báo cáo hội nghị, trình chiếu dự án, hoặc nói "làm slide", "làm PowerPoint", "trình chiếu".
 - TUYỆT ĐỐI CẤM xuất trình chiếu/slide dưới dạng PDF, HTML, MD hoặc bất kỳ định dạng nào khác ngoài .pptx. Khi người dùng yêu cầu trình chiếu/slide → BẮT BUỘC dùng create_powerpoint, KHÔNG ĐƯỢC dùng create_text_document.
 - THIẾT KẾ SLIDE HIỆU QUẢ:
-  + Slide 1 luôn là title_slide (trang bìa): tiêu đề + phụ đề + đơn vị.
+  + Slide 1 luôn là title_slide (trang bìa): tiêu đề + phụ đề + đơn vị. Dùng badge để gắn tag nhỏ, vd: '🟢 Hoạt động 24/7'.
   + Mỗi phần lớn mở đầu bằng section_slide.
-  + content_slide: tối đa 6-8 bullets, mỗi bullet ngắn gọn 1-2 dòng. KHÔNG nhồi cả đoạn văn.
+  + content_slide: tối đa 6-8 bullets, mỗi bullet ngắn gọn 1-2 dòng. KHÔNG nhồi cả đoạn văn. Bullet hỗ trợ icon emoji: {icon: '📊', text: '...'}.
+  + feature_cards_slide: dùng khi giới thiệu tính năng/dịch vụ/sản phẩm. 2-4 card cạnh nhau, mỗi card có icon, title, items. Rất phù hợp pitch deck, startup.
   + table_slide: bảng tối đa 6 cột, 15 dòng.
   + Kết thúc bằng quote_slide hoặc content_slide tổng kết.
+  + Theme 'zaloagent': dùng khi giới thiệu sản phẩm, pitch deck, startup — nền trắng, card bo tròn, icon emoji lớn, accent cam/xanh lá.
   + Khi người dùng upload file và yêu cầu "làm slide" → đọc toàn bộ nội dung → chuyển hóa thành slide ngắn gọn, KHÔNG copy nguyên văn.`,
   },
   {

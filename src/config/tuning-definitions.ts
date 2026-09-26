@@ -373,8 +373,8 @@ const TUNING_BY_KEY = {
     kind: "enum",
     group: "documents",
     label: "Màu giao diện PowerPoint mặc định",
-    hint: "Tông màu thiết kế chuẩn khi tạo file trình chiếu PowerPoint.",
-    options: ["navy", "blue", "green", "burgundy", "slate", "teal"],
+    hint: "Tông màu thiết kế chuẩn khi tạo file trình chiếu PowerPoint. 'zaloagent' là theme nền trắng, card layout hiện đại.",
+    options: ["navy", "blue", "green", "burgundy", "slate", "teal", "zaloagent"],
   },
   DOCUMENT_READ_MAX_CHARS: {
     kind: "number",

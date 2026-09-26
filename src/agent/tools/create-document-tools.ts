@@ -182,11 +182,14 @@ export function createPowerpointTool(ctx: Ctx) {
   return tool({
     description:
       "Tạo file PowerPoint (.pptx) trình chiếu chuyên nghiệp 16:9 rồi gửi luôn cho người dùng. " +
-      "Dùng khi người dùng cần slide thuyết trình, báo cáo hội nghị, trình chiếu dự án. " +
-      "Hỗ trợ 6 loại slide: title_slide (trang bìa), section_slide (ngăn phần), " +
-      "content_slide (bullet points), two_columns_slide (so sánh 2 cột), " +
+      "Dùng khi người dùng cần slide thuyết trình, báo cáo hội nghị, trình chiếu dự án, giới thiệu sản phẩm. " +
+      "Hỗ trợ 7 loại slide: title_slide (trang bìa, có badge), section_slide (ngăn phần), " +
+      "content_slide (bullet points, có thể kèm icon emoji), two_columns_slide (so sánh 2 cột), " +
+      "feature_cards_slide (2-4 card tính năng cạnh nhau — phù hợp giới thiệu sản phẩm), " +
       "table_slide (bảng số liệu), quote_slide (trích dẫn nhấn mạnh). " +
+      "Bullet items hỗ trợ icon emoji: dùng {icon: '📊', text: 'Nội dung'} hoặc string thuần. " +
       "Bôi đậm bằng **chữ đậm** trong text bullet. Mỗi slide content tối đa 6-8 bullets ngắn gọn. " +
+      "Theme 'zaloagent': nền trắng, card bo tròn, accent cam/xanh lá — lý tưởng cho pitch deck, giới thiệu sản phẩm. " +
       "MỌI chữ GIỮ NGUYÊN dấu tiếng Việt.",
     inputSchema: z.object({
       fileName: z.string().min(1).describe('Tên file, vd "bao-cao-quy-3.pptx"'),

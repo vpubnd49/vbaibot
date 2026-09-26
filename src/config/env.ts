@@ -173,7 +173,7 @@ const envSchema = z.object({
   // Số slide tối đa mỗi bài thuyết trình PowerPoint (.pptx)
   DOCUMENT_MAX_SLIDES: z.coerce.number().int().min(1).max(100).default(50),
   // Tông màu giao diện PowerPoint mặc định
-  DOCUMENT_DEFAULT_PPTX_THEME: z.enum(["navy", "blue", "green", "burgundy", "slate", "teal"]).default("navy"),
+  DOCUMENT_DEFAULT_PPTX_THEME: z.enum(["navy", "blue", "green", "burgundy", "slate", "teal", "zaloagent"]).default("navy"),
   // Số file tối đa 1 thread được tạo trong 1 giờ - chặn spam \"xuất file\" liên tục.
   // 30 đủ thoải mái cho user yêu cầu nhiều file (Word + Excel + PowerPoint + sửa lại)
   // mà vẫn chặn được lạm dụng từ người lạ.
