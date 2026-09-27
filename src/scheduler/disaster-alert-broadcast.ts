@@ -13,6 +13,7 @@ import { createLogger } from "../shared/logger.js";
 import { listEnabledAccounts } from "../config/account-store.js";
 import { getRunningAccountApi } from "../zalo/account-manager.js";
 import { deliverChatReply } from "../zalo/deliver-chat-reply.js";
+import { getTuning } from "../config/runtime-tuning-settings.js";
 import {
   getHighestAlertLevel,
   listActiveAlerts,
@@ -20,6 +21,14 @@ import {
 } from "../realtime/disaster/disaster-alert-store.js";
 
 const log = createLogger("disaster-broadcast");
+
+/**
+ * Kiểm tra toggle bật/tắt broadcast thiên tai từ dashboard.
+ * Mặc định TẮT — phải bật thủ công trong dashboard > Lịch hẹn.
+ */
+export function isDisasterBroadcastEnabled(): boolean {
+  return getTuning("DISASTER_BROADCAST_ENABLED") === true;
+}
 
 // ───── Cooldown: tránh spam cùng mức cảnh báo ──────────────────────────────
 
@@ -142,6 +151,11 @@ async function broadcastToAllGroups(message: string): Promise<{ sent: number; fa
  * 2. Chưa gửi broadcast cho mức này trong 4 giờ qua
  */
 export async function checkAndBroadcastDisasterAlert(): Promise<void> {
+  // Guard: chỉ broadcast khi toggle BẬT trong dashboard
+  if (!isDisasterBroadcastEnabled()) {
+    return;
+  }
+
   const level = getHighestAlertLevel();
 
   // Chỉ broadcast cho mức cam và đỏ

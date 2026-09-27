@@ -298,6 +298,7 @@ const envSchema = z.object({
   // cũ hơn bị dọn ngay sau khi ghi lượt mới (cùng pattern prune của history-store).
   SCHEDULER_RUN_LOG_KEEP: z.coerce.number().int().min(5).max(1000).default(50),
   MORNING_GREETING_ENABLED: z.preprocess(emptyToUndefined, z.stringbool().default(false)),
+  DISASTER_BROADCAST_ENABLED: z.preprocess(emptyToUndefined, z.stringbool().default(false)),
 
   // Rate limiting tin đến: chặn spam/lạm dụng. 0 = tắt rate limit.
   RATE_LIMIT_WINDOW_MS: z.coerce.number().int().min(0).max(3_600_000).default(60_000),

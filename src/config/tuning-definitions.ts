@@ -678,6 +678,12 @@ const TUNING_BY_KEY = {
     label: "Bật chào buổi sáng",
     hint: "Bật để bot tự động gửi lời chào mỗi 6h sáng vào tất cả các nhóm.",
   },
+  DISASTER_BROADCAST_ENABLED: {
+    kind: "boolean",
+    group: "schedule",
+    label: "Bật cảnh báo thiên tai tự động",
+    hint: "Bật để bot TỰ ĐỘNG gửi cảnh báo sạt lở, ngập lụt, xả lũ hồ đập tới tất cả nhóm khi phát hiện mức cam/đỏ. Tắt thì chỉ trả lời khi được hỏi, không chủ động gửi. Cooldown 4 giờ giữa các lần broadcast.",
+  },
 
   // --- Tri thức dùng chung ---
   SHARED_KNOWLEDGE_MAX_ITEMS: {
