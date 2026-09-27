@@ -43,6 +43,7 @@ import { auditRoutes } from "./routes/audit-routes.js";
 import { ocrRoutes } from "./routes/ocr-routes.js";
 import { getOcrPortalHtml } from "./routes/ocr-portal-html.js";
 import { systemRoutes } from "./routes/system-routes.js";
+import { disasterAlertPublicRoutes } from "./routes/disaster-alert-public-routes.js";
 
 const log = createLogger("dashboard-server");
 const SESSION_COOKIE = "dashboard_session";
@@ -149,6 +150,10 @@ export function buildDashboardApp(): Hono {
     setCookie(c, SESSION_COOKIE, "", { ...SESSION_COOKIE_OPTIONS, maxAge: 0 });
     return c.json({ ok: true });
   });
+
+  // API cảnh báo thiên tai CÔNG KHAI (không cần đăng nhập)
+  // Đặt TRƯỚC auth middleware để dulich, mobile app... gọi được
+  app.route("/api/disaster-alerts", disasterAlertPublicRoutes);
 
   // Mọi API sau điểm này yêu cầu session hợp lệ
   app.use("/api/*", async (c, next) => {
