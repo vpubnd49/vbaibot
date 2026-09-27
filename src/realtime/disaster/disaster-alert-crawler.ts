@@ -17,6 +17,7 @@ import {
   detectDisasterTypes,
   detectArea,
   isDisasterRelated,
+  isAboutLamDong,
   type DisasterType,
 } from "./disaster-keywords.js";
 import {
@@ -134,6 +135,12 @@ function scanFacebookPosts(): CrawledAlert[] {
     const types = detectDisasterTypes(post.message);
     if (types.length === 0) continue;
 
+    // Lọc địa lý: chỉ giữ bài về Lâm Đồng
+    if (!isAboutLamDong(post.message, post.pageName)) {
+      log.debug(`Bỏ qua bài FB không thuộc Lâm Đồng: ${post.pageName}`);
+      continue;
+    }
+
     const area = detectArea(post.message);
     const title = post.message.split("\n")[0]?.slice(0, 100) ?? "Cảnh báo thiên tai";
     const level = assessAlertLevel(post.message, types, post.pageName);
@@ -173,6 +180,12 @@ async function scanRssFeeds(fetchFn: typeof fetch = fetch): Promise<CrawledAlert
 
       const types = detectDisasterTypes(combined);
       if (types.length === 0) continue;
+
+      // Lọc địa lý: chỉ giữ bài về Lâm Đồng
+      if (!isAboutLamDong(combined, item.source)) {
+        log.debug(`Bỏ qua RSS không thuộc Lâm Đồng: ${item.title.slice(0, 50)}`);
+        continue;
+      }
 
       const area = detectArea(combined);
       const level = assessAlertLevel(combined, types, item.source);

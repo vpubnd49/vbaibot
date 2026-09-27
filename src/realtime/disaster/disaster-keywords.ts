@@ -157,6 +157,101 @@ export function detectArea(text: string): string {
   return "Lâm Đồng";
 }
 
+// ───── Lọc địa lý: chỉ giữ bài viết về Lâm Đồng ──────────────────────────
+
+/**
+ * Các tỉnh/thành KHÁC để phát hiện bài viết KHÔNG liên quan Lâm Đồng.
+ * Nếu bài nhắc tỉnh khác mà KHÔNG nhắc Lâm Đồng → loại bỏ.
+ */
+const OTHER_PROVINCES = [
+  // Tây Nguyên (trừ Đắk Nông đã sáp nhập)
+  "Đắk Lắk", "Dak Lak", "Buôn Ma Thuột",
+  "Gia Lai", "Pleiku",
+  "Kon Tum",
+  // Duyên hải Nam Trung Bộ (trừ Bình Thuận đã sáp nhập)
+  "Khánh Hòa", "Nha Trang", "Cam Ranh",
+  "Ninh Thuận", "Phan Rang",
+  "Phú Yên", "Tuy Hòa",
+  "Bình Định", "Quy Nhơn",
+  "Quảng Nam", "Hội An", "Tam Kỳ",
+  "Quảng Ngãi",
+  "Đà Nẵng",
+  // Đông Nam Bộ
+  "Đồng Nai", "Biên Hòa",
+  "Bình Dương", "Thủ Dầu Một",
+  "Bình Phước", "Đồng Xoài",
+  "Bà Rịa", "Vũng Tàu",
+  "TP.HCM", "Hồ Chí Minh", "Sài Gòn",
+  "Tây Ninh",
+  // Khác
+  "Hà Nội", "Hải Phòng", "Huế", "Nghệ An", "Hà Tĩnh",
+  "Quảng Bình", "Quảng Trị", "Thanh Hóa",
+] as const;
+
+/**
+ * Các từ khóa xác nhận bài viết thuộc về Lâm Đồng.
+ * Bao gồm tên tỉnh + các địa danh đặc trưng.
+ */
+const LAMDONG_MARKERS = [
+  "lâm đồng", "đà lạt", "bảo lộc", "di linh", "đức trọng",
+  "đơn dương", "lạc dương", "lâm hà", "đạ huoai", "đạ tẻh",
+  "cát tiên", "bảo lâm", "đam rông",
+  // Bình Thuận (đã sáp nhập)
+  "phan thiết", "hàm thuận", "bắc bình", "tuy phong",
+  "la gi", "tánh linh", "đức linh", "hàm tân",
+  // Đắk Nông (đã sáp nhập)
+  "gia nghĩa", "đắk r'lấp", "đắk song", "đắk mil",
+  "krông nô", "đắk glong", "cư jút", "tuy đức",
+  // Đèo + hồ đập đặc trưng
+  "đèo prenn", "đèo bảo lộc", "đèo đại ninh", "đèo d'ran",
+  "đèo mimosa", "đèo tà đùng", "đèo gia bắc", "đèo sông pha",
+  "đèo khánh lê",
+  "hồ đa nhim", "hồ hàm thuận", "hồ đa mi", "hồ đại ninh",
+  "hồ tuyền lâm", "hồ đan kia", "hồ suối vàng",
+  "hồ sông quao", "hồ cà giây",
+  "thủy điện đa nhim", "thủy điện hàm thuận", "thủy điện đa mi",
+  "thủy điện đại ninh", "thủy điện đắk r'tih",
+] as const;
+
+/**
+ * Các nguồn CHẮC CHẮN thuộc Lâm Đồng — bài từ đây không cần kiểm tra thêm.
+ */
+const LAMDONG_SOURCES = [
+  "báo lâm đồng", "baolamdong", "cổng ttđt lâm đồng", "lamdong.gov",
+  "thời tiết lâm đồng", "bch phòng thủ dân sự lâm đồng",
+  "fb: thời tiết lâm đồng", "fb: bch phòng thủ dân sự",
+] as const;
+
+/**
+ * Kiểm tra bài viết có thực sự liên quan đến tỉnh Lâm Đồng không.
+ *
+ * Luật:
+ * 1. Nguồn là báo/FB Lâm Đồng → ĐẠT (không cần kiểm tra thêm)
+ * 2. Nội dung nhắc đến địa danh Lâm Đồng → ĐẠT
+ * 3. Nội dung nhắc tỉnh khác mà KHÔNG nhắc Lâm Đồng → LOẠI
+ * 4. Không nhắc tỉnh nào cụ thể → LOẠI (bài chung chung toàn quốc)
+ */
+export function isAboutLamDong(text: string, sourceName: string): boolean {
+  const lower = text.toLowerCase();
+  const srcLower = sourceName.toLowerCase();
+
+  // 1. Nguồn chắc chắn Lâm Đồng → đạt ngay
+  if (LAMDONG_SOURCES.some((s) => srcLower.includes(s))) {
+    return true;
+  }
+
+  // 2. Có nhắc địa danh Lâm Đồng → đạt
+  const hasLamDongMarker = LAMDONG_MARKERS.some((m) => lower.includes(m));
+  if (hasLamDongMarker) return true;
+
+  // 3. Nhắc tỉnh khác → loại
+  const hasOtherProvince = OTHER_PROVINCES.some((p) => lower.includes(p.toLowerCase()));
+  if (hasOtherProvince) return false;
+
+  // 4. Không nhắc địa danh nào cụ thể → loại (bài chung chung toàn quốc)
+  return false;
+}
+
 /**
  * Kiểm tra nhanh xem text có liên quan đến thiên tai không.
  * Dùng cho lọc sơ bộ (prefilter) trước khi phân tích chi tiết.
@@ -164,3 +259,4 @@ export function detectArea(text: string): string {
 export function isDisasterRelated(text: string): boolean {
   return detectDisasterTypes(text).length > 0;
 }
+

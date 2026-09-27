@@ -4,6 +4,7 @@ import {
   detectDisasterTypes,
   detectArea,
   isDisasterRelated,
+  isAboutLamDong,
 } from "./disaster-keywords.js";
 
 describe("disaster-keywords", () => {
@@ -80,4 +81,55 @@ describe("disaster-keywords", () => {
     assert.equal(isDisasterRelated("Hồ Sông Quao xả tràn"), true);
     assert.equal(isDisasterRelated("Quán cafe view đẹp ở Đà Lạt"), false);
   });
+
+  // ───── isAboutLamDong (lọc địa lý) ────────────────────────────────────────
+
+  it("nguồn Báo Lâm Đồng → luôn đạt", () => {
+    assert.equal(isAboutLamDong("Mưa lớn gây ngập", "Báo Lâm Đồng - Thời sự"), true);
+  });
+
+  it("nguồn baolamdong.vn → luôn đạt", () => {
+    assert.equal(isAboutLamDong("Cảnh báo mưa to", "baolamdong"), true);
+  });
+
+  it("nhắc Đà Lạt → đạt", () => {
+    assert.equal(isAboutLamDong("Sạt lở nghiêm trọng tại Đà Lạt", "VnExpress"), true);
+  });
+
+  it("nhắc đèo Bảo Lộc → đạt", () => {
+    assert.equal(isAboutLamDong("Đèo Bảo Lộc sạt ta luy dương", "Tuổi Trẻ"), true);
+  });
+
+  it("nhắc hồ thủy điện Lâm Đồng → đạt", () => {
+    assert.equal(isAboutLamDong("Thủy điện Đa Nhim xả lũ lưu lượng lớn", "NCHMF"), true);
+  });
+
+  it("nhắc Đắk Lắk mà KHÔNG nhắc Lâm Đồng → LOẠI", () => {
+    assert.equal(isAboutLamDong("Mưa lớn gây ngập tại Buôn Ma Thuột, Đắk Lắk", "VnExpress"), false);
+  });
+
+  it("nhắc Khánh Hòa mà KHÔNG nhắc Lâm Đồng → LOẠI", () => {
+    assert.equal(isAboutLamDong("Bão đổ bộ Nha Trang, Khánh Hòa thiệt hại nặng", "Thanh Niên"), false);
+  });
+
+  it("nhắc Đà Nẵng → LOẠI", () => {
+    assert.equal(isAboutLamDong("Ngập lụt nghiêm trọng tại Đà Nẵng", "Tuổi Trẻ"), false);
+  });
+
+  it("bài chung chung toàn quốc không nhắc tỉnh nào → LOẠI", () => {
+    assert.equal(isAboutLamDong("Cảnh báo mưa lớn diện rộng cả nước", "NCHMF"), false);
+  });
+
+  it("nhắc cả Đắk Lắk VÀ Đà Lạt → ĐẠT (vì có Lâm Đồng)", () => {
+    assert.equal(isAboutLamDong("Mưa lớn ảnh hưởng Đà Lạt và Đắk Lắk", "VnExpress"), true);
+  });
+
+  it("khu vực Bình Thuận (sáp nhập) → đạt", () => {
+    assert.equal(isAboutLamDong("Ngập nặng Phan Thiết do mưa lớn", "Báo Bình Thuận"), true);
+  });
+
+  it("khu vực Đắk Nông (sáp nhập) → đạt", () => {
+    assert.equal(isAboutLamDong("Sạt lở tại Gia Nghĩa sau mưa kéo dài", "FB: Đắk Nông"), true);
+  });
 });
+
