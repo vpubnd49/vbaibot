@@ -225,28 +225,30 @@ const LAMDONG_SOURCES = [
 /**
  * Kiểm tra bài viết có thực sự liên quan đến tỉnh Lâm Đồng không.
  *
- * Luật:
- * 1. Nguồn là báo/FB Lâm Đồng → ĐẠT (không cần kiểm tra thêm)
- * 2. Nội dung nhắc đến địa danh Lâm Đồng → ĐẠT
- * 3. Nội dung nhắc tỉnh khác mà KHÔNG nhắc Lâm Đồng → LOẠI
+ * Luật (ưu tiên từ trên xuống):
+ * 1. Nội dung nhắc tỉnh khác mà KHÔNG nhắc địa danh Lâm Đồng → LOẠI
+ *    (ngay cả khi nguồn là Báo Lâm Đồng — vì họ có thể đưa tin tỉnh bạn)
+ * 2. Nội dung nhắc địa danh Lâm Đồng → ĐẠT
+ * 3. Nguồn là báo/FB Lâm Đồng + không nhắc tỉnh khác → ĐẠT
  * 4. Không nhắc tỉnh nào cụ thể → LOẠI (bài chung chung toàn quốc)
  */
 export function isAboutLamDong(text: string, sourceName: string): boolean {
   const lower = text.toLowerCase();
   const srcLower = sourceName.toLowerCase();
 
-  // 1. Nguồn chắc chắn Lâm Đồng → đạt ngay
+  const hasLamDongMarker = LAMDONG_MARKERS.some((m) => lower.includes(m));
+  const hasOtherProvince = OTHER_PROVINCES.some((p) => lower.includes(p.toLowerCase()));
+
+  // 1. Nhắc tỉnh khác mà KHÔNG nhắc Lâm Đồng → LOẠI (dù nguồn Lâm Đồng)
+  if (hasOtherProvince && !hasLamDongMarker) return false;
+
+  // 2. Có nhắc địa danh Lâm Đồng → đạt
+  if (hasLamDongMarker) return true;
+
+  // 3. Nguồn chắc chắn Lâm Đồng + không nhắc tỉnh khác → đạt
   if (LAMDONG_SOURCES.some((s) => srcLower.includes(s))) {
     return true;
   }
-
-  // 2. Có nhắc địa danh Lâm Đồng → đạt
-  const hasLamDongMarker = LAMDONG_MARKERS.some((m) => lower.includes(m));
-  if (hasLamDongMarker) return true;
-
-  // 3. Nhắc tỉnh khác → loại
-  const hasOtherProvince = OTHER_PROVINCES.some((p) => lower.includes(p.toLowerCase()));
-  if (hasOtherProvince) return false;
 
   // 4. Không nhắc địa danh nào cụ thể → loại (bài chung chung toàn quốc)
   return false;

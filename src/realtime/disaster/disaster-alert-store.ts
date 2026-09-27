@@ -281,21 +281,29 @@ export function purgeNonLamDongAlerts(): number {
     totalDeleted += Number(result.changes);
   }
 
-  // Xóa theo title/summary chứa tỉnh khác mà KHÔNG chứa Lâm Đồng
-  const lamDongMarkers = ["Lâm Đồng", "Đà Lạt", "Bảo Lộc", "Đức Trọng", "Di Linh",
-    "Phan Thiết", "Gia Nghĩa", "Đắk Nông", "Bình Thuận"];
+  // Xóa theo title/summary chứa tỉnh khác mà KHÔNG chứa địa danh Lâm Đồng cụ thể
+  // LƯU Ý: KHÔNG include area vì nó mặc định là "Lâm Đồng"
+  const lamDongMarkers = ["Đà Lạt", "Bảo Lộc", "Đức Trọng", "Di Linh",
+    "Đơn Dương", "Lạc Dương", "Lâm Hà", "Đạ Huoai", "Đạ Tẻh", "Cát Tiên",
+    "Bảo Lâm", "Đam Rông",
+    "Phan Thiết", "Hàm Thuận", "Bắc Bình", "Tuy Phong", "La Gi", "Tánh Linh",
+    "Gia Nghĩa", "Đắk R'lấp", "Đắk Song", "Đắk Mil", "Krông Nô", "Đắk Glong",
+    "đèo Prenn", "đèo Bảo Lộc", "đèo Mimosa", "đèo Đại Ninh",
+    "hồ Đa Nhim", "hồ Tuyền Lâm", "hồ Sông Quao"];
 
-  const allAlerts = db.prepare(`SELECT id, title, summary, area FROM disaster_alerts`).all() as Array<{
-    id: string; title: string; summary: string; area: string;
+  const allAlerts = db.prepare(`SELECT id, title, summary FROM disaster_alerts`).all() as Array<{
+    id: string; title: string; summary: string;
   }>;
 
   const deleteById = db.prepare(`DELETE FROM disaster_alerts WHERE id = ?`);
 
   for (const alert of allAlerts) {
-    const combined = `${alert.title} ${alert.summary} ${alert.area}`.toLowerCase();
+    // Chỉ kiểm tra title + summary, KHÔNG include area
+    const combined = `${alert.title} ${alert.summary}`.toLowerCase();
     const hasLamDong = lamDongMarkers.some((m) => combined.includes(m.toLowerCase()));
     const hasOther = otherProvinces.some((p) => combined.includes(p.toLowerCase()));
 
+    // Nhắc tỉnh khác mà KHÔNG nhắc địa danh Lâm Đồng → xóa
     if (hasOther && !hasLamDong) {
       deleteById.run(alert.id);
       totalDeleted++;

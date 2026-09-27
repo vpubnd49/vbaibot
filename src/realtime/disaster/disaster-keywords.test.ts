@@ -84,8 +84,15 @@ describe("disaster-keywords", () => {
 
   // ───── isAboutLamDong (lọc địa lý) ────────────────────────────────────────
 
-  it("nguồn Báo Lâm Đồng → luôn đạt", () => {
+  it("nguồn Báo Lâm Đồng + nội dung chung → đạt", () => {
     assert.equal(isAboutLamDong("Mưa lớn gây ngập", "Báo Lâm Đồng - Thời sự"), true);
+  });
+
+  it("nguồn Báo Lâm Đồng nhưng đưa tin Đắk Lắk/Khánh Hòa → LOẠI", () => {
+    assert.equal(
+      isAboutLamDong("Cảnh báo lũ quét và sạt lở đất tại tỉnh Đắk Lắk, Khánh Hòa", "Báo Lâm Đồng - Thời sự"),
+      false,
+    );
   });
 
   it("nguồn baolamdong.vn → luôn đạt", () => {
