@@ -13,6 +13,7 @@
  */
 import { createLogger } from "../../shared/logger.js";
 import { fetchPagePosts } from "./facebook-client.js";
+import { scrapePublicPagePosts } from "./facebook-public-scraper.js";
 import {
   listEnabledFacebookPages,
   upsertFacebookPost,
@@ -32,19 +33,23 @@ const DEFAULT_INTERVAL_MS = 30 * 60 * 1000; // 30 phút
 
 /**
  * Cào bài mới từ 1 page.
+ * - Có token → dùng Graph API (chất lượng cao)
+ * - Không token → fallback cào mbasic.facebook.com (trang công khai)
  * Trả về số bài mới đã lưu.
  */
 async function crawlSinglePage(page: FacebookPageConfig): Promise<number> {
-  if (!page.encryptedToken) {
-    log.debug({ pageId: page.pageId, pageName: page.pageName }, "Page chưa có token — bỏ qua");
-    return 0;
+  if (page.encryptedToken) {
+    // ═══ Đường 1: Graph API (có token) ═══
+    return crawlViaGraphApi(page);
   }
 
-  // Giải mã token — hiện tại lưu plaintext, sau này sẽ mã hóa AES
-  // TODO: decrypt bằng CREDENTIALS_ENCRYPTION_KEY khi có
-  const accessToken = page.encryptedToken;
+  // ═══ Đường 2: Fallback cào trang công khai ═══
+  return crawlViaPublicScraper(page);
+}
 
-  // Lấy thời điểm bài mới nhất đã cào, chỉ lấy bài SAU đó
+/** Cào qua Graph API (cần Page Access Token) */
+async function crawlViaGraphApi(page: FacebookPageConfig): Promise<number> {
+  const accessToken = page.encryptedToken;
   const lastPostTime = getLatestPostTime(page.pageId);
   const since = lastPostTime ?? undefined;
 
@@ -58,7 +63,6 @@ async function crawlSinglePage(page: FacebookPageConfig): Promise<number> {
 
     let newCount = 0;
     for (const post of posts) {
-      // Bỏ qua bài không có nội dung text
       if (!post.message?.trim()) continue;
 
       upsertFacebookPost({
@@ -75,16 +79,72 @@ async function crawlSinglePage(page: FacebookPageConfig): Promise<number> {
     }
 
     markPageCrawled(page.pageId);
-
     if (newCount > 0) {
-      log.info({ pageId: page.pageId, pageName: page.pageName, newCount }, "Đã cào bài mới từ Facebook");
+      log.info({ pageId: page.pageId, pageName: page.pageName, newCount, via: "graph-api" }, "Đã cào bài mới từ Facebook");
     }
-
     return newCount;
   } catch (err) {
-    log.warn({ err, pageId: page.pageId, pageName: page.pageName }, "Lỗi cào Facebook page");
+    log.warn({ err, pageId: page.pageId, pageName: page.pageName }, "Lỗi cào Facebook qua Graph API");
     return 0;
   }
+}
+
+/** Cào trang công khai qua mbasic.facebook.com (không cần token) */
+async function crawlViaPublicScraper(page: FacebookPageConfig): Promise<number> {
+  // Dùng page slug từ URL hoặc pageId
+  const slug = extractPageSlug(page);
+
+  try {
+    const posts = await scrapePublicPagePosts(slug, 5);
+
+    let newCount = 0;
+    for (const post of posts) {
+      if (!post.message?.trim()) continue;
+
+      upsertFacebookPost({
+        postId: post.postId,
+        pageId: page.pageId,
+        pageName: page.pageName,
+        message: post.message,
+        permalink: post.permalink,
+        imageUrl: post.imageUrl,
+        createdAt: post.createdAt,
+        category: page.category,
+      });
+      newCount++;
+    }
+
+    markPageCrawled(page.pageId);
+    if (newCount > 0) {
+      log.info({ pageId: page.pageId, pageName: page.pageName, newCount, via: "public-scraper" }, "Đã cào bài công khai từ Facebook");
+    }
+    return newCount;
+  } catch (err) {
+    log.warn({ err, pageId: page.pageId, pageName: page.pageName }, "Lỗi cào Facebook page công khai");
+    return 0;
+  }
+}
+
+/**
+ * Trích slug từ pageUrl hoặc pageId.
+ * VD: "https://www.facebook.com/tintucphanthiet" → "tintucphanthiet"
+ *     "https://www.facebook.com/profile.php?id=100076386510860" → "profile.php?id=100076386510860"
+ */
+function extractPageSlug(page: FacebookPageConfig): string {
+  if (page.pageUrl) {
+    try {
+      const url = new URL(page.pageUrl);
+      const pathname = url.pathname.replace(/^\/+|\/+$/g, "");
+      if (pathname === "profile.php") {
+        // profile.php?id=XXXXX
+        return `profile.php?id=${url.searchParams.get("id") ?? page.pageId}`;
+      }
+      return pathname || page.pageId;
+    } catch {
+      return page.pageId;
+    }
+  }
+  return page.pageId;
 }
 
 /**
