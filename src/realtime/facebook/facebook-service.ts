@@ -37,7 +37,7 @@ const DEFAULT_PAGES = [
   },
   {
     pageId: "lacaidalat",
-    pageName: "Là Cái Đà Lạt",
+    pageName: "Lá Cải Đà Lạt",
     pageUrl: "https://www.facebook.com/lacaidalat",
     category: "lam_dong",
   },
