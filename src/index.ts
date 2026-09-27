@@ -10,6 +10,7 @@ import { startThanhtraSyncTask } from "./thanhtra/thanhtra-service.js";
 import { startQpplSyncTask } from "./qppl/qppl-service.js";
 import { seedDefaultFacebookPages } from "./realtime/facebook/facebook-service.js";
 import { startFacebookCrawler, stopFacebookCrawler } from "./realtime/facebook/facebook-page-crawler.js";
+import { startDisasterCrawler, stopDisasterCrawler } from "./realtime/disaster/disaster-alert-crawler.js";
 import { startAllAccounts, stopAllAccounts } from "./zalo/account-manager.js";
 
 // Vòng đời tiến trình cũng cần scope: không có thì badge scope trên trang Logs
@@ -38,6 +39,7 @@ function shutdown(signal: string): void {
   if (shuttingDown) return;
   shuttingDown = true;
   logger.info({ signal }, "Đang tắt zalo-agent...");
+  stopDisasterCrawler();
   stopFacebookCrawler();
   stopScheduler();
   stopDashboardServer();
@@ -79,6 +81,8 @@ startQpplSyncTask();
 seedDefaultFacebookPages();
 // Cào bài Facebook mới mỗi 30 phút
 startFacebookCrawler();
+// Cào cảnh báo thiên tai (sạt lở, ngập, xả lũ) mỗi 15 phút từ FB + RSS
+startDisasterCrawler();
 
 startDashboardServer();
 startAllAccounts()

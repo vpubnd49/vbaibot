@@ -35,8 +35,9 @@ QUY TẮC BẮT BUỘC:
 NỘI DUNG BẢN TIN:
 1) Lời chào buổi sáng thật năng lượng, thân thiện, có emoji vui tươi phù hợp với nhóm.
 2) Dự báo thời tiết hôm nay theo thời gian thực (tra cứu bằng weather_lookup).
-3) Điểm nhanh 1-2 tin tức thời sự/kinh tế nổi bật hoặc giá vàng/ngoại tệ hôm nay nếu phù hợp.
-4) Lời chúc ngày mới làm việc tràn đầy hứng khởi, may mắn và đạt nhiều thành công.
+3) ⚠️ CẢNH BÁO THIÊN TAI (BẮT BUỘC): Tra cứu bằng disaster_alert_lookup — nếu có cảnh báo sạt lở, ngập lụt, xả lũ hồ đập hoặc mưa bão, ĐƯA LÊN ĐẦU TIÊN ngay sau lời chào, trước cả thời tiết. Dùng emoji ⚠️🔴🟠 phù hợp mức cảnh báo. Nếu không có cảnh báo thì bỏ qua mục này.
+4) Điểm nhanh 1-2 tin tức thời sự/kinh tế nổi bật hoặc giá vàng/ngoại tệ hôm nay nếu phù hợp.
+5) Lời chúc ngày mới làm việc tràn đầy hứng khởi, may mắn và đạt nhiều thành công.
 
 Trình bày ngắn gọn, súc tích, đẹp mắt, dễ đọc trên điện thoại.`;
 

@@ -52,6 +52,7 @@ QUY TẮC BẮT BUỘC:
 - BẮT BUỘC mỗi bản tin phải có phong cách, cách mở đầu, cấu trúc trình bày KHÁC NHAU so với những bản tin trước — KHÔNG ĐƯỢC rập khuôn cùng một kiểu tiêu đề, cùng một bố cục, cùng cách chào hỏi mỗi ngày. Hãy sáng tạo!
 
 NỘI DUNG BẢN TIN (sử dụng news_lookup hoặc web_search để lấy tin mới nhất hôm nay):
+0) ⚠️ CẢNH BÁO THIÊN TAI (BẮT BUỘC KIỂM TRA): Dùng disaster_alert_lookup — nếu có cảnh báo sạt lở, ngập lụt, xả lũ hồ đập, mưa bão tại Lâm Đồng thì ĐƯA LÊN ĐẦU TIÊN với emoji ⚠️🔴🟠 nổi bật. Nếu không có thì bỏ qua.
 1) 🌲 TIÊU ĐIỂM LÂM ĐỒNG: 1-2 tin tức nổi bật nhất về kinh tế, nông nghiệp, du lịch, giao thông, chỉ đạo điều hành của tỉnh Lâm Đồng.
 2) 📈 KINH TẾ & THỊ TRƯỜNG: Điểm tin khởi động phiên giao dịch, tài chính, đầu tư, chính sách mới.
 3) 🛡️ XÃ HỘI & AN NINH QUỐC PHÒNG: Tin tức thời sự quan trọng trong nước.
@@ -73,6 +74,7 @@ QUY TẮC BẮT BUỘC:
 - BẮT BUỘC mỗi bản tin phải có phong cách, cách mở đầu, cấu trúc trình bày KHÁC NHAU — sáng tạo cách viết, KHÔNG rập khuôn!
 
 NỘI DUNG BẢN TIN (sử dụng news_lookup hoặc web_search để lấy tin nóng vừa diễn ra):
+0) ⚠️ CẢNH BÁO THIÊN TAI (BẮT BUỘC KIỂM TRA): Dùng disaster_alert_lookup — nếu có cảnh báo sạt lở, ngập lụt, xả lũ hồ đập, mưa bão tại Lâm Đồng thì ĐƯA LÊN ĐẦU TIÊN với emoji ⚠️🔴🟠 nổi bật. Nếu không có thì bỏ qua.
 1) 🌲 DIỄN BIẾN MỚI TẠI LÂM ĐỒNG: Tin tức thời sự, sự kiện, đời sống xã hội diễn ra trong ngày tại địa phương.
 2) 📊 THỊ TRƯỜNG & KINH DOANH: Cập nhật diễn biến kinh tế, thị trường tài chính phiên sáng/đầu chiều.
 3) 🌐 THỜI SỰ NÓNG TRONG NƯỚC & QUỐC TẾ: Các sự kiện an ninh, trật tự, xã hội, công nghệ đáng chú ý nhất.
@@ -93,6 +95,7 @@ QUY TẮC BẮT BUỘC:
 - BẮT BUỘC mỗi bản tin phải có phong cách, cách mở đầu, cấu trúc trình bày KHÁC NHAU — sáng tạo cách viết, KHÔNG rập khuôn!
 
 NỘI DUNG BẢN TIN (sử dụng news_lookup hoặc web_search để tổng hợp tiêu điểm trong ngày):
+0) ⚠️ CẢNH BÁO THIÊN TAI (BẮT BUỘC KIỂM TRA): Dùng disaster_alert_lookup — nếu có cảnh báo sạt lở, ngập lụt, xả lũ hồ đập, mưa bão tại Lâm Đồng thì ĐƯA LÊN ĐẦU TIÊN với emoji ⚠️🔴🟠 nổi bật. Nếu không có thì bỏ qua.
 1) 🌲 TIÊU ĐIỂM NỔI BẬT LÂM ĐỒNG: Tổng hợp sự kiện, văn hóa, đời sống xã hội tiêu biểu trong ngày tại Lâm Đồng.
 2) 🏆 VĂN HÓA & THỂ THAO: Điểm tin thể thao trong nước/quốc tế, sự kiện văn hóa nghệ thuật hot.
 3) 🌍 TIÊU ĐIỂM TOÀN CẢNH: 2-3 tin tức lớn nhất trong ngày về kinh tế, chính sách, khoa học công nghệ.

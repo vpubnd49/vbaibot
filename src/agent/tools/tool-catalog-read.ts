@@ -21,6 +21,7 @@ import { createQpplLamdongTool } from "./qppl-lamdong-tool.js";
 import { createNationalLegalTool } from "./national-legal-tool.js";
 import { createTranscribeAudioTool } from "./transcribe-audio-tool.js";
 import { createSearchNoiChinhTool } from "./search-noi-chinh-tool.js";
+import { createDisasterAlertTool } from "./disaster-alert-tool.js";
 
 /**
  * Nhóm "read" của catalog tool - tra cứu, không tác động ra ngoài. Tách khỏi
@@ -76,6 +77,16 @@ export const READ_TOOL_DEFINITIONS: ToolDefinition[] = [
       "Tra cứu thời tiết thời gian thực và dự báo 3 ngày cho 34 tỉnh/thành phố và các huyện/TP tỉnh Lâm Đồng",
     group: "read",
     build: () => createWeatherTool(),
+  },
+  {
+    key: "disaster_alert_lookup",
+    label: "Cảnh báo thiên tai Lâm Đồng",
+    description:
+      "Tra cứu cảnh báo sạt lở, mưa bão, ngập lụt, xả lũ hồ đập thủy điện/thủy lợi " +
+      "(Đa Nhim, Hàm Thuận, Đa Mi, Sông Quao, Ba Bàu...) và giao thông đèo toàn tỉnh Lâm Đồng mới. " +
+      "Dữ liệu từ Facebook, Báo Lâm Đồng, Cổng TTĐT cập nhật mỗi 15 phút.",
+    group: "read",
+    build: () => createDisasterAlertTool(),
   },
   {
     key: "finance_rates_lookup",
