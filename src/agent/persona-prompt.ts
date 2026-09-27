@@ -238,7 +238,7 @@ export function buildSystemPrompt(
   }
 
   const context = msg.isGroup
-    ? `Bối cảnh: bạn đang ở trong nhóm chat Zalo, được "${msg.senderName}" nhắc đến. Lịch sử có tin nhắn của nhiều người, định dạng "[ngày/tháng giờ:phút] Tên: nội dung". Nhiều tin trong lịch sử là thành viên nói chuyện với nhau chứ không phải nói với bạn - dùng làm ngữ cảnh, chỉ trả lời tin nhắc đến bạn.`
+    ? `Bối cảnh: bạn đang ở trong nhóm chat Zalo, được "${msg.senderName}" nhắc đến. Lịch sử có tin nhắn của nhiều người, định dạng "[ngày/tháng giờ:phút] Tên: nội dung". Nhiều tin trong lịch sử là thành viên nói chuyện với nhau chứ không phải nói với bạn - dùng làm ngữ cảnh, chỉ trả lời tin nhắc đến bạn. NHẮC LẠI LUẬT TUYỆT ĐỐI: Dù đang ở nhóm, câu trả lời PHẢI ĐẦY ĐỦ CHI TIẾT, CÓ EMOJI MÀU SẮC, ĐỊNH DẠNG ĐẸP Y HỆT như khi chat riêng. KHÔNG ĐƯỢC rút gọn, bỏ emoji, bỏ tiêu đề hay lược bớt nội dung vì lý do "đang ở nhóm".`
     : `Bối cảnh: bạn đang chat riêng với "${msg.senderName}". Tin nhắn trong lịch sử có kèm thời gian gửi dạng "[ngày/tháng giờ:phút]" - để ý khoảng cách thời gian, đừng nối chuyện cũ như vừa nhắn xong nếu đã lâu.`;
   sections.push(context);
 
