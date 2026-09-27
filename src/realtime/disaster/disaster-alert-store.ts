@@ -246,3 +246,65 @@ export function cleanupExpiredAlerts(): number {
   }
   return deleted;
 }
+
+/**
+ * Xóa cảnh báo KHÔNG thuộc tỉnh Lâm Đồng (sau sáp nhập).
+ * Dùng khi cần dọn dữ liệu cũ đã lưu trước khi có bộ lọc địa lý.
+ *
+ * Lâm Đồng mới = Lâm Đồng gốc + Đắk Nông + Bình Thuận.
+ * Loại tất cả cảnh báo có area chứa tên tỉnh khác.
+ */
+export function purgeNonLamDongAlerts(): number {
+  // Các tỉnh KHÔNG thuộc Lâm Đồng mới
+  const otherProvinces = [
+    "Đắk Lắk", "Dak Lak", "Buôn Ma Thuột",
+    "Khánh Hòa", "Nha Trang", "Cam Ranh",
+    "Ninh Thuận", "Phan Rang",
+    "Phú Yên", "Tuy Hòa",
+    "Gia Lai", "Pleiku", "Kon Tum",
+    "Bình Định", "Quy Nhơn",
+    "Quảng Nam", "Quảng Ngãi", "Đà Nẵng",
+    "Đồng Nai", "Biên Hòa",
+    "Bình Dương", "Bình Phước",
+    "Bà Rịa", "Vũng Tàu",
+    "Hồ Chí Minh", "Sài Gòn", "Tây Ninh",
+    "Hà Nội", "Hải Phòng", "Huế",
+    "Nghệ An", "Hà Tĩnh", "Thanh Hóa",
+  ];
+
+  let totalDeleted = 0;
+
+  // Xóa theo area
+  const deleteByArea = db.prepare(`DELETE FROM disaster_alerts WHERE area LIKE ?`);
+  for (const prov of otherProvinces) {
+    const result = deleteByArea.run(`%${prov}%`);
+    totalDeleted += Number(result.changes);
+  }
+
+  // Xóa theo title/summary chứa tỉnh khác mà KHÔNG chứa Lâm Đồng
+  const lamDongMarkers = ["Lâm Đồng", "Đà Lạt", "Bảo Lộc", "Đức Trọng", "Di Linh",
+    "Phan Thiết", "Gia Nghĩa", "Đắk Nông", "Bình Thuận"];
+
+  const allAlerts = db.prepare(`SELECT id, title, summary, area FROM disaster_alerts`).all() as Array<{
+    id: string; title: string; summary: string; area: string;
+  }>;
+
+  const deleteById = db.prepare(`DELETE FROM disaster_alerts WHERE id = ?`);
+
+  for (const alert of allAlerts) {
+    const combined = `${alert.title} ${alert.summary} ${alert.area}`.toLowerCase();
+    const hasLamDong = lamDongMarkers.some((m) => combined.includes(m.toLowerCase()));
+    const hasOther = otherProvinces.some((p) => combined.includes(p.toLowerCase()));
+
+    if (hasOther && !hasLamDong) {
+      deleteById.run(alert.id);
+      totalDeleted++;
+    }
+  }
+
+  if (totalDeleted > 0) {
+    log.info({ totalDeleted }, "Đã xóa cảnh báo không thuộc Lâm Đồng");
+  }
+
+  return totalDeleted;
+}

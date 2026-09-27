@@ -24,6 +24,7 @@ import {
   upsertDisasterAlert,
   alertExistsBySourceUrl,
   cleanupExpiredAlerts,
+  purgeNonLamDongAlerts,
   type AlertLevel,
 } from "./disaster-alert-store.js";
 
@@ -311,6 +312,12 @@ export function startDisasterCrawler(intervalMs = DEFAULT_INTERVAL_MS): void {
   }
 
   log.info({ intervalMinutes: intervalMs / 60_000 }, "Khởi động disaster alert crawler");
+
+  // Dọn cảnh báo tỉnh khác còn sót lại trong DB
+  const purged = purgeNonLamDongAlerts();
+  if (purged > 0) {
+    log.info({ purged }, "Dọn sạch cảnh báo không thuộc Lâm Đồng khi khởi động");
+  }
 
   // Chạy ngay lần đầu (sau 15s delay để FB crawler chạy trước)
   setTimeout(() => {
