@@ -53,8 +53,10 @@ export async function fetchNewsArticles(
     // RSS cũ của Báo Lâm Đồng thường trả 404/timeout. Thử danh sách endpoint
     // theo thứ tự; nếu tất cả hỏng thì phần web-search bên dưới vẫn là fallback.
     const ldFeeds = [
-      ["https://baolamdong.vn/rss/thoi-su", "Báo Lâm Đồng"],
       ["https://baolamdong.vn/rss/trang-chu", "Báo Lâm Đồng"],
+      ["https://baolamdong.vn/rss/thoi-su", "Báo Lâm Đồng - Thời sự"],
+      ["https://baolamdong.vn/rss/chinh-tri", "Báo Lâm Đồng - Chính trị"],
+      ["https://baolamdong.vn/rss/kinh-te", "Báo Lâm Đồng - Kinh tế"],
       ["https://lamdong.gov.vn/rss/tin-tuc-su-kien", "Cổng TTĐT Lâm Đồng"],
     ] as const;
     let ldRss = [] as Awaited<ReturnType<typeof crawlRssFeed>>;
