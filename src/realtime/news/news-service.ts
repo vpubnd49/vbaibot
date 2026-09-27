@@ -120,7 +120,41 @@ export async function fetchNewsArticles(
     }
   }
 
-  // 2. Nếu thiếu hoặc có query cụ thể, dùng tìm kiếm nâng cao với site filtering
+  // 2. Phát hiện tên đèo huyết mạch → ưu tiên tìm kiếm chuyên sâu
+  const DEOS_HUYET_MACH = [
+    "d'ran", "dran", "đại ninh", "gia bắc", "sông pha", "khánh lê",
+    "prenn", "mimosa", "tuyền lâm", "tà đùng", "bảo lộc", "đèo", "sạt lở", "tắc đường",
+    "đường lên đà lạt", "đường đèo", "giao thông lâm đồng",
+  ];
+  const queryLower = (query ?? "").toLowerCase();
+  const isDeoQuery = DEOS_HUYET_MACH.some((d) => queryLower.includes(d));
+
+  // Nếu hỏi về đèo mà chưa có bài nào phù hợp, ép lấy thêm từ RSS + web
+  if (isDeoQuery && articles.length < 6) {
+    try {
+      const deoRss = await crawlRssFeed(
+        "https://baolamdong.vn/rss/thoi-su", "Báo Lâm Đồng - Thời sự", 5, fetchFn,
+      );
+      for (const item of deoRss) {
+        const lowerTitle = item.title.toLowerCase();
+        const lowerDesc = (item.description ?? "").toLowerCase();
+        // Chỉ thêm bài có liên quan đến đèo/sạt lở/giao thông
+        if (DEOS_HUYET_MACH.some((d) => lowerTitle.includes(d) || lowerDesc.includes(d))) {
+          if (!articles.some((a) => a.link === item.link)) {
+            articles.push({
+              title: item.title,
+              link: item.link,
+              source: item.source + " (đèo/giao thông)",
+              snippet: item.description,
+              pubDate: item.pubDate,
+            });
+          }
+        }
+      }
+    } catch { /* fallback to web search below */ }
+  }
+
+  // 3. Nếu thiếu hoặc có query cụ thể, dùng tìm kiếm nâng cao với site filtering
   if (articles.length < 3 || query) {
     let siteFilter = "";
     let baseQuery = query ? query.trim() : "";
