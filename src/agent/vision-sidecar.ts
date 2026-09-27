@@ -77,36 +77,73 @@ export type SidecarCaller = (
   maxTokens?: number,
 ) => Promise<SidecarResult>;
 
+/**
+ * Gọi vision qua OpenAI-compatible API với hỗ trợ fallback:
+ * 1. Gọi settings chính (9router / custom OpenAI-compatible / sidecar) với model đã cấu hình
+ * 2. Nếu lỗi và hệ thống có cấu hình Google API riêng, tự động fallback sang Google Vision trực tiếp
+ */
+async function callOpenAICompatibleVision(
+  settings: VisionSidecarSettings,
+  image: SidecarImage,
+  prompt: string,
+  maxOutputTokens: number,
+): Promise<SidecarResult> {
+  const tryCall = async (s: VisionSidecarSettings, modelName: string): Promise<SidecarResult> => {
+    const provider = createOpenAICompatible({
+      name: "vision-sidecar",
+      baseURL: s.baseUrl,
+      apiKey: s.apiKey,
+    });
+    const result = await chayStream((onError) =>
+      streamText({
+        model: provider(modelName),
+        messages: [
+          {
+            role: "user",
+            content: [
+              { type: "file", data: image.base64, mediaType: image.mediaType },
+              { type: "text", text: prompt },
+            ],
+          },
+        ],
+        maxOutputTokens,
+        maxRetries: 1,
+        onError,
+      }),
+    );
+    return { text: result.text.trim(), truncated: result.finishReason === "length" };
+  };
+
+  try {
+    return await tryCall(settings, settings.model || DOCUMENT_EXTRACTION_MODEL);
+  } catch (primaryErr) {
+    const { getGoogleSettings } = await import("../config/runtime-google-settings.js");
+    const google = getGoogleSettings();
+    if (google.apiKey && (google.baseUrl !== settings.baseUrl || google.apiKey !== settings.apiKey)) {
+      try {
+        log.warn(
+          { err: primaryErr, primaryModel: settings.model },
+          "Sidecar chính lỗi, tự động fallback sang Google Vision trực tiếp",
+        );
+        return await tryCall(
+          {
+            baseUrl: google.baseUrl || "https://generativelanguage.googleapis.com/v1beta/openai",
+            apiKey: google.apiKey,
+            model: google.model || DOCUMENT_EXTRACTION_MODEL,
+          },
+          google.model || DOCUMENT_EXTRACTION_MODEL,
+        );
+      } catch (fallbackErr) {
+        log.error({ fallbackErr }, "Google Vision fallback cũng thất bại");
+      }
+    }
+    throw primaryErr;
+  }
+}
+
 /** Đường gọi thật - tách ra để test tiêm caller giả, không chạm mạng */
 const defaultCaller: SidecarCaller = async (settings, image, prompt) => {
-  const provider = createOpenAICompatible({
-    name: "vision-sidecar",
-    baseURL: settings.baseUrl,
-    apiKey: settings.apiKey,
-  });
-  // Streaming như mọi lời gọi LLM khác trong dự án. Sidecar hiện trỏ thẳng
-  // Gemini nên không dính 524 của Cloudflare, NHƯNG base URL là thứ chỉnh được
-  // từ dashboard - trỏ nó về router là dính ngay. Giữ một bất biến "không còn
-  // lời gọi LLM non-stream nào" rẻ hơn việc nhớ chỗ nào đang được miễn và vì sao.
-  const result = await chayStream((onError) =>
-    streamText({
-      model: provider(settings.model || DOCUMENT_EXTRACTION_MODEL),
-      messages: [
-        {
-          role: "user",
-          content: [
-            { type: "file", data: image.base64, mediaType: image.mediaType },
-            { type: "text", text: prompt },
-          ],
-        },
-      ],
-      maxOutputTokens: DESCRIBE_MAX_TOKENS,
-      maxRetries: 1,
-      onError,
-    }),
-  );
-  // finishReason "length" = model đang viết dở thì chạm trần token
-  return { text: result.text.trim(), truncated: result.finishReason === "length" };
+  return callOpenAICompatibleVision(settings, image, prompt, DESCRIBE_MAX_TOKENS);
 };
 
 /**
@@ -135,8 +172,9 @@ export async function describeImage(
     if (!description) return null;
     // Mô tả cụt vẫn DÙNG được cho lượt này (có còn hơn không), nhưng TUYỆT ĐỐI
     // không cache: bản cụt sẽ sống mãi và mọi lượt sau đều đọc phải nó
+    const usedModel = settings.sidecar.model || DOCUMENT_EXTRACTION_MODEL;
     if (image.cacheKey && !truncated) {
-      saveImageDescription(image.cacheKey, description, DOCUMENT_EXTRACTION_MODEL);
+      saveImageDescription(image.cacheKey, description, usedModel);
     }
     if (truncated) {
       log.warn(
@@ -145,7 +183,7 @@ export async function describeImage(
       );
     } else {
       log.info(
-        { cacheKey: image.cacheKey, model: DOCUMENT_EXTRACTION_MODEL, chars: description.length },
+        { cacheKey: image.cacheKey, model: usedModel, chars: description.length },
         "Sidecar đã mô tả ảnh",
       );
     }
@@ -185,61 +223,17 @@ export async function ensureDescriptionsFor(
 
 /** Caller riêng cho askAboutImage: cùng logic defaultCaller nhưng trần token cao hơn */
 const askDefaultCaller: SidecarCaller = async (settings, image, prompt) => {
-  const provider = createOpenAICompatible({
-    name: "vision-sidecar",
-    baseURL: settings.baseUrl,
-    apiKey: settings.apiKey,
-  });
-  const result = await chayStream((onError) =>
-    streamText({
-        model: provider(DOCUMENT_EXTRACTION_MODEL),
-      messages: [
-        {
-          role: "user",
-          content: [
-            { type: "file", data: image.base64, mediaType: image.mediaType },
-            { type: "text", text: prompt },
-          ],
-        },
-      ],
-      maxOutputTokens: ASK_MAX_TOKENS,
-      maxRetries: 1,
-      onError,
-    }),
-  );
-  return { text: result.text.trim(), truncated: result.finishReason === "length" };
+  return callOpenAICompatibleVision(settings, image, prompt, ASK_MAX_TOKENS);
 };
 
 /**
  * Caller chuyên dụng cho batch OCR:
  * - KHÔNG thêm Vietnamese wrapper — prompt thẳng → JSON only → không truncate
  * - Token cao nhất (BATCH_OCR_MAX_TOKENS = 8192)
- * - Dùng credentials sidecar runtime và model extraction policy cố định
+ * - Dùng credentials sidecar runtime và model extraction policy
  */
 const batchOcrCaller: SidecarCaller = async (settings, image, prompt, maxTokens = BATCH_OCR_MAX_TOKENS) => {
-  const provider = createOpenAICompatible({
-    name: "vision-sidecar",
-    baseURL: settings.baseUrl,
-    apiKey: settings.apiKey,
-  });
-  const result = await chayStream((onError) =>
-    streamText({
-      model: provider(settings.model || DOCUMENT_EXTRACTION_MODEL),
-      messages: [
-        {
-          role: "user",
-          content: [
-            { type: "file", data: image.base64, mediaType: image.mediaType },
-            { type: "text", text: prompt },
-          ],
-        },
-      ],
-      maxOutputTokens: maxTokens,
-      maxRetries: 1,
-      onError,
-    }),
-  );
-  return { text: result.text.trim(), truncated: result.finishReason === "length" };
+  return callOpenAICompatibleVision(settings, image, prompt, maxTokens);
 };
 
 /**

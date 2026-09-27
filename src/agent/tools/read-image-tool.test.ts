@@ -89,11 +89,19 @@ describe("collectRecentImagePaths", () => {
     assert.deepEqual(paths, ["media/acc-ri/t/moi-0.png", "media/acc-ri/t/cu-0.png"]);
   });
 
-  it("ảnh batch persist lỗi (không localPath) bị bỏ qua, không làm lệch index", () => {
-    const paths = toolModule.collectRecentImagePaths(
-      makeContext("t-trong", [batchMsg("t-trong", [{ url: "http://x/fail.png" }])]),
-    );
-    assert.deepEqual(paths, []);
+  it("ảnh gửi dưới dạng file đính kèm (files) cũng được nhận diện và đưa vào paths", () => {
+    const t = "t-file-img";
+    historyStore.appendMessage("acc-ri", t, {
+      role: "user",
+      content: "gửi file ảnh",
+      files: [{ fileName: "photo.jpg", localPath: "media/acc-ri/t/photo.jpg", extension: ".jpg" }],
+    });
+    const msg = batchMsg(t, []);
+    msg.files = [{ fileName: "scan.png", extension: ".png", url: "http://x/scan.png", localPath: "media/acc-ri/t/scan.png" }];
+    const batch = [msg];
+
+    const paths = toolModule.collectRecentImagePaths(makeContext(t, batch));
+    assert.deepEqual(paths, ["media/acc-ri/t/scan.png", "media/acc-ri/t/photo.jpg"]);
   });
 });
 

@@ -240,7 +240,8 @@ function boDongPhanCachBang(text: string, daSua: string[]): string {
  *
  * Biểu thức TUYẾN TÍNH nhờ lớp ký tự phủ định `[^<\n]`, cùng luật với cả file.
  */
-const THE_MAU_RE = /<\/?(?:do|red|cam|orange|vang|yellow|xanh|green|blue|gach|u|underline)>|\[\/?(?:do|red|cam|orange|vang|yellow|xanh|green|blue|gach|u|underline)\]/gi;
+const THE_MAU_RE =
+  /<\/?(?:b|strong|i|em|r|do|red|cam|orange|vang|yellow|xanh|green|blue|gach|u|underline|s|strike|del|span)(?:\s+[^>]*)?>|\[\/?(?:b|strong|i|em|r|do|red|cam|orange|vang|yellow|xanh|green|blue|gach|u|underline|s|strike|del)\]/gi;
 
 /**
  * Dịch cú pháp LaTeX lọt vào câu trả lời thành ký tự Unicode.

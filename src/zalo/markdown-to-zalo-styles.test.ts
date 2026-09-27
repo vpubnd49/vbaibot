@@ -422,3 +422,32 @@ describe("markdownSangStyleZalo - dấu VẮT NHIỀU DÒNG", () => {
     assert.equal(ket.styles.length, 2);
   });
 });
+
+describe("markdownSangStyleZalo - thẻ kiểu HTML <b>, <i>, <r>, <red> và dọn thẻ rác", () => {
+  it("thẻ <b> và <r> bóc thẻ và gán đúng Bold, Red", () => {
+    const ket = markdownSangStyleZalo("Họ tên: <b>Trương Hải Châu</b> - Chức vụ: <r>Chuyên viên</r>");
+    assert.equal(ket.text, "Họ tên: Trương Hải Châu - Chức vụ: Chuyên viên");
+    assert.equal(ket.styles.length, 2);
+    assert.equal(ket.styles[0]!.st, TextStyle.Bold);
+    assert.equal(ket.text.slice(ket.styles[0]!.start, ket.styles[0]!.start + ket.styles[0]!.len), "Trương Hải Châu");
+    assert.equal(ket.styles[1]!.st, TextStyle.Red);
+    assert.equal(ket.text.slice(ket.styles[1]!.start, ket.styles[1]!.start + ket.styles[1]!.len), "Chuyên viên");
+  });
+
+  it("thẻ <red> và <i> bóc thẻ và gán đúng Red, Italic", () => {
+    const ket = markdownSangStyleZalo("Kỳ đánh giá: <red>Quý 3</red> năm <i>2026</i>");
+    assert.equal(ket.text, "Kỳ đánh giá: Quý 3 năm 2026");
+    assert.equal(ket.styles.length, 2);
+    assert.equal(ket.styles[0]!.st, TextStyle.Red);
+    assert.equal(ket.styles[1]!.st, TextStyle.Italic);
+  });
+
+  it("thẻ mồ côi như <red>, </red>, <b>, <span> bị dọn sạch, không để lộ ra chat", () => {
+    const ket = markdownSangStyleZalo("Cập nhật: <red>Quý 3 năm 2026 </b> <span>không vỡ thẻ</span>");
+    assert.equal(ket.text.includes("<red>"), false, "không còn thẻ <red>");
+    assert.equal(ket.text.includes("</b>"), false, "không còn thẻ </b>");
+    assert.equal(ket.text.includes("<span>"), false, "không còn thẻ <span>");
+    assert.equal(ket.text.includes("</span>"), false, "không còn thẻ </span>");
+  });
+});
+

@@ -48,30 +48,62 @@ export async function fetchNewsArticles(
     return { category, articles: articles.slice(0, 6), formattedSummary };
   }
 
-  // 1. Thử cào RSS feeds theo chuyên mục
+  // 1. Cào RSS feeds theo chuyên mục — lấy từ TẤT CẢ feeds song song
   if (category === "lam_dong" || category === "tong_hop") {
-    // RSS cũ của Báo Lâm Đồng thường trả 404/timeout. Thử danh sách endpoint
-    // theo thứ tự; nếu tất cả hỏng thì phần web-search bên dưới vẫn là fallback.
     const ldFeeds = [
       ["https://baolamdong.vn/rss/trang-chu", "Báo Lâm Đồng"],
       ["https://baolamdong.vn/rss/thoi-su", "Báo Lâm Đồng - Thời sự"],
       ["https://baolamdong.vn/rss/chinh-tri", "Báo Lâm Đồng - Chính trị"],
       ["https://baolamdong.vn/rss/kinh-te", "Báo Lâm Đồng - Kinh tế"],
+      ["https://baolamdong.vn/rss/quoc-phong-an-ninh", "Báo Lâm Đồng - QP-AN"],
+      ["https://baolamdong.vn/rss/doi-song", "Báo Lâm Đồng - Đời sống"],
+      ["https://baolamdong.vn/rss/phap-luat", "Báo Lâm Đồng - Pháp luật"],
+      ["https://baolamdong.vn/rss/du-lich", "Báo Lâm Đồng - Du lịch"],
       ["https://lamdong.gov.vn/rss/tin-tuc-su-kien", "Cổng TTĐT Lâm Đồng"],
     ] as const;
-    let ldRss = [] as Awaited<ReturnType<typeof crawlRssFeed>>;
-    for (const [url, source] of ldFeeds) {
-      ldRss = await crawlRssFeed(url, source, 4, fetchFn);
-      if (ldRss.length > 0) break;
+    // Lấy song song, mỗi feed tối đa 3 bài, loại trùng link
+    const results = await Promise.allSettled(
+      ldFeeds.map(([url, source]) => crawlRssFeed(url, source, 3, fetchFn)),
+    );
+    const seenLinks = new Set(articles.map((a) => a.link));
+    for (const r of results) {
+      if (r.status !== "fulfilled") continue;
+      for (const item of r.value) {
+        if (seenLinks.has(item.link)) continue;
+        seenLinks.add(item.link);
+        articles.push({
+          title: item.title,
+          link: item.link,
+          source: item.source,
+          snippet: item.description,
+          pubDate: item.pubDate,
+        });
+      }
     }
-    for (const item of ldRss) {
-      articles.push({
-        title: item.title,
-        link: item.link,
-        source: item.source,
-        snippet: item.description,
-        pubDate: item.pubDate,
-      });
+  }
+
+  if (category === "quoc_phong_an_ninh" || category === "tong_hop") {
+    const anFeeds = [
+      ["https://baolamdong.vn/rss/quoc-phong-an-ninh", "Báo Lâm Đồng - QP-AN"],
+      ["https://baolamdong.vn/rss/phap-luat", "Báo Lâm Đồng - Pháp luật"],
+    ] as const;
+    const results = await Promise.allSettled(
+      anFeeds.map(([url, source]) => crawlRssFeed(url, source, 4, fetchFn)),
+    );
+    const seenLinks = new Set(articles.map((a) => a.link));
+    for (const r of results) {
+      if (r.status !== "fulfilled") continue;
+      for (const item of r.value) {
+        if (seenLinks.has(item.link)) continue;
+        seenLinks.add(item.link);
+        articles.push({
+          title: item.title,
+          link: item.link,
+          source: item.source,
+          snippet: item.description,
+          pubDate: item.pubDate,
+        });
+      }
     }
   }
 

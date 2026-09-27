@@ -47,6 +47,24 @@ const DEFAULT_PAGES = [
     pageUrl: "https://www.facebook.com/profile.php?id=100076386510860",
     category: "tong_hop",
   },
+  {
+    pageId: "thoitietlamdong",
+    pageName: "Thời tiết Lâm Đồng",
+    pageUrl: "https://www.facebook.com/thoitietlamdong",
+    category: "lam_dong",
+  },
+  {
+    pageId: "soyteLamDong",
+    pageName: "Sở Y tế Lâm Đồng",
+    pageUrl: "https://www.facebook.com/soyteLamDong",
+    category: "xa_hoi",
+  },
+  {
+    pageId: "dulichlamdong",
+    pageName: "Du lịch Lâm Đồng",
+    pageUrl: "https://www.facebook.com/dulichlamdong",
+    category: "lam_dong",
+  },
 ];
 
 /**

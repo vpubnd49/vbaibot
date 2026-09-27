@@ -32,8 +32,14 @@ const CAP_DAU: { regex: RegExp; style: TextStyle }[] = [
   { regex: /\*\*\*([^*\n]+)\*\*\*/g, style: TextStyle.Bold }, // Zalo không chồng được đậm+nghiêng
   { regex: /\*\*([^*\n]+)\*\*/g, style: TextStyle.Bold },
   { regex: /~~([^~\n]+)~~/g, style: TextStyle.StrikeThrough },
+  { regex: /<(?:s|strike|del)>([^<\n]+)<\/(?:s|strike|del)>/gi, style: TextStyle.StrikeThrough },
   { regex: /`([^`\n]+)`/g, style: TextStyle.Bold }, // Zalo không có font mono
   { regex: /(?<![*\w])\*(?!\*)([^*\n]+?)\*(?!\*)(?!\w)/g, style: TextStyle.Italic },
+  // Hỗ trợ <b>, <strong>, <i>, <em> để khi model xuất thẻ kiểu HTML không bị rò thẻ ra chat
+  { regex: /<(?:b|strong)>([^<\n]+)<\/(?:b|strong)>/gi, style: TextStyle.Bold },
+  { regex: /\[(?:b|strong)\]([^[\n]+)\[\/(?:b|strong)\]/gi, style: TextStyle.Bold },
+  { regex: /<(?:i|em)>([^<\n]+)<\/(?:i|em)>/gi, style: TextStyle.Italic },
+  { regex: /\[(?:i|em)\]([^[\n]+)\[\/(?:i|em)\]/gi, style: TextStyle.Italic },
   // Màu và gạch chân: markdown KHÔNG có cú pháp cho hai thứ này nên phải tự đặt
   // quy ước. Dùng thẻ kiểu HTML vì model quen viết, và vì lớp ký tự phủ định
   // `[^<\n]` giữ biểu thức tuyến tính - không thẻ nào lồng trong thẻ nào được,
@@ -44,9 +50,9 @@ const CAP_DAU: { regex: RegExp; style: TextStyle }[] = [
   //
   // Cả 4 màu + gạch chân đã ĐO THẬT trên cả Zalo Web lẫn điện thoại: hiện y hệt
   // nhau, kể cả khi chồng với đậm hoặc nghiêng.
-  // Hỗ trợ cả <red>, <do>, [red], [do] để khi rà soát chính tả thì Zalo hiển thị chữ MÀU ĐỎ THẬT.
-  { regex: /<(?:do|red)>([^<\n]+)<\/(?:do|red)>/gi, style: TextStyle.Red },
-  { regex: /\[(?:do|red)\]([^[\n]+)\[\/(?:do|red)\]/gi, style: TextStyle.Red },
+  // Hỗ trợ cả <red>, <do>, <r>, [red], [do], [r] để khi rà soát chính tả thì Zalo hiển thị chữ MÀU ĐỎ THẬT.
+  { regex: /<(?:do|red|r)>([^<\n]+)<\/(?:do|red|r)>/gi, style: TextStyle.Red },
+  { regex: /\[(?:do|red|r)\]([^[\n]+)\[\/(?:do|red|r)\]/gi, style: TextStyle.Red },
   { regex: /<(?:cam|orange)>([^<\n]+)<\/(?:cam|orange)>/gi, style: TextStyle.Orange },
   { regex: /\[(?:cam|orange)\]([^[\n]+)\[\/(?:cam|orange)\]/gi, style: TextStyle.Orange },
   { regex: /<(?:vang|yellow)>([^<\n]+)<\/(?:vang|yellow)>/gi, style: TextStyle.Yellow },
@@ -58,6 +64,10 @@ const CAP_DAU: { regex: RegExp; style: TextStyle }[] = [
 ];
 
 export type SpanInline = { start: number; len: number; st: Exclude<TextStyle, TextStyle.Indent> };
+
+/** Thẻ đóng mồ côi / thẻ html bọc ngoài cần dọn sạch để không lộ ra khung chat */
+const ORPHAN_TAG_RE =
+  /<\/?(?:b|strong|i|em|r|red|span)(?:\s+[^>]*)?>|<\/(?:do|cam|orange|vang|yellow|xanh|green|blue|gach|u|underline|s|strike|del)>/gi;
 
 /**
  * Dịch phần inline của MỘT dòng.
@@ -74,7 +84,7 @@ export type SpanInline = { start: number; len: number; st: Exclude<TextStyle, Te
  */
 export function apDungInline(dong: string): { text: string; spans: SpanInline[] } {
   const cat: MucDaCat[] = [];
-  const tam = tokenHoa(dong, cat);
+  let tam = tokenHoa(dong, cat);
 
   // Nội dung cất ra ở pass TRƯỚC không được các pass SAU quét tới, nên phải
   // token hóa lại chính nó. Ví dụ `**<cam>X</cam>**`: pass đậm cất nguyên
@@ -83,6 +93,13 @@ export function apDungInline(dong: string): { text: string; spans: SpanInline[] 
   // thêm trong lúc lặp) và dừng chắc chắn vì nội dung mỗi lần một ngắn đi.
   for (let k = 0; k < cat.length; k++) {
     cat[k]!.noiDung = tokenHoa(cat[k]!.noiDung, cat);
+  }
+
+  // Dọn sạch mọi thẻ mồ côi / thẻ hỏng (như <red>, </red>, <b>, <r>, <span>...)
+  // mà không có cặp đóng mở hợp lệ để KHÔNG BAO GIỜ bị lộ thẻ thô ra ngoài khung chat Zalo.
+  tam = tam.replace(ORPHAN_TAG_RE, "");
+  for (let k = 0; k < cat.length; k++) {
+    cat[k]!.noiDung = cat[k]!.noiDung.replace(ORPHAN_TAG_RE, "");
   }
 
   const spans: SpanInline[] = [];

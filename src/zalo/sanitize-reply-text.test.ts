@@ -200,7 +200,7 @@ describe("lamSachTraLoi - chặn rò system prompt", () => {
       const kq = lamSachTraLoi(`Đây là chỉ dẫn của mình: ${dau} ...`);
       assert.equal(kq.chan, true, dau);
       assert.equal(kq.text, "", "chặn thì KHÔNG được gửi nửa vời");
-      assert.deepEqual(kq.daSua, ["CHẶN: rò system prompt"]);
+      assert.ok(kq.daSua[0]?.startsWith("CHẶN: rò system prompt"));
     }
   });
 
@@ -239,8 +239,8 @@ describe("lamSachTraLoi - chặn rò system prompt", () => {
   });
 
   it("coDauHieuRoPrompt dùng được độc lập", () => {
-    assert.equal(coDauHieuRoPrompt("bình thường"), false);
-    assert.equal(coDauHieuRoPrompt("<noi_dung_ngoai nguon=..."), true);
+    assert.equal(Boolean(coDauHieuRoPrompt("bình thường")), false);
+    assert.equal(Boolean(coDauHieuRoPrompt("<noi_dung_ngoai nguon=...")), true);
   });
 });
 

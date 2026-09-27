@@ -25,8 +25,28 @@
  * Module THUẦN: 0 import.
  */
 
-/** Tên thẻ màu/gạch chân - PHẢI khớp danh sách ở `markdown-inline-styles.ts` */
-const TEN_THE = ["do", "cam", "vang", "xanh", "gach"] as const;
+/** Tên thẻ màu/gạch chân/định dạng - PHẢI khớp danh sách ở `markdown-inline-styles.ts` */
+const TEN_THE = [
+  "do",
+  "red",
+  "r",
+  "b",
+  "strong",
+  "i",
+  "em",
+  "cam",
+  "orange",
+  "vang",
+  "yellow",
+  "xanh",
+  "green",
+  "blue",
+  "gach",
+  "u",
+  "underline",
+  "s",
+  "del",
+] as const;
 const THE_MO_RE = new RegExp(`<(${TEN_THE.join("|")})>`, "gi");
 
 /** Bọc lại từng dòng, bỏ qua dòng trống (bọc dòng trống là đẻ ra span rỗng) */

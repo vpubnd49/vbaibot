@@ -17,7 +17,7 @@ export async function parseSheetMusic(image: { base64: string; mediaType: string
   const vision = getVisionSettings();
   const baseUrl = vision.sidecar.baseUrl;
   const apiKey = vision.sidecar.apiKey;
-  const modelName = DOCUMENT_EXTRACTION_MODEL;
+  const modelName = vision.sidecar.model || DOCUMENT_EXTRACTION_MODEL;
 
   if (!isSidecarConfigured(vision) || !baseUrl || !apiKey) {
     throw new Error("Chưa cấu hình API key/Base URL/Model để đọc ảnh.");
