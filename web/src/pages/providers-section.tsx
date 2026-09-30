@@ -2,7 +2,6 @@ import { SecretInput } from "../shared/secret-input";
 import { SelectMenu } from "../shared/select-menu";
 import { BASE_URL_PRESETS, laUrlGemini, timPreset, TU_NHAP } from "./llm-base-url-presets";
 import { useProviderForm } from "./use-provider-form";
-import { SupplementaryProviders } from "./supplementary-providers";
 
 export function ProvidersSection() {
   const { settings, form, setForm, doiProvider, status, busy, save, test, reset, confirmDialog } =
@@ -141,7 +140,6 @@ export function ProvidersSection() {
         </div>
       </div>
       {confirmDialog}
-      <SupplementaryProviders />
     </div>
   );
 }

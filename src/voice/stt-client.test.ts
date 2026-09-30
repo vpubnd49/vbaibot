@@ -19,7 +19,7 @@ describe("transcribeAudioFile", () => {
       assert.equal((init?.headers as Record<string, string>).Authorization, "Bearer test-key");
       assert.ok(init?.body instanceof FormData);
       const body = init.body as FormData;
-       assert.equal(body.get("model"), "gemini-2.5-flash");
+       assert.equal(body.get("model"), "gemini-3.8-flash");
       assert.equal(body.get("language"), "vi");
       assert.equal(body.get("response_format"), "json");
       return new Response(JSON.stringify({ text: "  Xin chào tiếng Việt  " }), { status: 200 });
@@ -33,7 +33,7 @@ describe("transcribeAudioFile", () => {
         language: "vi",
         protocol: "transcriptions",
       });
-      assert.deepEqual(result, { text: "Xin chào tiếng Việt", provider: "openai-compatible", model: "gemini-2.5-flash" });
+      assert.deepEqual(result, { text: "Xin chào tiếng Việt", provider: "openai-compatible", model: "gemini-3.8-flash" });
       assert.equal(request?.url, "https://stt.test/v1/audio/transcriptions");
     } finally {
       globalThis.fetch = originalFetch;
@@ -82,14 +82,14 @@ describe("transcribeAudioFile", () => {
       const result = await transcribeAudioFile(audioPath, "ghi-am.mp3", {
         baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai",
         apiKey: "AQ.fake-key",
-        model: "gemini-2.5-flash",
+        model: "gemini-3.8-flash",
       });
       assert.deepEqual(result, {
         text: "Nội dung từ Gemini audio",
         provider: "openai-compatible",
-        model: "gemini-2.5-flash",
+        model: "gemini-3.8-flash",
       });
-      assert.ok(request?.url.includes("models/gemini-2.5-flash:generateContent?key=AQ.fake-key"));
+      assert.ok(request?.url.includes("models/gemini-3.8-flash:generateContent?key=AQ.fake-key"));
     } finally {
       globalThis.fetch = originalFetch;
     }

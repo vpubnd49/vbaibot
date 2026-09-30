@@ -94,9 +94,13 @@ async function callOpenAICompatibleVision(
       baseURL: s.baseUrl,
       apiKey: s.apiKey,
     });
+    let effModel = modelName;
+    if (s.baseUrl?.includes("9router.flowgiare.com") && !effModel.startsWith("ag/")) {
+      effModel = `ag/${effModel}`;
+    }
     const result = await chayStream((onError) =>
       streamText({
-        model: provider(modelName),
+        model: provider(effModel),
         messages: [
           {
             role: "user",

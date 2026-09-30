@@ -124,7 +124,11 @@ export function taoLanguageModel(
         // LiteLLM/OpenRouter/vLLM đều đòi cờ này.
         includeUsage: true,
       });
-      return provider(settings.model);
+      let modelName = settings.model;
+      if (settings.baseUrl.includes("9router.flowgiare.com") && !modelName.startsWith("ag/")) {
+        modelName = `ag/${modelName}`;
+      }
+      return provider(modelName);
     }
 
     case "google": {
