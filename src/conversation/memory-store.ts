@@ -156,3 +156,73 @@ const deleteStmt = db.prepare("DELETE FROM memories WHERE account_id = ? AND id 
 export function deleteMemoryFact(accountId: string, id: number): boolean {
   return deleteStmt.run(accountId, id).changes > 0;
 }
+
+// ===== Export / Import trí nhớ =====
+
+const exportStmt = db.prepare(`
+  SELECT id, account_id, subject_id, content, learned_in_thread_id, learned_in_group, created_at
+  FROM memories WHERE (? = '' OR account_id = ?) ORDER BY id
+`);
+
+export type ExportedMemory = {
+  accountId: string;
+  subjectId: string;
+  content: string;
+  learnedInThreadId: string;
+  learnedInGroup: boolean;
+  createdAt: string;
+};
+
+/** Export toàn bộ fact (hoặc theo accountId) thành JSON array */
+export function exportAllMemories(accountId?: string): ExportedMemory[] {
+  const acc = accountId ?? "";
+  type Row = {
+    id: number; account_id: string; subject_id: string; content: string;
+    learned_in_thread_id: string; learned_in_group: number; created_at: string;
+  };
+  const rows = exportStmt.all(acc, acc) as unknown as Row[];
+  return rows.map((r) => ({
+    accountId: r.account_id,
+    subjectId: r.subject_id,
+    content: r.content,
+    learnedInThreadId: r.learned_in_thread_id,
+    learnedInGroup: r.learned_in_group === 1,
+    createdAt: r.created_at,
+  }));
+}
+
+const importInsertStmt = db.prepare(`
+  INSERT INTO memories (account_id, subject_id, content, learned_in_thread_id, learned_in_group, created_at)
+  VALUES (?, ?, ?, ?, ?, ?)
+`);
+
+/**
+ * Import fact từ JSON array. Bỏ qua fact đã trùng (cùng account+subject+content).
+ * Trả về số fact đã import thành công.
+ */
+export function importMemories(facts: ExportedMemory[]): { imported: number; skipped: number } {
+  let imported = 0;
+  let skipped = 0;
+  for (const f of facts) {
+    const content = f.content?.trim();
+    if (!content || !f.accountId || !f.subjectId) { skipped++; continue; }
+    // Skip nếu đã tồn tại
+    if (trungStmt.get(f.accountId, f.subjectId, content)) { skipped++; continue; }
+    importInsertStmt.run(
+      f.accountId,
+      f.subjectId,
+      content,
+      f.learnedInThreadId ?? "",
+      f.learnedInGroup ? 1 : 0,
+      f.createdAt ?? new Date().toISOString(),
+    );
+    imported++;
+  }
+  return { imported, skipped };
+}
+
+/** Đếm tổng số fact (cho thông tin export) */
+export function countMemories(accountId?: string): number {
+  const acc = accountId ?? "";
+  return (db.prepare("SELECT count(*) as cnt FROM memories WHERE (? = '' OR account_id = ?)").get(acc, acc) as { cnt: number }).cnt;
+}

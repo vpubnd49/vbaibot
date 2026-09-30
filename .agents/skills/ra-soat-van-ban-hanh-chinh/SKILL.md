@@ -166,17 +166,21 @@ Quy trình bắt buộc gồm **Tư duy 5 bước** và **Đầu ra 4 phần**:
 3. **Những điểm cần chỉnh sửa, bổ sung (Bóc tách chuyên sâu):** Từng mục phân tích rõ: *Hiện trạng dự thảo $\rightarrow$ Quy định cấp trên $\rightarrow$ Phân tích rủi ro/điểm vênh $\rightarrow$ Đề xuất câu chữ chỉnh sửa (actionable wording)*.
 4. **Đánh giá kỹ thuật văn bản, thể thức & Khuyến nghị trình ký:** Thể thức NĐ 30, dấu kết thúc `./.`, tính tương thích của trích yếu, khuyến nghị lựa chọn phương án trình ký.
 
-## Sửa file DOCX
+## Sửa file DOCX & Bảo toàn Biểu mẫu gốc
 
-Khi `intent=edit_docx`:
+Khi `intent=edit_docx` hoặc khi người dùng gửi file mẫu/biểu mẫu nhờ đánh giá, sửa đổi, cập nhật:
 
-1. Giữ nguyên file gốc.
-2. Sửa tối thiểu tại đúng vị trí.
-3. Tạo `HOAN_THIEN.docx`.
-4. Nếu user yêu cầu giải thích, tạo `HOAN_THIEN_co_chu_thich.docx`.
-5. Mỗi thay đổi phải có: vị trí, nguyên văn, nội dung sửa, lý do, nguồn đối chiếu.
-6. Render/xem toàn bộ trang nếu môi trường hỗ trợ.
-7. Chỉ giao file sau khi kiểm tra không vỡ bố cục.
+1. **Giữ nguyên 100% mẫu ban đầu của file gốc:**
+   - Khổ trang: File gốc khổ ngang (Landscape) như Phiếu tự đánh giá thì BẮT BUỘC xuất khổ ngang, KHÔNG chuyển thành khổ dọc (Portrait). File gốc khổ dọc thì giữ khổ dọc.
+   - Font & cỡ chữ: Giữ nguyên Times New Roman 13pt (hoặc cỡ chữ nguyên bản), KHÔNG tự ý tăng lên 14pt.
+   - Bảng biểu & Màu nền (Shading): Giữ nguyên số cột, tiêu đề, đường kẻ bảng, màu nền ô tiêu đề (như màu cam/be nhạt #FCE4D6 của Phiếu tự đánh giá).
+   - Trình bày dòng thông tin: Mỗi mục thông tin cá nhân (Họ tên, Ngạch, Đơn vị, Người quản lý) là một dòng/đoạn riêng biệt. CẤM gộp thành một đoạn dính liền chứa ký tự `\n` trần hiển thị trên mặt chữ Word.
+   - TUYỆT ĐỐI KHÔNG TỰ SUY DIỄN MẪU KHÁC (tham khảo các mẫu chuẩn trong `bosung/lylich/`).
+2. **Chỉ thay đổi nội dung và số liệu:** Cập nhật đúng các trường số liệu, tiêu chí đánh giá, kết quả theo yêu cầu vào đúng ô/dòng.
+3. **Quy tắc khung chat:** Khi trao đổi, giải thích, liệt kê điểm sửa trong chat, TUYỆT ĐỐI KHÔNG xuất các thẻ thô `<b>`, `</b>`, `<r>`, `</r>`, `<red>`, `</red>`, `<span>`, `</span>`. Chỉ dùng định dạng markdown tự nhiên như `**in đậm**` hoặc `~~từ cũ~~ -> **từ mới**`.
+4. Tạo `HOAN_THIEN.docx` (sửa tối thiểu tại đúng vị trí).
+5. Nếu user yêu cầu giải thích, tạo `HOAN_THIEN_co_chu_thich.docx`.
+6. Chỉ giao file sau khi kiểm tra không vỡ bố cục.
 
 ## Tích hợp Antigravity
 

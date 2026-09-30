@@ -19,6 +19,8 @@ export type TtsSettings = {
   apiKey: string;
   /** URL công khai của server để Zalo tải file audio (VD: https://bot.example.com) */
   publicBaseUrl: string;
+  /** Base URL cho API proxy (9Router). Nếu trống thì dùng Google trực tiếp. */
+  baseUrl: string;
   /** Giọng nam (Gemini voice name) */
   maleVoice: string;
   /** Giọng nữ (Gemini voice name) */
@@ -65,10 +67,10 @@ function readApiKey(): string {
   if (env.TTS_API_KEY) {
     return env.TTS_API_KEY;
   }
-  // Fallback: Tự động dùng API key từ cấu hình LLM đang hoạt động (kể cả lưu trong DB)
+  // Fallback: Tự động dùng API key từ cấu hình LLM đang hoạt động (kể cả 9Router)
   try {
     const llm = getEffectiveLlmSettings();
-    if (llm.apiKey && (llm.provider === "google" || llm.apiKey.startsWith("AIza"))) {
+    if (llm.apiKey) {
       return llm.apiKey;
     }
   } catch {
@@ -78,10 +80,19 @@ function readApiKey(): string {
 }
 
 export function getTtsSettings(): TtsSettings {
+  // Fallback baseUrl: dùng LLM base URL nếu TTS riêng chưa set
+  let baseUrl = read("tts_base_url") ?? "";
+  if (!baseUrl) {
+    try {
+      const llm = getEffectiveLlmSettings();
+      if (llm.baseUrl) baseUrl = llm.baseUrl;
+    } catch { /* bỏ qua */ }
+  }
   return {
     model: read(KEYS.model) ?? env.TTS_MODEL,
     apiKey: readApiKey(),
     publicBaseUrl: (read(KEYS.publicBaseUrl) ?? env.TTS_PUBLIC_BASE_URL).replace(/\/$/, ""),
+    baseUrl: baseUrl.replace(/\/$/, ""),
     maleVoice: read(KEYS.maleVoice) ?? (env.TTS_MALE_VOICE || "vi-VN-NamMinhNeural"),
     femaleVoice: read(KEYS.femaleVoice) ?? (env.TTS_FEMALE_VOICE || "vi-VN-HoaiMyNeural"),
     hostMaleName: read(KEYS.hostMaleName) ?? env.TTS_HOST_MALE_NAME,

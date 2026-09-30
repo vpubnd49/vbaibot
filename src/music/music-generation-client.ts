@@ -66,10 +66,15 @@ export async function generateMusic(
     },
   };
 
-  const isGoogleDirect = apiKey.startsWith("AIza") || apiKey.startsWith("AQ.") || !settings.baseUrl;
-  const url = isGoogleDirect
-    ? `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`
-    : `${(settings.baseUrl || "").replace(/\/+$/, "")}/models/${model}:generateContent`;
+  const isGoogleDirect = apiKey.startsWith("AIza") || apiKey.startsWith("AQ.") || !settings.baseUrl || settings.baseUrl.includes("googleapis.com");
+  let url: string;
+  if (isGoogleDirect) {
+    url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  } else {
+    // 9Router / proxy: strip /v1 suffix, dùng /v1beta/models/...:generateContent
+    const base = (settings.baseUrl || "").replace(/\/v1\/?$/, "").replace(/\/+$/, "");
+    url = `${base}/v1beta/models/${model}:generateContent`;
+  }
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",

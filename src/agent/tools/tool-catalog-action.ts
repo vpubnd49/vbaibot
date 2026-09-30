@@ -1,8 +1,8 @@
 import { getTuning } from "../../config/runtime-tuning-settings.js";
-import { isImageGenConfigured, getKieImageConfig } from "../../config/runtime-image-settings.js";
+import { isImageGenConfigured } from "../../config/runtime-image-settings.js";
 import { isTtsConfigured } from "../../config/runtime-tts-settings.js";
-import { isMusicGenConfigured, getKieMusicConfig } from "../../config/runtime-music-settings.js";
-import { isVideoGenConfigured, getKieVideoConfig } from "../../config/runtime-video-settings.js";
+import { isMusicGenConfigured } from "../../config/runtime-music-settings.js";
+import { isVideoGenConfigured } from "../../config/runtime-video-settings.js";
 import { isSidecarConfigured } from "../../config/runtime-vision-settings.js";
 import { createAddReactionTool } from "./add-reaction-tool.js";
 import { createExcelFileTool, createWordDocumentTool, createPowerpointTool } from "./create-document-tools.js";
@@ -20,6 +20,18 @@ import { createProposeKnowledgeTool } from "./propose-knowledge-tool.js";
 import { createAdminDocumentTool } from "./create-admin-document-tool.js";
 import { reviewAdminDocumentTool } from "./review-admin-document-tool.js";
 import { createOcrFolderToFileTool } from "./ocr-folder-to-file-tool.js";
+import { createRecallMessageTool } from "./recall-message-tool.js";
+import { createSendStickerTool } from "./send-sticker-tool.js";
+import { createPollTool } from "./create-poll-tool.js";
+import { createGroupAdminTool } from "./group-admin-tool.js";
+import { createYouTubeTranscriptTool } from "./youtube-transcript-tool.js";
+import { createDownloadVideoTool } from "./download-video-tool.js";
+import { createForwardToOwnerTool } from "./forward-to-owner-tool.js";
+import { createReviewMemberTool } from "./review-member-tool.js";
+import { createTicketTool } from "./ticket-tool.js";
+import { createVideoWorkshopTool } from "./video-workshop-tool.js";
+import { createNotionSyncTool } from "./notion-sync-tool.js";
+import { createMcpClientTool } from "./mcp-client-tool.js";
 import type { ToolDefinition } from "./tool-catalog-types.js";
 
 
@@ -40,6 +52,15 @@ export const ACTION_TOOL_DEFINITIONS: ToolDefinition[] = [
     // Lượt theo lịch không có tin thật nào (msgId rỗng) để mà thả reaction vào
     runsInScheduledTurn: false,
     build: (ctx) => createAddReactionTool(ctx),
+  },
+  {
+    key: "recall_message",
+    label: "Thu hồi tin nhắn",
+    description: "Thu hồi (gỡ) tin nhắn bot đã gửi trước đó (trong vòng 1 giờ)",
+    group: "action",
+    keTrongKhaNang: false,
+    runsInScheduledTurn: false,
+    build: (ctx) => createRecallMessageTool(ctx),
   },
   {
     key: "send_file",
@@ -114,7 +135,7 @@ export const ACTION_TOOL_DEFINITIONS: ToolDefinition[] = [
     description: "Vẽ ảnh mới hoặc sửa ảnh người dùng vừa gửi (đổi màu, xóa vật thể, đổi phong cách) rồi gửi luôn",
     group: "action",
     hasSettings: true,
-    available: () => isImageGenConfigured() || getKieImageConfig() !== null,
+    available: () => isImageGenConfigured(),
     unavailableHint: "Bấm Settings để cấu hình endpoint + model vẽ ảnh",
     // Cùng lý do runsInScheduledTurn:false của send_file - gửi 2 tin ("đang
     // vẽ..." rồi ảnh) thẳng qua enqueueSend, né trần ngày. Nặng nhất trong
@@ -129,7 +150,7 @@ export const ACTION_TOOL_DEFINITIONS: ToolDefinition[] = [
     description: "Sáng tác nhạc từ mô tả (có lời hoặc nhạc nền) rồi gửi file MP3 luôn",
     group: "action",
     hasSettings: true,
-    available: () => isMusicGenConfigured() || getKieMusicConfig() !== null,
+    available: () => isMusicGenConfigured(),
     unavailableHint: "Cấu hình Gemini API key (hoặc dùng provider Google) để dùng tool tạo nhạc",
     runsInScheduledTurn: false,
     build: (ctx) => createMusicTool(ctx),
@@ -140,7 +161,7 @@ export const ACTION_TOOL_DEFINITIONS: ToolDefinition[] = [
     description: "Tạo video ngắn (5-8 giây) từ mô tả rồi gửi file MP4 luôn",
     group: "action",
     hasSettings: true,
-    available: () => isVideoGenConfigured() || getKieVideoConfig() !== null,
+    available: () => isVideoGenConfigured(),
     unavailableHint: "Cấu hình Gemini API key (hoặc dùng provider Google) để dùng tool tạo video",
     runsInScheduledTurn: false,
     build: (ctx) => createVideoTool(ctx),
@@ -228,6 +249,107 @@ export const ACTION_TOOL_DEFINITIONS: ToolDefinition[] = [
     unavailableHint: "Cần cấu hình Vision Sidecar (Vision AI) trong Settings để dùng tool OCR hàng loạt này",
     runsInScheduledTurn: false,
     build: (ctx) => createOcrFolderToFileTool(ctx),
+  },
+  {
+    key: "send_sticker",
+    label: "Gửi sticker",
+    description: "Gửi nhãn dán (sticker) biểu cảm vào cuộc trò chuyện",
+    group: "action",
+    keTrongKhaNang: false,
+    runsInScheduledTurn: false,
+    build: (ctx) => createSendStickerTool(ctx),
+  },
+  {
+    key: "create_poll",
+    label: "Tạo bình chọn",
+    description: "Tạo cuộc bình chọn / thăm dò ý kiến trong nhóm Zalo",
+    group: "action",
+    keTrongKhaNang: true,
+    runsInScheduledTurn: false,
+    build: (ctx) => createPollTool(ctx),
+  },
+  {
+    key: "group_admin",
+    label: "Quản trị nhóm",
+    description: "Đổi tên nhóm, kick thành viên (cần quyền admin/phó nhóm)",
+    group: "action",
+    keTrongKhaNang: false,
+    runsInScheduledTurn: false,
+    build: (ctx) => createGroupAdminTool(ctx),
+  },
+  {
+    key: "youtube_transcript",
+    label: "Đọc phụ đề YouTube",
+    description: "Lấy transcript (phụ đề) từ video YouTube để tóm tắt nội dung",
+    group: "action",
+    keTrongKhaNang: true,
+    runsInScheduledTurn: true,
+    build: (ctx) => createYouTubeTranscriptTool(ctx),
+  },
+  {
+    key: "download_video",
+    label: "Tải video/nhạc",
+    description: "Tải video từ YouTube, TikTok, Facebook, Instagram hoặc tách nhạc MP3",
+    group: "action",
+    keTrongKhaNang: true,
+    runsInScheduledTurn: false,
+    build: (ctx) => createDownloadVideoTool(ctx),
+  },
+  {
+    key: "forward_to_owner",
+    label: "Báo chủ bot",
+    description: "Chuyển tiếp tin nhắn hoặc báo việc gấp cho chủ bot (admin)",
+    group: "action",
+    keTrongKhaNang: false,
+    runsInScheduledTurn: false,
+    build: (ctx) => createForwardToOwnerTool(ctx),
+  },
+  {
+    key: "review_member",
+    label: "Duyệt thành viên",
+    description: "Duyệt hoặc từ chối thành viên đang chờ vào nhóm",
+    group: "action",
+    keTrongKhaNang: true,
+    runsInScheduledTurn: false,
+    build: (ctx) => createReviewMemberTool(ctx),
+  },
+  {
+    key: "ticket_manager",
+    label: "Phiếu hỗ trợ KH",
+    description: "Tạo, cập nhật, theo dõi phiếu hỗ trợ khách hàng (CRM mini)",
+    group: "action",
+    keTrongKhaNang: true,
+    runsInScheduledTurn: false,
+    build: (ctx) => createTicketTool(ctx),
+  },
+  {
+    key: "video_workshop",
+    label: "Xưởng Video",
+    description: "Xử lý video/audio bằng FFmpeg: tách nhạc, nén, cắt, tạo GIF, thêm chữ",
+    group: "action",
+    keTrongKhaNang: true,
+    runsInScheduledTurn: false,
+    build: (ctx) => createVideoWorkshopTool(ctx),
+  },
+  {
+    key: "notion_sync",
+    label: "Đồng bộ Notion",
+    description: "Tạo trang, thêm nội dung, tìm kiếm trên Notion",
+    group: "action",
+    hasSettings: true,
+    keTrongKhaNang: true,
+    runsInScheduledTurn: false,
+    build: (ctx) => createNotionSyncTool(ctx),
+  },
+  {
+    key: "mcp_client",
+    label: "MCP Client",
+    description: "Gọi tools từ MCP servers bên ngoài (plugin mở rộng)",
+    group: "action",
+    hasSettings: true,
+    keTrongKhaNang: false,
+    runsInScheduledTurn: false,
+    build: (ctx) => createMcpClientTool(ctx),
   },
 ];
 

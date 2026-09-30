@@ -42,7 +42,7 @@ export function KnowledgePage({ accounts }: { accounts: AccountInfo[] }) {
   const [busyApproveAll, setBusyApproveAll] = useState(false);
 
   const reload = useCallback(() => {
-    const accId = accountFilter || (accounts.length === 1 ? accounts[0].id : "");
+    const accId = accountFilter || (accounts.length >= 1 ? accounts[0].id : "");
     if (!accId) return;
     api
       .knowledge(accId, statusFilter, query, page)
@@ -59,7 +59,7 @@ export function KnowledgePage({ accounts }: { accounts: AccountInfo[] }) {
 
   // Auto-select first account
   useEffect(() => {
-    if (!accountFilter && accounts.length === 1) setAccountFilter(accounts[0].id);
+    if (!accountFilter && accounts.length >= 1) setAccountFilter(accounts[0].id);
   }, [accounts, accountFilter]);
 
   async function approve(item: SharedKnowledgeItem) {

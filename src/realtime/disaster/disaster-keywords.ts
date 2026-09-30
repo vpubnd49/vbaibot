@@ -88,23 +88,52 @@ export const DISASTER_KEYWORDS: Record<DisasterType, readonly string[]> = {
     "vận hành liên hồ", "điều tiết hồ",
     "vỡ đập", "tràn đập", "nứt đập", "sự cố đập",
   ],
-  // --- Giao thông đèo (liên quan thiên tai) ---
+  // --- Giao thông đèo (CHỈ khi liên quan thiên tai, KHÔNG match máy bắn tốc độ, CSGT...) ---
   road_block: [
-    "tắc đường", "chia cắt", "cấm lưu thông", "đèo D'ran",
-    "đèo Đại Ninh", "đèo Gia Bắc", "đèo Sông Pha",
-    "đèo Khánh Lê", "đèo Prenn", "đèo Mimosa",
-    "đèo Bảo Lộc", "đèo Tà Đùng", "quốc lộ 20",
-    "quốc lộ 27", "quốc lộ 28", "quốc lộ 1A",
-    "quốc lộ 55",
+    "tắc đường do sạt", "chia cắt", "cấm lưu thông",
+    "đường sạt lở", "đường ngập", "đường bị chia cắt",
+    "giao thông tê liệt", "phân luồng do",
   ],
-  // --- Chung ---
+  // --- Chung (CHỈ từ khóa mang tính CẢNH BÁO HIỆN HÀNH, loại bỏ tin tình nguyện/hỗ trợ) ---
   general: [
-    "thiên tai", "phòng chống", "ứng phó", "cứu hộ", "cứu nạn",
-    "sơ tán", "di dời", "cảnh báo", "khẩn cấp",
-    "phòng thủ dân sự", "PTDS", "ban chỉ huy PTDS",
-    "PCTT", "ban chỉ huy", "công điện khẩn",
+    "công điện khẩn", "lệnh sơ tán", "lệnh di dời",
+    "cấp độ rủi ro thiên tai", "ứng phó khẩn cấp",
+    "PCTT cấp",
   ],
 } as const;
+
+/**
+ * Danh sách từ khóa LOẠI BỎ — bài viết chứa các từ này sẽ bị reject.
+ * Mục đích: lọc tin Facebook xã hội, cảm xúc, từ thiện, quyên góp
+ * mà KHÔNG phải cảnh báo thiên tai hiện hành.
+ */
+export const NOISE_BLACKLIST: readonly string[] = [
+  // Tin cảm xúc / xã hội
+  "lay động", "chuyện lay", "cảm động", "ấm lòng", "nghĩa tình",
+  "nhường cơm sẻ áo", "thắp sáng", "chia sẻ yêu thương",
+  // Tin quyên góp / từ thiện / hỗ trợ SAU thiên tai
+  "quyên góp", "tình nguyện", "từ thiện", "hỗ trợ người dân",
+  "ủng hộ đồng bào", "cứu trợ", "tiếp tế",
+  // Tin hậu thiên tai / ổn định
+  "ổn định cuộc sống", "gấp rút ổn định", "khắc phục hậu quả",
+  "sau lũ", "sau bão", "tái thiết", "phục hồi sản xuất",
+  // Tin hành chính / kiểm tra / họp
+  "kiểm tra công tác", "họp ban chỉ huy", "chỉ đạo công tác",
+  "rút kinh nghiệm", "tổng kết", "sơ kết",
+  "máy đo tốc độ", "bắn tốc độ", "phạt nguội", "CSGT",
+  "camera giám sát", "xử phạt", "vi phạm giao thông",
+  // Tin bệnh / dịch / y tế (không phải thiên tai)
+  "tử vong do bệnh", "bệnh dại", "dịch bệnh", "sốt xuất huyết",
+  // Tin dự báo chung toàn quốc (không cụ thể Lâm Đồng)
+  "cả nước", "Bắc Bộ ngày", "toàn quốc",
+  // Tin khu vực NGOÀI Lâm Đồng (lọt qua isAboutLamDong do nhắc địa danh chung)
+  "sông Cửu Long", "hạ lưu Tiền Giang", "hạ lưu Hậu Giang",
+  "đồng bằng sông Cửu Long", "ĐBSCL",
+  // Tin tổng kết / hồi tưởng
+  "nhìn lại", "bài học", "kinh nghiệm ứng phó", "năm trước",
+  // Tin từ đầu năm / thống kê
+  "từ đầu năm đến nay", "thống kê cho thấy",
+] as const;
 
 /**
  * Danh sách khu vực Lâm Đồng (mới) cần theo dõi, dùng để gắn `area`
@@ -141,6 +170,36 @@ export function detectDisasterTypes(text: string): DisasterType[] {
   }
 
   return detected;
+}
+
+/**
+ * BỘ LỌC CHẶT — Kiểm tra bài viết có phải cảnh báo thiên tai THẬT không.
+ *
+ * Luật xiết (ưu tiên từ trên xuống):
+ * 1. Chứa từ khóa NOISE_BLACKLIST → LOẠI (tin xã hội/cảm xúc/từ thiện)
+ * 2. PHẢI chứa ít nhất 1 từ khóa thiên tai CỨNG (sạt lở, ngập, lũ, xả lũ,
+ *    bão, dông, mưa lớn...) → nếu chỉ match "general" hoặc "road_block"
+ *    đơn lẻ mà KHÔNG có thiên tai cụ thể → LOẠI
+ * 3. Ưu tiên: landslide, flood, reservoir, storm là CHẮC CHẮN
+ *    road_block + general chỉ đạt khi đi kèm nhóm chắc chắn
+ */
+export function isDisasterAlert(text: string): boolean {
+  const lower = text.toLowerCase();
+
+  // 1. Chặn noise
+  if (NOISE_BLACKLIST.some((nw) => lower.includes(nw.toLowerCase()))) {
+    return false;
+  }
+
+  // 2. Phát hiện loại thiên tai
+  const types = detectDisasterTypes(text);
+  if (types.length === 0) return false;
+
+  // 3. Phải có ít nhất 1 loại CỨNG (không chỉ general/road_block)
+  const HARD_TYPES: DisasterType[] = ["landslide", "flood", "reservoir", "storm"];
+  const hasHardType = types.some((t) => HARD_TYPES.includes(t));
+
+  return hasHardType;
 }
 
 /**
@@ -256,9 +315,9 @@ export function isAboutLamDong(text: string, sourceName: string): boolean {
 
 /**
  * Kiểm tra nhanh xem text có liên quan đến thiên tai không.
- * Dùng cho lọc sơ bộ (prefilter) trước khi phân tích chi tiết.
+ * Dùng bộ lọc CHẶT — loại bỏ tin xã hội, cảm xúc, từ thiện.
  */
 export function isDisasterRelated(text: string): boolean {
-  return detectDisasterTypes(text).length > 0;
+  return isDisasterAlert(text);
 }
 

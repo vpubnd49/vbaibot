@@ -13,20 +13,46 @@ export type TtsParams = {
   voices: TtsVoice[];    // Ánh xạ giữa alias trong kịch bản và speakerId
   apiKey: string;
   model?: string;        // default: "gemini-2.5-flash-preview-tts"
+  baseUrl?: string;      // URL proxy (9Router) — nếu không set thì dùng Google trực tiếp
 };
 
 /**
- * Gọi REST API của Gemini để sinh giọng đọc đa người nói và trả về WAV Buffer
+ * Phát hiện key có phải Google trực tiếp không.
+ */
+function isGoogleDirect(apiKey: string, baseUrl?: string): boolean {
+  if (apiKey.startsWith("AIza") || apiKey.startsWith("AQ.")) return true;
+  if (!baseUrl) return true;
+  if (baseUrl.includes("googleapis.com")) return true;
+  return false;
+}
+
+/**
+ * Gọi REST API của Gemini để sinh giọng đọc đa người nói và trả về WAV Buffer.
+ * Hỗ trợ cả Google trực tiếp (key=AIza...) và proxy/9Router (Bearer sk-...).
  */
 export async function generateMultiSpeakerAudio(params: TtsParams): Promise<Buffer> {
   const { 
     script, 
     voices, 
     apiKey, 
-    model = 'gemini-2.5-flash-preview-tts'
+    model = 'gemini-2.5-flash-preview-tts',
+    baseUrl,
   } = params;
   
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  const googleDirect = isGoogleDirect(apiKey, baseUrl);
+
+  // Xây URL: Google trực tiếp dùng ?key=, proxy dùng Bearer
+  let endpoint: string;
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+
+  if (googleDirect) {
+    endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  } else {
+    // 9Router / proxy: strip /v1 suffix, thêm /v1beta/models/...:generateContent
+    const base = (baseUrl || "").replace(/\/v1\/?$/, "").replace(/\/$/, "");
+    endpoint = `${base}/v1beta/models/${model}:generateContent`;
+    headers['Authorization'] = `Bearer ${apiKey}`;
+  }
 
   const payload = {
     contents: [
@@ -48,11 +74,11 @@ export async function generateMultiSpeakerAudio(params: TtsParams): Promise<Buff
   };
 
   try {
-    log.info({ model, speakers: voices.length }, 'Bắt đầu gọi Gemini TTS API cho audio đa người nói');
+    log.info({ model, speakers: voices.length, proxy: !googleDirect }, 'Bắt đầu gọi Gemini TTS API cho audio đa người nói');
     
     const response = await fetch(endpoint, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify(payload)
     });
 
@@ -82,3 +108,4 @@ export async function generateMultiSpeakerAudio(params: TtsParams): Promise<Buff
     throw error;
   }
 }
+

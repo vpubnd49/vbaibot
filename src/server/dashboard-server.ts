@@ -37,13 +37,16 @@ import { tuningRoutes } from "./routes/tuning-routes.js";
 import { visionRoutes } from "./routes/vision-routes.js";
 import { voiceRoutes } from "./routes/voice-routes.js";
 import { broadcastRoutes } from "./routes/broadcast-routes.js";
-import { kieCallbackRoutes } from "./routes/kie-callback-routes.js";
 import { feedbackRoutes } from "./routes/feedback-routes.js";
 import { auditRoutes } from "./routes/audit-routes.js";
 import { ocrRoutes } from "./routes/ocr-routes.js";
 import { getOcrPortalHtml } from "./routes/ocr-portal-html.js";
 import { systemRoutes } from "./routes/system-routes.js";
+import { healthRoutes } from "./routes/health-routes.js";
+import { insightRoutes } from "./routes/insight-routes.js";
+import { ticketRoutes } from "./routes/ticket-routes.js";
 import { disasterAlertPublicRoutes } from "./routes/disaster-alert-public-routes.js";
+import { ttsSettingsRoutes } from "./routes/tts-settings-routes.js";
 
 const log = createLogger("dashboard-server");
 const SESSION_COOKIE = "dashboard_session";
@@ -120,10 +123,6 @@ export function buildDashboardApp(): Hono {
   // được, file tự dọn sau 7 ngày.
   app.route("/voice", voiceRoutes);
 
-  // KIE/Suno gọi callback từ bên ngoài, không có cookie dashboard. Route này
-  // phải đứng trước middleware auth; payload chỉ được dùng để ghi trạng thái,
-  // kết quả vẫn lấy qua polling có xác thực bằng API key.
-  app.route("/api/kie-callback", kieCallbackRoutes);
 
   app.post("/api/auth/login", async (c) => {
     const ip = resolveClientIp(c);
@@ -157,11 +156,6 @@ export function buildDashboardApp(): Hono {
 
   // Mọi API sau điểm này yêu cầu session hợp lệ
   app.use("/api/*", async (c, next) => {
-    // Callback từ KIE là server-to-server, không có cookie dashboard.
-    if (new URL(c.req.url).pathname === "/api/kie-callback" ||
-        new URL(c.req.url).pathname === "/api/kie-callback/") {
-      return next();
-    }
     const internalSecret = c.req.header("x-internal-secret");
     if (internalSecret && internalSecret === env.CREDENTIALS_ENCRYPTION_KEY) {
       return next();
@@ -247,6 +241,10 @@ export function buildDashboardApp(): Hono {
   app.route("/api/feedback", feedbackRoutes);
   app.route("/api/audit", auditRoutes);
   app.route("/api/system", systemRoutes);
+  app.route("/api/server-health", healthRoutes);
+  app.route("/api/insights", insightRoutes);
+  app.route("/api/tickets", ticketRoutes);
+  app.route("/api/settings/tts", ttsSettingsRoutes);
 
   // API không khớp route nào phải trả JSON 404, không được rơi xuống SPA
   // fallback bên dưới (client fetch JSON mà nhận HTML thì lỗi rất khó đọc)

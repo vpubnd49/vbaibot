@@ -87,6 +87,7 @@ export function createVoiceSummaryTool(ctx: {
               ],
               apiKey: ttsSettings.apiKey,
               model: ttsSettings.model,
+              baseUrl: ttsSettings.baseUrl || undefined,
             });
             format = "wav";
           } catch (geminiErr) {
