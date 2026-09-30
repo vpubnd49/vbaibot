@@ -106,7 +106,7 @@ export function SupplementaryProviders() {
                   className="gc-input w-full"
                   value={imageForm.model}
                   onChange={(e) => setImageForm({ ...imageForm, model: e.target.value })}
-                  placeholder="req/gpt-image-2"
+                  placeholder="gpt-image-2"
                 />
               </div>
             </div>
@@ -151,7 +151,7 @@ export function SupplementaryProviders() {
                 className="gc-input w-full"
                 value={ttsForm.model}
                 onChange={(e) => setTtsForm({ model: e.target.value })}
-                placeholder="req/gpt-4o-mini-tts"
+                placeholder="tts-1"
               />
             </div>
             <div className="flex items-center gap-3">
@@ -198,7 +198,7 @@ export function SupplementaryProviders() {
                 className="gc-input w-full"
                 value={googleForm.model}
                 onChange={(e) => setGoogleForm({ ...googleForm, model: e.target.value })}
-                placeholder="req-deepseek-v4-flash"
+                placeholder="deepseek-v4-flash"
               />
             </div>
           </div>

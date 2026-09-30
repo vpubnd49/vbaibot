@@ -90,8 +90,15 @@ export async function generateImage(
   // Nền trong suốt bắt buộc PNG - JPEG không có kênh alpha nên nền sẽ ra đen
   const outputFormat = params.transparentBackground ? "png" : "jpeg";
 
+  const cleanBaseUrl = settings.baseUrl.replace(/\/+$/, "");
+  let modelName = settings.model;
+  // Cá Shop yêu cầu endpoint /images/generations model có tiền tố req/ (như req/gpt-image-2)
+  if (cleanBaseUrl.includes("cashop") && !modelName.startsWith("req/") && !modelName.startsWith("req-")) {
+    modelName = `req/${modelName}`;
+  }
+
   const body: Record<string, unknown> = {
-    model: settings.model,
+    model: modelName,
     prompt: params.prompt,
     n: 1,
     output_format: outputFormat,
@@ -106,7 +113,6 @@ export async function generateImage(
     body.image_detail = "high";
   }
 
-  const cleanBaseUrl = settings.baseUrl.replace(/\/+$/, "");
   const url = cleanBaseUrl.endsWith("/v1")
     ? `${cleanBaseUrl}/images/generations`
     : `${cleanBaseUrl}/v1/images/generations`;
