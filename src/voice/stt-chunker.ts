@@ -94,8 +94,20 @@ export async function transcribeLongAudio(
 
     log.info({ fileName, totalDuration, chunks: chunkDefs.length }, "Đã chia đoạn âm thanh dài để bóc băng");
 
-    const geminiBase = baseUrl.replace(/\/openai\/?$/i, "").replace(/\/+$/, "");
-    const endpoint = `${geminiBase.includes("/v1beta") ? geminiBase : `${geminiBase}/v1beta`}/models/${model}:generateContent?key=${apiKey}`;
+    const isGoogleDirect = apiKey.startsWith("AQ.") || apiKey.startsWith("AIza") || baseUrl.includes("generativelanguage.googleapis.com");
+    let effModel = model;
+    if (baseUrl.includes("9router") && !effModel.startsWith("ag/")) {
+      effModel = `ag/${effModel}`;
+    }
+    const geminiBase = baseUrl.replace(/\/openai\/?$/i, "").replace(/\/v1\/?$/i, "").replace(/\/+$/, "");
+    const endpoint = isGoogleDirect
+      ? `${geminiBase.includes("/v1beta") ? geminiBase : `${geminiBase}/v1beta`}/models/${effModel}:generateContent?key=${apiKey}`
+      : `${geminiBase}/v1beta/models/${effModel}:generateContent`;
+
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    if (!isGoogleDirect) {
+      headers["Authorization"] = `Bearer ${apiKey}`;
+    }
 
     const results: Array<{ index: number; text: string; start: number; end: number }> = [];
 
@@ -107,7 +119,7 @@ export async function transcribeLongAudio(
           const bytes = fs.readFileSync(chunk.file);
           const response = await fetch(endpoint, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers,
             body: JSON.stringify({
               contents: [
                 {

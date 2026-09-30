@@ -91,21 +91,27 @@ export async function generateImage(
   const outputFormat = params.transparentBackground ? "png" : "jpeg";
 
   const cleanBaseUrl = settings.baseUrl.replace(/\/+$/, "");
+  const is9Router = cleanBaseUrl.includes("9router");
   let modelName = settings.model;
   // Cá Shop yêu cầu endpoint /images/generations model có tiền tố req/ (như req/gpt-image-2)
   if (cleanBaseUrl.includes("cashop") && !modelName.startsWith("req/") && !modelName.startsWith("req-")) {
     modelName = `req/${modelName}`;
+  }
+  if (is9Router && !modelName.startsWith("ag/")) {
+    modelName = `ag/${modelName}`;
   }
 
   const body: Record<string, unknown> = {
     model: modelName,
     prompt: params.prompt,
     n: 1,
-    output_format: outputFormat,
+  };
+  if (!is9Router) {
+    body.output_format = outputFormat;
     // Không gửi thì nhà cung cấp tự chọn mức thấp hơn. Đo A/B cùng prompt:
     // "high" ra ảnh giàu chi tiết hơn hẳn mà không chậm hơn.
-    quality: getTuning("IMAGE_GEN_QUALITY"),
-  };
+    body.quality = getTuning("IMAGE_GEN_QUALITY");
+  }
   if (params.transparentBackground) body.background = "transparent";
   if (params.refImage) {
     body.image = `data:${params.refImage.mediaType};base64,${params.refImage.base64}`;
@@ -120,16 +126,19 @@ export async function generateImage(
   // kèm MIME. Riêng nhánh bytes thô thì Content-Type thật mới là nguồn đúng.
   const requestedExt: ImageExt = outputFormat === "png" ? "png" : "jpg";
 
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${settings.apiKey}`,
+  };
+  if (!is9Router) {
+    // Header quyết định cho router codex: router chỉ stream khi thấy dòng này.
+    headers.Accept = "text/event-stream";
+  }
+
   try {
     const response = await fetchImpl(url, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${settings.apiKey}`,
-        // Header quyết định: router chỉ stream khi thấy dòng này. Không có nó
-        // thì kết nối im lặng tới lúc vẽ xong và Cloudflare cắt bằng 524.
-        Accept: "text/event-stream",
-      },
+      headers,
       body: JSON.stringify(body),
       // fetch không có timeout mặc định - thiếu dòng này thì provider treo là
       // treo luôn cả lượt agent, người dùng đợi vô hạn. Signal này phủ CẢ phần

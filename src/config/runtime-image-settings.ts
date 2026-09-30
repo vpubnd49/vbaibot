@@ -49,18 +49,14 @@ function readApiKey(): string {
   }
   if (env.IMAGE_GEN_API_KEY) return env.IMAGE_GEN_API_KEY;
 
-  // Tự động dùng chung khóa LLM nếu endpoint vẽ ảnh cùng router (như 9router)
-  const baseUrl = read(BASE_URL_KEY) ?? env.IMAGE_GEN_BASE_URL ?? "";
-  const llmBaseUrl = read("llm_base_url") ?? env.LLM_BASE_URL ?? "";
-  if (baseUrl && llmBaseUrl && (baseUrl === llmBaseUrl || baseUrl.includes("9router"))) {
-    const llmStored = read("llm_api_key");
-    if (llmStored) {
-      try {
-        const decrypted = decryptSecret(llmStored);
-        if (decrypted) return decrypted;
-      } catch {
-        // bỏ qua
-      }
+  // Tự động dùng chung khóa LLM nếu endpoint vẽ ảnh cùng router (như 9router) hoặc chưa có key riêng
+  const llmStored = read("llm_api_key");
+  if (llmStored) {
+    try {
+      const decrypted = decryptSecret(llmStored);
+      if (decrypted) return decrypted;
+    } catch {
+      // bỏ qua
     }
   }
 
@@ -68,10 +64,36 @@ function readApiKey(): string {
 }
 
 export function getImageSettings(): ImageGenSettings {
+  const storedBaseUrl = read(BASE_URL_KEY);
+  const storedModel = read(MODEL_KEY);
+  const storedKey = read(API_KEY_KEY);
+
+  // Nếu DB có lưu cấu hình riêng (và không phải cấu hình cũ cashop bị lỗi), dùng cấu hình đó
+  if (storedBaseUrl && storedModel && storedKey && !storedBaseUrl.includes("cashop")) {
+    return {
+      baseUrl: storedBaseUrl,
+      model: storedModel,
+      apiKey: readApiKey(),
+    };
+  }
+
+  // Fallback tự động về cấu hình LLM chính (9Router ag/gemini-3.8-flash vẽ ảnh trực tiếp)
+  const llmBaseUrl = read("llm_base_url") ?? env.LLM_BASE_URL ?? "";
+  const llmModel = read("llm_model") ?? env.LLM_MODEL ?? "";
+  const apiKey = readApiKey();
+
+  if (llmBaseUrl && apiKey) {
+    return {
+      baseUrl: llmBaseUrl,
+      model: (storedModel && !storedModel.includes("gpt-image")) ? storedModel : (llmModel || "gemini-3.8-flash"),
+      apiKey,
+    };
+  }
+
   return {
-    baseUrl: read(BASE_URL_KEY) ?? env.IMAGE_GEN_BASE_URL ?? "",
-    model: read(MODEL_KEY) ?? env.IMAGE_GEN_MODEL,
-    apiKey: readApiKey(),
+    baseUrl: storedBaseUrl ?? env.IMAGE_GEN_BASE_URL ?? "",
+    model: storedModel ?? env.IMAGE_GEN_MODEL,
+    apiKey,
   };
 }
 

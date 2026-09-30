@@ -14,7 +14,7 @@ export type EdgeTtsParams = {
 /**
  * Sinh giọng đọc cho 1 đoạn text bằng Edge TTS.
  */
-async function synthesizeSegment(text: string, voiceName: string): Promise<Buffer> {
+export async function synthesizeSegment(text: string, voiceName: string): Promise<Buffer> {
   const cleanText = text
     .replace(/\[pause\]/gi, " ... ")
     .replace(/\[emphasis\]/gi, "")
