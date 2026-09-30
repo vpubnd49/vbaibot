@@ -21,6 +21,8 @@ export type BaseUrlPreset = {
 };
 
 export const BASE_URL_PRESETS: BaseUrlPreset[] = [
+  // https://cashop.io.vn/docs#quickstart
+  { label: "Cá Shop (cashop.io.vn)", baseUrl: "https://cashop.io.vn/v1" },
   // https://openrouter.ai/docs/quickstart
   { label: "OpenRouter", baseUrl: "https://openrouter.ai/api/v1" },
   { label: "OpenAI", baseUrl: "https://api.openai.com/v1" },

@@ -26,8 +26,18 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
     if (window.location.pathname !== "/login") window.location.assign("/login");
     throw new ApiError(401, "Chưa đăng nhập");
   }
-  const data = (await res.json().catch(() => ({}))) as { error?: string };
-  if (!res.ok) throw new ApiError(res.status, data.error ?? `Lỗi ${res.status}`);
+  const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+  if (!res.ok) {
+    const rawError = data.error ?? data.message;
+    let errorMsg = `Lỗi ${res.status}`;
+    if (typeof rawError === "string") {
+      errorMsg = rawError;
+    } else if (rawError && typeof rawError === "object") {
+      const inner = (rawError as Record<string, unknown>).message;
+      errorMsg = typeof inner === "string" ? inner : JSON.stringify(rawError);
+    }
+    throw new ApiError(res.status, errorMsg);
+  }
   return data as T;
 }
 

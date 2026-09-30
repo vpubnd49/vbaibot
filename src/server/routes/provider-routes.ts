@@ -150,7 +150,14 @@ export const providerRoutes = new Hono()
         }),
       );
       return c.json({ ok: true, reply: result.text.trim().slice(0, 100) });
-    } catch (err) {
-      return c.json({ ok: false, error: err instanceof Error ? err.message : String(err) }, 502);
+    } catch (err: unknown) {
+      let errorMsg = String(err);
+      if (err instanceof Error) {
+        errorMsg = err.message;
+      } else if (err && typeof err === "object") {
+        const anyErr = err as Record<string, unknown>;
+        errorMsg = typeof anyErr.message === "string" ? anyErr.message : JSON.stringify(err);
+      }
+      return c.json({ ok: false, error: errorMsg }, 502);
     }
   });

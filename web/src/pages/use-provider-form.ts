@@ -86,10 +86,14 @@ export function useProviderForm() {
         error: err instanceof ApiError ? err.message : "Không gọi được",
         reply: undefined,
       }));
+    const errorText =
+      typeof result.error === "object"
+        ? JSON.stringify(result.error)
+        : String(result.error || "Không gọi được");
     setStatus(
       result.ok
         ? { tone: "green", text: `Kết nối ok - model trả lời: "${result.reply}"` }
-        : { tone: "red", text: `Kết nối lỗi: ${result.error}` },
+        : { tone: "red", text: `Kết nối lỗi: ${errorText}` },
     );
     setBusy(false);
   }
