@@ -67,10 +67,12 @@ function readApiKey(): string {
   if (env.TTS_API_KEY) {
     return env.TTS_API_KEY;
   }
-  // Fallback: Tự động dùng API key từ cấu hình LLM đang hoạt động (kể cả 9Router)
+  // Fallback: Tự động dùng API key từ cấu hình LLM nếu là Google trực tiếp.
+  // 9Router KHÔNG hỗ trợ TTS endpoint, nên fallback sẽ luôn lỗi rồi mới chuyển
+  // sang Edge TTS — tốn thời gian vô ích. Bỏ qua để đi thẳng Edge TTS.
   try {
     const llm = getEffectiveLlmSettings();
-    if (llm.apiKey) {
+    if (llm.apiKey && !llm.baseUrl?.includes("9router.flowgiare.com")) {
       return llm.apiKey;
     }
   } catch {
@@ -80,12 +82,15 @@ function readApiKey(): string {
 }
 
 export function getTtsSettings(): TtsSettings {
-  // Fallback baseUrl: dùng LLM base URL nếu TTS riêng chưa set
+  // Fallback baseUrl: dùng LLM base URL nếu TTS riêng chưa set.
+  // Bỏ qua 9Router vì nó không hỗ trợ Gemini TTS endpoint.
   let baseUrl = read("tts_base_url") ?? "";
   if (!baseUrl) {
     try {
       const llm = getEffectiveLlmSettings();
-      if (llm.baseUrl) baseUrl = llm.baseUrl;
+      if (llm.baseUrl && !llm.baseUrl.includes("9router.flowgiare.com")) {
+        baseUrl = llm.baseUrl;
+      }
     } catch { /* bỏ qua */ }
   }
   return {
