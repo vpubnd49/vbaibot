@@ -106,7 +106,10 @@ export async function generateImage(
     body.image_detail = "high";
   }
 
-  const url = `${settings.baseUrl.replace(/\/+$/, "")}/v1/images/generations`;
+  const cleanBaseUrl = settings.baseUrl.replace(/\/+$/, "");
+  const url = cleanBaseUrl.endsWith("/v1")
+    ? `${cleanBaseUrl}/images/generations`
+    : `${cleanBaseUrl}/v1/images/generations`;
   // Đuôi file theo format đã XIN: stream SSE và JSON chỉ mang base64 trần, không
   // kèm MIME. Riêng nhánh bytes thô thì Content-Type thật mới là nguồn đúng.
   const requestedExt: ImageExt = outputFormat === "png" ? "png" : "jpg";
@@ -129,7 +132,7 @@ export async function generateImage(
     });
 
     if (!response.ok) throw new Error(await readErrorMessage(response));
-    return await readImageResponse(response, requestedExt);
+    return await readImageResponse(response, requestedExt, fetchImpl);
   } catch (err) {
     // Bọc CẢ lượt gọi lẫn lượt đọc stream: với SSE, fetch trả về sau vài giây
     // rồi mình còn đọc thêm cả phút - quá hạn giữa chừng là ca dễ xảy ra nhất,
@@ -143,7 +146,11 @@ export async function generateImage(
 }
 
 /** Đọc ảnh ra khỏi response, chịu được cả 3 kiểu provider có thể trả về */
-async function readImageResponse(response: Response, requestedExt: ImageExt): Promise<GeneratedImage> {
+async function readImageResponse(
+  response: Response,
+  requestedExt: ImageExt,
+  fetchImpl: typeof fetch = fetch,
+): Promise<GeneratedImage> {
   const contentType = (response.headers.get("content-type") ?? "").split(";")[0]!.trim().toLowerCase();
 
   if (contentType === "text/event-stream") {
@@ -151,12 +158,28 @@ async function readImageResponse(response: Response, requestedExt: ImageExt): Pr
   }
 
   if (contentType === "application/json") {
-    const parsed = (await response.json().catch(() => null)) as { data?: { b64_json?: string }[] } | null;
-    const b64 = parsed?.data?.[0]?.b64_json;
+    const parsed = (await response.json().catch(() => null)) as {
+      data?: { b64_json?: string; url?: string }[];
+    } | null;
+    const item = parsed?.data?.[0];
+    let b64 = item?.b64_json;
+    if (!b64 && item?.url) {
+      if (item.url.startsWith("data:")) {
+        const commaIdx = item.url.indexOf(",");
+        if (commaIdx !== -1) {
+          b64 = item.url.slice(commaIdx + 1);
+        }
+      } else if (item.url.startsWith("http://") || item.url.startsWith("https://")) {
+        const res = await fetchImpl(item.url);
+        if (res.ok) {
+          return { data: Buffer.from(await res.arrayBuffer()), ext: requestedExt };
+        }
+      }
+    }
     // Cùng lớp với nhánh SSE: chạy xong mà không ra ảnh -> đáng thử lại. Nhánh
     // Content-Type lạ bên dưới thì KHÔNG: đó là trang lỗi hạ tầng, không phải
     // model đổi ý.
-    if (!b64) throw new LoiVeHutAnh("Provider không trả về ảnh (JSON thiếu b64_json)");
+    if (!b64) throw new LoiVeHutAnh("Provider không trả về ảnh (JSON thiếu b64_json hoặc url)");
     return { data: Buffer.from(b64, "base64"), ext: requestedExt };
   }
 
