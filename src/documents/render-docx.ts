@@ -59,7 +59,7 @@ function blockToElements(block: DocumentBlock): (Paragraph | Table)[] {
     case "heading":
       // Dùng HeadingLevel built-in (đã restyle đen trong DOCX_STYLES) để mục
       // lục (TOC) nhận ra được nếu sau này cần
-      return [new Paragraph({ text: block.text, heading: headingCuaCap(block.level) })];
+      return [new Paragraph({ children: parseTextRuns(block.text, { bold: true }), heading: headingCuaCap(block.level) })];
 
     case "paragraph":
       // Model có thể nhét "\n" vào - tách thành nhiều Paragraph vì docx bỏ qua

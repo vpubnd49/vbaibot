@@ -381,14 +381,11 @@ function buildAdminCanCu(canCu?: string[]): Paragraph[] {
         alignment: AlignmentType.JUSTIFIED,
         spacing: BODY_SPACING,
         indent: { firstLine: LAYOUT.FIRST_LINE_INDENT },
-        children: [
-          new TextRun({
-            text,
-            font: LAYOUT.FONT,
-            size: 28, // 14pt
-            italics: true, // In nghiêng theo NĐ 30
-          }),
-        ],
+        children: parseTextRuns(text, {
+          font: LAYOUT.FONT,
+          size: 28, // 14pt
+          italics: true, // In nghiêng theo NĐ 30
+        }),
       }),
     );
   }
@@ -416,14 +413,11 @@ function buildSectionTable(headers: string[], rows: string[][]): Table {
             new Paragraph({
               alignment: AlignmentType.CENTER,
               spacing: { before: 60, after: 60 },
-              children: [
-                new TextRun({
-                  text: h.trim(),
-                  font: LAYOUT.FONT,
-                  size: 24, // 12pt
-                  bold: true,
-                }),
-              ],
+              children: parseTextRuns(h.trim(), {
+                font: LAYOUT.FONT,
+                size: 24, // 12pt
+                bold: true,
+              }),
             }),
           ],
         }),
@@ -474,14 +468,11 @@ function buildAdminBody(sections: AdminSection[]): (Paragraph | Table)[] {
           alignment: isArticle ? AlignmentType.JUSTIFIED : AlignmentType.LEFT,
           spacing: { before: 200, after: 80, line: 340, lineRule: LineRuleType.AT_LEAST },
           indent: isArticle ? { firstLine: LAYOUT.FIRST_LINE_INDENT } : undefined,
-          children: [
-            new TextRun({
-              text: sec.heading.trim(),
-              font: LAYOUT.FONT,
-              size: 28, // 14pt
-              bold: true,
-            }),
-          ],
+          children: parseTextRuns(sec.heading.trim(), {
+            font: LAYOUT.FONT,
+            size: 28, // 14pt
+            bold: true,
+          }),
         }),
       );
     }

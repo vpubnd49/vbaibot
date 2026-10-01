@@ -37,8 +37,8 @@ function normalizeInlineMarkup(text: string): string {
 
   // Chuẩn hóa thẻ span / font có màu
   s = s.replace(/<span\b[^>]*color:\s*(?:red|#f00|#ff0000)[^>]*>([\s\S]*?)<\/span>/gi, "<red>$1</red>");
-  s = s.replace(/<span\b[^>]*color:\s*(?:green|#008000|#0f0)[^>]*>([\s\S]*?)<\/green>/gi, "<green>$1</green>");
-  s = s.replace(/<span\b[^>]*color:\s*(?:blue|#0000ff|#00f)[^>]*>([\s\S]*?)<\/blue>/gi, "<blue>$1</blue>");
+  s = s.replace(/<span\b[^>]*color:\s*(?:green|#008000|#0f0)[^>]*>([\s\S]*?)<\/span>/gi, "<green>$1</green>");
+  s = s.replace(/<span\b[^>]*color:\s*(?:blue|#0000ff|#00f)[^>]*>([\s\S]*?)<\/span>/gi, "<blue>$1</blue>");
   s = s.replace(/<font\b[^>]*color=["']?(?:red|#f00|#ff0000)["']?[^>]*>([\s\S]*?)<\/font>/gi, "<red>$1</red>");
   s = s.replace(/<font\b[^>]*color=["']?(?:green|#008000|#0f0)["']?[^>]*>([\s\S]*?)<\/font>/gi, "<green>$1</green>");
   s = s.replace(/<font\b[^>]*color=["']?(?:blue|#0000ff|#00f)["']?[^>]*>([\s\S]*?)<\/font>/gi, "<blue>$1</blue>");

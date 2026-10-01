@@ -326,14 +326,11 @@ function buildPartyBody(sections: AdminSection[]): Paragraph[] {
         new Paragraph({
           alignment: AlignmentType.LEFT,
           spacing: { before: 200, after: 80, line: 360, lineRule: LineRuleType.EXACTLY },
-          children: [
-            new TextRun({
-              text: sec.heading.trim(),
-              font: LAYOUT.FONT,
-              size: 28,
-              bold: true,
-            }),
-          ],
+          children: parseTextRuns(sec.heading.trim(), {
+            font: LAYOUT.FONT,
+            size: 28,
+            bold: true,
+          }),
         }),
       );
     }
