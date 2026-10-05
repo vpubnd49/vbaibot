@@ -19,8 +19,8 @@
       "organization_operational_from": "2025-03-01",
       "governing_ministry": "Bộ Nông nghiệp và Môi trường",
       "governing_circular": "Thông tư số 19/2025/TT-BNNMT ngày 19/6/2025",
-      "key_functions": "Nông nghiệp; lâm nghiệp; diêm nghiệp; thủy sản; thủy lợi; phòng chống thiên tai; giảm nghèo; phát triển nông thôn; đất đai; tài nguyên nước; khoáng sản, địa chất; môi trường; khí tượng thủy văn; biến đổi khí hậu; đo đạc bản đồ",
-      "note": "Thành lập trên cơ sở hợp nhất hai Sở cũ."
+      "key_functions": "Nông nghiệp; lâm nghiệp; diêm nghiệp; thủy sản; thủy lợi; phòng chống thiên tai; giảm nghèo; phát triển nông thôn; đất đai; tài nguyên nước; môi trường; khí tượng thủy văn; biến đổi khí hậu; đo đạc bản đồ (Lưu ý: từ 01/10/2026, chức năng khoáng sản, địa chất đã chuyển giao sang Sở Công Thương theo QĐ 4774/QĐ-UBND)",
+      "note": "Thành lập trên cơ sở hợp nhất hai Sở cũ. Từ 01/10/2026, chuyển giao nguyên trạng Phòng Địa chất và Khoáng sản cùng 11 biên chế sang Sở Công Thương theo QĐ 4774/QĐ-UBND và NQ 66.25/2026/NQ-CP."
     },
     {
       "canonical_name": "Sở Khoa học và Công nghệ tỉnh Lâm Đồng",
@@ -72,7 +72,7 @@
       "organization_operational_from": "2025-03-01",
       "governing_ministry": "Bộ Xây dựng",
       "governing_circular": "Thông tư số 10/2025/TT-BXD ngày 14/6/2025",
-      "note": "Tên Sở Xây dựng được giữ cho cơ quan mới sau hợp nhất."
+      "note": "Tên Sở Xây dựng được giữ cho cơ quan mới sau hợp nhất. Từ 01/10/2026, chuyển giao chức năng, nhiệm vụ QLNN về khoáng sản (vật liệu xây dựng) sang Sở Công Thương theo QĐ 4774/QĐ-UBND."
     },
     {
       "canonical_name": "Sở Tài chính tỉnh Lâm Đồng",
@@ -225,6 +225,33 @@
       "old_entities": [],
       "change_type": "giữ nguyên",
       "note": "Giữ nguyên tên. Cơ quan tham mưu tổng hợp cho UBND tỉnh."
+    },
+    {
+      "canonical_name": "Sở Công Thương tỉnh Lâm Đồng",
+      "short_name": "Sở Công Thương",
+      "abbreviation": "Sở CT",
+      "old_entities": [],
+      "change_type": "kiện toàn chức năng và cơ cấu tổ chức",
+      "governing_ministry": "Bộ Công Thương",
+      "governing_circular": "Thông tư số 37/2025/TT-BCT và Thông tư số 50/2026/TT-BCT ngày 13/9/2026",
+      "key_functions": "Năng lượng (điện, than, dầu khí, NLTT); địa chất, khoáng sản (bổ sung từ 01/10/2026 theo QĐ 4774, 4775/QĐ-UBND); hóa chất, VLNCN; công nghiệp; khuyến công, cụm CN; thương mại trong nước, XNK, logistics; quản lý thị trường; TMĐT; cạnh tranh, BVQL người tiêu dùng",
+      "organizational_structure": {
+        "specialized_divisions": [
+          "Văn phòng Sở",
+          "Phòng Kế hoạch - Tổng hợp",
+          "Phòng Quản lý Công nghiệp",
+          "Phòng Quản lý Năng lượng",
+          "Phòng Quản lý Thương mại",
+          "Phòng Địa chất và Khoáng sản (thành lập theo QĐ 4774/QĐ-UBND ngày 01/10/2026 trên cơ sở tiếp nhận từ Sở NN&MT và Sở Xây dựng, điều chuyển 11 biên chế)"
+        ],
+        "administrative_units": [
+          "Chi cục Quản lý thị trường tỉnh Lâm Đồng"
+        ],
+        "public_service_units": [
+          "Trung tâm Khuyến công tỉnh Lâm Đồng"
+        ]
+      },
+      "note": "Quy định CNNVQH mới theo Quyết định số 4775/QĐ-UBND ngày 01/10/2026 (thay thế QĐ 190/QĐ-UBND). QĐ số 80/2026/QĐ-UBND bãi bỏ QĐ 04/2025/QĐ-UBND. QĐ số 4774/QĐ-UBND thành lập Phòng Địa chất và Khoáng sản."
     }
   ],
   "common_legal_bases": {

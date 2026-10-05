@@ -95,7 +95,13 @@ Sở Công Thương có tư cách pháp nhân, có con dấu và tài khoản ri
    - u) Về dịch vụ công
    - v) Chủ trì giải quyết vụ việc tranh chấp đầu tư phát sinh trên cơ sở hợp đồng, thỏa thuận, cam kết với nhà đầu tư nước ngoài
    - x) Thực hiện các nhiệm vụ quản lý nhà nước về thống kê, phân tích và dự báo thống kê ngành Công Thương
-   - **y) Về địa chất và khoáng sản** *(MỚI — bổ sung từ 01/10/2026)*
+   - **y) Về địa chất và khoáng sản** *(MỚI — bổ sung từ 01/10/2026 theo NQ 66.25/2026/NQ-CP và QĐ 4774, 4775/QĐ-UBND)*:
+     * Tham mưu, giúp UBND tỉnh thực hiện quản lý nhà nước về địa chất và khoáng sản trên địa bàn tỉnh;
+     * Lập, điều chỉnh, tổ chức thực hiện phương án thăm dò, khai thác, sử dụng khoáng sản trong quy hoạch tỉnh; khoanh định khu vực cấm, tạm thời cấm hoạt động khoáng sản; khu vực khoáng sản phân tán, nhỏ lẻ;
+     * Thẩm định hồ sơ cấp, gia hạn, điều chỉnh, thu hồi, trả lại giấy phép thăm dò khoáng sản, giấy phép khai thác khoáng sản; phê duyệt đề án đóng cửa mỏ khoáng sản; phê duyệt trữ lượng khoáng sản thuộc thẩm quyền của UBND cấp tỉnh;
+     * Tổ chức đấu giá quyền khai thác khoáng sản; xác định tiền cấp quyền khai thác khoáng sản, tiền sử dụng số liệu, thông tin về địa chất, khoáng sản;
+     * Quản lý nhà nước về khai thác, chế biến khoáng sản (bô-xít, titan, than, khoáng sản làm VLXD thông thường như đá, cát, sỏi, đất sét, đất san lấp...);
+     * Thanh tra, kiểm tra, giám sát việc chấp hành pháp luật về địa chất và khoáng sản; bảo vệ khoáng sản chưa khai thác; bảo đảm an toàn kỹ thuật mỏ và bảo vệ môi trường trong hoạt động khoáng sản.
 
 ---
 
@@ -112,13 +118,50 @@ Sở Công Thương có tư cách pháp nhân, có con dấu và tài khoản ri
 3. **Phòng Quản lý Công nghiệp** — công nghiệp nặng, nhẹ, hỗ trợ, tiêu dùng, thực phẩm, an toàn kỹ thuật công nghiệp, khuyến công, cụm CN, TTCN
 4. **Phòng Quản lý Năng lượng** — điện, than, dầu khí, năng lượng mới, năng lượng tái tạo, sử dụng NLTK&HQ
 5. **Phòng Quản lý Thương mại** — thương mại nội địa, XNK, logistics, TMĐT, kinh tế số, xúc tiến TM, cạnh tranh, bảo vệ NTD, phòng vệ TM, hội nhập KT quốc tế
-6. **Phòng Địa chất và Khoáng sản** *(MỚI — thành lập theo QĐ 4774/QĐ-UBND)* — quản lý nhà nước về địa chất, khoáng sản (tiếp nhận nguyên trạng Phòng Địa chất và Khoáng sản từ Sở Nông nghiệp và Môi trường + chức năng quản lý khoáng sản từ Sở Xây dựng)
+6. **Phòng Địa chất và Khoáng sản** *(MỚI — thành lập theo QĐ 4774/QĐ-UBND ngày 01/10/2026)* — tham mưu quản lý nhà nước về địa chất, khoáng sản (tiếp nhận nguyên trạng Phòng Địa chất và Khoáng sản từ Sở Nông nghiệp và Môi trường + chức năng quản lý khoáng sản từ Sở Xây dựng; điều chuyển 11 biên chế công chức)
 
 **3.3. Đơn vị hành chính thuộc Sở:**
 - **Chi cục Quản lý thị trường tỉnh Lâm Đồng** — kiểm tra, kiểm soát thị trường, chống buôn lậu, gian lận thương mại, hàng giả
 
 **3.4. Đơn vị sự nghiệp công lập thuộc Sở:**
 - **Trung tâm Khuyến công tỉnh Lâm Đồng** — khuyến công, hỗ trợ phát triển công nghiệp, tiểu thủ công nghiệp
+
+---
+
+### 3.5. CHI TIẾT VỀ PHÒNG ĐỊA CHẤT VÀ KHOÁNG SẢN (QĐ số 4774/QĐ-UBND & QĐ số 4775/QĐ-UBND)
+
+⚠️ **SỰ KIỆN QUAN TRỌNG:** Ngày 01/10/2026, UBND tỉnh Lâm Đồng ban hành **Quyết định số 4774/QĐ-UBND** thành lập Phòng Địa chất và Khoáng sản thuộc Sở Công Thương (do Phó Chủ tịch UBND tỉnh Nguyễn Hồng Hải ký).
+
+**1. Nguồn gốc thành lập và biên chế:**
+- Phòng Địa chất và Khoáng sản là phòng chuyên môn, nghiệp vụ thuộc Sở Công Thương.
+- Được thành lập trên cơ sở:
+  + Tiếp nhận **nguyên trạng Phòng Địa chất và Khoáng sản** thuộc Sở Nông nghiệp và Môi trường;
+  + Tiếp nhận **chức năng, nhiệm vụ quản lý nhà nước về khoáng sản** thuộc Sở Xây dựng;
+  + Điều chuyển **11 biên chế công chức** từ Sở Nông nghiệp và Môi trường sang Sở Công Thương.
+- Căn cứ pháp lý: Luật Tổ chức CQĐP 2025; Nghị quyết 66.25/2026/NQ-CP ngày 04/9/2026 của Chính phủ; Nghị định 150/2025/NĐ-CP (sửa đổi bởi NĐ 370/2025/NĐ-CP); Nghị định 121/2026/NĐ-CP; Thông tư 37/2025/TT-BCT và Thông tư 50/2026/TT-BCT ngày 13/9/2026 của Bộ Công Thương; Tờ trình số 161/TTr-SCT ngày 24/9/2026 của Giám đốc Sở Công Thương.
+
+**2. Nhiệm vụ và quyền hạn của Phòng Địa chất và Khoáng sản:**
+- **Tham mưu quản lý nhà nước về địa chất và khoáng sản** trên địa bàn toàn tỉnh Lâm Đồng.
+- **Quy hoạch & Kế hoạch:** Xây dựng, triển khai quy hoạch thăm dò, khai thác, chế biến và sử dụng khoáng sản tỉnh; khoanh định khu vực cấm, tạm thời cấm hoạt động khoáng sản; khu vực khoáng sản phân tán, nhỏ lẻ.
+- **Cấp phép & Quản lý mỏ:** Tiếp nhận, thẩm định hồ sơ cấp, gia hạn, điều chỉnh, thu hồi, trả lại Giấy phép thăm dò khoáng sản, Giấy phép khai thác khoáng sản; phê duyệt đề án đóng cửa mỏ khoáng sản; thẩm định, phê duyệt trữ lượng khoáng sản trong báo cáo kết quả thăm dò khoáng sản thuộc thẩm quyền UBND tỉnh.
+- **Quản lý đa dạng khoáng sản:**
+  + Khoáng sản làm vật liệu xây dựng thông thường (đá, cát, sỏi, đất sét, đất san lấp...).
+  + Khoáng sản công nghiệp, kim loại, năng lượng (bô-xít, titan, than, quặng sắt, cao lanh, sét gạch ngói...).
+  + Giám sát hoạt động khai thác mỏ gắn với an toàn lao động, an toàn kỹ thuật mỏ và bảo vệ môi trường trong hoạt động khoáng sản.
+- **Tài chính & Đấu giá mỏ:** Tổ chức đấu giá quyền khai thác khoáng sản; xác định tiền cấp quyền khai thác khoáng sản, tiền sử dụng số liệu, thông tin về địa chất, khoáng sản; tính toán nghĩa vụ tài chính theo quy định.
+- **Thanh tra, kiểm tra & Xử lý vi phạm:** Kiểm tra, thanh tra việc chấp hành pháp luật về địa chất và khoáng sản; bảo vệ tài nguyên khoáng sản chưa khai thác; phối hợp Công an tỉnh và UBND các xã, phường, đặc khu xử lý khai thác khoáng sản trái phép (cát, sỏi, đất san lấp, đá...).
+
+**3. Cơ chế bàn giao và trách nhiệm các cơ quan (Điều 3 QĐ 4774):**
+- **Sở Nông nghiệp và Môi trường:** Bàn giao đầy đủ hồ sơ, tài liệu, dữ liệu, CSDL, chương trình, đề án, dự án, tài sản và nguồn lực liên quan đến địa chất, khoáng sản cho Sở Công Thương; phối hợp Sở Nội vụ rà soát, điều động 11 công chức; tiếp tục thực hiện các nhiệm vụ còn lại (đất đai, môi trường, tài nguyên nước, lâm nghiệp...).
+- **Sở Xây dựng:** Lập danh mục và bàn giao đầy đủ hồ sơ, tài liệu, dữ liệu, dự án và nguồn lực liên quan đến QLNN về khoáng sản (vật liệu xây dựng) sang Sở Công Thương; phối hợp xử lý công việc dở dang không làm gián đoạn TTHC.
+- **Sở Công Thương:** Chủ trì tiếp nhận toàn bộ chức năng, nhiệm vụ, hồ sơ, tài liệu, dữ liệu, tài sản, tài chính, nhân sự chuyển giao; bố trí sắp xếp theo vị trí việc làm; bảo đảm tiếp nhận liên tục, không làm gián đoạn TTHC.
+- **Sở Nội vụ:** Chủ trì phối hợp điều động 11 công chức theo vị trí việc làm; hướng dẫn sắp xếp tổ chức bộ máy, nhân sự đúng quy định.
+
+**4. Quy định chuyển tiếp giải quyết hồ sơ (Điều 4 QĐ 4774):**
+- **Kế thừa hồ sơ đang giải quyết:** Các hồ sơ, TTHC về địa chất, khoáng sản đã nộp hợp lệ tại Sở NN&MT hoặc Sở Xây dựng trước 01/10/2026 chưa có kết quả -> **chuyển nguyên trạng sang Sở Công Thương** để tiếp tục giải quyết.
+- **Bảo lưu quyền lợi:** Tổ chức, cá nhân **KHÔNG** phải nộp lại hồ sơ, không làm lại các bước đã hoàn thành, **KHÔNG nộp lại phí, lệ phí**; kết quả thẩm định, kiểm tra trước đó được kế thừa; thời hạn giải quyết không tính lại từ đầu.
+- **Hiệu lực giấy phép:** Mọi giấy phép, quyết định, văn bản chấp thuận về địa chất, khoáng sản đã ban hành trước ngày 01/10/2026 **tiếp tục có giá trị pháp lý** cho đến khi hết hạn hoặc được điều chỉnh/thay thế theo quy định pháp luật.
+- **Xử lý vướng mắc:** Việc chưa rõ cơ quan tiếp nhận -> Sở Công Thương chủ trì phối hợp Sở NN&MT, Sở Xây dựng thống nhất phương án xử lý, báo cáo UBND tỉnh nếu vượt thẩm quyền.
 
 ---
 
@@ -213,7 +256,8 @@ Sở Công Thương có tư cách pháp nhân, có con dấu và tài khoản ri
 
 **Phân công lĩnh vực:**
 - Khi người dùng hỏi về **địa chất, khoáng sản** tỉnh Lâm Đồng (từ 01/10/2026 trở đi): đơn vị QLNN là **Sở Công Thương** (Phòng Địa chất và Khoáng sản), KHÔNG PHẢI Sở NNMT hay Sở XD.
-- Khi giao nhiệm vụ liên quan **khoáng sản, thăm dò, khai thác mỏ, cấp phép khoáng sản** → giao **Sở Công Thương** chủ trì.
+- Khi giao nhiệm vụ liên quan **khoáng sản, thăm dò, khai thác mỏ, cấp phép khoáng sản, đóng cửa mỏ, đấu giá quyền khai thác, tính tiền cấp quyền khai thác khoáng sản, mỏ cát, sỏi, đá, bô-xít, titan, đất san lấp** → giao **Sở Công Thương** (Phòng Địa chất và Khoáng sản) chủ trì tham mưu.
+- Khi xử lý vụ việc vướng mắc, khiếu nại, tố tụng hoặc chồng lấn giữa dự án năng lượng (điện gió, thủy điện, điện mặt trời) và khu vực mỏ khoáng sản (như mỏ titan, bô-xít) → giao **Sở Công Thương** chủ trì (vì cả 2 lĩnh vực năng lượng và khoáng sản đều thuộc Sở Công Thương phụ trách).
 - Khi soạn CV giao Sở tham mưu về **điện, năng lượng tái tạo, điện mặt trời, điện gió** → giao **Sở Công Thương** (Phòng Quản lý Năng lượng).
 - Khi soạn CV về **chống buôn lậu, gian lận thương mại, hàng giả, kiểm tra thị trường** → giao **Sở Công Thương** (Chi cục Quản lý thị trường).
 - Khi soạn CV về **khuyến công, cụm công nghiệp, tiểu thủ công nghiệp** → giao **Sở Công Thương** (Trung tâm Khuyến công).

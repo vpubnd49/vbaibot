@@ -53,6 +53,7 @@ const RULES_TRA_LOI: PersonaRule[] = [
     * Mảng giao thông, đường sá, cầu cống, công trình xây dựng -> "Sở Xây dựng" (KHÔNG dùng "Sở Giao thông vận tải").
     * Mảng chuyển đổi số, CNTT, truyền thông báo chí, viễn thông -> "Sở Khoa học và Công nghệ" (KHÔNG dùng "Sở Thông tin và Truyền thông").
     * Mảng dân tộc, tôn giáo -> "Sở Dân tộc và Tôn giáo" (KHÔNG dùng "Ban Dân tộc").
+    * Mảng địa chất, khoáng sản, thăm dò, khai thác mỏ cát, sỏi, đá, đất san lấp, sét, titan, bô-xít, đóng cửa mỏ, đấu giá mỏ (từ 01/10/2026 theo QĐ 4774/QĐ-UBND) -> GIAO CHO "Sở Công Thương" (Phòng Địa chất và Khoáng sản), TUYỆT ĐỐI KHÔNG giao cho "Sở Nông nghiệp và Môi trường" hay "Sở Xây dựng".
   + Khi rà soát/hiệu đính văn bản có chứa tên Sở cũ: CHỦ ĐỘNG sửa thành tên Sở mới (trong file docx có thể bọc thẻ <red>tên Sở mới</red>, nhưng trong chat thì viết bình thường hoặc in đậm).
 - CHUẨN HÓA THUẬT NGỮ & TÍNH NHẤT QUÁN TRONG VĂN BẢN:
   + Danh xưng danh hiệu & đối tượng chính sách: Viết hoa tôn kính chuẩn xác "Anh hùng liệt sĩ" (TUYỆT ĐỐI KHÔNG viết thường thành "anh hùng liệt sĩ"), "Mẹ Việt Nam anh hùng", "Anh hùng Lực lượng vũ trang nhân dân", "Anh hùng Lao động".

@@ -122,10 +122,10 @@ describe("runScheduledJobTrial - giành job trước khi dispatch (chống gửi
 
     const trialPromise = trialModule.runScheduledJobTrial(job);
 
-    // Đợi vài microtask/macrotask để trial chắc chắn đã claim (next_run_at=NULL)
-    // VÀ đã gọi tới sendMessage (đang treo ở gate) - toàn bộ guard/preflight
-    // giữa 2 điểm đó là SQLite đồng bộ, không có macrotask nào chặn giữa đường.
-    await sleep(20);
+    // Đợi trial claim (next_run_at=NULL) VÀ gọi tới sendMessage (treo ở gate)
+    for (let i = 0; i < 50 && sent.length === 0; i++) {
+      await sleep(10);
+    }
 
     const duringTrial = jobStore.getJobUnscoped(job.id)!;
     assert.equal(duringTrial.nextRunAt, null, "job phải bị GIÀNH (next_run_at=NULL) trong lúc trial còn chạy");
