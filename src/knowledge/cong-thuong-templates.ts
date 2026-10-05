@@ -231,82 +231,98 @@ Sở Công Thương có tư cách pháp nhân, có con dấu và tài khoản ri
 
 ---
 
-### 6. DANH MỤC THỦ TỤC HÀNH CHÍNH TOÀN NGÀNH CÔNG THƯƠNG (THÔNG BÁO 148/TB-SCT & QĐ 4548/QĐ-UBND)
+### 6. DANH MỤC THỦ TỤC HÀNH CHÍNH THEO THÔNG BÁO SỐ 148/TB-SCT (NGUYÊN VĂN TÀI LIỆU GỐC)
 
-⚠️ **BẢNG TỔNG HỢP SỐ LIỆU CHUẨN XÁC — TUYỆT ĐỐI KHÔNG NHẦM LẪN:**
-1. **Cấp tỉnh (Sở Công Thương giải quyết và quản lý):** **255 TTHC**
-   - **Phụ lục 1:** **246 TTHC** thông thường dành cho cá nhân, tổ chức, thương nhân, doanh nghiệp.
-   - **Phụ lục 2:** **09 TTHC nội bộ** giữa các cơ quan hành chính nhà nước trên địa bàn tỉnh.
-2. **Cấp xã (UBND cấp xã giải quyết):** **07 TTHC** (Phụ lục 3).
-3. **Tổng số TTHC toàn ngành Công Thương trên địa bàn tỉnh:** **262 TTHC** (255 cấp tỉnh + 07 cấp xã).
+Căn cứ **Quyết định số 4548/QĐ-UBND ngày 15/9/2026** của Chủ tịch UBND tỉnh Lâm Đồng và **Thông báo số 148/TB-SCT ngày 20/9/2026** của Sở Công Thương tỉnh Lâm Đồng (do Phó Giám đốc Trần Vũ Ngoan ký thay Giám đốc Sở; thay thế Thông báo số 134/TB-SCT ngày 21/8/2026):
 
----
-
-#### 6.1. CHI TIẾT 07 TTHC CẤP XÃ (Phụ lục 3 kèm Thông báo 148/TB-SCT)
-*Thực hiện tiếp nhận tại Bộ phận Một cửa UBND cấp xã hoặc nộp trực tuyến qua Cổng DVC Quốc gia / Hệ thống thông tin giải quyết TTHC tỉnh.*
-
-| TT | Tên thủ tục hành chính | Thời hạn giải quyết | Lĩnh vực | Căn cứ pháp lý |
-|:---|:---|:---:|:---:|:---|
-| 1 | **Cấp Giấy phép sản xuất rượu thủ công nhằm mục đích kinh doanh** | 10 ngày làm việc | Lưu thông hàng hóa trong nước | QĐ 1920/QĐ-BCT, QĐ 1395/QĐ-UBND |
-| 2 | **Cấp lại Giấy phép sản xuất rượu thủ công nhằm mục đích kinh doanh** | 07 ngày làm việc | Lưu thông hàng hóa trong nước | QĐ 1920/QĐ-BCT, QĐ 1395/QĐ-UBND |
-| 3 | **Cấp sửa đổi, bổ sung Giấy phép sản xuất rượu thủ công nhằm mục đích kinh doanh** | 07 ngày làm việc | Lưu thông hàng hóa trong nước | QĐ 1920/QĐ-BCT, QĐ 1395/QĐ-UBND |
-| 4 | **Cấp Giấy phép bán lẻ sản phẩm thuốc lá** | 15 ngày làm việc | Lưu thông hàng hóa trong nước | QĐ 1441/QĐ-BCT, QĐ 1395/QĐ-UBND |
-| 5 | **Cấp sửa đổi, bổ sung Giấy phép bán lẻ sản phẩm thuốc lá** | 15 ngày làm việc | Lưu thông hàng hóa trong nước | QĐ 1441/QĐ-BCT, QĐ 1395/QĐ-UBND |
-| 6 | **Cấp lại Giấy phép bán lẻ sản phẩm thuốc lá** | 15 ngày làm việc | Lưu thông hàng hóa trong nước | QĐ 1441/QĐ-BCT, QĐ 1395/QĐ-UBND |
-| 7 | **Cấp Giấy chứng nhận sản phẩm công nghiệp nông thôn tiêu biểu cấp xã** | Theo Kế hoạch bình chọn cấp xã | Khuyến công, cụm công nghiệp | QĐ 1441/QĐ-BCT |
-
-⛔ **LƯU Ý TRÁNH SAI SÓT PHỔ BIẾN:**
-- Cấp xã **chỉ có 07 thủ tục** trên (3 thủ tục Rượu thủ công + 3 thủ tục Bán lẻ thuốc lá + 1 thủ tục Bình chọn SP CNNT tiêu biểu cấp xã).
-- KHÔNG đưa các thủ tục chợ cấp xã hay thẩm định phương án thủy điện vào danh mục TTHC cấp xã vì theo chuẩn chính thức Thông báo 148/TB-SCT chỉ duyệt đúng 7 thủ tục nêu trên.
+⚠️ **TỔNG HỢP SỐ LIỆU CHÍNH THỨC CÔNG KHAI:**
+1. **Thủ tục hành chính thuộc thẩm quyền giải quyết của Sở Công Thương:** **255 thủ tục**, gồm:
+   - **246 thủ tục hành chính thông thường** (Phụ lục 1 kèm theo).
+   - **09 thủ tục hành chính nội bộ** (Phụ lục 2 kèm theo).
+2. **Thủ tục hành chính thuộc thẩm quyền giải quyết của UBND cấp xã:** **07 thủ tục** (Phụ lục 3 kèm theo).
+3. **Kênh tra cứu & nộp hồ sơ:**
+   - Cổng Dịch vụ công Quốc gia: https://dichvucong.gov.vn
+   - Điện thoại hỗ trợ hướng dẫn: **0263.3540.616 (số máy lẻ: 08 - Quầy tiếp nhận Sở Công Thương)** tại Trung tâm Phục vụ Hành chính công tỉnh Lâm Đồng.
 
 ---
 
-#### 6.2. CHI TIẾT 09 TTHC NỘI BỘ GIỮA CÁC CƠ QUAN HÀNH CHÍNH (Phụ lục 2 kèm Thông báo 148/TB-SCT)
-*Thực hiện giữa Sở Công Thương, UBND tỉnh, các Sở, ngành và UBND cấp huyện/xã:*
+#### 6.1. DANH MỤC 07 THỦ TỤC HÀNH CHÍNH CẤP XÃ (NGUYÊN VĂN PHỤ LỤC 3 KÈM THÔNG BÁO 148/TB-SCT)
+*Danh mục TTHC trên lĩnh vực ngành Công Thương thuộc thẩm quyền giải quyết của cấp xã:*
 
-| Mã thủ tục | Tên thủ tục hành chính nội bộ | Cơ quan / Phòng ban chủ trì thực hiện | Căn cứ & Đặc điểm quy trình |
-|:---:|:---|:---|:---|
-| **NB-SCT-01** | **Lập, thẩm định và phê duyệt Kế hoạch khuyến công địa phương hằng năm** | Phòng Kế hoạch - Tổng hợp / Trung tâm Khuyến công | Định kỳ hằng năm; tổng hợp nhu cầu khuyến công toàn tỉnh trình UBND tỉnh phê duyệt |
-| **NB-SCT-02** | **Thẩm định Đề án thành lập, mở rộng cụm công nghiệp trên địa bàn tỉnh** | Phòng Quản lý Công nghiệp | Thực hiện theo Nghị định 32/2024/NĐ-CP về quản lý, phát triển cụm công nghiệp |
-| **NB-SCT-03** | **Thẩm định Phương án giá điện, giá phân phối điện cục bộ tại địa phương** | Phòng Quản lý Năng lượng | Căn cứ Luật Điện lực và các thông tư hướng dẫn của Bộ Công Thương |
-| **NB-SCT-04** | **Thẩm định Báo cáo nghiên cứu khả thi đầu tư xây dựng / Báo cáo KT-KT đầu tư xây dựng công trình năng lượng, công nghiệp chuyên ngành** | Phòng Quản lý Năng lượng (năng lượng) / Phòng Quản lý Công nghiệp (công nghiệp) | Theo Luật Xây dựng và Luật Điện lực; áp dụng cho dự án nguồn điện, lưới điện, kho xăng dầu, hóa chất |
-| **NB-SCT-05** | **Kiểm tra công tác nghiệm thu đưa công trình điện lực, công nghiệp chuyên ngành vào sử dụng** | Phòng Quản lý Năng lượng / Phòng Quản lý Công nghiệp | Kiểm tra hiện trường, hồ sơ hoàn công trước khi cho phép đóng điện hoặc đưa vào vận hành thương mại |
-| **NB-SCT-06** | **Thẩm định Kế hoạch phòng ngừa, ứng phó sự cố hóa chất cấp tỉnh** | Phòng Quản lý Công nghiệp | Căn cứ Luật Hóa chất; phối hợp các lực lượng PCCC&CNCH, Công an, Quân đội, Y tế |
-| **NB-SCT-07** | **Kiểm tra, đánh giá an toàn đập, hồ chứa thủy điện trước mùa mưa bão hằng năm** | Phòng Quản lý Năng lượng | Định kỳ hằng năm trước mùa mưa bão đối với tất cả các nhà máy, bậc thang thủy điện trên địa bàn |
-| **NB-SCT-08** | **Thẩm định Đề án đóng cửa mỏ khoáng sản thuộc thẩm quyền của UBND cấp tỉnh** | **Phòng Địa chất và Khoáng sản** | Căn cứ Luật Địa chất và Khoáng sản; thẩm định đề án phục hồi môi trường và đóng cửa mỏ sau khai thác |
-| **NB-SCT-09** | **Tổ chức bình chọn sản phẩm công nghiệp nông thôn tiêu biểu cấp tỉnh** | Hội đồng bình chọn cấp tỉnh (Thường trực: Sở Công Thương - Trung tâm Khuyến công) | Chu kỳ định kỳ **02 năm một lần** để tôn vinh sản phẩm CNNT tiêu biểu cấp tỉnh và chọn đi thi cấp khu vực/quốc gia |
+1. **Mã TTHC: 1.012568** — **Giao tài sản kết cấu hạ tầng chợ do cấp xã quản lý**
+   - Lĩnh vực: Tài sản kết cấu hạ tầng chợ do nhà nước đầu tư quản lý
+   - Tra cứu DVCQG: https://dichvucong.gov.vn/thu-tuc-hanh-chinh/019d2bf7-fc47-724d-98ee-1785e5599e34
+
+2. **Mã TTHC: 1.012569** — **Thu hồi tài sản kết cấu hạ tầng chợ**
+   - Lĩnh vực: Tài sản kết cấu hạ tầng chợ do nhà nước đầu tư quản lý
+   - Tra cứu DVCQG: https://dichvucong.gov.vn/thu-tuc-hanh-chinh/019d2bf7-fc53-748c-8af0-461a97b5f80b
+
+3. **Mã TTHC: 2.000206** — **Thẩm định, phê duyệt phương án ứng phó thiên tai cho công trình vùng hạ du đập thủy điện thuộc thẩm quyền phê duyệt của Ủy ban nhân dân cấp xã**
+   - Lĩnh vực: An toàn đập, hồ chứa thủy điện
+   - Tra cứu DVCQG: https://dichvucong.gov.vn/thu-tuc-hanh-chinh/019d2bf8-235d-7442-9ce7-64d33f904546
+
+4. **Mã TTHC: 2.002620** — **Thông báo về việc thực hiện hoạt động bán hàng không tại địa điểm giao dịch thường xuyên**
+   - Lĩnh vực: Bảo vệ người tiêu dùng
+   - Tra cứu DVCQG: https://dichvucong.gov.vn/thu-tuc-hanh-chinh/019d2bf8-4a88-761c-a413-252b766cc878
+
+5. **Mã TTHC: 2.000591** — **Cấp Giấy chứng nhận đủ điều kiện an toàn thực phẩm đối với cơ sở sản xuất, kinh doanh thực phẩm do Sở Công Thương thực hiện**
+   - Lĩnh vực: An toàn thực phẩm
+   - Tra cứu DVCQG: https://dichvucong.gov.vn/thu-tuc-hanh-chinh/019d2bf8-330c-77dd-8058-19a40f5959f5
+
+6. **Mã TTHC: 2.000535** — **Cấp lại Giấy chứng nhận đủ điều kiện an toàn thực phẩm đối với cơ sở sản xuất, kinh doanh thực phẩm do Sở Công Thương thực hiện**
+   - Lĩnh vực: An toàn thực phẩm
+   - Tra cứu DVCQG: https://dichvucong.gov.vn/thu-tuc-hanh-chinh/019d2bf8-32f5-71a9-8925-3524dc3d03fd
+
+7. **Mã TTHC: 1.115377** — **Thông báo phát triển nguồn điện mặt trời mái nhà tự sản xuất, tự tiêu thụ đấu nối với hệ thống điện quốc gia tại cấp điện áp hạ áp**
+   - Lĩnh vực: Điện lực
+   - Tra cứu DVCQG: https://dichvucong.gov.vn/thu-tuc-hanh-chinh/019f1695-894f-72b8-80a8-2fee368722be
 
 ---
 
-#### 6.3. CƠ CẤU 246 TTHC CẤP TỈNH (Phụ lục 1 kèm Thông báo 148/TB-SCT)
-246 TTHC cấp tỉnh của Sở Công Thương giải quyết được phân thành các nhóm lĩnh vực chính:
-1. **Lĩnh vực Thương mại và Lưu thông hàng hóa trong nước:**
-   - Kinh doanh Xăng dầu: Cấp/sửa đổi/cấp lại Giấy chứng nhận cửa hàng đủ điều kiện bán lẻ xăng dầu; Giấy xác nhận đủ điều kiện làm thương nhân phân phối xăng dầu.
-   - Kinh doanh Khí (LPG): Cấp/điều chỉnh Giấy chứng nhận đủ điều kiện thương nhân phân phối khí, trạm nạp khí, trạm cấp khí, cửa hàng bán lẻ LPG chai.
-   - Kinh doanh Rượu: Cấp/sửa đổi/cấp lại Giấy phép bán buôn rượu; Giấy phép sản xuất rượu công nghiệp quy mô dưới 03 triệu lít/năm.
-   - Kinh doanh Thuốc lá: Cấp/sửa đổi/cấp lại Giấy phép phân phối sản phẩm thuốc lá; Giấy phép bán buôn sản phẩm thuốc lá.
-   - Hoạt động Logistics, chợ, hạ tầng thương mại.
-2. **Lĩnh vực Năng lượng và Điện lực:**
-   - Cấp, sửa đổi, bổ sung Giấy phép hoạt động điện lực (theo ủy quyền QĐ 1553 sửa đổi đối với điện rác, điện sinh khối <50MW, nguồn khác <30MW; phân phối điện, bán lẻ điện).
-   - Thỏa thuận hướng tuyến, điểm đấu nối, thỏa thuận kỹ thuật công trình điện.
-   - Thẩm định, phê duyệt phương án ứng phó thiên tai, phương án bảo vệ đập, hồ chứa thủy điện.
-3. **Lĩnh vực Hóa chất và Vật liệu nổ công nghiệp (VLNCN):**
-   - Cấp/cấp lại/điều chỉnh Giấy phép sản xuất, kinh doanh hóa chất sản xuất kinh doanh có điều kiện trong lĩnh vực công nghiệp (theo ủy quyền QĐ 05/2026).
-   - Phê duyệt Kế hoạch / Biện pháp phòng ngừa ứng phó sự cố hóa chất nhóm công nghiệp.
-   - Cấp Giấy phép sử dụng vật liệu nổ công nghiệp (VLNCN); Giấy đăng ký sử dụng VLNCN.
-4. **Lĩnh vực Địa chất và Khoáng sản (Tiếp nhận mới từ 01/10/2026 theo QĐ 4774, QĐ 4775):**
-   - Thẩm định hồ sơ cấp, gia hạn, trả lại Giấy phép thăm dò khoáng sản làm VLXD thông thường và than bùn thuộc thẩm quyền UBND tỉnh.
-   - Thẩm định hồ sơ cấp, gia hạn, trả lại, chuyển nhượng Giấy phép khai thác khoáng sản làm VLXD thông thường và đất san lấp.
-   - Phê duyệt trữ lượng khoáng sản trong báo cáo kết quả thăm dò khoáng sản thuộc thẩm quyền cấp tỉnh.
-   - Xác định tiền cấp quyền khai thác khoáng sản, thẩm định hồ sơ đấu giá quyền khai thác khoáng sản.
-5. **Lĩnh vực An toàn thực phẩm ngành Công Thương:**
-   - Cấp/cấp lại Giấy chứng nhận cơ sở đủ điều kiện ATTP đối với các cơ sở sản xuất có quy mô >10 lao động, siêu thị, trung tâm thương mại, chuỗi bán lẻ thuộc thẩm quyền ngành Công Thương (theo QĐ 45/2025/QĐ-UBND và ủy quyền QĐ 01/2026).
-6. **Lĩnh vực Xúc tiến thương mại - Hội chợ triển lãm:**
-   - Tiếp nhận thông báo / Đăng ký thực hiện chương trình khuyến mại (hội chợ, bốc thăm, tặng quà...).
-   - Đăng ký tổ chức hội chợ, triển lãm thương mại trên địa bàn tỉnh Lâm Đồng.
-7. **Lĩnh vực Cạnh tranh và Bảo vệ quyền lợi người tiêu dùng:**
-   - Đăng ký / Thông báo hoạt động bán hàng đa cấp tại địa phương.
-   - Tiếp nhận đăng ký hợp đồng theo mẫu, điều kiện giao dịch chung.
+#### 6.2. DANH MỤC 09 THỦ TỤC HÀNH CHÍNH NỘI BỘ (NGUYÊN VĂN PHỤ LỤC 2 KÈM THÔNG BÁO 148/TB-SCT)
+*Danh mục TTHC nội bộ thuộc thẩm quyền giải quyết của Sở Công Thương:*
+
+| STT | Tên thủ tục | Lĩnh vực | Cơ quan thực hiện | Quyết định công bố |
+|:---:|:---|:---:|:---|:---|
+| **1** | **Điều chỉnh cập nhật phương án phát triển mạng lưới cấp điện trong quy hoạch tỉnh** | Điện lực | Sở Công Thương | Quyết định số 3968/QĐ-UBND ngày 04/8/2026 |
+| **2** | **Xây dựng kế hoạch khuyến công quốc gia** | Công nghiệp địa phương | Cục Đổi mới sáng tạo, Chuyển đổi xanh và Khuyến công (Bộ Công Thương), Sở Công Thương | Quyết định số 4001/QĐ-UBND ngày 06/8/2026 |
+| **3** | **Điều chỉnh, bổ sung và ngừng triển khai đề án khuyến công** | Công nghiệp địa phương | Cục Đổi mới sáng tạo, Chuyển đổi xanh và Khuyến công (Bộ Công Thương), Sở Công Thương | Quyết định số 4001/QĐ-UBND ngày 06/8/2026 |
+| **4** | **Tổ chức thực hiện đề án khuyến công quốc gia** | Công nghiệp địa phương | Sở Công Thương | Quyết định số 4001/QĐ-UBND ngày 06/8/2026 |
+| **5** | **Cấp tài khoản, phân quyền tài khoản sử dụng cơ sở dữ liệu môi trường ngành Công Thương** | An toàn đập và môi trường | Cục Kỹ thuật an toàn và Môi trường, Sở Công Thương | Quyết định số 4001/QĐ-UBND ngày 06/8/2026 |
+| **6** | **Tham vấn ý kiến của cơ quan quản lý ngành, lĩnh vực, địa phương về hợp đồng theo mẫu, điều kiện giao dịch chung** | Bảo vệ quyền lợi người tiêu dùng | Sở Công Thương, cơ quan quản lý ngành, lĩnh vực, địa phương | Quyết định số 4001/QĐ-UBND ngày 06/8/2026 |
+| **7** | **Cung cấp danh sách tổ chức, cá nhân kinh doanh áp dụng hợp đồng theo mẫu, điều kiện giao dịch chung trong giao dịch với người tiêu dùng** | Bảo vệ quyền lợi người tiêu dùng | Cơ quan quản lý nhà nước về bảo vệ quyền lợi người tiêu dùng thuộc Bộ Công Thương, Sở Công Thương | Quyết định số 4001/QĐ-UBND ngày 06/8/2026 |
+| **8** | **Xin ý kiến xử lý tài sản là tang vật, phương tiện vi phạm hành chính bị tịch thu** | Quản lý thị trường | Sở Công Thương và các cơ quan liên quan | Quyết định số 4001/QĐ-UBND ngày 06/8/2026 |
+| **9** | **Lấy ý kiến thẩm định của Bộ Công an bằng văn bản về an ninh quốc gia** | Thương mại điện tử | Cơ quan có thẩm quyền cấp, điều chỉnh Giấy phép kinh doanh của chủ quản nền tảng thương mại điện tử quy định tại điểm b khoản 1 Điều 40 Nghị định 248/2026/NĐ-CP | Quyết định số 4001/QĐ-UBND ngày 06/8/2026 |
+
+---
+
+#### 6.3. PHẠM VI 246 TTHC CẤP TỈNH (PHỤ LỤC 1 KÈM THÔNG BÁO 148/TB-SCT)
+Gồm 25 lĩnh vực quản lý nhà nước do Sở Công Thương giải quyết:
+- I. Điện (cấp giấy phép hoạt động điện lực, thẩm định thiết kế, kiểm tra công tác nghiệm thu công trình điện...)
+- II. Thẩm định, thỏa thuận kỹ thuật chuyên ngành
+- III. Dầu khí (kinh doanh dầu mỏ, khí đốt)
+- IV. Chất lượng sản phẩm hàng hóa
+- V. Xuất nhập khẩu (chứng nhận xuất xứ hàng hóa, giấy phép kinh doanh xuất nhập khẩu)
+- VI. Hội nhập Quốc tế
+- VII. An toàn thực phẩm
+- VIII. Công nghiệp tiêu dùng
+- IX. Lưu thông hàng hóa trong nước (xăng dầu, khí LPG, rượu, thuốc lá, logistics...)
+- X. Thương mại quốc tế (văn phòng đại diện thương nhân nước ngoài)
+- XI. Quản lý cạnh tranh
+- XII. Quản lý bán hàng đa cấp
+- XIII. Bảo vệ người tiêu dùng
+- XIV. Vật liệu nổ công nghiệp
+- XV. Giám định thương mại
+- XVI. Khoáng sản (khai thác, thăm dò khoáng sản làm VLXD thông thường, than bùn theo thẩm quyền UBND tỉnh)
+- XVII. An toàn vệ sinh lao động
+- XVIII. Cụm Công nghiệp
+- XIX. Hóa chất
+- XX. Thương mại điện tử
+- XXI. Xúc tiến thương mại (khuyến mại, hội chợ triển lãm...)
+- XXII. Công nghiệp hỗ trợ
+- XXIII. Nghề thủ công mỹ nghệ
+- XXIV. Vận chuyển hàng hóa nguy hiểm
+- XXV. Tài sản kết cấu hạ tầng chợ do cấp tỉnh quản lý
 
 ---
 
@@ -325,52 +341,39 @@ Sở Công Thương có tư cách pháp nhân, có con dấu và tài khoản ri
 10. QĐ số 26/2020/QĐ-UBND, QĐ 17/2023/QĐ-UBND — Phân cấp ATTP (Lâm Đồng cũ)
 11. QĐ số 03/2020/QĐ-UBND, QĐ 08/2021/QĐ-UBND — Phân cấp ATTP (Đắk Nông cũ)
 12. QĐ số 36/2022/QĐ-UBND — Phân cấp ATTP (Bình Thuận cũ)
+13. Thông báo số 134/TB-SCT ngày 21/8/2026 của Sở Công Thương (đã bị thay thế bởi Thông báo số 148/TB-SCT)
 
 ---
 
-### 8. QUY TẮC SUY LẬN CHO AGENT KHI HỖ TRỢ NGƯỜI DÙNG & TTHC
+### 8. QUY TẮC BẮT BUỘC KHI TRẢ LỜI VỀ TTHC VÀ NGÀNH CÔNG THƯƠNG
 
-**1. Phân định thẩm quyền TTHC giữa Sở Công Thương và UBND cấp xã:**
-- **Kinh doanh Rượu:**
-  + Sản xuất rượu thủ công nhằm mục đích kinh doanh (cấp mới, cấp lại, sửa đổi): **UBND cấp xã** giải quyết (thời hạn 10 ngày với cấp mới, 7 ngày với cấp lại/sửa đổi).
-  + Bán buôn rượu hoặc Sản xuất rượu công nghiệp: **Sở Công Thương** giải quyết.
-- **Kinh doanh Thuốc lá:**
-  + Bán lẻ sản phẩm thuốc lá (cấp mới, cấp lại, sửa đổi): **UBND cấp xã** giải quyết (thời hạn 15 ngày làm việc).
-  + Bán buôn hoặc Phân phối sản phẩm thuốc lá: **Sở Công Thương** giải quyết.
-- **Bình chọn Sản phẩm Công nghiệp nông thôn tiêu biểu:**
-  + Cấp xã: **UBND cấp xã** tổ chức và cấp Giấy chứng nhận theo kế hoạch bình chọn cấp xã.
-  + Cấp tỉnh: **Sở Công Thương** (Trung tâm Khuyến công) thường trực tổ chức bình chọn chu kỳ 02 năm/lần (TTHC nội bộ NB-SCT-09).
+1. **Tuyệt đối không suy diễn TTHC cấp xã:**
+   - Khi được hỏi về TTHC cấp xã thuộc ngành Công Thương theo Thông báo 148/TB-SCT, chỉ trả lời đúng **07 thủ tục** tại Phụ lục 3:
+     (1) Giao tài sản kết cấu hạ tầng chợ do cấp xã quản lý (Mã 1.012568)
+     (2) Thu hồi tài sản kết cấu hạ tầng chợ (Mã 1.012569)
+     (3) Thẩm định, phê duyệt PA ứng phó thiên tai vùng hạ du đập thủy điện thuộc thẩm quyền UBND xã (Mã 2.000206)
+     (4) Thông báo hoạt động bán hàng không tại địa điểm giao dịch thường xuyên (Mã 2.002620)
+     (5) Cấp GCN đủ điều kiện ATTP do SCT thực hiện (Mã 2.000591)
+     (6) Cấp lại GCN đủ điều kiện ATTP do SCT thực hiện (Mã 2.000535)
+     (7) Thông báo phát triển nguồn điện mặt trời mái nhà tự sản xuất, tự tiêu thụ đấu nối lưới điện quốc gia hạ áp (Mã 1.115377)
+   - KHÔNG tự tiện lấy danh mục rượu thủ công hay thuốc lá đưa vào cấp xã nếu ngữ cảnh đang hỏi về danh mục công khai theo Thông báo 148/TB-SCT.
 
-**2. Phân định phòng ban chủ trì xử lý TTHC nội bộ:**
-- NB-SCT-01 (Kế hoạch khuyến công hằng năm): **Phòng Kế hoạch - Tổng hợp / Trung tâm Khuyến công**.
-- NB-SCT-02 (Cụm công nghiệp): **Phòng Quản lý Công nghiệp**.
-- NB-SCT-03 (Phương án giá điện cục bộ): **Phòng Quản lý Năng lượng**.
-- NB-SCT-04, NB-SCT-05 (Thẩm định dự án & nghiệm thu công trình chuyên ngành): **Phòng Quản lý Năng lượng** (điện lực) hoặc **Phòng Quản lý Công nghiệp** (công trình công nghiệp).
-- NB-SCT-06 (Kế hoạch ứng phó sự cố hóa chất): **Phòng Quản lý Công nghiệp**.
-- NB-SCT-07 (An toàn hồ đập thủy điện): **Phòng Quản lý Năng lượng**.
-- NB-SCT-08 (Đóng cửa mỏ khoáng sản): **Phòng Địa chất và Khoáng sản**.
-- NB-SCT-09 (Bình chọn SP CNNT cấp tỉnh): **Trung tâm Khuyến công**.
+2. **Tuyệt đối không suy diễn 09 TTHC nội bộ:**
+   - 09 TTHC nội bộ chuẩn theo Phụ lục 2 kèm Thông báo 148/TB-SCT được công bố theo QĐ số 3968/QĐ-UBND và QĐ số 4001/QĐ-UBND ngày 06/8/2026, gồm:
+     (1) Điều chỉnh cập nhật phương án phát triển mạng lưới cấp điện trong quy hoạch tỉnh
+     (2) Xây dựng kế hoạch khuyến công quốc gia
+     (3) Điều chỉnh, bổ sung và ngừng triển khai đề án khuyến công
+     (4) Tổ chức thực hiện đề án khuyến công quốc gia
+     (5) Cấp tài khoản, phân quyền tài khoản sử dụng CSDL môi trường ngành Công Thương
+     (6) Tham vấn ý kiến về hợp đồng theo mẫu, điều kiện giao dịch chung
+     (7) Cung cấp danh sách tổ chức, cá nhân kinh doanh áp dụng hợp đồng theo mẫu
+     (8) Xin ý kiến xử lý tài sản là tang vật, phương tiện vi phạm hành chính bị tịch thu
+     (9) Lấy ý kiến thẩm định của Bộ Công an bằng văn bản về an ninh quốc gia đối với nền tảng TMĐT
+   - KHÔNG tự đặt mã thủ tục (như NB-SCT-01) hay gán ghép các quy trình nội bộ khác vào danh mục này.
 
-**3. Phân công lĩnh vực quản lý nhà nước:**
-- Khi người dùng hỏi về **địa chất, khoáng sản** tỉnh Lâm Đồng (từ 01/10/2026 trở đi): đơn vị QLNN là **Sở Công Thương** (Phòng Địa chất và Khoáng sản), KHÔNG PHẢI Sở NNMT hay Sở XD.
-- Khi giao nhiệm vụ liên quan **khoáng sản, thăm dò, khai thác mỏ, cấp phép khoáng sản, đóng cửa mỏ, đấu giá quyền khai thác, tính tiền cấp quyền khai thác khoáng sản, mỏ cát, sỏi, đá, bô-xít, titan, đất san lấp** → giao **Sở Công Thương** (Phòng Địa chất và Khoáng sản) chủ trì tham mưu.
-- Khi xử lý vụ việc vướng mắc, khiếu nại, tố tụng hoặc chồng lấn giữa dự án năng lượng (điện gió, thủy điện, điện mặt trời) và khu vực mỏ khoáng sản (như mỏ titan, bô-xít) → giao **Sở Công Thương** chủ trì (vì cả 2 lĩnh vực năng lượng và khoáng sản đều thuộc Sở Công Thương phụ trách).
-- Khi soạn CV giao Sở tham mưu về **điện, năng lượng tái tạo, điện mặt trời, điện gió** → giao **Sở Công Thương** (Phòng Quản lý Năng lượng).
-- Khi soạn CV về **chống buôn lậu, gian lận thương mại, hàng giả, kiểm tra thị trường** → giao **Sở Công Thương** (Chi cục Quản lý thị trường).
-- Khi soạn CV về **khuyến công, cụm công nghiệp, tiểu thủ công nghiệp** → giao **Sở Công Thương** (Trung tâm Khuyến công / Phòng Quản lý Công nghiệp).
-- Khi soạn CV về **thương mại điện tử, kinh tế số, xúc tiến thương mại** → giao **Sở Công Thương** (Phòng Quản lý Thương mại).
-- Khi soạn CV về **hóa chất, vận chuyển hàng hóa nguy hiểm, VLNCN** → giao **Sở Công Thương** (được ủy quyền giải quyết TTHC).
-
-**4. Phân cấp ATTP — phân biệt rõ 3 tầng:**
-- **Sở Y tế** chủ trì: dịch vụ ăn uống quy mô lớn (cấp tỉnh cấp phép, bếp KCN, ≥200/400 suất), SP ngành Y tế (nước uống, phụ gia, TPBS, TPDD y học).
-- **Sở NNMT** chủ trì: SX KD thực phẩm nông lâm thủy sản muối do cấp tỉnh cấp phép, chợ đầu mối.
-- **Sở Công Thương** chủ trì: siêu thị, TTTM, cửa hàng tiện ích, hệ thống dự trữ phân phối, cơ sở SX >10 lao động (rượu, bia, nước giải khát, sữa, dầu TV, bánh kẹo, bột).
-- **UBND xã, phường, đặc khu**: ăn uống nhỏ lẻ, thức ăn đường phố, cơ sở SX ≤10 LĐ, siêu thị mini nhỏ.
-
-**5. Địa điểm tiếp nhận hồ sơ TTHC:**
-- Cấp tỉnh: Trung tâm Phục vụ hành chính công tỉnh Lâm Đồng (số 36 Trần Phú, phường 4, TP. Đà Lạt).
-- Cấp xã: Bộ phận Tiếp nhận và Trả kết quả thuộc UBND xã, phường, đặc khu.
-- Trực tuyến: Cổng Dịch vụ công Quốc gia (dichvucong.gov.vn) và Hệ thống thông tin giải quyết TTHC tỉnh Lâm Đồng (dichvucong.lamdong.gov.vn).
+3. **Thông tin đầu mối liên hệ chính thức:**
+   - Cổng Dịch vụ công Quốc gia: https://dichvucong.gov.vn
+   - Điện thoại hỗ trợ: 0263.3540.616 (số máy lẻ: 08 - Quầy tiếp nhận Sở Công Thương) tại Trung tâm Phục vụ Hành chính công tỉnh Lâm Đồng.
 `.trim();
 
 
