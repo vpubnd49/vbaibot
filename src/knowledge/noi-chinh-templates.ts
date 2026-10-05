@@ -552,16 +552,54 @@ Sau khi nhận đủ ý kiến (Sở phối hợp + xã + phòng CM nội bộ) 
 
 ---
 
+### QUY TRÌNH J: VỐN ỦY THÁC QUA NHCSXH (TÀI CHÍNH - TÍN DỤNG CHÍNH SÁCH)
+
+**KHI NÀO ÁP DỤNG:** Tham mưu công văn chỉ đạo, kế hoạch, báo cáo về vốn tín dụng chính sách xã hội ủy thác qua Chi nhánh Ngân hàng Chính sách xã hội (NHCSXH) tỉnh.
+- **Cơ quan tham mưu:** Sở Tài chính (ký hiệu: "/STC-GSĐT", "/STC-THTK")
+- **Cơ quan ban hành:** UBND tỉnh Lâm Đồng (ký hiệu: "/UBND-KTTH", do Phó Chủ tịch phụ trách KTTH Võ Ngọc Hiệp ký)
+- **QUY TẮC THẨM QUYỀN BẮT BUỘC (TT 11/2017/TT-BTC & TT 84/2025/TT-BTC):**
+  - **Cấp tỉnh:** Hằng năm trích một phần nguồn vốn từ ngân sách cấp tỉnh ủy thác qua Chi nhánh NHCSXH tỉnh (do HĐND tỉnh quyết nghị trong dự toán NSĐP).
+  - **Cấp xã:** TUYỆT ĐỐI KHÔNG giao UBND cấp xã bố trí ngân sách xã ủy thác sang NHCSXH vì ngân sách cấp xã không có nhiệm vụ chi này.
+  - Nhiệm vụ cấp xã: Chỉ đạo các cơ quan chuyên môn, phối hợp với Phòng Giao dịch NHCSXH và các tổ chức chính trị - xã hội nhận ủy thác tuyên truyền, bình xét cho vay công khai, quản lý nguồn vốn và đôn đốc thu hồi nợ.
+
+---
+
+### QUY TRÌNH K: HỘI ĐỒNG GIÁM SÁT XỔ SỐ KIẾN THIẾT TỈNH
+
+**KHI NÀO ÁP DỤNG:** Giấy mời họp định kỳ/đột xuất của Hội đồng Giám sát Xổ số kiến thiết tỉnh Lâm Đồng.
+- **Tiêu đề cơ quan:**
+  - Hàng 1 (cơ quan cấp trên): UBND TỈNH LÂM ĐỒNG
+  - Hàng 2 (cơ quan ban hành): HỘI ĐỒNG GIÁM SÁT XSKT (chữ in hoa, đứng, đậm)
+- **Số ký hiệu:** "Số:    /GM-HĐGS"
+- **Người ký:** "KT. CHỦ TỊCH\\nPHÓ CHỦ TỊCH" — Thường trực là Phó Giám đốc Sở Tài chính (ông Nguyễn Văn Dũng) kiêm Phó Chủ tịch Hội đồng.
+- **Nơi nhận:** Thành viên Hội đồng (Sở Tư pháp, Thanh tra tỉnh, Công an tỉnh, Sở LĐTBXH...), Công ty TNHH MTV Xổ số kiến thiết Lâm Đồng, Lưu: VT.
+
+---
+
+### QUY TRÌNH L: BAN QUẢN LÝ DỰ ÁN ĐẦU TƯ XÂY DỰNG SỐ 1
+
+**KHI NÀO ÁP DỤNG:** Văn bản do Ban Quản lý dự án ĐTXD số 1 tỉnh Lâm Đồng ban hành (xin ý kiến, báo cáo tiến độ, phối hợp thanh tra, giải phóng mặt bằng, đấu thầu).
+- **Tiêu đề cơ quan:**
+  - Hàng 1: UBND TỈNH LÂM ĐỒNG
+  - Hàng 2: BAN QUẢN LÝ DỰ ÁN ĐẦU TƯ XÂY DỰNG SỐ 1
+- **Số ký hiệu:** "Số:    /BQLDA1-[phòng]" (VD: "/BQLDA1-GS2", "/BQLDA1-KHTH")
+- **Người ký:** "KT. GIÁM ĐỐC\\nPHÓ GIÁM ĐỐC" hoặc "GIÁM ĐỐC".
+
+---
+
 ### THÔNG TIN MẶC ĐỊNH
 
 - **Chủ tịch UBND tỉnh**: Trần Hồng Thái
-- **Địa chỉ UBND tỉnh**: Số 4, đường Trần Hưng Đạo, Phường 3, TP Đà Lạt
+- **Phó Chủ tịch UBND tỉnh phụ trách KTTH**: Võ Ngọc Hiệp
+- **Địa chỉ UBND tỉnh**: Số 04 Trần Hưng Đạo, phường Xuân Hương - Đà Lạt (hoặc Phường 3, TP Đà Lạt)
 - **ĐT UBND tỉnh**: 0263.3822.307
 - **Phó CVP phụ trách NC**: Thạch Cảnh Minh Vũ (ký VB TL. Chủ tịch - VP)
 - **Phó CVP khác**: Trịnh Ngọc Duệ
-- **Sở chuyên ngành đất đai**: Sở Nông nghiệp và Môi trường
+- **Phó Giám đốc Sở Tài chính**: Nguyễn Văn Dũng (kiêm PCT Hội đồng giám sát XSKT)
+- **Sở chuyên ngành đất đai, tài nguyên, môi trường**: Sở Nông nghiệp và Môi trường
 - **Năm hiện tại**: 2026
 
 **QUY TẮC CHUNG — BẮT BUỘC NHẮC NGƯỜI DÙNG SAU KHI TẠO FILE:**
 Sau khi tạo file, LUÔN nhắc: "⚠️ **Lưu ý:** Anh/chị cần kiểm tra và chỉnh sửa các thông tin sau trước khi trình ký: (1) Người nhận ủy quyền / Sở chuyên ngành (hiện để mặc định), (2) Số điện thoại, (3) Số ký hiệu văn bản, (4) Ngày tháng ban hành, (5) Các thông tin đặc thù vụ việc."
 `.trim();
+

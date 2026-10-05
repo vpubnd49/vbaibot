@@ -347,4 +347,101 @@ NOI NHAN + KY
 | CT ky | TM. UY BAN NHAN DAN | CHU TICH | Ho Van Muoi |
 | PCT ky thay | TM. UY BAN NHAN DAN | KT. CHU TICH / PHO CHU TICH | [ten PCT] |
 | GD So ky | – | GIAM DOC | [ten GD] |
+| PGD So ky thay | – | KT. GIAM DOC / PHO GIAM DOC | [ten PGD] |
+| CT UBND xa ky | TM. UY BAN NHAN DAN | CHU TICH | [ten CT xa] |
+| PCT UBND xa ky thay | TM. UY BAN NHAN DAN | KT. CHU TICH / PHO CHU TICH | [ten PCT xa] |
 | TP VP ky | – | TRUONG PHONG | [ten TP] |
+
+---
+
+## 8. CÁC MẪU VĂN BẢN SỞ NGÀNH & CẤP XÃ THỰC TẾ (Hồ sơ mới tháng 10/2026 từ thư mục `bosung/CT`)
+
+### 8.1. Văn bản Báo cáo / Đề xuất của Sở Tài chính (`.../STC-GSĐT`)
+- **Header Table**:
+  - Hàng 1, cột trái: `UBND TỈNH LÂM ĐỒNG` (12pt, thường, không đậm)
+  - Hàng 2, cột trái: `SỞ TÀI CHÍNH` (12-13pt, in hoa, đậm, gạch dưới 1/3)
+  - Cột phải: Quốc hiệu, Tiêu ngữ chuẩn.
+  - Số ký hiệu: `Số:       /STC-GSĐT` (Phòng Giám sát đầu tư tham mưu)
+  - Địa danh: `Lâm Đồng, ngày   tháng 10 năm 2026`
+- **Địa chỉ nhận**:
+  - `Kính gửi: UBND tỉnh Lâm Đồng` (Canh giữa, 14pt đứng thường).
+- **Cấu trúc nội dung chuẩn**:
+  1. *Căn cứ chỉ đạo*: Viện dẫn văn bản chỉ đạo của UBND tỉnh và báo cáo của đơn vị liên quan.
+  2. *Nội dung rà soát*:
+     - a) Cơ chế bố trí vốn và kế hoạch vốn đã giao (vốn trung hạn, vốn hằng năm, tăng trưởng >= 10%/năm theo NQ HĐND).
+     - b) Rà soát thẩm quyền ngân sách: **Ngân sách cấp xã KHÔNG có nhiệm vụ chi đối với việc bố trí vốn ủy thác qua NHCSXH** (Thông tư 11/2017/TT-BTC sửa đổi bởi Thông tư 84/2025/TT-BTC).
+  3. *Báo cáo, đề xuất UBND tỉnh*: Phân công nhiệm vụ cụ thể cho từng bên. Kết thúc bằng `./.`
+- **Khối ký**:
+  - Cột trái: `Nơi nhận: - Như trên; - Ban Giám đốc Sở (b/c); - Chi nhánh NHCSXH tỉnh; - Lưu: VT, GSĐT (Tựu).`
+  - Cột phải: `KT. GIÁM ĐỐC / PHÓ GIÁM ĐỐC / Võ Đức Tuấn`
+
+### 8.2. Giấy mời Họp của Ban/Hội đồng cấp tỉnh (`.../GM-HĐGS`)
+- **Header Table**:
+  - Hàng 1, cột trái: `UBND TỈNH LÂM ĐỒNG` (12pt thường)
+  - Hàng 2, cột trái: `HỘI ĐỒNG GIÁM SÁT XSKT` (12-13pt in hoa đậm, gạch dưới 1/3)
+  - Số: `Số:       /GM-HĐGS`
+- **Tên loại & Trích yếu**: `GIẤY MỜI` (in hoa đậm, 14pt), `Về việc họp Hội đồng giám sát xổ số...`
+- **Cấu trúc 5 phần bắt buộc**:
+  1. *Chủ trì*: Nêu rõ họ tên, chức danh (ví dụ: Phó Chủ tịch UBND tỉnh kiêm Chủ tịch Hội đồng).
+  2. *Thành phần mời*: Nêu đầy đủ các thành viên, tổ giúp việc, lãnh đạo VP UBND tỉnh, lãnh đạo các công ty liên quan (Lâm Đồng, Bình Thuận, Đắk Nông sau sắp xếp).
+  3. *Thời gian*: Giờ, phút, ngày tháng, thứ trong tuần.
+  4. *Địa điểm*: Nêu rõ số phòng, địa chỉ trụ sở (ví dụ: `Phòng họp số 03, trụ sở UBND tỉnh - 04 Trần Hưng Đạo, phường Xuân Hương - Đà Lạt`).
+  5. *Chuẩn bị nội dung*: Phân công cơ quan chuẩn bị báo cáo và tài liệu.
+- **Khối ký**: `KT. CHỦ TỊCH HỘI ĐỒNG / PHÓ CHỦ TỊCH / PHÓ GIÁM ĐỐC SỞ TÀI CHÍNH / Nguyễn Văn Dũng`
+
+### 8.3. Báo cáo tiếp thu, giải trình ý kiến thẩm định của Sở Nông nghiệp và Môi trường (`.../BC-SNNMT`)
+- **Header Table**: Hàng 1: `UBND TỈNH LÂM ĐỒNG`, Hàng 2: `SỞ NÔNG NGHIỆP VÀ MÔI TRƯỜNG`
+- **Số ký hiệu**: `Số:       /BC-SNNMT` (hoặc `.../TTr-SNNMT` cho tờ trình)
+- **Kính gửi**: `Ủy ban nhân dân tỉnh Lâm Đồng.`
+- **Bảng đối chiếu 4 cột chuẩn**:
+  | STT | Ý kiến thẩm định | Xử lý | Nội dung tiếp thu, giải trình |
+  |---|---|---|---|
+  | 1 | Ý kiến của Sở Tư pháp... | Tiếp thu (hoặc Giải trình, giữ nguyên) | Nội dung chỉnh lý cụ thể vào dự thảo... |
+- **Khối ký**: `KT. GIÁM ĐỐC / PHÓ GIÁM ĐỐC / Bùi Thanh Hà`
+- **Nơi nhận**: `Sở Tư pháp; Giám đốc các Phó Giám đốc Sở; Phòng Pháp chế; Lưu: VT, CCQLĐĐ.`
+
+### 8.4. Văn bản đề nghị phối hợp của Ban Quản lý Dự án ĐTXD (`.../BQLDA1-GS2`)
+- **Header**: Hàng 1: `UBND TỈNH LÂM ĐỒNG`, Hàng 2: `BAN QUẢN LÝ DỰ ÁN ĐẦU TƯ XÂY DỰNG SỐ 1`
+- **Số ký hiệu**: `Số:       /BQLDA1-GS2` (Phòng Giám sát 2)
+- **Kính gửi**: `Thanh tra tỉnh Lâm Đồng.`
+- **Khối ký**: `KT. GIÁM ĐỐC / PHÓ GIÁM ĐỐC / Phạm Trung Kiên`
+- **Nơi nhận**: `- Như trên; - UBND tỉnh (b/c); - Sở Xây dựng (thay b/c); - Giám đốc Ban (b/c); - Tổ giúp việc 476; - Lưu: VT, GS2, TGV.`
+
+### 8.5. Kế hoạch hành động / Lễ phát động cấp Xã (`.../KH-UBND`)
+- **Header**: Hàng 1: `UỶ BAN NHÂN DÂN`, Hàng 2: `XÃ D'RAN` (in hoa đậm)
+- **Số ký hiệu**: `Số:       /KH-UBND`
+- **Cấu trúc 4 phần chuẩn**:
+  - `I. MỤC ĐÍCH, YÊU CẦU` (nguyên tắc "6 rõ": rõ người, rõ việc, rõ thời gian, rõ trách nhiệm, rõ thẩm quyền, rõ kết quả).
+  - `II. NỘI DUNG TỔ CHỨC` (thời gian, địa điểm, thành phần, chương trình chi tiết).
+  - `III. PHÂN CÔNG NHIỆM VỤ CỤ THỂ`: Phân công đúng các cơ quan chuyên môn cấp xã mới:
+    * `Phòng Văn hóa - Xã hội`
+    * `Phòng Kinh tế`
+    * `Trung tâm Dịch vụ tổng hợp xã`
+    * `Văn phòng HĐND & UBND xã`
+    * `Trạm Y tế xã`
+    * `Công an xã`, `Ban Chỉ huy Quân sự xã`
+    * `Ban Nhân dân các thôn`
+  - `IV. TỔ CHỨC THỰC HIỆN`
+- **Khối ký**: `KT. CHỦ TỊCH / PHÓ CHỦ TỊCH / Bùi Khắc Toàn`
+
+### 8.6. Công văn hành chính của UBND cấp Xã (`.../UBND-NC`)
+- **Header**: `ỦY BAN NHÂN DÂN XÃ HÀM THUẬN BẮC` (in hoa đậm)
+- **Số ký hiệu**: `Số:       /UBND-NC`
+- **Kính gửi**: Gửi các cơ quan cấp tỉnh: `- Văn phòng Đoàn ĐBQH và HĐND tỉnh; - Văn phòng UBND tỉnh.`
+- **Khối ký**: `KT. CHỦ TỊCH / PHÓ CHỦ TỊCH / Châu Ngọc Hoàng Thu`
+- **Nơi nhận**: `- Như trên; - Chủ tịch UBND xã; - Chánh, Phó Văn phòng; - Lưu: VT.`
+
+### 8.7. Báo cáo công tác Đảng cấp Xã (`...-BC/ĐU`)
+- **Header chuẩn Hướng dẫn 05**:
+  ```
+  ĐẢNG BỘ TỈNH LÂM ĐỒNG
+  ĐẢNG ỦY XÃ NAM DONG
+  *
+  Số        -BC/ĐU
+  ```
+- **Ký ban hành**: `T/M ĐẢNG ỦY / PHÓ BÍ THƯ THƯỜNG TRỰC / Đậu Đình Thái`
+- **Địa danh hành chính đặc thù**:
+  - `đặc khu Phú Quý` (cấp xã trực thuộc tỉnh Lâm Đồng).
+  - 5 phường liên kề khu vực Đà Lạt: `Xuân Hương - Đà Lạt`, `Lâm Viên - Đà Lạt`, `Cam Ly - Đà Lạt`, `Xuân Trường - Đà Lạt`, `Lang Biang - Đà Lạt`.
+  - 4 phường liên kề khu vực Bảo Lộc: `Phường 1 Bảo Lộc`, `Phường 2 Bảo Lộc`, `Phường 3 Bảo Lộc`, `Phường B'Lao`.
+

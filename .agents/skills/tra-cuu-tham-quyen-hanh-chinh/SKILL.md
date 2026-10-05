@@ -64,3 +64,23 @@ python scripts/lookup.py --query "hồ sơ trực tuyến toàn trình" --domain
 Ưu tiên JSON có các trường: `status`, `answer`, `canonical_name`/`metric`, `effective_context`, `sources`, `warnings`. Xem định nghĩa chính xác trong `references/data_model.md`.
 
 Connector không bắt buộc. Nếu ứng dụng có connector tra cứu pháp luật chính thức, dùng connector đó cho mọi yêu cầu cần xác nhận tình trạng hiện hành; sau đó đối chiếu kết quả với snapshot đóng gói.
+
+---
+
+## Dữ liệu thẩm quyền & địa giới hành chính cập nhật thực tế (10/2026)
+
+### 1. Thẩm quyền ngân sách vốn ủy thác NHCSXH
+- **Căn cứ**: Thông tư số 11/2017/TT-BTC ngày 08/02/2017 của Bộ Tài chính (sửa đổi, bổ sung bởi Thông tư số 84/2025/TT-BTC ngày 19/8/2025).
+- **Quy tắc tuyệt đối**: **Ngân sách cấp xã KHÔNG có nhiệm vụ chi đối với việc bố trí vốn ủy thác qua Ngân hàng Chính sách xã hội (NHCSXH)**. Đề xuất ngân sách cấp xã bố trí vốn ủy thác là sai thẩm quyền, chưa đủ cơ sở pháp lý.
+- **Thẩm quyền chuẩn**: Chỉ có nguồn vốn ngân sách cấp tỉnh trích hằng năm ủy thác qua Chi nhánh NHCSXH cấp tỉnh do HĐND cấp tỉnh quyết định.
+
+### 2. Địa giới & đơn vị cấp xã đặc thù tỉnh Lâm Đồng
+- **Đặc khu Phú Quý**: Là đơn vị hành chính cấp xã đặc thù trực thuộc tỉnh Lâm Đồng (sau sắp xếp sáp nhập Bình Thuận vào Lâm Đồng). Cụm từ hành chính chuẩn: *"xã, phường, đặc khu Phú Quý"*.
+- **Phường mới khu vực Đà Lạt (liên phường)**: `phường Xuân Hương - Đà Lạt`, `phường Lâm Viên - Đà Lạt`, `phường Cam Ly - Đà Lạt`, `phường Xuân Trường - Đà Lạt`, `phường Lang Biang - Đà Lạt`.
+- **Phường mới khu vực Bảo Lộc (liên phường)**: `Phường 1 Bảo Lộc`, `Phường 2 Bảo Lộc`, `Phường 3 Bảo Lộc`, `Phường B'Lao`.
+- **Cấp xã khác thuộc vùng sáp nhập**: `xã D'Ran` (vùng Đơn Dương cũ), `xã Hàm Thuận Bắc` (vùng Bình Thuận cũ), `xã Phan Rí Cửa` (vùng Tuy Phong cũ), `xã Nam Dong` (vùng Cư Jút cũ).
+
+### 3. Các cơ quan/hội đồng cấp tỉnh chuyên biệt
+- **Hội đồng Giám sát Xổ số kiến thiết tỉnh Lâm Đồng** (`HĐGS`): Chủ tịch Hội đồng là Phó Chủ tịch UBND tỉnh phụ trách kinh tế; Phó Chủ tịch Hội đồng là Phó Giám đốc Sở Tài chính; giám sát 3 công ty XSKT sáp nhập: Lâm Đồng, Bình Thuận và Đắk Nông.
+- **Ban Quản lý Dự án Đầu tư Xây dựng số 1** (`BQLDA1`): Ban trực thuộc UBND tỉnh thực hiện nhiệm vụ lập quy hoạch chung đô thị liên phường và quản lý các dự án đầu tư xây dựng trọng điểm.
+

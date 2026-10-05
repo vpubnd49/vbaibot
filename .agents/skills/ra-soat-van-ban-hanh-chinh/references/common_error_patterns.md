@@ -134,3 +134,22 @@ Không tự thêm chế tài chỉ để làm câu mạnh hơn.
 
 **Dấu hiệu:** TW yêu cầu hoàn thành tháng 02/2027; dự thảo ghi "gửi báo cáo trước tháng 02/2027".
 **Nhận định:** Địa phương đặt mốc sớm hơn TW để kịp tổng hợp là cần thiết, nhưng người rà soát phải ghi rõ đây là *chủ ý của địa phương để tạo khoảng đệm (buffer)*, tránh nhầm với việc trích dẫn sai văn bản TW. Đồng thời nên tách riêng: mốc Sở trình UBND tỉnh (sớm hơn) và mốc UBND tỉnh báo cáo TW (đúng hạn TW).
+
+## T. Bẫy thẩm quyền chi ngân sách: Vốn ủy thác qua NHCSXH
+
+**Dấu hiệu:** Dự thảo công văn/kế hoạch của UBND tỉnh yêu cầu "UBND các xã, phường, đặc khu chủ động cân đối, bố trí ngân sách cấp xã để ủy thác qua Chi nhánh NHCSXH".
+**Quy định pháp luật:** Theo Thông tư 11/2017/TT-BTC (sửa đổi, bổ sung tại Thông tư 84/2025/TT-BTC) và Luật Ngân sách nhà nước, **ngân sách cấp xã KHÔNG có nhiệm vụ chi đối với việc bố trí nguồn vốn ủy thác qua NHCSXH**.
+**Hậu quả:** Giao nhiệm vụ chi trái luật ngân sách, làm văn bản bị thu hồi hoặc ách tắc tại cơ sở.
+**Cách xử lý:** 
+- Nguồn vốn ủy thác do ngân sách cấp tỉnh bảo đảm hằng năm (do HĐND tỉnh quyết nghị, UBND tỉnh giao dự toán).
+- Cấp xã chỉ giao nhiệm vụ: Phối hợp với Phòng Giao dịch NHCSXH, các tổ chức chính trị - xã hội nhận ủy thác trong việc rà soát đối tượng thụ hưởng, bình xét vay vốn công khai, củng cố Tổ Tiết kiệm và vay vốn, quản lý nguồn vốn và đôn đốc thu hồi nợ đến hạn.
+
+## U. Thiếu cấu trúc chuẩn 4 cột trong Báo cáo tiếp thu, giải trình thẩm định
+
+**Dấu hiệu:** Báo cáo giải trình ý kiến thẩm định của Sở chuyên ngành (Sở NNMT, Sở Tư pháp, Sở Xây dựng...) trình UBND tỉnh chỉ diễn giải bằng văn bản xuôi mà không có bảng đối chiếu hoặc bảng thiếu cột xử lý.
+**Chuẩn thực tế ban hành:** Bắt buộc phải lập Phụ lục hoặc Bảng tổng hợp tiếp thu, giải trình ý kiến thẩm định với 4 cột chuẩn:
+1. `STT`
+2. `Nội dung ý kiến thẩm định` (trích dẫn đầy đủ kết luận thẩm định)
+3. `Xử lý` (chỉ rõ: *Tiếp thu*, *Giải trình*, hoặc *Tiếp thu một phần*)
+4. `Nội dung tiếp thu, giải trình` (nêu rõ căn cứ pháp lý, lý do giữ nguyên hoặc đã sửa đổi bổ sung cụ thể tại Điều/Khoản nào của dự thảo Quy định/Quyết định).
+

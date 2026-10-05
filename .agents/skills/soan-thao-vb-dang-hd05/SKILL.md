@@ -147,3 +147,24 @@ Mở file DOCX bằng Word, đối chiếu checklist cuối file `quy_tac_the_th
 5. Khoảng trống chữ ký: **4 dòng trống** (TUYỆT ĐỐI KHÔNG dùng `spacing: {before: 600}`)
 6. Line spacing: **≥ 18pt Exactly** (KHÁC NĐ30: 17pt)
 7. **Khoản trong Điều**: VB Đảng dùng **1. 2. 3.** (số in đậm), KHÔNG dùng a), b), c) như NĐ30. Engine tự nhận diện dòng bắt đầu bằng `1. `, `2. `... và in đậm phần số.
+
+### Báo Cáo Công Tác Đảng Cấp Xã Thực Tế (`...-BC/ĐU`)
+- **Header Table**:
+  - Hàng 1, cột trái:
+    ```
+    ĐẢNG BỘ TỈNH LÂM ĐỒNG
+    ĐẢNG ỦY XÃ [TÊN XÃ]
+    *
+    Số        -BC/ĐU
+    ```
+  - Cột phải:
+    ```
+    ĐẢNG CỘNG SẢN VIỆT NAM
+    [Địa danh], ngày    tháng    năm 2026
+    ```
+- **Tên loại**: `BÁO CÁO`
+- **Trích yếu**: `kết quả thực hiện nhiệm vụ [kỳ báo cáo]; phương hướng, nhiệm vụ trọng tâm [kỳ tiếp theo]`
+- **Cấu trúc số La Mã**: `I- KẾT QUẢ THỰC HIỆN...`, `II- ĐÁNH GIÁ CHUNG`, `III- NHIỆM VỤ TRỌNG TÂM...`
+- **Tổ chức Đảng cấp xã trong mô hình 2 cấp**: Chi bộ Văn phòng Đảng ủy, Chi bộ Ban xây dựng Đảng, Chi bộ Cơ quan Mặt trận Tổ quốc, Chi bộ Phòng kinh tế, Chi bộ Phòng văn hóa, Chi bộ Văn phòng HĐND và UBND xã, Chi bộ Trung tâm dịch vụ tổng hợp, Chi bộ Trung tâm phục vụ hành chính công.
+- **Ký ban hành**: `T/M ĐẢNG ỦY / PHÓ BÍ THƯ THƯỜNG TRỰC / [Họ và tên]` (hoặc `BÍ THƯ`).
+
