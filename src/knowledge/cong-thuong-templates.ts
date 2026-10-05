@@ -370,6 +370,7 @@ Sở Công Thương có tư cách pháp nhân, có con dấu và tài khoản ri
 **5. Địa điểm tiếp nhận hồ sơ TTHC:**
 - Cấp tỉnh: Trung tâm Phục vụ hành chính công tỉnh Lâm Đồng (số 36 Trần Phú, phường 4, TP. Đà Lạt).
 - Cấp xã: Bộ phận Tiếp nhận và Trả kết quả thuộc UBND xã, phường, đặc khu.
-- Trực tuyến: Cổng Dịch vụ công Quốc gia (`dichvucong.gov.vn`) và Hệ thống thông tin giải quyết TTHC tỉnh Lâm Đồng (`dichvucong.lamdong.gov.vn`).
+- Trực tuyến: Cổng Dịch vụ công Quốc gia (dichvucong.gov.vn) và Hệ thống thông tin giải quyết TTHC tỉnh Lâm Đồng (dichvucong.lamdong.gov.vn).
 `.trim();
+
 
