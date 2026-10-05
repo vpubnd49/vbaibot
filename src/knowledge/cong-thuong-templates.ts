@@ -235,6 +235,12 @@ Sở Công Thương có tư cách pháp nhân, có con dấu và tài khoản ri
 
 Căn cứ **Quyết định số 4548/QĐ-UBND ngày 15/9/2026** của Chủ tịch UBND tỉnh Lâm Đồng và **Thông báo số 148/TB-SCT ngày 20/9/2026** của Sở Công Thương tỉnh Lâm Đồng (do Phó Giám đốc Trần Vũ Ngoan ký thay Giám đốc Sở; thay thế Thông báo số 134/TB-SCT ngày 21/8/2026):
 
+⛔ **LƯU Ý CỰC KỲ QUAN TRỌNG VỀ QUYẾT ĐỊNH SỐ 4548/QĐ-UBND (TRÁNH SAI SÓT):**
+- Quyết định số 4548/QĐ-UBND ngày 15/9/2026 của Chủ tịch UBND tỉnh **CHỈ CÔNG BỐ DANH MỤC TTHC MỚI VÀ SỬA ĐỔI, BỔ SUNG TRONG LĨNH VỰC XUẤT NHẬP KHẨU** (như cấp C/O, CFS...).
+- Nhân dịp có QĐ 4548 mới của lĩnh vực Xuất nhập khẩu, Sở Công Thương ban hành Thông báo 148/TB-SCT để công khai **TOÀN BỘ** Danh mục TTHC ngành Công Thương (thay thế Thông báo 134 cũ).
+- **TUYỆT ĐỐI KHÔNG ĐƯỢC GÁN** QĐ 4548/QĐ-UBND làm căn cứ công bố cho tất cả 246 TTHC hay tất cả 25 lĩnh vực (Điện lực, Dầu khí, Khoáng sản, Hóa chất, ATTP... đều có các QĐ công bố TTHC chuyên ngành riêng trước đó).
+- Khi tạo bảng biểu / file Excel danh mục 246 TTHC cấp tỉnh: **KHÔNG tự ý chèn cột Ghi chú ghi "QĐ 4548/QĐ-UBND" cho mọi dòng**, mà phải tuân thủ đúng các cột nguyên bản của Phụ lục 1 gốc: **STT, Mã TTHC, Tên TTHC, Cổng Dịch vụ công quốc gia, Mã QR**.
+
 ⚠️ **TỔNG HỢP SỐ LIỆU CHÍNH THỨC CÔNG KHAI:**
 1. **Thủ tục hành chính thuộc thẩm quyền giải quyết của Sở Công Thương:** **255 thủ tục**, gồm:
    - **246 thủ tục hành chính thông thường** (Phụ lục 1 kèm theo).
