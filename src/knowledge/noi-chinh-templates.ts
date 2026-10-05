@@ -587,6 +587,50 @@ Sau khi nhận đủ ý kiến (Sở phối hợp + xã + phòng CM nội bộ) 
 
 ---
 
+### QUY TRÌNH M: PHIẾU TRÌNH GIẢI QUYẾT CÔNG VIỆC (MẪU BM01/VPUB)
+
+**KHI NÀO ÁP DỤNG:** Chuyên viên Phòng Nội chính lập Phiếu trình giải quyết công việc trình Lãnh đạo Phòng, Lãnh đạo Văn phòng và Lãnh đạo UBND tỉnh phê duyệt xử lý văn bản đến của các Sở ngành hoặc Trung ương.
+- **Tiêu đề cơ quan:**
+  - Hàng 1: VĂN PHÒNG UBND TỈNH
+  - Hàng 2: PHÒNG NỘI CHÍNH
+- **Góc trên trái:** BM01/VPUB-QT7.0
+- **Tiêu đề:** PHIẾU TRÌNH GIẢI QUYẾT CÔNG VIỆC (hoặc PHIẾU TRÌNH ĐỀ XUẤT MẬT)
+- **Kính gửi:** "- Lãnh đạo UBND tỉnh;\\n- Lãnh đạo Văn phòng."
+- **7 mục nội dung chuẩn:**
+  1. Vấn đề trình (tóm tắt nội dung việc cần giải quyết).
+  2. Hồ sơ kèm theo (liệt kê chính xác số hiệu, ngày, trích yếu văn bản của Sở/ngành).
+  3. Ý kiến của các cơ quan liên quan (tóm tắt ý kiến Sở Tư pháp, Sở Tài chính...).
+  4. Ý kiến đề xuất của Chuyên viên nghiên cứu (nêu rõ căn cứ, hướng xử lý: ban hành công văn/quyết định, giao việc hay trả lại hồ sơ).
+  5. Ý kiến của Lãnh đạo Phòng.
+  6. Ý kiến của Lãnh đạo Văn phòng.
+  7. Ý kiến chỉ đạo của Lãnh đạo UBND tỉnh.
+
+---
+
+### QUY TRÌNH N: QUYẾT ĐỊNH TỔ CHỨC BỘ MÁY / PHÊ DUYỆT ĐỀ ÁN
+
+**KHI NÀO ÁP DỤNG:** Dự thảo Quyết định phê duyệt đề án thành lập, sáp nhập, tổ chức lại đơn vị sự nghiệp, chuyển giao cơ sở y tế/giáo dục hoặc kiện toàn Ban Chỉ đạo.
+- **Cơ quan ban hành:** ỦY BAN NHÂN DÂN TỈNH LÂM ĐỒNG
+- **Số ký hiệu:** "Số:    /QĐ-UBND"
+- **Căn cứ bắt buộc:** Luật Tổ chức chính quyền địa phương 2025, Nghị định 120/2020/NĐ-CP (ĐVSNCL), Nghị định 83/2024/NĐ-CP, Tờ trình của Sở Nội vụ.
+- **Kết cấu:**
+  - Điều 1: Phê duyệt kèm theo Đề án...
+  - Điều 2: Trách nhiệm tổ chức thực hiện, bàn giao tài sản, biên chế.
+  - Điều 3: Hiệu lực thi hành và trách nhiệm thi hành.
+
+---
+
+### QUY TRÌNH P: DỰ THẢO NGHỊ QUYẾT TRÌNH HĐND TỈNH
+
+**KHI NÀO ÁP DỤNG:** Soạn Tờ trình của UBND tỉnh và Dự thảo Nghị quyết của HĐND tỉnh về chính sách địa phương, phân cấp, chứng thực, tổ chức bộ máy.
+- **Tiêu đề cơ quan:** HỘI ĐỒNG NHÂN DÂN TỈNH LÂM ĐỒNG
+- **Số ký hiệu:** "Số:    /2026/NQ-HĐND"
+- **Căn cứ:** Luật Tổ chức CQĐP 2025, Luật Ban hành VBQPPL 2025, Tờ trình UBND tỉnh, Báo cáo thẩm tra Ban Pháp chế HĐND tỉnh.
+- **Lời mở đầu:** HỘI ĐỒNG NHÂN DÂN TỈNH LÂM ĐỒNG KHÓA..., KỲ HỌP THỨ... QUYẾT NGHỊ:
+- **Người ký:** CHỦ TỊCH (hoặc KT. CHỦ TỊCH / PHÓ CHỦ TỊCH).
+
+---
+
 ### THÔNG TIN MẶC ĐỊNH
 
 - **Chủ tịch UBND tỉnh**: Trần Hồng Thái

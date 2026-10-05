@@ -446,3 +446,49 @@ NOI NHAN + KY
   - 5 phường liên kề khu vực Đà Lạt: `Xuân Hương - Đà Lạt`, `Lâm Viên - Đà Lạt`, `Cam Ly - Đà Lạt`, `Xuân Trường - Đà Lạt`, `Lang Biang - Đà Lạt`.
   - 4 phường liên kề khu vực Bảo Lộc: `Phường 1 Bảo Lộc`, `Phường 2 Bảo Lộc`, `Phường 3 Bảo Lộc`, `Phường B'Lao`.
 
+### 8.8. Phiếu trình giải quyết công việc Văn phòng UBND tỉnh (Mẫu BM01/VPUB)
+- **Header**:
+  - Dòng 1: `VĂN PHÒNG UBND TỈNH`
+  - Dòng 2: `PHÒNG NỘI CHÍNH` (hoặc phòng chuyên môn phụ trách)
+- **Ký hiệu góc trên trái**: `BM01/VPUB-QT7.0`
+- **Tiêu đề giữa**: **PHIẾU TRÌNH GIẢI QUYẾT CÔNG VIỆC** (hoặc `PHIẾU TRÌNH ĐỀ XUẤT MẬT`)
+- **Kính gửi**: `- Lãnh đạo UBND tỉnh; - Lãnh đạo Văn phòng.`
+- **Cấu trúc 7 mục nghiệp vụ chuẩn**:
+  1. `1. Vấn đề trình:` Tóm tắt ngắn gọn việc cơ quan trình xin chủ trương hoặc xử lý vụ việc.
+  2. `2. Hồ sơ kèm theo:` Liệt kê chính xác Công văn, Tờ trình, Báo cáo của cơ quan trình (kèm văn bản Trung ương nếu có).
+  3. `3. Ý kiến của các cơ quan liên quan:` Tổng hợp ý kiến thẩm định của Sở Tư pháp, ý kiến phối hợp của Sở Tài chính, Công an tỉnh...
+  4. `4. Ý kiến đề xuất của Chuyên viên nghiên cứu:` Phân tích cơ sở pháp lý, tính khả thi, đề xuất hướng xử lý cụ thể (đồng ý/không đồng ý/giao cơ quan hoàn thiện). Kèm dự thảo văn bản để lãnh đạo ký.
+  5. `5. Ý kiến của Lãnh đạo Phòng:` Ký ghi ý kiến thống nhất hoặc bổ sung.
+  6. `6. Ý kiến của Lãnh đạo Văn phòng:` Ký nháy/cho ý kiến trước khi trình Lãnh đạo UBND tỉnh.
+  7. `7. Ý kiến chỉ đạo của Lãnh đạo UBND tỉnh:` Phần dành cho Chủ tịch/Phó Chủ tịch UBND tỉnh phê duyệt bút phê.
+
+### 8.9. Quyết định phê duyệt Đề án / Tổ chức lại bộ máy (`.../QĐ-UBND`)
+- **Header**: `ỦY BAN NHÂN DÂN TỈNH LÂM ĐỒNG`
+- **Số ký hiệu**: `Số:       /QĐ-UBND`
+- **Trích yếu**: `Về việc phê duyệt Đề án [tên đề án/chuyển giao/tổ chức lại đơn vị sự nghiệp]`
+- **Căn cứ pháp lý chuẩn**:
+  - `Luật Tổ chức chính quyền địa phương số 72/2025/QH15;`
+  - `Nghị định số 120/2020/NĐ-CP ngày 07/10/2020 của Chính phủ quy định về thành lập, tổ chức lại, giải thể đơn vị sự nghiệp công lập;`
+  - `Nghị định số 83/2024/NĐ-CP ngày 10/7/2024 của Chính phủ sửa đổi, bổ sung một số điều của Nghị định số 123/2016/NĐ-CP;`
+  - `Theo đề nghị của Giám đốc Sở Nội vụ tại Tờ trình số.../TTr-SNV ngày...`
+- **Cấu trúc Điều khoản**:
+  - `Điều 1.` Phê duyệt kèm theo Quyết định này Đề án [Tên Đề án]. (Nêu rõ mục tiêu, nội dung chuyển giao/kiện toàn, số lượng biên chế/người làm việc, tài sản, tài chính).
+  - `Điều 2.` Giao trách nhiệm tổ chức thực hiện: Thủ trưởng cơ quan chủ trì, các Sở ngành liên quan phối hợp, thời hạn hoàn thành bàn giao.
+  - `Điều 3.` Hiệu lực thi hành (kể từ ngày ký) và trách nhiệm thi hành: Chánh Văn phòng UBND tỉnh, Giám đốc các Sở, Chủ tịch UBND cấp xã liên quan.
+- **Nơi nhận**: `- Như Điều 3; - Bộ Nội vụ (để b/c); - Thường trực Tỉnh ủy; - Thường trực HĐND tỉnh; - Chủ tịch, các PCT UBND tỉnh; - Lưu: VT, NC.`
+
+### 8.10. Dự thảo Nghị quyết của Hội đồng nhân dân tỉnh (`.../NQ-HĐND`)
+- **Header**:
+  - Hàng 1: `HỘI ĐỒNG NHÂN DÂN`
+  - Hàng 2: `TỈNH LÂM ĐỒNG` (in hoa đậm)
+- **Số ký hiệu**: `Số:       /2026/NQ-HĐND`
+- **Tiêu đề**: **NGHỊ QUYẾT**
+- **Trích yếu**: `Quy định [nội dung chính sách/chế độ/nhiệm vụ quyền hạn]`
+- **Căn cứ pháp lý**:
+  - `Căn cứ Luật Tổ chức chính quyền địa phương số 72/2025/QH15;`
+  - `Căn cứ Luật Ban hành văn bản quy phạm pháp luật số 64/2025/QH15;`
+  - `Xét Tờ trình số.../TTr-UBND ngày... của Ủy ban nhân dân tỉnh; Báo cáo thẩm tra số.../BC-HĐND của Ban Pháp chế HĐND tỉnh; ý kiến thảo luận của đại biểu HĐND tỉnh tại kỳ họp.`
+- **Lời mở đầu**: `HỘI ĐỒNG NHÂN DÂN TỈNH LÂM ĐỒNG KHÓA..., KỲ HỌP THỨ... QUYẾT NGHỊ:`
+- **Khối ký**: `CHỦ TỊCH / [Họ tên]` (hoặc `KT. CHỦ TỊCH / PHÓ CHỦ TỊCH`).
+- **Nơi nhận**: `- Ủy ban Thường vụ Quốc hội; - Chính phủ; - Ban Công tác đại biểu; - Thường trực Tỉnh ủy; - Thường trực HĐND, UBND, UBMTTQVN tỉnh; - Đại biểu HĐND tỉnh; - Các Sở, ban, ngành; - UBND các xã, phường, đặc khu; - Lưu: VT, CTHĐND.`
+

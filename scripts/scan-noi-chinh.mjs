@@ -1,15 +1,15 @@
 /**
- * Script quét toàn bộ thư mục NỘI CHÍNH, đọc nội dung .doc/.docx,
- * lưu thành file JSON knowledge base cho chatbot.
+ * Script quét toàn bộ thư mục NỘI CHÍNH, đọc nội dung .doc/.docx/.xlsx/.pdf,
+ * cập nhật gia tăng (incremental) vào file JSON knowledge base cho chatbot.
  *
- * Chạy: node --experimental-specifier-resolution=node scripts/scan-noi-chinh.mjs
+ * Chạy: node scripts/scan-noi-chinh.mjs
  */
 import fs from "node:fs";
 import path from "node:path";
 
 const ROOT = "e:/OneDrive/HSCV/NỘI CHÍNH";
 const OUT_FILE = "src/knowledge/noi-chinh-corpus.json";
-const MAX_TEXT = 8000; // ký tự tối đa mỗi file (tránh quá lớn)
+const MAX_TEXT = 8000; // ký tự tối đa mỗi file
 
 // ===== Helpers =====
 
@@ -17,8 +17,7 @@ async function readDocx(filePath) {
   try {
     const mammoth = await import("mammoth");
     const result = await mammoth.convertToHtml({ path: filePath });
-    // Strip HTML → text
-    let text = result.value
+    return result.value
       .replace(/<br\s*\/?>/gi, "\n")
       .replace(/<\/p>/gi, "\n")
       .replace(/<[^>]+>/g, "")
@@ -28,7 +27,6 @@ async function readDocx(filePath) {
       .replace(/&nbsp;/g, " ")
       .replace(/\n{3,}/g, "\n\n")
       .trim();
-    return text;
   } catch {
     return null;
   }
@@ -49,16 +47,61 @@ async function readDoc(filePath) {
   }
 }
 
-async function readWordFile(filePath) {
+async function readExcel(filePath) {
+  try {
+    const ExcelJS = (await import("exceljs")).default;
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.readFile(filePath);
+    let text = "";
+    workbook.eachSheet((worksheet) => {
+      text += `--- Sheet: ${worksheet.name} ---\n`;
+      worksheet.eachRow((row) => {
+        if (row.values) {
+          const cells = (row.values)
+            .filter((v) => v !== undefined && v !== null)
+            .map((v) => (typeof v === "object" ? JSON.stringify(v) : String(v)));
+          if (cells.length > 0) text += cells.join(" | ") + "\n";
+        }
+      });
+      text += "\n";
+    });
+    return text.trim();
+  } catch {
+    return null;
+  }
+}
+
+async function readPdfText(filePath) {
+  try {
+    const pdfModule = await import("pdf-parse");
+    const parse = pdfModule.default || pdfModule;
+    const dataBuffer = fs.readFileSync(filePath);
+    const data = await parse(dataBuffer);
+    const raw = data.text ? data.text.trim() : "";
+    const meaningful = raw.replace(/[\s\d\r\n\t.,;:!?()\[\]{}"'\/\\|-]/g, "");
+    if (meaningful.length > 50) {
+      return raw;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+async function readFileContent(filePath) {
   const ext = path.extname(filePath).toLowerCase();
   let text = null;
 
   if (ext === ".docx") {
     text = await readDocx(filePath);
-    if (!text) text = await readDoc(filePath); // fallback
+    if (!text) text = await readDoc(filePath);
   } else if (ext === ".doc") {
     text = await readDoc(filePath);
-    if (!text) text = await readDocx(filePath); // fallback
+    if (!text) text = await readDocx(filePath);
+  } else if (ext === ".xlsx") {
+    text = await readExcel(filePath);
+  } else if (ext === ".pdf") {
+    text = await readPdfText(filePath);
   }
 
   if (text && text.length > MAX_TEXT) {
@@ -80,7 +123,7 @@ function walkDir(dir) {
         results.push(...walkDir(fullPath));
       } else {
         const ext = path.extname(entry.name).toLowerCase();
-        if (ext === ".doc" || ext === ".docx") {
+        if ([".doc", ".docx", ".xlsx", ".pdf"].includes(ext)) {
           results.push(fullPath);
         }
       }
@@ -94,25 +137,47 @@ function walkDir(dir) {
 // ===== Main =====
 
 async function main() {
-  console.log(`Quét thư mục: ${ROOT}`);
-  const files = walkDir(ROOT);
-  console.log(`Tìm thấy ${files.length} file .doc/.docx`);
+  console.log(`Bắt đầu quét thư mục NỘI CHÍNH: ${ROOT}`);
+
+  // 1. Tải corpus hiện có
+  const existingMap = new Map();
+  if (fs.existsSync(OUT_FILE)) {
+    try {
+      const oldCorpus = JSON.parse(fs.readFileSync(OUT_FILE, "utf-8"));
+      for (const item of oldCorpus) {
+        if (item.path && item.text && item.text.length > 50) {
+          existingMap.set(item.path, item);
+        }
+      }
+      console.log(`Corpus hiện tại có: ${existingMap.size} tài liệu đã index.`);
+    } catch (err) {
+      console.warn("Không đọc được corpus cũ, sẽ lập chỉ mục mới:", err.message);
+    }
+  }
+
+  const allFiles = walkDir(ROOT);
+  console.log(`Tìm thấy tổng cộng ${allFiles.length} file (.doc, .docx, .xlsx, .pdf) trên đĩa.`);
 
   const corpus = [];
-  let ok = 0;
-  let fail = 0;
+  let reused = 0;
+  let newlyRead = 0;
+  let failed = 0;
 
-  for (let i = 0; i < files.length; i++) {
-    const filePath = files[i];
+  for (let i = 0; i < allFiles.length; i++) {
+    const filePath = allFiles[i];
     const relPath = path.relative(ROOT, filePath).replace(/\\/g, "/");
-    const category = relPath.split("/")[0]; // thư mục cấp 1
+    const category = relPath.split("/")[0];
 
-    if ((i + 1) % 50 === 0) {
-      console.log(`  [${i + 1}/${files.length}] đang xử lý...`);
+    // Tái sử dụng nếu đã đọc
+    if (existingMap.has(relPath)) {
+      corpus.push(existingMap.get(relPath));
+      reused++;
+      continue;
     }
 
+    // Đọc file mới
     try {
-      const text = await readWordFile(filePath);
+      const text = await readFileContent(filePath);
       if (text && text.length > 50) {
         corpus.push({
           path: relPath,
@@ -120,31 +185,38 @@ async function main() {
           filename: path.basename(filePath),
           text,
         });
-        ok++;
+        newlyRead++;
+        if (newlyRead % 20 === 0) {
+          console.log(`  Đã đọc thêm ${newlyRead} file mới... (tổng duyệt: ${i + 1}/${allFiles.length})`);
+        }
       } else {
-        fail++;
+        failed++;
       }
-    } catch (err) {
-      fail++;
+    } catch {
+      failed++;
     }
   }
 
-  console.log(`\nKết quả: ${ok} file đọc được, ${fail} file lỗi/trống`);
-  console.log(`Đang ghi ${OUT_FILE}...`);
+  console.log(`\nTổng kết quá trình đọc thư mục NỘI CHÍNH:`);
+  console.log(`- Tài liệu tái sử dụng: ${reused}`);
+  console.log(`- Tài liệu mới đọc thêm thành công: ${newlyRead}`);
+  console.log(`- Tệp không có text / scan ảnh / lỗi: ${failed}`);
+  console.log(`- Tổng số tài liệu trong Corpus: ${corpus.length}`);
 
+  console.log(`Đang lưu vào ${OUT_FILE}...`);
   fs.writeFileSync(OUT_FILE, JSON.stringify(corpus, null, 0), "utf-8");
 
-  const sizeKB = Math.round(fs.statSync(OUT_FILE).size / 1024);
-  console.log(`Xong! File ${OUT_FILE} — ${sizeKB} KB, ${corpus.length} mục`);
+  const sizeMB = (fs.statSync(OUT_FILE).size / (1024 * 1024)).toFixed(2);
+  console.log(`Đã lưu thành công: ${OUT_FILE} (${sizeMB} MB, ${corpus.length} tài liệu).`);
 
   // Thống kê theo category
   const stats = {};
   for (const item of corpus) {
     stats[item.category] = (stats[item.category] || 0) + 1;
   }
-  console.log("\nThống kê theo thư mục:");
+  console.log("\nPhân bổ theo lĩnh vực trong NỘI CHÍNH:");
   for (const [cat, count] of Object.entries(stats).sort((a, b) => b[1] - a[1])) {
-    console.log(`  ${cat}: ${count} file`);
+    console.log(`  • ${cat}: ${count} văn bản`);
   }
 }
 
