@@ -2,7 +2,7 @@ import type { AccountConfig } from "../config/account-store.js";
 import type { AgentProfile } from "../config/agent-store.js";
 import { buildOverrideExamples } from "../conversation/response-override-store.js";
 import { botTimeZone } from "../config/runtime-tuning-settings.js";
-import { LEGAL_WORKFLOW_PROMPT } from "../knowledge/noi-chinh-templates.js";
+import { getAccountKnowledge } from "../knowledge/account-knowledge-map.js";
 import type { MemoryContext } from "../conversation/memory-store.js";
 import { currentDateLine } from "../shared/current-datetime.js";
 import { khoiDieuDaNho, khoiTriThucChung } from "./memory-prompt-block.js";
@@ -219,10 +219,12 @@ export function buildSystemPrompt(
     sections.push(toolCapabilitySection(available));
     sections.push(...toolPersonaSections(available.map((t) => t.key)));
 
-    // Tri thức chuyên ngành Nội chính: inject khi account có tool tạo VB
-    if (available.some((t) => t.key === "create_admin_document")) {
-      sections.push(LEGAL_WORKFLOW_PROMPT);
-    }
+    // Tri thức chuyên ngành: mapping tập trung ở account-knowledge-map.ts
+    const knowledgeLayers = getAccountKnowledge(
+      account.id,
+      available.some((t) => t.key === "create_admin_document"),
+    );
+    for (const layer of knowledgeLayers) sections.push(layer);
   }
 
   if (agent.persona.trim()) {

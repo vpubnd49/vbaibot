@@ -45,17 +45,12 @@ export async function generateMultiSpeakerAudio(params: TtsParams): Promise<Buff
   let endpoint: string;
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
 
-  let effModel = model;
-  if (baseUrl?.includes("9router") && !effModel.startsWith("ag/")) {
-    effModel = `ag/${effModel}`;
-  }
-
   if (googleDirect) {
-    endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${effModel}:generateContent?key=${apiKey}`;
+    endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
   } else {
     // 9Router / proxy: strip /v1 suffix, thêm /v1beta/models/...:generateContent
     const base = (baseUrl || "").replace(/\/v1\/?$/, "").replace(/\/$/, "");
-    endpoint = `${base}/v1beta/models/${effModel}:generateContent`;
+    endpoint = `${base}/v1beta/models/${model}:generateContent`;
     headers['Authorization'] = `Bearer ${apiKey}`;
   }
 

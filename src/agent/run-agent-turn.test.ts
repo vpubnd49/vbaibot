@@ -203,7 +203,7 @@ describe("runAgentTurn - router trả completion rỗng", () => {
 
   it("rỗng cả hai lần thì trả câu báo lỗi, không im lặng bỏ treo", async () => {
     const { ket, soLanGoi } = await chayLuot([rong]);
-    assert.equal(soLanGoi(), 2, "thử lại đúng 1 lần rồi thôi, không lặp vô hạn");
+    assert.equal(soLanGoi(), 3, "thử lại đúng 2 lần rồi thôi, không lặp vô hạn");
     assert.ok(ket.text.length > 0, "phải nói gì đó cho người nhắn");
     assert.equal(ket.usage.totalTokens, 0);
   });
@@ -1096,10 +1096,12 @@ describe("runAgentTurn - chống ảo giác đã gửi file", () => {
       [{ ...tinNhan(), text: "chuyển qua file excel giúp tôi" }],
     );
 
-    assert.equal(callCount, 2, "phải chạy thêm 1 bước ép model gọi tool");
+    // 1 lần đầu + tối đa 3 lần ép anti-hallucination = 4
+    assert.equal(callCount, 4, "phải chạy thêm 3 bước ép model gọi tool");
     assert.ok(!ket.text.includes("[đã gửi file: bao-cao.xlsx]"), "nhãn giả mạo phải bị loại bỏ");
-    const lastPrompt = promptText(calls[calls.length - 1]!);
-    assert.ok(lastPrompt.includes("CẢNH BÁO HỆ THỐNG"), "lần gọi 2 phải chứa lời nhắc cảnh báo");
+    // Call thứ 2 trở đi (index 1+) phải chứa lời nhắc cảnh báo
+    const secondPrompt = promptText(calls[1]!);
+    assert.ok(secondPrompt.includes("CẢNH BÁO HỆ THỐNG"), "lần gọi 2 phải chứa lời nhắc cảnh báo");
   });
 });
 

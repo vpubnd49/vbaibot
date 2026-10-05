@@ -133,7 +133,11 @@ describe("buildSystemPrompt - danh sách tool đang bật", () => {
     // dạy luật của tool model không hề nhận được. Production luôn truyền account.
     const text = prompt.buildSystemPrompt(AGENT, MSG);
     assert.doesNotMatch(text, /tiến trình/);
-    assert.doesNotMatch(text, /web_search/);
+    // BASE_PERSONA chứa "web_search" trong hướng dẫn CẤM ẢO GIÁC TIN TỨC (dòng
+    // "BẮT BUỘC dùng tool (fetch_news, web_search)") - đó là hướng dẫn chung,
+    // KHÔNG phải luật tool. Kiểm tra không có khối luật tool thông qua marker
+    // của toolPersonaSections: khối bắt đầu bằng "Quy tắc dùng công cụ".
+    assert.doesNotMatch(text, /Quy tắc dùng công cụ/);
   });
 
   it("không truyền account thì vẫn dựng được prompt (đường gọi cũ không vỡ)", () => {

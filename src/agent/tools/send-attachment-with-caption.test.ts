@@ -1,4 +1,7 @@
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import { after, before, beforeEach, describe, it } from "node:test";
 import type { API } from "zca-js";
 import { cleanupTestEnv, setupTestEnv } from "../../shared/test-env-setup.js";
@@ -16,15 +19,22 @@ import { cleanupTestEnv, setupTestEnv } from "../../shared/test-env-setup.js";
 
 let dataDir: string;
 let sender: typeof import("./send-attachment-with-caption.js");
+let fixturePath: string;
 
 before(async () => {
   dataDir = setupTestEnv();
   sender = await import("./send-attachment-with-caption.js");
+  // Tạo file fixture thật để guiFileKemCaption tính hash không bị ENOENT
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "test-attach-"));
+  fixturePath = path.join(tmpDir, "bao-gia.docx");
+  fs.writeFileSync(fixturePath, "test fixture content");
 });
 
 after(async () => {
   (await import("../../conversation/database.js")).closeDatabase();
   cleanupTestEnv(dataDir);
+  // Dọn fixture
+  try { fs.unlinkSync(fixturePath); fs.rmdirSync(path.dirname(fixturePath)); } catch {}
 });
 
 type LanGui = { msg: string; styles?: unknown[]; attachments?: string[] };
@@ -49,7 +59,7 @@ function taoApi(tuChoi: (lan: number, co: LanGui) => void): API {
 }
 
 const gui = (api: API, caption: string | undefined) =>
-  sender.guiFileKemCaption(api, "acc:thread", "thread", 0 as never, "C:/tmp/bao-gia.docx", caption);
+  sender.guiFileKemCaption(api, "acc:thread", "thread", 0 as never, fixturePath, caption);
 
 describe("guiFileKemCaption", () => {
   it("Zalo từ chối caption có định dạng: gửi lại chữ trơn, FILE VẪN ĐI KÈM", async () => {
@@ -64,7 +74,7 @@ describe("guiFileKemCaption", () => {
     assert.equal(daGui[1]!.styles, undefined, "lần sau phải bỏ hẳn định dạng");
     assert.deepEqual(
       daGui[1]!.attachments,
-      ["C:/tmp/bao-gia.docx"],
+      [fixturePath],
       "mất file đính kèm là hỏng nặng hơn cả lỗi ban đầu",
     );
     assert.equal(daGui[1]!.msg, "Báo giá tháng 8 đây ạ", "chữ caption phải y nguyên");
@@ -94,6 +104,6 @@ describe("guiFileKemCaption", () => {
 
     assert.equal(daGui.length, 1);
     assert.equal(daGui[0]!.msg, "");
-    assert.deepEqual(daGui[0]!.attachments, ["C:/tmp/bao-gia.docx"]);
+    assert.deepEqual(daGui[0]!.attachments, [fixturePath]);
   });
 });

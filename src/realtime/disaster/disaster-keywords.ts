@@ -93,12 +93,18 @@ export const DISASTER_KEYWORDS: Record<DisasterType, readonly string[]> = {
     "tắc đường do sạt", "chia cắt", "cấm lưu thông",
     "đường sạt lở", "đường ngập", "đường bị chia cắt",
     "giao thông tê liệt", "phân luồng do",
+    // Đèo + cấm xe: "đèo X sạt lở, cấm xe tải" phải ra road_block
+    "đèo Bảo Lộc", "đèo D'ran", "đèo Prenn", "đèo Đại Ninh",
+    "đèo Gia Bắc", "đèo Sông Pha", "đèo Khánh Lê", "đèo Mimosa",
+    "đèo Tà Đùng",
+    "cấm xe",
   ],
   // --- Chung (CHỈ từ khóa mang tính CẢNH BÁO HIỆN HÀNH, loại bỏ tin tình nguyện/hỗ trợ) ---
   general: [
     "công điện khẩn", "lệnh sơ tán", "lệnh di dời",
     "cấp độ rủi ro thiên tai", "ứng phó khẩn cấp",
-    "PCTT cấp",
+    // Cả tên mới (Phòng thủ dân sự) lẫn tên cũ (PCTT) phải khớp
+    "Phòng thủ dân sự", "PCTT",
   ],
 } as const;
 

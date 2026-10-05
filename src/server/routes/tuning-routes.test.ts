@@ -120,7 +120,7 @@ describe("PUT /api/tuning", () => {
   it("số ngoài khoảng cho phép bị chặn kèm câu nói rõ khoảng", async () => {
     const r = await luu({ LLM_MAX_STEPS: 999 });
     assert.equal(r.status, 400);
-    assert.match((await r.json() as { error: string }).error, /1 - 30/);
+    assert.match((await r.json() as { error: string }).error, /1 - 50/);
   });
 
   it("sai kiểu bị chặn", async () => {

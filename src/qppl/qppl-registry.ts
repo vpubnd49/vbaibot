@@ -113,7 +113,7 @@ export const AGENCY_REGISTRY: Record<string, AgencyConfig> = {
     listTitle: "Quản lý văn bản",
     type: "so_nganh",
     tier: 2,
-    aliases: ["sct", "công thương", "sở công thương", "cong thuong", "so cong thuong", "thương mại", "quản lý thị trường", "điện lực"]
+    aliases: ["sct", "công thương", "sở công thương", "cong thuong", "so cong thuong", "thương mại", "quản lý thị trường", "điện lực", "địa chất", "khoáng sản", "năng lượng"]
   },
   skhcn: {
     code: "skhcn",
