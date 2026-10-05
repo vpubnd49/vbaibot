@@ -3,6 +3,119 @@
 Tai lieu nay chua cau truc CHUAN cho cac loai VBHC thuong gap, rut ra tu
 cac van ban THUC TE cua UBND tinh Lam Dong (thu muc `bosung/`).
 
+## 0. CÔNG VĂN CHỈ ĐẠO, GIAO VIỆC CỦA UBND TỈNH (Mẫu Phòng Nội chính tham mưu)
+
+Đây là mẫu phổ biến nhất trong thực tế công tác tham mưu của Phòng Nội chính Văn phòng UBND tỉnh (ví dụ xử lý Công văn của Văn phòng Chính phủ, các Bộ, ngành trung ương gửi đến).
+
+### Cấu trúc chi tiết:
+
+```
+HEADER TABLE (2 hàng x 2 cột ẩn viền):
+[HÀNG 1, TRÁI]:
+ỦY BAN NHÂN DÂN
+TỈNH LÂM ĐỒNG (In hoa, đậm)
+----------------------------- (Gạch dưới 1/3)
+
+[HÀNG 1, PHẢI]:
+CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM (13pt, đậm, hoa)
+Độc lập - Tự do - Hạnh phúc (14pt, đậm)
+----------------------------- (Gạch dưới tiêu ngữ)
+
+[HÀNG 2, TRÁI]:
+Số:             /UBND-NC (13pt, đứng)
+V/v triển khai thực hiện Công văn số [số/KH]
+của [Tên cơ quan cấp trên]
+(Trích yếu: 12pt, CHỮ ĐỨNG THƯỜNG, căn giữa ô trái)
+
+[HÀNG 2, PHẢI]:
+Lâm Đồng, ngày       tháng [tháng] năm 2026
+(13-14pt, IN NGHIÊNG, căn giữa)
+
+KÍNH GỬI:
+Kính gửi: Sở Khoa học và Công nghệ (14pt, đứng thường, không đậm)
+
+NỘI DUNG CHỈ ĐẠO:
+Đoạn 1 (Viện dẫn - in nghiêng, lùi đầu dòng 1cm, căn đều 2 bên):
+Ủy ban nhân dân tỉnh nhận được Công văn số ... ngày ... của ... về việc ... (gửi kèm theo); Chủ tịch Ủy ban nhân dân tỉnh chỉ đạo như sau:
+
+Đoạn 2 (Giao nhiệm vụ cụ thể - in đứng, lùi đầu dòng 1cm, căn đều 2 bên):
+Giao Sở Khoa học và Công nghệ chủ trì, phối hợp với các sở, ban, ngành, địa phương và các cơ quan, đơn vị có liên quan nghiên cứu, chủ động triển khai các đề xuất, kiến nghị của Văn phòng Chính phủ tại Công văn số ... theo thời gian quy định./.
+(LƯU Ý: Dấu ./. gắn liền vào từ cuối cùng, không có dòng riêng)
+
+KHỐI CHÂN TRANG:
+[CỘT TRÁI - NƠI NHẬN]:
+Nơi nhận: (Đậm, nghiêng, cỡ 12)
+- Như trên;
+- Chủ tịch, các PCT UBND tỉnh;
+- Các sở, ban, ngành;
+- CVP, PCVP UBND tỉnh;
+- UBND các xã, phường, đặc khu;
+- Lưu: VT, NC.Châu. (Kết thúc dấu chấm)
+
+[CỘT PHẢI - CHỮ KÝ]:
+TL. CHỦ TỊCH (13-14pt, đậm, hoa)
+KT. CHÁNH VĂN PHÒNG (13-14pt, đậm, hoa)
+PHÓ CHÁNH VĂN PHÒNG (13-14pt, đậm, hoa)
+(4 dòng trống ký tên)
+Trịnh Ngọc Duệ (14pt, đậm, căn giữa)
+```
+
+---
+
+## 0.1. CÔNG VĂN / BÁO CÁO CỦA SỞ, BAN, NGÀNH GỬI UBND TỈNH (Mẫu Sở Tài chính, Sở Công Thương...)
+
+Mẫu thực tế chuẩn xác của các Sở, Ban, Ngành trực thuộc khi gửi báo cáo, tờ trình, công văn lên UBND tỉnh (đối chiếu file thực tế thư mục `CT` và mẫu thực tế Sở Tài chính):
+
+### Cấu trúc chi tiết:
+
+```
+HEADER TABLE (2 hàng x 2 cột ẩn viền):
+[HÀNG 1, TRÁI]:
+UBND TỈNH LÂM ĐỒNG (12-13pt, in hoa, ĐỨNG THƯỜNG, không đậm, 1 DÒNG DUY NHẤT)
+SỞ TÀI CHÍNH (hoặc SỞ CÔNG THƯƠNG) (12-13pt, in hoa, ĐẬM)
+----------------------------- (Gạch dưới 1/3)
+
+[HÀNG 1, PHẢI]:
+CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM (13pt, đậm, hoa)
+Độc lập - Tự do - Hạnh phúc (14pt, đậm)
+----------------------------- (Gạch dưới tiêu ngữ)
+
+[HÀNG 2, TRÁI]:
+Số: 11081 /STC-GSĐT (hoặc Số:      /SCT-VP) (12-13pt, đứng)
+V/v báo cáo nội dung xây dựng lộ trình, kế hoạch...
+(Trích yếu: 12pt, CHỮ ĐỨNG THƯỜNG, căn giữa ô trái)
+
+[HÀNG 2, PHẢI]:
+Lâm Đồng, ngày 05 tháng 10 năm 2026
+(13-14pt, IN NGHIÊNG, căn giữa)
+
+KÍNH GỬI (BẮT BUỘC CĂN GIỮA TRANG):
+Kính gửi: UBND tỉnh Lâm Đồng (hoặc Văn phòng Ủy ban nhân dân tỉnh)
+(14pt, chữ thường, ĐỨNG, không đậm, căn giữa trang)
+
+NỘI DUNG:
+Đoạn 1 (lùi đầu dòng 1cm, căn đều 2 bên):
+Thực hiện Kế hoạch/Chỉ đạo của Ủy ban nhân dân tỉnh tại..., Sở Tài chính/Sở Công Thương báo cáo như sau:...
+
+Đoạn kết thúc (gắn liền dấu ./. vào từ cuối cùng):
+Sở Tài chính/Sở Công Thương báo cáo Ủy ban nhân dân tỉnh xem xét, chỉ đạo./.
+
+KHỐI CHÂN TRANG:
+[CỘT TRÁI - NƠI NHẬN]:
+Nơi nhận: (Đậm, nghiêng, cỡ 12)
+- Như trên;
+- Giám đốc, các Phó Giám đốc Sở;
+- Các phòng, đơn vị thuộc Sở;
+- Lưu: VT, [mã phòng]. (Kết thúc dấu chấm)
+
+[CỘT PHẢI - CHỮ KÝ]:
+GIÁM ĐỐC (hoặc KT. GIÁM ĐỐC / PHÓ GIÁM ĐỐC) (13-14pt, đậm, hoa)
+(4 dòng trống ký tên)
+[Họ và tên người ký] (14pt, đậm, căn giữa)
+```
+
+---
+
 ## 1. QUYET DINH (QD) – Ban hanh quy dinh chuc nang nhiem vu
 
 ### Cau truc QD

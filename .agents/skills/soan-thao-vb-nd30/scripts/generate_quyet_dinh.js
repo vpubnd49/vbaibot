@@ -288,19 +288,31 @@ function createCacDieu(data) {
 
     if (data.cac_dieu && data.cac_dieu.length > 0) {
         data.cac_dieu.forEach((dieu, idx) => {
+            const isLast = idx === data.cac_dieu.length - 1;
+            let content = (typeof dieu === 'string' ? dieu : (dieu.noi_dung || '')).trim();
+            if (isLast) {
+                if (content.endsWith('./.')) {
+                    // da chuan
+                } else if (content.endsWith('.')) {
+                    content = content.slice(0, -1) + './.';
+                } else {
+                    content = content + './.';
+                }
+            }
+
             // Tieu de Dieu
             paragraphs.push(
                 new Paragraph({
                     alignment: AlignmentType.JUSTIFIED,
                     spacing: { before: 120, after: 60 },
-                    indent: { firstLine: 720 },
+                    indent: { firstLine: 567 },
                     children: [
                         new TextRun({
-                            text: `Dieu ${idx + 1}. `,
+                            text: `Điều ${idx + 1}. `,
                             font: LAYOUT.FONT, size: 28, bold: true,
                         }),
                         new TextRun({
-                            text: dieu.noi_dung || '',
+                            text: content,
                             font: LAYOUT.FONT, size: 28,
                         }),
                     ],
@@ -447,10 +459,7 @@ async function main() {
     // 6. Cac Dieu
     children.push(...createCacDieu(data));
 
-    // 7. Khoang cach
-    children.push(new Paragraph({ spacing: { before: 240 }, children: [new TextRun({ text: '', font: LAYOUT.FONT })] }));
-
-    // 8. Chu ky & Noi nhan
+    // 7. Chu ky & Noi nhan
     children.push(...createSignatureBlock(data));
 
     // Header so trang: can giua, co 14, trang 1 khong danh so

@@ -281,16 +281,68 @@ function createBody(data) {
     // Noi dung chinh
     if (data.noi_dung) {
         // Tach theo dong
-        const lines = data.noi_dung.split('\n').filter(l => l.trim());
+        let lines = data.noi_dung.split('\n').map(l => l.trim()).filter(Boolean);
+
+        // Loai bo triet de bat ky dong nao chi chua ./. hoac . dung rieng o cuoi
+        while (lines.length > 0) {
+            const last = lines[lines.length - 1];
+            if (last === './.' || last === '.' || last === '...' || last === '') {
+                lines.pop();
+            } else {
+                break;
+            }
+        }
+
+        // Gan chat ./. vao cuoi dong cuoi cung
+        if (lines.length > 0) {
+            const lastIdx = lines.length - 1;
+            let lastLine = lines[lastIdx];
+            if (lastLine.endsWith('./.')) {
+                // da chuan
+            } else if (lastLine.endsWith('.')) {
+                lastLine = lastLine.slice(0, -1) + './.';
+            } else {
+                lastLine = lastLine + './.';
+            }
+            lines[lastIdx] = lastLine;
+        }
+
         lines.forEach(line => {
+            const trimmed = line.trim();
+            // Nhan dien de muc so/la ma neu co
+            const matchNumber = trimmed.match(/^(\d+[\.\)]\s*)(.*)$/);
+            if (matchNumber && matchNumber[2].indexOf(':') !== -1 && matchNumber[2].indexOf(':') < 80) {
+                const colonIdx = matchNumber[2].indexOf(':');
+                const titlePart = matchNumber[2].substring(0, colonIdx + 1);
+                const bodyPart = matchNumber[2].substring(colonIdx + 1);
+                paragraphs.push(
+                    new Paragraph({
+                        alignment: AlignmentType.JUSTIFIED,
+                        spacing: { before: 120, after: 120 },
+                        indent: { firstLine: 567 },
+                        children: [
+                            new TextRun({
+                                text: matchNumber[1] + titlePart,
+                                font: LAYOUT.FONT, size: 28, bold: true,
+                            }),
+                            new TextRun({
+                                text: bodyPart,
+                                font: LAYOUT.FONT, size: 28,
+                            }),
+                        ],
+                    })
+                );
+                return;
+            }
+
             paragraphs.push(
                 new Paragraph({
                     alignment: AlignmentType.JUSTIFIED,
                     spacing: { before: 120, after: 120 },
-                    indent: { firstLine: 720 }, // ~1.27cm
+                    indent: { firstLine: 567 }, // ~1cm
                     children: [
                         new TextRun({
-                            text: line.trim(),
+                            text: trimmed,
                             font: LAYOUT.FONT, size: 28, // 14pt
                         }),
                     ],
@@ -447,15 +499,7 @@ async function main() {
     // 2. Body
     children.push(...createBody(data));
 
-    // 3. Khoang cach truoc chu ky
-    children.push(
-        new Paragraph({
-            spacing: { before: 240, after: 0 },
-            children: [new TextRun({ text: '', font: LAYOUT.FONT })],
-        })
-    );
-
-    // 4. Chu ky & Noi nhan
+    // 3. Chu ky & Noi nhan
     children.push(...createSignatureBlock(data));
 
     // Header so trang: can giua, co 14, trang 1 khong danh so

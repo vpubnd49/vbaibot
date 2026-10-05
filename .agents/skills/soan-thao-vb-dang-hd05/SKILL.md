@@ -1,6 +1,7 @@
 ---
 name: Soạn VB Đảng (HD05)
 description: "Tạo văn bản Đảng (.docx) dùng thể thức theo Hướng dẫn 05-HD/VPTW (thay thế HD36). Hỗ trợ TẤT CẢ loại VB Đảng: Nghị quyết, Chỉ thị, Kết luận, Quyết định, Quy định, Quy chế, Báo cáo, Tờ trình, Thông báo, Hướng dẫn, Chương trình, Thông tri, Công văn, Biên bản. Dùng khi cần tạo VB cho cấp uỷ, cơ quan tham mưu, BCSĐ, ĐĐ, ban chỉ đạo ở mọi cấp từ TW đến chi bộ."
+triggers: ['đảng', 'tỉnh uỷ', 'huyện uỷ', 'chi bộ', 'hướng dẫn 05', 'hd05', 'hd 05', 'văn bản đảng', 't/m']
 ---
 
 # Skill: Sinh Văn Bản Đảng (HD 05-HD/VPTW)

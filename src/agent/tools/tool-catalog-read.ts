@@ -22,6 +22,7 @@ import { createNationalLegalTool } from "./national-legal-tool.js";
 import { createTranscribeAudioTool } from "./transcribe-audio-tool.js";
 import { createSearchNoiChinhTool } from "./search-noi-chinh-tool.js";
 import { createDisasterAlertTool } from "./disaster-alert-tool.js";
+import { createListSkillsTool } from "./create-skill-tool.js";
 
 /**
  * Nhóm "read" của catalog tool - tra cứu, không tác động ra ngoài. Tách khỏi
@@ -29,6 +30,14 @@ import { createDisasterAlertTool } from "./disaster-alert-tool.js";
  * catalog nào vượt ngưỡng 200 dòng khi thêm tool mới.
  */
 export const READ_TOOL_DEFINITIONS: ToolDefinition[] = [
+  {
+    key: "list_skills",
+    label: "Danh sách kỹ năng",
+    description: "Xem danh sách các kỹ năng (Skills) hiện có trong hệ thống và các từ khóa kích hoạt tương ứng",
+    group: "read",
+    keTrongKhaNang: true,
+    build: () => createListSkillsTool(),
+  },
   {
     key: "thanhtra_lamdong",
     label: "Kết luận Thanh tra Lâm Đồng",

@@ -1,6 +1,7 @@
 ---
 name: tra-cuu-hanh-chinh-vn
 description: Tra cứu và chuẩn hóa dữ liệu hành chính - pháp lý Việt Nam từ nguồn có cấu trúc, đặc biệt cho địa giới 34 tỉnh/thành, cơ cấu 6 Sở mới của tỉnh Lâm Đồng năm 2025, căn cứ NĐ30/NQ60, và các snapshot chỉ số CCHC. Dùng khi người dùng hỏi tên cơ quan cũ/mới, đơn vị hành chính sau sắp xếp, số/ký hiệu căn cứ, mốc áp dụng, thẩm quyền/ngữ cảnh soạn thảo, PAR Index/SIPAS/PAPI/PCI/Bộ chỉ số 766, hoặc yêu cầu kiểm tra một đoạn văn theo dữ liệu nguồn. Phù hợp cho agent/app cần đầu ra có cấu trúc, truy vết nguồn và cảnh báo dữ liệu cũ.
+triggers: ['tra cứu sở mới', 'sáp nhập tỉnh', '34 tỉnh thành', 'chỉ số cchc', 'thẩm quyền hành chính', 'par index', 'sipas', 'bộ chỉ số 766']
 ---
 
 # Tra cứu hành chính Việt Nam

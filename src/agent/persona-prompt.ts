@@ -15,6 +15,7 @@ import {
   TIEU_DE_KHA_NANG,
   TIEU_DE_QUY_TAC_AN_TOAN,
 } from "./prompt-leak-markers.js";
+import { findMatchingSkills } from "../skills/skill-manager.js";
 
 // Hai tiêu đề dưới đây vừa là lời dặn model, vừa là DẤU HIỆU để
 // `zalo/sanitize-reply-text.ts` nhận ra câu trả lời đã rò system prompt. Nội
@@ -255,6 +256,18 @@ export function buildSystemPrompt(
   if (account) {
     const overrideBlock = buildOverrideExamples(account.id);
     if (overrideBlock) sections.push(overrideBlock);
+  }
+
+  // ===== Kỹ năng chuyên biệt kích hoạt theo ngữ cảnh tin nhắn =====
+  if (msg.text) {
+    const matchedSkills = findMatchingSkills(msg.text, 2);
+    if (matchedSkills.length > 0) {
+      const skillBlocks = matchedSkills.map(
+        (s) =>
+          `=== HƯỚNG DẪN KỸ NĂNG CHUYÊN BIỆT: ${s.name} (ID: ${s.id}) ===\n${s.content}\n================================================================`,
+      );
+      sections.push(skillBlocks.join("\n\n"));
+    }
   }
 
   // ===== Sentiment Analysis: inject tone cue =====

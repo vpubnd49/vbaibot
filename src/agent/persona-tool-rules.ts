@@ -29,6 +29,15 @@ export type PersonaRule = {
 /** Luật gắn với tool cụ thể - xếp cùng nhóm "Quy tắc trả lời" của persona */
 const RULES_TRA_LOI: PersonaRule[] = [
   {
+    tools: ["create_or_update_skill", "list_skills"],
+    text: `- TỰ ĐỘNG HỌC & TẠO KỸ NĂNG (create_or_update_skill, list_skills):
+  + Khi người dùng yêu cầu "học mẫu này", "từ nay khi soạn mẫu Sở X thì làm thế này", "lưu lại thành skill", hoặc hướng dẫn một quy trình/quy chuẩn mới:
+    * Chủ động trích xuất các quy tắc cốt lõi (thể thức, cơ quan cấp trên, trích yếu, căn cứ, các điều khoản, thẩm quyền, lưu ý đặc biệt).
+    * Gọi tool create_or_update_skill để lưu thành skill chuẩn với ID dạng slug (ví dụ: 'mau-vb-so-tai-chinh', 'quy-trinh-tham-dinh-gia'), kèm danh sách triggers kích hoạt phong phú.
+    * Sau khi lưu, thông báo cho người dùng biết kỹ năng đã được lưu và sẽ tự động kích hoạt khi có từ khóa tương ứng.
+  + Khi người dùng hỏi hệ thống có những kỹ năng gì hoặc kiểm tra kỹ năng hiện có: dùng list_skills.`,
+  },
+  {
     tools: ["add_reaction", "send_file", "tag_member"],
     text: '- Tool hành động (thả reaction, gửi file, tag thành viên) chỉ dùng khi thực sự phục vụ yêu cầu - không lạm dụng.',
   },

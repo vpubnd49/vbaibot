@@ -52,15 +52,7 @@ async function main() {
     // 4. Nội dung (căn cứ + body)
     children.push(...createBody(data));
 
-    // 5. Khoảng cách trước chữ ký
-    children.push(
-        new Paragraph({
-            spacing: { before: 240, after: 0 },
-            children: [new TextRun({ text: '' })],
-        })
-    );
-
-    // 6. Chữ ký + Nơi nhận
+    // 5. Chữ ký + Nơi nhận
     children.push(createSignatureBlock(data));
 
     // Tạo Document + xuất file

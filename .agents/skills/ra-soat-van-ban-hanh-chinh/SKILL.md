@@ -1,6 +1,7 @@
 ---
 name: ra-soat-van-ban-hanh-chinh-vn
 description: Rà soát chuyên sâu văn bản hành chính tiếng Việt, đặc biệt công văn, tờ trình, quyết định, thông báo và dự thảo của UBND/cơ quan nhà nước. Dùng khi người dùng yêu cầu rà soát, soát lỗi, kiểm tra câu cú, chính tả, thể thức, logic giao nhiệm vụ, đánh giá tính phù hợp, đối chiếu góp ý - tiếp thu - dự thảo, hoặc sửa DOCX/PDF. Kiểm tra đồng thời ngôn ngữ, thể thức Nghị định 30, số hiệu/ngày tháng/căn cứ, thẩm quyền, logic chủ trì-phối hợp-báo cáo, nguồn dữ liệu báo cáo, tính nhất quán giữa nhiều hồ sơ và phát hiện mâu thuẫn trước khi trình ký.
+triggers: ['rà soát', 'soát lỗi', 'kiểm tra văn bản', 'hiệu đính', 'đối chiếu dự thảo', 'sửa lỗi chính tả', 'thẩm định']
 ---
 
 # Rà soát văn bản hành chính Việt Nam

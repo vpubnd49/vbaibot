@@ -32,6 +32,7 @@ import { createTicketTool } from "./ticket-tool.js";
 import { createVideoWorkshopTool } from "./video-workshop-tool.js";
 import { createNotionSyncTool } from "./notion-sync-tool.js";
 import { createMcpClientTool } from "./mcp-client-tool.js";
+import { createOrUpdateSkillTool } from "./create-skill-tool.js";
 import type { ToolDefinition } from "./tool-catalog-types.js";
 
 
@@ -41,6 +42,14 @@ import type { ToolDefinition } from "./tool-catalog-types.js";
  * catalog nào vượt ngưỡng 200 dòng khi thêm tool mới.
  */
 export const ACTION_TOOL_DEFINITIONS: ToolDefinition[] = [
+  {
+    key: "create_or_update_skill",
+    label: "Tạo/cập nhật kỹ năng",
+    description: "Tạo mới hoặc cập nhật một kỹ năng (Skill) cho bot từ mẫu văn bản, quy trình hoặc hướng dẫn của người dùng",
+    group: "action",
+    keTrongKhaNang: true,
+    build: () => createOrUpdateSkillTool(),
+  },
   {
     key: "add_reaction",
     label: "Thả cảm xúc",
