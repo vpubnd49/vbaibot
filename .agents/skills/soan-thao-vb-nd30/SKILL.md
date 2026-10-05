@@ -145,7 +145,9 @@ node engine/generate_vb_co_ten_loai_nd30.js --input <input.json> --output <outpu
 ---
 
 ## 4. TÀI LIỆU THAM KHẢO KÈM THEO
+- `references/toan_bo_27_mau_noi_chinh.md`: **KHO TOÀN BỘ 27 MẪU LĨNH VỰC NỘI CHÍNH** (Trích xuất từ toàn bộ 3.553 hồ sơ thực tế: Tòa án - Tố tụng, Công an tỉnh, Cải cách TTHC, Các hội, Tư pháp, Tổ chức bộ máy, Thanh tra, Nghị quyết HĐND, Đảng ủy, Khiếu nại - Tố cáo...). BẮT BUỘC tra cứu file này để lấy đúng thể thức, căn cứ và nơi nhận mẫu.
 - `references/quy_tac_the_thuc.md`: Toàn bộ thông số pixel-perfect và chuẩn bảng biểu Excel.
 - `references/mau_cau_truc_vbhc.md`: Cấu trúc mẫu chuẩn từ hồ sơ thực tế Phòng Nội chính.
 - `references/bang_viet_tat.md`: Bảng viết tắt cơ quan chuẩn theo Quyết định 4114.
 - `references/phan_quyen_ky.md`: Quy định phân quyền ký văn bản hành chính.
+

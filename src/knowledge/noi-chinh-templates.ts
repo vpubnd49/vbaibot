@@ -631,6 +631,115 @@ Sau khi nhận đủ ý kiến (Sở phối hợp + xã + phòng CM nội bộ) 
 
 ---
 
+### QUY TRÌNH Q: CẢI CÁCH HÀNH CHÍNH & KIỂM SOÁT THỦ TỤC HÀNH CHÍNH (980 hồ sơ)
+**KHI NÀO ÁP DỤNG:** Quyết định công bố danh mục TTHC mới ban hành/sửa đổi/bãi bỏ, Kế hoạch rà soát đơn giản hóa TTHC, Báo cáo Bộ chỉ số 766, Báo cáo PAR Index, SIPAS.
+- **Tiêu đề cơ quan:** ỦY BAN NHÂN DÂN TỈNH LÂM ĐỒNG
+- **Số ký hiệu:** "Số:    /QĐ-UBND" hoặc "Số:    /KH-UBND" hoặc "Số:    /UBND-KSTTHC"
+- **Căn cứ bắt buộc:** Nghị định số 63/2010/NĐ-CP, Nghị định số 92/2017/NĐ-CP, Thông tư 02/2017/TT-VPCP, Quyết định của Bộ quản lý ngành/lĩnh vực công bố TTHC, Xét đề nghị của Giám đốc Sở chuyên ngành và Chánh Văn phòng UBND tỉnh.
+- **Bố cục Quyết định:**
+  + Điều 1: Công bố kèm theo Quyết định này Danh mục... thủ tục hành chính thuộc thẩm quyền giải quyết của cấp tỉnh/huyện/xã...
+  + Điều 2: Quyết định có hiệu lực kể từ ngày ký. Bãi bỏ các TTHC số... tại Quyết định số...
+  + Điều 3: Chánh Văn phòng UBND tỉnh, Giám đốc các Sở, Chủ tịch UBND cấp huyện, xã và các tổ chức, cá nhân liên quan chịu trách nhiệm thi hành.
+  + Phụ lục kèm theo: Danh mục TTHC (Mã TTHC, Tên TTHC, Thời gian giải quyết, Địa điểm thực hiện, Phí/lệ phí, Căn cứ pháp lý).
+- **Người ký:** CHỦ TỊCH hoặc KT. CHỦ TỊCH / PHÓ CHỦ TỊCH.
+
+---
+
+### QUY TRÌNH R: LĨNH VỰC CÔNG AN TỈNH, AN NINH TRẬT TỰ & ĐỀ ÁN 06 (693 hồ sơ)
+**KHI NÀO ÁP DỤNG:** Văn bản chỉ đạo công tác bảo đảm an ninh chính trị, trật tự ATXH, PCCC, an toàn giao thông, triển khai Đề án 06/CP, nhân quyền, xử lý tin báo an ninh.
+- **Tiêu đề cơ quan:** ỦY BAN NHÂN DÂN TỈNH LÂM ĐỒNG
+- **Số ký hiệu:** "Số:    /UBND-NC" (hoặc văn bản Chỉ thị: "Số:    /CT-UBND")
+- **Kính gửi:** Công an tỉnh; Các sở, ban, ngành, đoàn thể tỉnh; UBND các huyện, thành phố Đà Lạt, Bảo Lộc.
+- **Mẫu câu mở đầu:** "Thực hiện ý kiến chỉ đạo của Bộ Công an tại Công văn số...; xét đề nghị của Công an tỉnh tại Tờ trình/Công văn số...; Chủ tịch Ủy ban nhân dân tỉnh chỉ đạo:"
+- **Nội dung giao việc chuẩn:**
+  1. Giao Công an tỉnh chủ trì, phối hợp với... nắm chắc tình hình, chủ động triển khai các biện pháp nghiệp vụ...
+  2. Các sở, ban, ngành, địa phương theo chức năng, nhiệm vụ được giao...
+  3. Định kỳ báo cáo kết quả thực hiện về UBND tỉnh (qua Công an tỉnh) trước ngày...
+- **Nơi nhận:** Bắt buộc có: "- Như trên;", "- Thường trực Tỉnh ủy;", "- Thường trực HĐND tỉnh;", "- Chủ tịch, các PCT UBND tỉnh;", "- Công an tỉnh;", "- Lãnh đạo VP UBND tỉnh;", "- Lưu: VT, NC."
+
+---
+
+### QUY TRÌNH S: QUẢN LÝ NHÀ NƯỚC VỀ CÁC HỘI & TỔ CHỨC PHI CHÍNH PHỦ (465 hồ sơ)
+**KHI NÀO ÁP DỤNG:** Tờ trình, Quyết định cho phép thành lập, chia tách, sáp nhập, hợp nhất, giải thể, đổi tên Hội; Công nhận Điều lệ Hội; Cho phép tổ chức Đại hội nhiệm kỳ/bất thường; Công nhận Ban Vận động thành lập Hội.
+- **Tiêu đề cơ quan:** ỦY BAN NHÂN DÂN TỈNH LÂM ĐỒNG
+- **Số ký hiệu:** "Số:    /QĐ-UBND" (hoặc "Số:    /UBND-NC")
+- **Căn cứ pháp lý:** Nghị định số 45/2010/NĐ-CP (hoặc Nghị định 126/2024/NĐ-CP về tổ chức, hoạt động và quản lý hội), Thông tư 03/2013/TT-BNV, Thông tư 01/2022/TT-BNV, Xét đề nghị của Trưởng ban Ban Vận động thành lập Hội và Giám đốc Sở Nội vụ tại Tờ trình số...
+- **Điều 1:** Cho phép thành lập / Phê duyệt Điều lệ / Cho phép tổ chức Đại hội... Hội [Tên Hội] tỉnh Lâm Đồng.
+- **Điều 2:** Hội [Tên Hội] là tổ chức xã hội - nghề nghiệp, tổ chức và hoạt động theo Điều lệ được phê duyệt, tuân thủ quy định pháp luật và chịu sự quản lý nhà nước của Sở chuyên ngành...
+- **Điều 3:** Trách nhiệm thi hành.
+
+---
+
+### QUY TRÌNH T: LĨNH VỰC TƯ PHÁP, BỔ NHIỆM GIÁM ĐỊNH VIÊN & BỔ TRỢ TƯ PHÁP (303 hồ sơ)
+**KHI NÀO ÁP DỤNG:** Quyết định bổ nhiệm/miễn nhiệm Giám định viên tư pháp (pháp y, kỹ thuật hình sự, xây dựng, tài chính, văn hóa...), Thừa phát lại, Đấu giá viên, Luật sư, Công chứng viên, công tác theo dõi thi hành pháp luật.
+- **Cơ quan ban hành:** ỦY BAN NHÂN DÂN TỈNH LÂM ĐỒNG
+- **Số ký hiệu:** "Số:    /QĐ-UBND"
+- **Căn cứ:** Luật Giám định tư pháp (sửa đổi 2020), Nghị định hướng dẫn thi hành, Đề nghị của Giám đốc Sở Tư pháp và Giám đốc Sở chuyên ngành liên quan (Y tế, Xây dựng, Tài chính...).
+- **Nội dung:** Bổ nhiệm ông/bà... giữ chức danh Giám định viên tư pháp trong lĩnh vực...
+
+---
+
+### QUY TRÌNH U: LĨNH VỰC THANH TRA & PHÒNG CHỐNG THAM NHŨNG, TIÊU CỰC (68 hồ sơ)
+**KHI NÀO ÁP DỤNG:** Kế hoạch thanh tra hàng năm, Kế hoạch công tác phòng, chống tham nhũng, lãng phí, tiêu cực; Báo cáo đánh giá công tác PCTN cấp tỉnh (PACAS); Công văn chỉ đạo thực hiện Kết luận thanh tra, kiến nghị Kiểm toán Nhà nước.
+- **Cơ quan ban hành:** ỦY BAN NHÂN DÂN TỈNH LÂM ĐỒNG
+- **Số ký hiệu:** "Số:    /KH-UBND" hoặc "Số:    /UBND-NC"
+- **Căn cứ:** Luật Thanh tra 2022, Luật Phòng, chống tham nhũng 2018, Nghị định 59/2019/NĐ-CP, Nghị định 130/2020/NĐ-CP, Hướng dẫn của Thanh tra Chính phủ, Đề nghị của Chánh Thanh tra tỉnh.
+- **Người ký:** CHỦ TỊCH hoặc KT. CHỦ TỊCH / PHÓ CHỦ TỊCH.
+
+---
+
+### QUY TRÌNH V: NGHỈ HƯU, CHẾ ĐỘ NÂNG LƯƠNG & CHÍNH SÁCH CÁN BỘ (46 hồ sơ)
+**KHI NÀO ÁP DỤNG:** Quyết định nghỉ hưu hưởng chế độ BHXH, Quyết định nghỉ hưu trước tuổi theo Nghị định 29/2023/NĐ-CP (tinh giản biên chế), Quyết định nâng bậc lương thường xuyên, trước thời hạn đối với diện cán bộ do UBND tỉnh quản lý (Giám đốc/Phó Giám đốc Sở, tương đương).
+- **Cơ quan ban hành:** ỦY BAN NHÂN DÂN TỈNH LÂM ĐỒNG
+- **Số ký hiệu:** "Số:    /QĐ-UBND"
+- **Căn cứ:** Bộ luật Lao động, Luật Cán bộ, công chức, Luật Viên chức, Nghị định 29/2023/NĐ-CP hoặc Thông tư 08/2013/TT-BNV, Thông báo kết luận của Ban Thường vụ Tỉnh ủy / Ban Cán sự Đảng UBND tỉnh, Xét đề nghị của Giám đốc Sở Nội vụ.
+- **Nơi nhận:** Bắt buộc có: Ban Thường vụ Tỉnh ủy, Ban Tổ chức Tỉnh ủy, Sở Nội vụ, Bảo hiểm xã hội tỉnh, Cơ quan người nghỉ công tác, Đương sự.
+
+---
+
+### QUY TRÌNH W: VĂN BẢN ĐẢNG & BAN CÁN SỰ ĐẢNG (BCSĐ, ĐẢNG ỦY UBND)
+**KHI NÀO ÁP DỤNG:** Tờ trình, Báo cáo, Công văn xin ý kiến Thường trực Tỉnh ủy, Ban Thường vụ Tỉnh ủy theo Quy chế làm việc; Văn bản triển khai Chỉ thị, Nghị quyết của Tỉnh ủy, Đảng ủy Khối.
+- **Thể thức:** Tuân thủ Hướng dẫn số 05-HD/VPTW ngày 21/01/2026 của Văn phòng Trung ương Đảng (thay thế Hướng dẫn 36-HD/VPTW).
+- **Tiêu đề cơ quan:**
+  + Dòng 1: ĐẢNG BỘ TỈNH LÂM ĐỒNG
+  + Dòng 2: BAN CÁN SỰ ĐẢNG ỦY BAN NHÂN DÂN TỈNH (hoặc ĐẢNG ỦY VĂN PHÒNG UBND TỈNH)
+- **Số ký hiệu:** "Số:    -CV/BCSĐ" hoặc "Số:    -TTr/BCSĐ", "Số:    -BC/BCSĐ"
+- **Người ký:** TM. BAN CÁN SỰ ĐẢNG / BÍ THƯ (hoặc PHÓ BÍ THƯ).
+
+---
+
+### QUY TRÌNH X: CÔNG VĂN CHUYỂN & CÔNG VĂN GIAO VIỆC NHANH
+**KHI NÀO ÁP DỤNG:** Chuyển văn bản Trung ương, bộ ngành hoặc đơn thư, kiến nghị cho cơ quan chuyên môn nghiên cứu, xử lý hoặc tham mưu đề xuất.
+- **Tiêu đề cơ quan:** VĂN PHÒNG UBND TỈNH (với CV Chuyển) hoặc ỦY BAN NHÂN DÂN TỈNH (với CV Giao).
+- **Số ký hiệu:** "Số:    /VP-NC" hoặc "Số:    /UBND-NC"
+- **Ký hiệu người ký:**
+  + CV Chuyển (VP-NC): "CHÁNH VĂN PHÒNG" hoặc "TL. CHỦ TỊCH / KT. CHÁNH VĂN PHÒNG / PHÓ CHÁNH VĂN PHÒNG".
+  + CV Giao (UBND-NC): "KT. CHỦ TỊCH / PHÓ CHỦ TỊCH".
+- **Mẫu văn bản:**
+  "Văn phòng UBND tỉnh nhận được... Chuyển... đến [Sở/đơn vị] để chủ động kiểm tra, rà soát, giải quyết theo thẩm quyền và quy định của pháp luật; trường hợp vượt thẩm quyền, kịp thời báo cáo, đề xuất UBND tỉnh xem xét, chỉ đạo./."
+
+---
+
+### QUY TRÌNH Y: KIỂM ĐIỂM TRÁCH NHIỆM & GIẢI TRÌNH KẾT LUẬN
+**KHI NÀO ÁP DỤNG:** Công văn chỉ đạo tổ chức kiểm điểm trách nhiệm tập thể, cá nhân liên quan theo Kết luận thanh tra, thông báo của Ủy ban Kiểm tra, Kiểm toán Nhà nước.
+- **Tiêu đề cơ quan:** ỦY BAN NHÂN DÂN TỈNH LÂM ĐỒNG
+- **Số ký hiệu:** "Số:    /UBND-NC"
+- **Mẫu câu chuẩn:**
+  "Thực hiện Thông báo số... của Ủy ban Kiểm tra Tỉnh ủy / Kết luận thanh tra số...; Chủ tịch Ủy ban nhân dân tỉnh yêu cầu:
+  1. Thủ trưởng các cơ quan, đơn vị: [Liệt kê các Sở, UBND cấp huyện liên quan] tổ chức kiểm điểm nghiêm túc trách nhiệm của tập thể lãnh đạo và các cá nhân có liên quan trong việc...
+  2. Báo cáo kết quả kiểm điểm (kèm biên bản họp kiểm điểm, bản tự kiểm điểm của các cá nhân và hồ sơ xử lý kỷ luật nếu có) gửi về UBND tỉnh (qua Sở Nội vụ) trước ngày...
+  3. Giao Sở Nội vụ theo dõi, đôn đốc; tổng hợp, tham mưu UBND tỉnh xem xét, xử lý theo thẩm quyền và quy định của Đảng, pháp luật của Nhà nước./."
+
+---
+
+### QUY TRÌNH Z: CÁC MẪU NỘI BỘ VĂN PHÒNG & THỦ TỤC HÀNH CHÍNH NỘI BỘ
+**KHI NÀO ÁP DỤNG:** Giấy đi đường, Đơn xin nghỉ phép năm, Đơn xin phép đi nước ngoài việc riêng, Giấy ủy quyền dự hội nghị, Mẫu luân chuyển hồ sơ giữa các phòng ban.
+- **Thể thức:** Tuân thủ Quy chế làm việc của Văn phòng UBND tỉnh Lâm Đồng.
+- **Tiêu đề:** VĂN PHÒNG UBND TỈNH LÂM ĐỒNG - PHÒNG NỘI CHÍNH.
+- **Đơn xin đi nước ngoài việc riêng:** Kính gửi: Thường trực Tỉnh ủy, Lãnh đạo UBND tỉnh, Đảng ủy Văn phòng, Lãnh đạo Văn phòng; Cam kết tự túc kinh phí 100%, chấp hành nghiêm quy định về bảo vệ chính trị nội bộ và xuất nhập cảnh.
+
+---
+
 ### THÔNG TIN MẶC ĐỊNH
 
 - **Chủ tịch UBND tỉnh**: Trần Hồng Thái
