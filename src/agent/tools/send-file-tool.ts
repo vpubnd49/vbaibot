@@ -43,17 +43,40 @@ export function createSendFileTool({ api, account, message, ghiNhanDaGui, fileDa
 
   return tool({
     description:
-      "Gửi 1 file cho cuộc trò chuyện hiện tại. Nguồn: tên file có sẵn trong kho shared-files (vd 'bao-gia.pdf') hoặc URL http(s) công khai.",
+      "Gửi 1 file cho cuộc trò chuyện hiện tại. Nguồn: tên file có sẵn trong kho shared-files (vd 'bao-gia.pdf') hoặc URL http(s) công khai. " +
+      "LƯU Ý: Chỉ tải/gửi file PDF chính thức, TUYỆT ĐỐI KHÔNG gửi các file Word dự thảo.",
     inputSchema: z.object({
       source: z.string().describe("Tên file trong shared-files hoặc URL http(s)"),
+      fileName: z.string().optional().describe("Tên file gửi hiển thị cho người dùng (vd 'Quyet_dinh_4775.pdf')"),
       caption: z.string().optional().describe("Chú thích kèm file (tùy chọn)"),
     }),
-    execute: async ({ source, caption }) => {
+    execute: async ({ source, fileName: customFileName, caption }) => {
       try {
         if (/^https?:\/\//i.test(source)) {
           const file = await downloadFromPublicUrl(source, { maxBytes: MAX_DOWNLOAD_BYTES });
-          await withTempFile(file.fileName, file.data, (filePath) =>
-            sendAttachment(filePath, caption, file.fileName),
+
+          // Chặn tải và gửi file Word dự thảo
+          const isDraftWord =
+            /\.(docx?|dotx?)$/i.test(file.fileName) &&
+            (file.fileName.toLowerCase().includes("du thao") ||
+              file.fileName.toLowerCase().includes("dự thảo") ||
+              file.fileName.toLowerCase().includes("duthao") ||
+              caption?.toLowerCase().includes("dự thảo") ||
+              caption?.toLowerCase().includes("du thao"));
+
+          if (isDraftWord) {
+            return ketQuaLoi("Quy định: Không gửi các file Word dự thảo. Chỉ gửi file PDF chính thức của đúng nội dung yêu cầu.");
+          }
+
+          let finalFileName = file.fileName;
+          if (customFileName) {
+            const ext = path.extname(file.fileName) || path.extname(customFileName);
+            const base = path.basename(customFileName, path.extname(customFileName)).replace(/[^a-zA-Z0-9._\s-]/g, "_").trim();
+            finalFileName = `${base}${ext}`;
+          }
+
+          await withTempFile(finalFileName, file.data, (filePath) =>
+            sendAttachment(filePath, caption, finalFileName),
           );
           return "Đã gửi file thành công";
         }

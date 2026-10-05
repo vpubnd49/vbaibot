@@ -292,9 +292,18 @@ export async function downloadAllFilesForDoc(docId: number): Promise<QpplDownloa
   const sortedLinks = [...links].sort((a, b) => rankFile(b.name) - rankFile(a.name));
 
   // Chỉ tải file PDF — bỏ qua DOC/DOCX/XLSX (bản chính thức có chữ ký số luôn là PDF)
-  const pdfLinks = sortedLinks.filter(link => {
-    const ext = link.name.split('.').pop()?.toLowerCase() ?? '';
-    return ext === 'pdf' || link.url.toLowerCase().endsWith('.pdf');
+  // và TUYỆT ĐỐI KHÔNG tải các file Word dự thảo / file dự thảo
+  const pdfLinks = sortedLinks.filter((link) => {
+    const ext = link.name.split(".").pop()?.toLowerCase() ?? "";
+    const isPdf = ext === "pdf" || link.url.toLowerCase().endsWith(".pdf");
+    if (!isPdf) return false;
+    const lowerName = link.name.toLowerCase();
+    const isDraft =
+      lowerName.includes("du thao") ||
+      lowerName.includes("dự thảo") ||
+      lowerName.includes("bản thảo") ||
+      lowerName.includes("duthao");
+    return !isDraft;
   });
 
   const storageDir = getQpplStorageDir();
@@ -313,13 +322,21 @@ export async function downloadAllFilesForDoc(docId: number): Promise<QpplDownloa
     );
     const absPath = path.join(storageDir, baseName);
 
-    // Chỉ bỏ qua file đã có nội dung; file rỗng/hỏng phải được tải lại.
-    // Tên file chứa số thứ tự/metadata cũ không đủ để chứng minh nội dung còn đúng.
-    // Luôn xác minh lại file cache PDF; file cache cũ sai nội dung sẽ bị tải lại.
-    if (fs.existsSync(absPath) && fs.statSync(absPath).size > 0 && !path.extname(absPath).toLowerCase().endsWith(".pdf")) {
-      downloadedPaths.push(absPath);
-      totalBytes += fs.statSync(absPath).size;
-      continue;
+    // Xác minh file cache PDF đã có nội dung và bắt đầu bằng %PDF
+    if (fs.existsSync(absPath) && fs.statSync(absPath).size > 0) {
+      try {
+        const fd = fs.openSync(absPath, "r");
+        const head = Buffer.alloc(5);
+        fs.readSync(fd, head, 0, 5, 0);
+        fs.closeSync(fd);
+        if (head.toString().startsWith("%PDF")) {
+          downloadedPaths.push(absPath);
+          totalBytes += fs.statSync(absPath).size;
+          continue;
+        }
+      } catch {
+        // file lỗi -> tải lại bên dưới
+      }
     }
 
     try {

@@ -127,3 +127,31 @@ describe("downloadFromPublicUrl - chặn trước khi mở kết nối", () => {
     );
   });
 });
+
+describe("fileNameFromContentDisposition & inferExtension", () => {
+  it("trích xuất tên file từ Content-Disposition", async () => {
+    const { fileNameFromContentDisposition } = await import("./safe-remote-download.js");
+    assert.equal(
+      fileNameFromContentDisposition('attachment; filename="Quyet_dinh_4775.pdf"'),
+      "Quyet_dinh_4775.pdf",
+    );
+    assert.equal(
+      fileNameFromContentDisposition("attachment; filename*=UTF-8''4775%20QD.pdf"),
+      "4775 QD.pdf",
+    );
+    assert.equal(fileNameFromContentDisposition(undefined), undefined);
+  });
+
+  it("suy luận đuôi file .pdf từ header hoặc magic bytes khi URL không có đuôi", async () => {
+    const { inferExtension } = await import("./safe-remote-download.js");
+    const pdfMagic = Buffer.from("%PDF-1.3");
+    assert.equal(inferExtension("application/pdf", Buffer.alloc(10)), ".pdf");
+    assert.equal(inferExtension("application/octet-stream", pdfMagic), ".pdf");
+    assert.equal(
+      inferExtension("application/vnd.openxmlformats-officedocument.wordprocessingml.document", Buffer.alloc(10)),
+      ".docx",
+    );
+  });
+});
+
+

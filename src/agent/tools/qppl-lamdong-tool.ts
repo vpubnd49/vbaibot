@@ -15,10 +15,25 @@ import { createLogger } from "../../shared/logger.js";
 
 const log = createLogger("qppl-lamdong-tool");
 
+function isDraftOrNonPdf(link: QpplFileLink): boolean {
+  const lowerName = link.name.toLowerCase();
+  const lowerUrl = link.url.toLowerCase();
+  const isDoc = /\.(docx?|dotx?)$/i.test(lowerName) || /\.(docx?|dotx?)$/i.test(lowerUrl);
+  const isDraft =
+    lowerName.includes("du thao") ||
+    lowerName.includes("dự thảo") ||
+    lowerName.includes("bản thảo") ||
+    lowerName.includes("duthao");
+  const isPdf = lowerName.endsWith(".pdf") || lowerUrl.endsWith(".pdf");
+  return isDoc || isDraft || !isPdf;
+}
+
 function parseFileLinks(fileUrls: string): QpplFileLink[] {
   try {
     const parsed: unknown = JSON.parse(fileUrls);
-    return Array.isArray(parsed) ? parsed as QpplFileLink[] : [];
+    if (!Array.isArray(parsed)) return [];
+    // CHỈ giữ lại các file PDF chính thức, loại bỏ triệt để file Word và file dự thảo
+    return (parsed as QpplFileLink[]).filter((link) => !isDraftOrNonPdf(link));
   } catch {
     return [];
   }
@@ -32,7 +47,8 @@ export function createQpplLamdongTool({ api, account, message, ghiNhanDaGui }: T
       "(Sở Tư pháp, Sở Tài chính, Sở Giáo dục & Đào tạo, Sở Nội vụ, Thanh tra tỉnh, UBND huyện Đức Trọng, Di Linh, Đạ Tẻh, TP. Đà Lạt...). " +
       "Khi người dùng hỏi báo cáo/văn bản của ngành hoặc huyện nào, LUÔN truyền 'coQuan' tương ứng để tìm chính xác tại nguồn đó. " +
       "KHI NGƯỜI DÙNG YÊU CẦU TẢI FILE (VD: 'tải quyết định 4480', 'tải kế hoạch 15187', 'gửi file...'): " +
-      "BẮT BUỘC đặt sendFileToChat=true và keyword là số hiệu văn bản để tool tải toàn bộ file đính kèm gửi thẳng vào chat.",
+      "BẮT BUỘC đặt sendFileToChat=true và keyword là số hiệu văn bản để tool tải toàn bộ file đính kèm gửi thẳng vào chat. " +
+      "Tool CHỈ tải các file PDF chính thức của đúng nội dung tải, TUYỆT ĐỐI KHÔNG tải hay gửi file Word dự thảo.",
     inputSchema: z.object({
       action: z
         .enum(["search", "get", "sync"])
@@ -237,21 +253,19 @@ export function createQpplLamdongTool({ api, account, message, ghiNhanDaGui }: T
                 `\n⚠️ ${dl.failed.length} file tải từ cổng tỉnh thất bại: ${dl.failed.map((f) => f.name).join(", ")}`;
             }
           } else if (!archiveFiles) {
-            // Không có file → cung cấp link trực tuyến
-            let fileLinks: QpplFileLink[] = [];
-            try { fileLinks = JSON.parse(doc.fileUrls) as QpplFileLink[]; } catch { /* empty */ }
+            // Không có file → cung cấp link trực tuyến (chỉ file PDF chính thức)
+            const fileLinks = parseFileLinks(doc.fileUrls);
             if (fileLinks.length > 0) {
               sendNote =
-                "\n\n⚠️ Không tải được file về máy. Link tải trực tuyến:\n" +
+                "\n\n⚠️ Không tải được file về máy. Link tải trực tuyến (chỉ file PDF chính thức):\n" +
                 fileLinks.map((f) => `- ${f.name}: ${f.url}`).join("\n");
             } else {
-              sendNote = "\n\n⚠️ Văn bản này không có file đính kèm trên cổng tỉnh.";
+              sendNote = "\n\n⚠️ Văn bản này không có file PDF chính thức đính kèm trên cổng tỉnh.";
             }
           }
         }
 
-        let fileLinks: QpplFileLink[] = [];
-        try { fileLinks = JSON.parse(doc.fileUrls) as QpplFileLink[]; } catch { /* empty */ }
+        const fileLinks = parseFileLinks(doc.fileUrls);
 
         return (
           `📄 **CHI TIẾT VĂN BẢN (ID #${doc.id})**\n` +
@@ -452,8 +466,7 @@ export function createQpplLamdongTool({ api, account, message, ghiNhanDaGui }: T
 
       const lines = docs.map((d, idx) => {
         const dateStr = d.ngayBanHanh ? d.ngayBanHanh.slice(0, 10) : "";
-        let fileLinks: QpplFileLink[] = [];
-        try { fileLinks = JSON.parse(d.fileUrls) as QpplFileLink[]; } catch { /* empty */ }
+        const fileLinks = parseFileLinks(d.fileUrls);
         const fileStatus = d.localPath
           ? `[File sẵn sàng - ${Math.round(d.fileSize / 1024)} KB]`
           : fileLinks.length > 0

@@ -180,6 +180,52 @@ function fileNameFromUrl(url: URL): string {
   return safe || "tep-tai-ve";
 }
 
+/** Trích xuất tên file từ header Content-Disposition nếu có */
+export function fileNameFromContentDisposition(cd: string | undefined): string | undefined {
+  if (!cd) return undefined;
+  const starMatch = /filename\*=UTF-8''([^;\r\n]+)/i.exec(cd);
+  if (starMatch?.[1]) {
+    try {
+      const decoded = decodeURIComponent(starMatch[1].trim());
+      if (decoded) return decoded;
+    } catch { /* fallthrough */ }
+  }
+  const regularMatch = /filename=["']?([^"';\r\n]+)["']?/i.exec(cd);
+  if (regularMatch?.[1]) {
+    return regularMatch[1].trim();
+  }
+  return undefined;
+}
+
+/** Suy luận đuôi file từ mediaType hoặc magic bytes khi tên file thiếu đuôi mở rộng */
+export function inferExtension(mediaType: string, data: Buffer): string | undefined {
+  if (data.subarray(0, 4).toString() === "%PDF" || mediaType === "application/pdf") {
+    return ".pdf";
+  }
+  if (data.subarray(0, 3).equals(Buffer.from([0xff, 0xd8, 0xff])) || mediaType === "image/jpeg") {
+    return ".jpg";
+  }
+  if (data.subarray(0, 4).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47])) || mediaType === "image/png") {
+    return ".png";
+  }
+  if (mediaType === "image/webp") {
+    return ".webp";
+  }
+  if (mediaType.includes("wordprocessingml")) {
+    return ".docx";
+  }
+  if (mediaType === "application/msword") {
+    return ".doc";
+  }
+  if (mediaType.includes("spreadsheetml")) {
+    return ".xlsx";
+  }
+  if (mediaType === "application/vnd.ms-excel") {
+    return ".xls";
+  }
+  return undefined;
+}
+
 /** Ném Error với thông báo tiếng Việt gọn - caller đưa thẳng cho LLM/log được */
 export async function downloadFromPublicUrl(
   rawUrl: string,
@@ -222,11 +268,27 @@ export async function downloadFromPublicUrl(
 
     // Giải nén TRƯỚC khi trả về: caller nào cũng đang coi đây là dữ liệu thô
     const data = decompressBody(raw, res.headers["content-encoding"], options.maxBytes);
+    const mediaType = (res.headers["content-type"] ?? "application/octet-stream").split(";")[0]!.trim().toLowerCase();
+
+    // Ưu tiên tên file từ Content-Disposition, sau đó từ URL
+    const cdName = fileNameFromContentDisposition(res.headers["content-disposition"] as string | undefined);
+    let fileName = cdName
+      ? cdName.replace(/[^a-zA-Z0-9._\s-]/g, "_").trim().slice(0, 120)
+      : fileNameFromUrl(url);
+
+    // Nếu tên file chưa có đuôi mở rộng, tự động bù đuôi dựa theo mediaType hoặc magic bytes (đặc biệt là .pdf)
+    const hasExt = /\.[a-zA-Z0-9]{1,8}$/.test(fileName);
+    if (!hasExt) {
+      const ext = inferExtension(mediaType, data);
+      if (ext) {
+        fileName = `${fileName}${ext}`;
+      }
+    }
 
     return {
       data,
-      mediaType: (res.headers["content-type"] ?? "application/octet-stream").split(";")[0]!.trim(),
-      fileName: fileNameFromUrl(url),
+      mediaType,
+      fileName,
     };
   }
 

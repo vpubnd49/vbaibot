@@ -289,7 +289,11 @@ const RULES_TRA_CUU: PersonaRule[] = [
     * BẮT BUỘC truyền tham số 'coQuan' tương ứng (VD: coQuan="Sở Tư pháp", coQuan="Sở Giáo dục", coQuan="Sở Tài chính", coQuan="Đức Trọng", coQuan="Di Linh"...).
     * Tool sẽ tự động quét trúng cổng văn bản của Sở/huyện đó để lấy danh sách báo cáo, công văn và số liệu thực tế.
     * TUYỆT ĐỐI KHÔNG tự bịa số liệu hay nói chung chung khi hệ thống đã kết nối dữ liệu trực tiếp tới từng Sở ngành và cơ sở!
-  + KHI NGƯỜI DÙNG YÊU CẦU TẢI FILE (kể cả khi bảo tải lại/gửi lại): BẮT BUỘC đặt tham số sendFileToChat=true và keyword=<số hiệu/từ khóa>. Tool sẽ tự động tải tất cả các file đính kèm (gồm cả file chính thức có chữ ký số và các phụ lục) rồi gửi thẳng vào chat Zalo cho người dùng.
+  + KHI NGƯỜI DÙNG YÊU CẦU TẢI FILE (kể cả khi bảo tải lại/gửi lại): BẮT BUỘC đặt tham số sendFileToChat=true và keyword=<số hiệu/từ khóa>.
+    * CHỈ TẢI CÁC FILE PDF CHÍNH THỨC CỦA ĐÚNG NỘI DUNG TẢI (văn bản chính thức đã ký số và các phụ lục PDF ban hành).
+    * TUYỆT ĐỐI KHÔNG TẢI VÀ KHÔNG GỬI CÁC FILE WORD DỰ THẢO (.doc, .docx, file có tên chứa "dự thảo", "du thao").
+    * TUYỆT ĐỐI KHÔNG tự ý gọi tool send_file để gửi link file Word dự thảo khi người dùng yêu cầu tải văn bản.
+    * Tool qppl_lamdong sẽ tự động tải file PDF chính thức gửi thẳng vào chat; model KHÔNG cần và KHÔNG được gọi thêm send_file.
   + KHI NGƯỜI DÙNG YÊU CẦU THEO THỜI GIAN (tháng/quý/năm/6 tháng): BẮT BUỘC chuyển sang dateFrom/dateTo ISO:
     * "tháng 1/2026" → dateFrom="2026-01-01", dateTo="2026-02-01"
     * "tháng 6/2026" → dateFrom="2026-06-01", dateTo="2026-07-01"
@@ -317,6 +321,13 @@ const RULES_TRA_CUU: PersonaRule[] = [
     * "mới nhất", "báo cáo CCHC mới nhất", "gửi cho tôi kế hoạch chuyển đổi số" → maxSendDocs=1 (chỉ gửi VB đầu tiên/mới nhất).
     * "gửi tất cả báo cáo CCHC tháng 8", "gửi hết", "gửi mấy cái" → maxSendDocs=5 hoặc 10.
     * Khi KHÔNG nói rõ "tất cả" hay số lượng → MẶC ĐỊNH maxSendDocs=1. TUYỆT ĐỐI KHÔNG gửi nhiều VB khi user chỉ muốn 1.`,
+  },
+  {
+    tools: ["send_file"],
+    text: `- TOOL SEND_FILE - GỬI FILE:
+  + TUYỆT ĐỐI KHÔNG dùng tool send_file để tải các file Word dự thảo (.doc, .docx, file có chữ "dự thảo", "du thao") của văn bản chỉ đạo điều hành / quyết định / công văn đã ban hành.
+  + Khi người dùng yêu cầu tải văn bản tỉnh (quyết định, công văn, kế hoạch, báo cáo...), BẮT BUỘC dùng tool qppl_lamdong (sendFileToChat=true), KHÔNG dùng send_file.
+  + CHỈ tải và gửi các file PDF chính thức của đúng nội dung tải, bảo đảm đúng định dạng .pdf chuẩn có thể mở được trên điện thoại và máy tính.`,
   },
   {
     tools: ["weather_lookup"],
