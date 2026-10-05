@@ -133,7 +133,7 @@ export const adminDocumentSchema = z.object({
   noiNhan: z
     .array(z.string().min(1))
     .default(["Như trên", "Lưu: VT"])
-    .describe("Nơi nhận phía cuối văn bản, ví dụ: ['Như trên', 'Thường trực Tỉnh ủy', 'Lưu: VT, NC']"),
+    .describe("Nơi nhận phía cuối văn bản, ví dụ: ['Như trên', 'Thường trực Tỉnh ủy', 'Lưu: VT, NC']. BẮT BUỘC: mục đầu tiên gửi các cơ quan tại phần kính gửi phải ghi là 'Như trên', TUYỆT ĐỐI KHÔNG ghi 'Như kính gửi'."),
 });
 
 export type AdminDocument = z.infer<typeof adminDocumentSchema>;

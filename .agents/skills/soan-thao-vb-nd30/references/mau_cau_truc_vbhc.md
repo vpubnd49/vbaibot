@@ -51,6 +51,7 @@ Nơi nhận: (Đậm, nghiêng, cỡ 12)
 - CVP, PCVP UBND tỉnh;
 - UBND các xã, phường, đặc khu;
 - Lưu: VT, NC.Châu. (Kết thúc dấu chấm)
+*(⚠️ QUY TẮC NƠI NHẬN: Dòng đầu tiên BẮT BUỘC là `- Như trên;`, TUYỆT ĐỐI CẤM dùng `- Như kính gửi`)*
 
 [CỘT PHẢI - CHỮ KÝ]:
 TL. CHỦ TỊCH (13-14pt, đậm, hoa)

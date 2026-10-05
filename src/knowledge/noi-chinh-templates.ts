@@ -598,6 +598,7 @@ Sau khi nhận đủ ý kiến (Sở phối hợp + xã + phòng CM nội bộ) 
 - **Phó Giám đốc Sở Tài chính**: Nguyễn Văn Dũng (kiêm PCT Hội đồng giám sát XSKT)
 - **Sở chuyên ngành đất đai, tài nguyên, môi trường**: Sở Nông nghiệp và Môi trường
 - **Năm hiện tại**: 2026
+- **Quy tắc Nơi nhận (NĐ 30/2020/NĐ-CP)**: Dòng đầu tiên gửi đối tượng tại "Kính gửi:" BẮT BUỘC là "- Như trên;". TUYỆT ĐỐI CẤM dùng "- Như kính gửi" hay "- Như kính gửi;". Cuối mỗi dòng là dấu chấm phẩy (;), dòng Lưu kết thúc bằng dấu chấm (.).
 
 **QUY TẮC CHUNG — BẮT BUỘC NHẮC NGƯỜI DÙNG SAU KHI TẠO FILE:**
 Sau khi tạo file, LUÔN nhắc: "⚠️ **Lưu ý:** Anh/chị cần kiểm tra và chỉnh sửa các thông tin sau trước khi trình ký: (1) Người nhận ủy quyền / Sở chuyên ngành (hiện để mặc định), (2) Số điện thoại, (3) Số ký hiệu văn bản, (4) Ngày tháng ban hành, (5) Các thông tin đặc thù vụ việc."

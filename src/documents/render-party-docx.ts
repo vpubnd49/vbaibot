@@ -391,6 +391,9 @@ function buildPartySignature(doc: AdminDocument): Table {
   for (let i = 0; i < noiNhanList.length; i++) {
     const isLast = i === noiNhanList.length - 1;
     let itemText = noiNhanList[i]!.trim();
+    if (/^-?\s*như\s+kính\s+gửi/i.test(itemText)) {
+      itemText = itemText.replace(/^-?\s*như\s+kính\s+gửi/i, "Như trên");
+    }
     if (!itemText.startsWith("-")) itemText = `- ${itemText}`;
     if (isLast) {
       if (!itemText.endsWith(".")) itemText = itemText.replace(/[,;]$/, "") + ".";

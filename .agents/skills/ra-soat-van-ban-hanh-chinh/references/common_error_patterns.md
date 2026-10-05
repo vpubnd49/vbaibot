@@ -153,3 +153,12 @@ Không tự thêm chế tài chỉ để làm câu mạnh hơn.
 3. `Xử lý` (chỉ rõ: *Tiếp thu*, *Giải trình*, hoặc *Tiếp thu một phần*)
 4. `Nội dung tiếp thu, giải trình` (nêu rõ căn cứ pháp lý, lý do giữ nguyên hoặc đã sửa đổi bổ sung cụ thể tại Điều/Khoản nào của dự thảo Quy định/Quyết định).
 
+## V. Lỗi dùng từ "Như kính gửi" thay vì "Như trên" trong Nơi nhận
+
+**Dấu hiệu:** Nơi nhận của văn bản ghi: `- Như kính gửi;` hoặc `- Như kính gửi`.
+**Quy định thể thức (Nghị định 30/2020/NĐ-CP & HD 05-HD/VPTW):** 
+- Dòng đầu tiên của Nơi nhận thể hiện gửi cho các cơ quan, tổ chức, đơn vị đã được ghi tại phần "Kính gửi:" ở trên.
+- Cụm từ chuẩn pháp lý bắt buộc phải là: `- Như trên;`.
+- **Tuyệt đối không tồn tại khái niệm** `- Như kính gửi` trong thể thức văn bản hành chính Việt Nam.
+**Cách xử lý:** Sửa ngay thành `- Như trên;`. Cuối mỗi dòng nơi nhận là dấu chấm phẩy (;), dòng Lưu cuối cùng kết thúc bằng dấu chấm (.).
+

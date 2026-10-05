@@ -697,15 +697,27 @@ function buildAdminSignature(doc: AdminDocument): Table {
   );
 
   const noiNhanList = doc.noiNhan && doc.noiNhan.length > 0 ? doc.noiNhan : ["Như trên", "Lưu: VT"];
-  for (const item of noiNhanList) {
-    const formatted = item.trim().startsWith("-") ? item.trim() : `- ${item.trim()}`;
+  for (let i = 0; i < noiNhanList.length; i++) {
+    const isLast = i === noiNhanList.length - 1;
+    let itemText = noiNhanList[i]!.trim();
+    // Bắt buộc chuẩn hóa: thay thế "Như kính gửi" thành "Như trên" theo Nghị định 30/2020/NĐ-CP
+    if (/^-?\s*như\s+kính\s+gửi/i.test(itemText)) {
+      itemText = itemText.replace(/^-?\s*như\s+kính\s+gửi/i, "Như trên");
+    }
+    if (!itemText.startsWith("-")) itemText = `- ${itemText}`;
+    if (isLast) {
+      if (!itemText.endsWith(".")) itemText = itemText.replace(/[,;]$/, "") + ".";
+    } else {
+      if (!itemText.endsWith(";")) itemText = itemText.replace(/[,.]$/, "") + ";";
+    }
+
     leftChildren.push(
       new Paragraph({
         alignment: AlignmentType.LEFT,
         spacing: { before: 20, after: 20, line: 240, lineRule: LineRuleType.AUTO },
         children: [
           new TextRun({
-            text: formatted,
+            text: itemText,
             font: LAYOUT.FONT,
             size: 22, // 11pt
           }),

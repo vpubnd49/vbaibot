@@ -19,7 +19,7 @@ Skill chuyên sâu sinh file `.docx` và bảng biểu phụ lục `.xlsx` đún
 | **Kính gửi** | Chữ thường, cỡ **14pt**, kiểu chữ **ĐỨNG** (`bold: false`). Thụt lề trái hoặc căn đều. | CẤM in đậm chữ "Kính gửi". |
 | **Căn cứ pháp lý** | Cỡ **14pt**, kiểu chữ **IN NGHIÊNG** (`italics: true`), thụt đầu dòng 1cm, căn đều 2 bên. Kết thúc mỗi căn cứ bằng dấu `;`, căn cứ cuối bằng dấu `,`. | Cấm in đứng, cấm căn giữa căn cứ. |
 | **Nề mục (Điều, Khoản)** | `Điều 1. Tên điều:` In đậm chữ Điều và tên điều trước dấu `:` hoặc `.`; nội dung sau in thường. Thụt đầu dòng 1cm, căn đều 2 bên. | Cấm in đậm toàn bộ cả điều, cấm thụt lề lộn xộn. |
-| **Khối Chữ ký** | Cột trái: `Nơi nhận:` (đậm + nghiêng, cỡ 12), danh sách cỡ 11 đứng, `- Lưu: VT, NC.Châu.` kết thúc bằng dấu chấm.<br>Cột phải: Quyền hạn, chức vụ IN HOA ĐẬM (cỡ 13-14), **4 dòng trống**, Họ tên in đậm (cỡ 14). | Cấm dùng `spacing: { before: 600 }` thay cho 4 dòng trống chữ ký. |
+| **Khối Chữ ký & Nơi nhận** | Cột trái: `Nơi nhận:` (đậm + nghiêng, cỡ 12), danh sách cỡ 11 đứng. Dòng đầu tiên gửi đối tượng tại "Kính gửi:" BẮT BUỘC là `- Như trên;` (TUYỆT ĐỐI CẤM dùng `- Như kính gửi`). Mỗi dòng kết thúc bằng `;`, dòng `- Lưu: VT, NC...` kết thúc bằng dấu chấm `.`<br>Cột phải: Quyền hạn, chức vụ IN HOA ĐẬM (cỡ 13-14), **4 dòng trống**, Họ tên in đậm (cỡ 14). | Cấm dùng `spacing: { before: 600 }` thay cho 4 dòng trống chữ ký. **TUYỆT ĐỐI CẤM** dùng `- Như kính gửi`. |
 | **Phụ lục Excel** | Font **Times New Roman** toàn sheet, Tiêu đề bảng IN HOA ĐẬM căn giữa (Merge), dòng căn cứ in nghiêng, tiêu đề cột in đậm wrap-text có đánh số cột `(1)`, `(2)`, thin borders toàn bộ. | Cấm dùng font Arial/Calibri, cấm thiếu dòng số cột `(1), (2)`. |
 
 ---
