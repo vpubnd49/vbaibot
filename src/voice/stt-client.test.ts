@@ -94,4 +94,45 @@ describe("transcribeAudioFile", () => {
       globalThis.fetch = originalFetch;
     }
   });
+
+  it("gọi 9Router audio-chat và parse được SSE text-stream với key sk-", async () => {
+    const originalFetch = globalThis.fetch;
+    let request: { url: string; init: RequestInit } | undefined;
+    globalThis.fetch = (async (input, init) => {
+      request = { url: String(input), init: init ?? {} };
+      assert.equal(init?.method, "POST");
+      assert.equal((init?.headers as Record<string, string>).Authorization, "Bearer sk-906c221b-test");
+      const body = JSON.parse(init?.body as string);
+      assert.equal(body.model, "ag/gemini-3-flash");
+      assert.ok(Array.isArray(body.messages));
+      assert.ok(body.messages[0].content[1].input_audio.data);
+
+      const ssePayload = [
+        'data: {"id":"chatcmpl-1","choices":[{"index":0,"delta":{"content":"Kết luận "}}]}',
+        'data: {"id":"chatcmpl-2","choices":[{"index":0,"delta":{"content":"cuộc họp ngày hôm nay."}}]}',
+        'data: [DONE]',
+      ].join("\n");
+
+      return new Response(ssePayload, {
+        status: 200,
+        headers: { "Content-Type": "text/event-stream; charset=utf-8" },
+      });
+    }) as typeof fetch;
+
+    try {
+      const result = await transcribeAudioFile(audioPath, "ghi-am.mp3", {
+        baseUrl: "https://9router.flowgiare.com/v1",
+        apiKey: "sk-906c221b-test",
+        protocol: "audio-chat",
+      });
+      assert.deepEqual(result, {
+        text: "Kết luận cuộc họp ngày hôm nay.",
+        provider: "openai-compatible",
+        model: "ag/gemini-3-flash",
+      });
+      assert.equal(request?.url, "https://9router.flowgiare.com/v1/chat/completions");
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
 });
