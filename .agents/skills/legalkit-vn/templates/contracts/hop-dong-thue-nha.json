@@ -1,0 +1,464 @@
+{
+  "id": "thue_nha",
+  "name": "Hợp đồng thuê nhà ở",
+  "group": "Cá nhân ↔ Cá nhân",
+  "icon": "🏠",
+  "summary": "Hợp đồng cho cá nhân thuê nhà ở để sinh sống. Bao gồm các điều khoản chủ yếu (nhà cho thuê, giá thuê, thời hạn, mục đích) và các điều khoản thường lệ được pháp luật bổ khuyết (sửa chữa, đặt cọc, đơn phương chấm dứt báo trước 30 ngày, trả lại nhà). Soạn theo Luật Nhà ở 2023 và Bộ luật Dân sự 2015.",
+  "legalBasis": [
+    "Luật Nhà ở 2023 (Luật số 27/2023/QH15), Điều 162 (hình thức hợp đồng về nhà ở), Điều 163 (nội dung hợp đồng về nhà ở)",
+    "Luật Nhà ở 2023, Điều 164 (công chứng, chứng thực; thuê nhà ở KHÔNG bắt buộc công chứng/chứng thực, trừ khi các bên có nhu cầu)",
+    "Luật Nhà ở 2023, Điều 170 (các trường hợp chấm dứt hợp đồng thuê nhà ở), Điều 172 (đơn phương chấm dứt thực hiện hợp đồng thuê nhà ở; khoản 4: thông báo trước ít nhất 30 ngày)",
+    "Bộ luật Dân sự 2015, Điều 472 (khái niệm hợp đồng thuê tài sản), Điều 473 (giá thuê), Điều 474 (thời hạn thuê), Điều 475 (cho thuê lại), Điều 477 (bảo đảm giá trị sử dụng, sửa chữa), Điều 481 (trả tiền thuê), Điều 482 (trả lại tài sản thuê)",
+    "Bộ luật Dân sự 2015, Điều 328 (đặt cọc), Điều 418 (thỏa thuận phạt vi phạm)"
+  ],
+  "parties": {
+    "a": "Bên cho thuê (Bên A)",
+    "b": "Bên thuê (Bên B)"
+  },
+  "title": "HỢP ĐỒNG THUÊ NHÀ Ở",
+  "preamble": "- Căn cứ Bộ luật Dân sự số 91/2015/QH13 ngày 24/11/2015;\n- Căn cứ Luật Nhà ở số 27/2023/QH15 ngày 27/11/2023;\n- Căn cứ nhu cầu và khả năng của các bên.\n\nHôm nay, ngày {{ngay_ky}}, tại {{noi_ky}}, chúng tôi gồm:",
+  "fields": [
+    {
+      "key": "noi_ky",
+      "label": "Nơi ký hợp đồng",
+      "section": "Thông tin chung",
+      "tier": "required",
+      "type": "text",
+      "help": "Tỉnh/thành phố nơi hai bên ký hợp đồng.",
+      "placeholder": "TP. Hồ Chí Minh"
+    },
+    {
+      "key": "ngay_ky",
+      "label": "Ngày ký hợp đồng",
+      "section": "Thông tin chung",
+      "tier": "required",
+      "type": "date",
+      "help": "Ngày hai bên cùng ký."
+    },
+    {
+      "key": "ben_a_ten",
+      "label": "Họ tên Bên cho thuê",
+      "section": "Bên cho thuê (Bên A)",
+      "tier": "required",
+      "type": "text",
+      "help": "Họ và tên đầy đủ của chủ nhà cho thuê.",
+      "placeholder": "Nguyễn Văn A"
+    },
+    {
+      "key": "ben_a_cccd",
+      "label": "Số CCCD/CMND Bên A",
+      "section": "Bên cho thuê (Bên A)",
+      "tier": "required",
+      "type": "text",
+      "help": "Số căn cước công dân hoặc hộ chiếu để xác định chủ thể.",
+      "placeholder": "0790xxxxxxxx"
+    },
+    {
+      "key": "ben_a_cccd_ngay",
+      "label": "Ngày cấp CCCD/CMND Bên A",
+      "section": "Bên cho thuê (Bên A)",
+      "tier": "optional",
+      "type": "date",
+      "help": "Ngày cấp ghi trên giấy tờ tùy thân."
+    },
+    {
+      "key": "ben_a_cccd_noi",
+      "label": "Nơi cấp CCCD/CMND Bên A",
+      "section": "Bên cho thuê (Bên A)",
+      "tier": "optional",
+      "type": "text",
+      "help": "Cơ quan cấp giấy tờ tùy thân.",
+      "placeholder": "Cục Cảnh sát QLHC về TTXH"
+    },
+    {
+      "key": "ben_a_diachi",
+      "label": "Địa chỉ thường trú Bên A",
+      "section": "Bên cho thuê (Bên A)",
+      "tier": "required",
+      "type": "text",
+      "help": "Địa chỉ liên hệ/cư trú của chủ nhà.",
+      "placeholder": "Số 1, đường ABC, Quận X, TP HCM"
+    },
+    {
+      "key": "ben_a_sdt",
+      "label": "Số điện thoại Bên A",
+      "section": "Bên cho thuê (Bên A)",
+      "tier": "optional",
+      "type": "tel",
+      "help": "Số điện thoại liên hệ.",
+      "placeholder": "09xxxxxxxx"
+    },
+    {
+      "key": "ben_b_ten",
+      "label": "Họ tên Bên thuê",
+      "section": "Bên thuê (Bên B)",
+      "tier": "required",
+      "type": "text",
+      "help": "Họ và tên đầy đủ của người thuê nhà.",
+      "placeholder": "Trần Thị B"
+    },
+    {
+      "key": "ben_b_cccd",
+      "label": "Số CCCD/CMND Bên B",
+      "section": "Bên thuê (Bên B)",
+      "tier": "required",
+      "type": "text",
+      "help": "Số căn cước công dân hoặc hộ chiếu của người thuê.",
+      "placeholder": "0010xxxxxxxx"
+    },
+    {
+      "key": "ben_b_cccd_ngay",
+      "label": "Ngày cấp CCCD/CMND Bên B",
+      "section": "Bên thuê (Bên B)",
+      "tier": "optional",
+      "type": "date",
+      "help": "Ngày cấp ghi trên giấy tờ tùy thân."
+    },
+    {
+      "key": "ben_b_cccd_noi",
+      "label": "Nơi cấp CCCD/CMND Bên B",
+      "section": "Bên thuê (Bên B)",
+      "tier": "optional",
+      "type": "text",
+      "help": "Cơ quan cấp giấy tờ tùy thân.",
+      "placeholder": "Cục Cảnh sát QLHC về TTXH"
+    },
+    {
+      "key": "ben_b_diachi",
+      "label": "Địa chỉ thường trú Bên B",
+      "section": "Bên thuê (Bên B)",
+      "tier": "required",
+      "type": "text",
+      "help": "Địa chỉ thường trú/liên hệ của người thuê.",
+      "placeholder": "Số 5, đường DEF, Quận Y, TP HCM"
+    },
+    {
+      "key": "ben_b_sdt",
+      "label": "Số điện thoại Bên B",
+      "section": "Bên thuê (Bên B)",
+      "tier": "optional",
+      "type": "tel",
+      "help": "Số điện thoại liên hệ.",
+      "placeholder": "09xxxxxxxx"
+    },
+    {
+      "key": "nha_diachi",
+      "label": "Địa chỉ nhà cho thuê",
+      "section": "Nhà ở cho thuê",
+      "tier": "required",
+      "type": "text",
+      "help": "Địa chỉ chính xác của căn nhà/căn hộ/phòng cho thuê. Đây là đối tượng chính của hợp đồng.",
+      "placeholder": "Căn hộ 12.05, Chung cư XYZ, Quận X, TP HCM"
+    },
+    {
+      "key": "nha_dientich",
+      "label": "Diện tích sử dụng (m²)",
+      "section": "Nhà ở cho thuê",
+      "tier": "required",
+      "type": "number",
+      "help": "Diện tích sử dụng của nhà ở cho thuê.",
+      "placeholder": "55"
+    },
+    {
+      "key": "nha_dacdiem",
+      "label": "Đặc điểm, hiện trạng nhà ở",
+      "section": "Nhà ở cho thuê",
+      "tier": "required",
+      "type": "textarea",
+      "help": "Mô tả loại nhà, số phòng, nội thất kèm theo và tình trạng khi bàn giao. Mô tả càng rõ càng dễ đối chiếu khi trả nhà.",
+      "placeholder": "Căn hộ 2 phòng ngủ, 1 WC; có máy lạnh, tủ lạnh, giường, bếp; hiện trạng tốt"
+    },
+    {
+      "key": "nha_giayto",
+      "label": "Giấy tờ về quyền sở hữu/sử dụng nhà",
+      "section": "Nhà ở cho thuê",
+      "tier": "optional",
+      "type": "text",
+      "help": "Số Giấy chứng nhận (sổ hồng) hoặc giấy tờ chứng minh Bên A có quyền cho thuê.",
+      "placeholder": "GCN số ... do ... cấp ngày ..."
+    },
+    {
+      "key": "muc_dich",
+      "label": "Mục đích thuê",
+      "section": "Điều khoản thuê",
+      "tier": "required",
+      "type": "select",
+      "help": "Hợp đồng này dùng cho thuê để ở. Bên thuê phải sử dụng đúng mục đích đã thỏa thuận.",
+      "options": [
+        "Để ở",
+        "Để ở kết hợp làm việc tại nhà"
+      ]
+    },
+    {
+      "key": "gia_thue",
+      "label": "Giá thuê mỗi tháng (VND)",
+      "section": "Điều khoản thuê",
+      "tier": "required",
+      "type": "money",
+      "help": "Số tiền thuê hằng tháng. Đây là điều khoản chủ yếu của hợp đồng.",
+      "placeholder": "8000000"
+    },
+    {
+      "key": "gia_thue_chu",
+      "label": "Giá thuê bằng chữ",
+      "section": "Điều khoản thuê",
+      "tier": "optional",
+      "type": "text",
+      "help": "Ghi lại số tiền thuê bằng chữ để tránh nhầm lẫn.",
+      "placeholder": "Tám triệu đồng"
+    },
+    {
+      "key": "thoi_han",
+      "label": "Thời hạn thuê (tháng)",
+      "section": "Điều khoản thuê",
+      "tier": "required",
+      "type": "number",
+      "help": "Tổng thời gian thuê tính bằng tháng. Là điều khoản chủ yếu.",
+      "placeholder": "12"
+    },
+    {
+      "key": "ngay_batdau",
+      "label": "Ngày bắt đầu thuê",
+      "section": "Điều khoản thuê",
+      "tier": "required",
+      "type": "date",
+      "help": "Ngày bắt đầu tính thời hạn thuê và bàn giao nhà."
+    },
+    {
+      "key": "ky_thanh_toan",
+      "label": "Kỳ thanh toán tiền thuê",
+      "section": "Thanh toán",
+      "tier": "default",
+      "type": "select",
+      "help": "Định kỳ trả tiền thuê. Nếu các bên không thỏa thuận, pháp luật bổ khuyết theo tập quán; với thuê nhà ở thông lệ là trả theo tháng.",
+      "options": [
+        "Hằng tháng",
+        "Hằng quý (3 tháng)",
+        "Theo thỏa thuận khác"
+      ],
+      "defaultText": "Nếu các bên không thỏa thuận, bên thuê phải trả đủ tiền thuê đúng thời hạn; nếu không có thỏa thuận về thời hạn thì xác định theo tập quán nơi trả tiền; không xác định được theo tập quán thì trả tiền khi trả lại tài sản thuê. Với thuê nhà ở, thông lệ là trả theo tháng. (Điều 481 khoản 1 BLDS 2015)",
+      "legalRef": "Điều 481 khoản 1 Bộ luật Dân sự 2015"
+    },
+    {
+      "key": "ngay_thanh_toan",
+      "label": "Hạn trả tiền hằng kỳ (ngày)",
+      "section": "Thanh toán",
+      "tier": "default",
+      "type": "number",
+      "help": "Ngày trong kỳ mà Bên B phải trả tiền (vd: trước ngày 05 mỗi tháng).",
+      "placeholder": "5",
+      "defaultText": "Nếu không thỏa thuận ngày cụ thể, bên thuê phải trả đủ tiền thuê đúng thời hạn theo kỳ đã thỏa thuận; không có thời hạn thì trả khi trả lại tài sản thuê. (Điều 481 khoản 1 BLDS 2015)",
+      "legalRef": "Điều 481 khoản 1 Bộ luật Dân sự 2015"
+    },
+    {
+      "key": "phuong_thuc_tt",
+      "label": "Phương thức thanh toán",
+      "section": "Thanh toán",
+      "tier": "optional",
+      "type": "select",
+      "help": "Cách trả tiền thuê.",
+      "options": [
+        "Tiền mặt",
+        "Chuyển khoản"
+      ]
+    },
+    {
+      "key": "tien_coc",
+      "label": "Tiền đặt cọc (VND)",
+      "section": "Thanh toán",
+      "tier": "default",
+      "type": "money",
+      "help": "Khoản đặt cọc bảo đảm thực hiện hợp đồng. Pháp luật không bắt buộc phải đặt cọc; thông lệ là 1–2 tháng tiền thuê. Để 0 nếu không đặt cọc.",
+      "placeholder": "8000000",
+      "defaultText": "Đặt cọc là biện pháp bảo đảm tùy nghi, không bắt buộc. Nếu có đặt cọc: khi hợp đồng được giao kết, thực hiện thì tiền cọc được trả lại hoặc trừ vào nghĩa vụ trả tiền; nếu bên đặt cọc (bên thuê) từ chối thực hiện hợp đồng thì mất cọc; nếu bên nhận đặt cọc (bên cho thuê) từ chối thì phải trả lại cọc và một khoản tiền tương đương giá trị tài sản đặt cọc, trừ trường hợp có thỏa thuận khác. (Điều 328 BLDS 2015)",
+      "legalRef": "Điều 328 Bộ luật Dân sự 2015"
+    },
+    {
+      "key": "chiphi_dichvu",
+      "label": "Chi phí dịch vụ (điện, nước, internet, phí quản lý...)",
+      "section": "Chi phí",
+      "tier": "default",
+      "type": "textarea",
+      "help": "Nêu rõ bên nào chịu các chi phí điện, nước, internet, phí quản lý, gửi xe... Mặc định không tính trong tiền thuê nếu không thỏa thuận.",
+      "placeholder": "Bên thuê thanh toán theo đồng hồ thực tế; phí quản lý do Bên thuê chịu",
+      "defaultText": "Nếu không thỏa thuận, các chi phí điện, nước, internet và dịch vụ phát sinh từ việc sử dụng nhà do bên thuê chịu theo mức tiêu thụ/khối lượng thực tế; tiền thuê không bao gồm các chi phí này.",
+      "legalRef": "Điều 472, 481 Bộ luật Dân sự 2015"
+    },
+    {
+      "key": "sua_chua",
+      "label": "Trách nhiệm sửa chữa nhà",
+      "section": "Quyền và nghĩa vụ",
+      "tier": "default",
+      "type": "textarea",
+      "help": "Phân định việc sửa chữa. Theo luật, bên cho thuê sửa hư hỏng lớn; bên thuê tự sửa hư hỏng nhỏ. Có thể ghi rõ thêm.",
+      "placeholder": "Bên A sửa hư hỏng kết cấu, hệ thống điện nước chính; Bên B sửa hư hỏng nhỏ do sử dụng",
+      "defaultText": "Nếu không thỏa thuận khác: Bên cho thuê phải bảo đảm nhà ở trong tình trạng sử dụng được phù hợp với mục đích thuê và sửa chữa những hư hỏng, khuyết tật của nhà ở (trừ hư hỏng nhỏ mà theo tập quán bên thuê tự sửa); nếu giá trị sử dụng giảm sút không do lỗi bên thuê mà bên cho thuê không sửa chữa, bên thuê có quyền yêu cầu sửa chữa, giảm giá thuê, hoặc đơn phương chấm dứt hợp đồng và yêu cầu bồi thường thiệt hại. (Điều 477 BLDS 2015; Điều 172 Luật Nhà ở 2023)",
+      "legalRef": "Điều 477 Bộ luật Dân sự 2015; Điều 172 Luật Nhà ở 2023"
+    },
+    {
+      "key": "cho_thue_lai",
+      "label": "Cho thuê lại / cho ở nhờ",
+      "section": "Quyền và nghĩa vụ",
+      "tier": "default",
+      "type": "select",
+      "help": "Bên B có được cho thuê lại hoặc cho người khác ở nhờ không.",
+      "options": [
+        "Không được phép",
+        "Được phép nếu có sự đồng ý bằng văn bản của Bên A"
+      ],
+      "defaultText": "Nếu không thỏa thuận, bên thuê chỉ được cho thuê lại nhà ở đang thuê khi có sự đồng ý của bên cho thuê; cho thuê lại trái phép là căn cứ để bên cho thuê đơn phương chấm dứt hợp đồng. (Điều 475 BLDS 2015; Điều 172 Luật Nhà ở 2023)",
+      "legalRef": "Điều 475 Bộ luật Dân sự 2015; Điều 172 Luật Nhà ở 2023"
+    },
+    {
+      "key": "tang_gia",
+      "label": "Điều kiện điều chỉnh giá thuê",
+      "section": "Quyền và nghĩa vụ",
+      "tier": "optional",
+      "type": "textarea",
+      "help": "Thỏa thuận về việc tăng giá thuê (thời điểm, mức, cách thông báo). Bên cho thuê không được tăng giá bất hợp lý hoặc không thông báo trước.",
+      "placeholder": "Sau mỗi 12 tháng, có thể điều chỉnh tối đa 10%, thông báo trước 30 ngày"
+    },
+    {
+      "key": "bao_truoc_ngay",
+      "label": "Thời hạn báo trước khi đơn phương chấm dứt (ngày)",
+      "section": "Chấm dứt hợp đồng",
+      "tier": "default",
+      "type": "number",
+      "help": "Số ngày phải thông báo trước cho bên kia khi muốn đơn phương chấm dứt hợp đồng.",
+      "placeholder": "30",
+      "defaultText": "Bên đơn phương chấm dứt thực hiện hợp đồng thuê nhà ở phải thông báo bằng văn bản cho bên kia biết trước ít nhất 30 ngày, trừ trường hợp bất khả kháng hoặc các bên có thỏa thuận khác. (Điều 172 khoản 4 Luật Nhà ở 2023)",
+      "legalRef": "Điều 172 khoản 4 Luật Nhà ở 2023"
+    },
+    {
+      "key": "phat_vi_pham",
+      "label": "Mức phạt vi phạm hợp đồng",
+      "section": "Chấm dứt hợp đồng",
+      "tier": "optional",
+      "type": "textarea",
+      "help": "Thỏa thuận mức phạt nếu một bên vi phạm. Phạt vi phạm chỉ áp dụng khi có thỏa thuận; mức phạt do các bên tự thỏa thuận (BLDS không khống chế mức trần như Luật Thương mại).",
+      "placeholder": "Bên vi phạm phải bồi thường thiệt hại thực tế; phạt vi phạm bằng 01 tháng tiền thuê"
+    }
+  ],
+  "lint": [
+    {
+      "field": "thoi_han",
+      "op": "min",
+      "value": 1,
+      "message": "Thời hạn thuê do các bên thỏa thuận; nên ghi rõ và để từ 01 tháng trở lên cho hợp đồng thuê nhà ở (BLDS không ấn định thời hạn tối thiểu).",
+      "legalRef": "Điều 474 Bộ luật Dân sự 2015",
+      "severity": "warn"
+    },
+    {
+      "field": "gia_thue",
+      "op": "min",
+      "value": 1,
+      "message": "Giá thuê là điều khoản chủ yếu, phải lớn hơn 0.",
+      "legalRef": "Điều 473 Bộ luật Dân sự 2015",
+      "severity": "error"
+    },
+    {
+      "field": "bao_truoc_ngay",
+      "op": "min",
+      "value": 30,
+      "message": "Thời hạn báo trước khi đơn phương chấm dứt hợp đồng thuê nhà ở phải ít nhất 30 ngày, trừ trường hợp bất khả kháng hoặc thỏa thuận khác. Đặt dưới 30 ngày có thể không bảo vệ được bên đơn phương chấm dứt.",
+      "legalRef": "Điều 172 khoản 4 Luật Nhà ở 2023",
+      "severity": "warn"
+    },
+    {
+      "field": "phat_vi_pham",
+      "op": "note",
+      "value": "Phạt vi phạm chỉ áp dụng nếu các bên có thỏa thuận. Khác với hợp đồng thương mại (trần 8% theo Điều 301 Luật Thương mại), Bộ luật Dân sự không khống chế mức phạt; tuy nhiên nên ấn định ở mức hợp lý để tránh tranh chấp. Bồi thường thiệt hại tính theo thiệt hại thực tế.",
+      "message": "Phạt vi phạm chỉ có hiệu lực khi được thỏa thuận trong hợp đồng (Điều 418 BLDS). Nên đặt mức hợp lý, cân bằng giữa hai bên.",
+      "legalRef": "Điều 418 Bộ luật Dân sự 2015",
+      "severity": "warn"
+    },
+    {
+      "field": "tien_coc",
+      "op": "note",
+      "value": "Đặt cọc không bắt buộc; thông lệ 1–2 tháng tiền thuê. Cần ghi rõ điều kiện hoàn cọc khi kết thúc hợp đồng để tránh tranh chấp.",
+      "message": "Tiền đặt cọc là tùy nghi; nên ghi rõ điều kiện và thời điểm hoàn trả (Điều 328 BLDS).",
+      "legalRef": "Điều 328 Bộ luật Dân sự 2015",
+      "severity": "warn"
+    }
+  ],
+  "body": [
+    {
+      "heading": "ĐIỀU 1: NHÀ Ở CHO THUÊ",
+      "text": "Bên A đồng ý cho Bên B thuê nhà ở tại địa chỉ: {{nha_diachi}}. Diện tích sử dụng: {{nha_dientich}} m². Đặc điểm và hiện trạng nhà ở khi bàn giao: {{nha_dacdiem}}."
+    },
+    {
+      "heading": "ĐIỀU 1: NHÀ Ở CHO THUÊ",
+      "text": "Giấy tờ về quyền sở hữu/sử dụng nhà ở: {{nha_giayto}}. Bên A cam kết nhà ở thuộc quyền sở hữu/quyền cho thuê hợp pháp của mình, không có tranh chấp.",
+      "condition": {
+        "key": "nha_giayto",
+        "equals": "*"
+      }
+    },
+    {
+      "heading": "ĐIỀU 2: MỤC ĐÍCH THUÊ",
+      "text": "Bên B thuê nhà ở nêu trên với mục đích: {{muc_dich}}. Bên B phải sử dụng nhà đúng mục đích đã thỏa thuận; việc sử dụng sai mục đích là căn cứ để Bên A đơn phương chấm dứt hợp đồng."
+    },
+    {
+      "heading": "ĐIỀU 3: GIÁ THUÊ VÀ THỜI HẠN THUÊ",
+      "text": "Giá thuê là {{gia_thue}} VND/tháng ({{gia_thue_chu}}). Thời hạn thuê là {{thoi_han}} tháng, kể từ ngày {{ngay_batdau}}."
+    },
+    {
+      "heading": "ĐIỀU 4: THANH TOÁN",
+      "text": "Bên B thanh toán tiền thuê theo kỳ: {{ky_thanh_toan}}, vào trước ngày {{ngay_thanh_toan}} của mỗi kỳ, bằng hình thức: {{phuong_thuc_tt}}. Bên B có nghĩa vụ trả đủ tiền thuê đúng thời hạn theo thỏa thuận."
+    },
+    {
+      "heading": "ĐIỀU 5: ĐẶT CỌC",
+      "text": "Khi ký hợp đồng, Bên B đặt cọc cho Bên A số tiền {{tien_coc}} VND để bảo đảm thực hiện hợp đồng. Khi hợp đồng kết thúc đúng thỏa thuận và Bên B đã hoàn thành các nghĩa vụ, Bên A hoàn trả tiền cọc cho Bên B, sau khi khấu trừ các khoản (nếu có) mà Bên B còn nợ hoặc chi phí khắc phục hư hỏng do lỗi của Bên B (trừ hao mòn tự nhiên)."
+    },
+    {
+      "heading": "ĐIỀU 6: CHI PHÍ DỊCH VỤ",
+      "text": "Các chi phí điện, nước, internet, phí quản lý và dịch vụ khác phát sinh trong thời gian thuê được phân định như sau: {{chiphi_dichvu}}."
+    },
+    {
+      "heading": "ĐIỀU 7: QUYỀN VÀ NGHĨA VỤ CỦA BÊN A (BÊN CHO THUÊ)",
+      "text": "Bên A có nghĩa vụ giao nhà đúng hiện trạng và thời điểm thỏa thuận; bảo đảm cho Bên B sử dụng ổn định nhà trong thời hạn thuê; bảo đảm quyền sử dụng trọn vẹn, riêng rẽ của Bên B. Về sửa chữa: {{sua_chua}}. Bên A có quyền nhận đủ tiền thuê và nhận lại nhà khi hết hạn hợp đồng."
+    },
+    {
+      "heading": "ĐIỀU 8: QUYỀN VÀ NGHĨA VỤ CỦA BÊN B (BÊN THUÊ)",
+      "text": "Bên B có nghĩa vụ trả đủ tiền thuê đúng hạn; sử dụng nhà đúng mục đích; giữ gìn nhà ở, tự sửa chữa những hư hỏng nhỏ do mình gây ra; không tự ý đục phá, cơi nới, cải tạo nhà; trả lại nhà đúng hiện trạng khi nhận, trừ hao mòn tự nhiên. Về việc cho thuê lại/cho ở nhờ: {{cho_thue_lai}}."
+    },
+    {
+      "heading": "ĐIỀU 9: ĐIỀU CHỈNH GIÁ THUÊ",
+      "text": "Việc điều chỉnh giá thuê được thực hiện theo thỏa thuận: {{tang_gia}}. Bên A không được tăng giá thuê bất hợp lý hoặc tăng giá mà không thông báo trước theo thỏa thuận.",
+      "condition": {
+        "key": "tang_gia",
+        "equals": "*"
+      }
+    },
+    {
+      "heading": "ĐIỀU 10: ĐƠN PHƯƠNG CHẤM DỨT HỢP ĐỒNG",
+      "text": "Mỗi bên có quyền đơn phương chấm dứt thực hiện hợp đồng theo các trường hợp pháp luật quy định và phải thông báo bằng văn bản cho bên kia biết trước ít nhất {{bao_truoc_ngay}} ngày, trừ trường hợp bất khả kháng hoặc các bên có thỏa thuận khác. Bên A được đơn phương chấm dứt khi Bên B không trả đủ tiền thuê nhà theo thỏa thuận từ 03 tháng trở lên mà không có lý do đã thỏa thuận, sử dụng nhà sai mục đích, tự ý đục phá/cơi nới/cải tạo/phá dỡ nhà, hoặc cho thuê lại/cho mượn trái thỏa thuận. Bên B được đơn phương chấm dứt khi Bên A không sửa chữa nhà bị hư hỏng nặng gây mất an toàn, tăng giá bất hợp lý hoặc tăng giá không thông báo, hoặc khi quyền sử dụng nhà bị hạn chế do lợi ích của người thứ ba."
+    },
+    {
+      "heading": "ĐIỀU 11: TRÁCH NHIỆM DO VI PHẠM",
+      "text": "Bên vi phạm hợp đồng phải bồi thường thiệt hại thực tế cho bên kia. Thỏa thuận về phạt vi phạm: {{phat_vi_pham}}.",
+      "condition": {
+        "key": "phat_vi_pham",
+        "equals": "*"
+      }
+    },
+    {
+      "heading": "ĐIỀU 12: GIẢI QUYẾT TRANH CHẤP",
+      "text": "Mọi tranh chấp phát sinh từ hợp đồng này trước hết được giải quyết thông qua thương lượng, hòa giải; nếu không thành, các bên có quyền yêu cầu Tòa án nhân dân có thẩm quyền giải quyết theo quy định của pháp luật."
+    }
+  ],
+  "closing": "Hợp đồng này có hiệu lực kể từ ngày ký. Hợp đồng được lập thành 02 bản có giá trị pháp lý như nhau, mỗi bên giữ 01 bản. Hai bên đã đọc, hiểu rõ và tự nguyện ký tên dưới đây.\n\nBÊN CHO THUÊ (BÊN A)                          BÊN THUÊ (BÊN B)\n(Ký, ghi rõ họ tên)                           (Ký, ghi rõ họ tên)\n\n{{ben_a_ten}}                                  {{ben_b_ten}}",
+  "verifyNotes": [
+    "ĐÃ KIỂM CHỨNG (tra cứu pháp luật VN hiện hành): Điều 172 khoản 2 Luật Nhà ở 2023 cho phép bên cho thuê đơn phương chấm dứt khi bên thuê không trả đủ tiền thuê 'từ 03 tháng trở lên mà không có lý do đã thỏa thuận' (KHÁC với BLDS Điều 481 khoản 2 dùng 'ba kỳ liên tiếp' cho thuê tài sản nói chung). Body Điều 10 dùng chuẩn của Luật Nhà ở — đúng. Đã làm rõ thêm hành vi 'đục phá/cơi nới/cải tạo/phá dỡ' và 'cho mượn'.",
+    "ĐÃ KIỂM CHỨNG: thông báo trước ít nhất 30 ngày khi đơn phương chấm dứt — Điều 172 khoản 4 Luật Nhà ở 2023.",
+    "SỬA CĂN CỨ LINT: lint 'thoi_han' trước đây dẫn Điều 472 BLDS (chỉ định nghĩa hợp đồng thuê); đã sửa thành Điều 474 BLDS (thời hạn thuê). Lưu ý BLDS KHÔNG ấn định thời hạn thuê tối thiểu nên giá trị min=1 tháng chỉ là khuyến nghị (severity 'warn'), không phải ngưỡng luật định.",
+    "ĐÃ KIỂM CHỨNG & làm rõ defaultText đặt cọc theo đúng Điều 328 BLDS 2015 (bên thuê là bên đặt cọc: từ chối thì mất cọc; bên cho thuê từ chối thì trả lại cọc và một khoản tương đương, trừ thỏa thuận khác).",
+    "ĐÃ KIỂM CHỨNG: nghĩa vụ trả tiền thuê — Điều 481 khoản 1 BLDS (đúng hạn / theo tập quán / khi trả lại tài sản). Đã ghi rõ 'khoản 1' trong legalRef và defaultText cho 'ky_thanh_toan' và 'ngay_thanh_toan'.",
+    "ĐÃ KIỂM CHỨNG: nghĩa vụ sửa chữa & bảo đảm giá trị sử dụng — Điều 477 BLDS 2015; cho thuê lại phải có đồng ý của bên cho thuê — Điều 475 BLDS 2015.",
+    "ĐÃ KIỂM CHỨNG: phạt vi phạm theo BLDS (Điều 418) do các bên thỏa thuận, KHÔNG bị khống chế trần 8% như Điều 301 Luật Thương mại — đã nêu rõ đối chiếu trong help/lint note.",
+    "ĐÃ KIỂM CHỨNG: thuê nhà ở KHÔNG bắt buộc công chứng/chứng thực (Điều 164 khoản 2 Luật Nhà ở 2023), nhưng bắt buộc lập bằng văn bản (Điều 162–163). Đã bổ sung Điều 164 và Điều 474, 482 vào legalBasis.",
+    "CẢNH BÁO CÒN LẠI (UI/render): hai khối body cùng tiêu đề 'ĐIỀU 1: NHÀ Ở CHO THUÊ' (khối thứ hai là điều kiện theo 'nha_giayto'). Giữ nguyên để trình bày dồn vào cùng Điều 1; nếu bộ render không gộp theo heading trùng thì cần gộp thủ công để tránh hiển thị 'ĐIỀU 1' hai lần.",
+    "CẢNH BÁO CÒN LẠI: 'phuong_thuc_tt' là optional; nếu để trống, câu ở Điều 4 ('bằng hình thức: .') hơi cụt — nên điền hoặc bộ render nên ẩn mệnh đề này khi trống.",
+    "CẢNH BÁO CHUNG: đây là mẫu tham khảo. Trước khi ký nên kiểm tra giấy tờ pháp lý của nhà ở, điều kiện cho thuê (Điều 160 Luật Nhà ở 2023: nhà có giấy chứng nhận, không tranh chấp/kê biên/thuộc diện thu hồi), và nghĩa vụ đăng ký tạm trú, kê khai thuế cho thuê (nếu doanh thu > 100 triệu/năm) theo pháp luật thuế."
+  ]
+}

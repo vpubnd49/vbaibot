@@ -6,7 +6,7 @@
  * nếu có đủ config, `null` nếu chưa cấu hình.
  *
  * Hỗ trợ 2 chế độ:
- * - **OpenAI-compatible** (Cashop, 9Router...): khi base URL KHÔNG phải
+ * - **OpenAI-compatible** (9Router, OpenRouter...): khi base URL KHÔNG phải
  *   googleapis.com → dùng `createOpenAICompatible` + Bearer auth.
  * - **Google native**: khi base URL là googleapis.com hoặc rỗng → dùng
  *   `createGoogleGenerativeAI` + API key trực tiếp.
@@ -27,8 +27,13 @@ import {
 } from "./reasoning-options.js";
 import { getTuning } from "../config/runtime-tuning-settings.js";
 import { createLogger } from "../shared/logger.js";
+import { createSanitizingFetch } from "./llm-response-sanitizer.js";
 
 const log = createLogger("backup-provider");
+const sanitizingFetch = createSanitizingFetch({
+  onSanitized: () =>
+    log.warn("Backup proxy trả response dính SSE - đã chuẩn hóa thành JSON"),
+});
 
 /** Kiểm tra base URL có phải Google trực tiếp không */
 function isGoogleDirect(baseUrl: string | undefined): boolean {
@@ -80,13 +85,14 @@ export function getBackupModel(
   const useProxy = !isGoogleDirect(settings.baseUrl);
 
   if (useProxy) {
-    // ── OpenAI-compatible proxy (Cashop, 9Router...) ──────────────
+    // ── OpenAI-compatible proxy (9Router, OpenRouter...) ──────────────
     const baseUrl = settings.baseUrl.trim().replace(/\/+$/, "");
     const provider = createOpenAICompatible({
       name: ROUTER_PROVIDER_OPTIONS_KEY,
       baseURL: baseUrl,
       apiKey: settings.apiKey,
       headers: sessionHeaders,
+      fetch: sanitizingFetch,
     });
     log.info({ baseUrl, model: settings.model }, "Backup dùng proxy OpenAI-compatible");
     return {

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import type { AccountInfo, ThreadItem } from "../dashboard-api-client";
 import { api } from "../dashboard-api-client";
 import { PageHeader } from "../layout/page-header";
-import { IconChat } from "../shared/dashboard-icons";
+import { IconChat, IconMegaphone } from "../shared/dashboard-icons";
 import { AccountFilter, accountLabel } from "../shared/account-filter";
 import {
   Badge,
@@ -12,6 +12,7 @@ import {
   InitialAvatar,
   ListToolbar,
   TableShell,
+  ToggleKnob,
 } from "../shared/ui-bits";
 import { SessionDetailDrawer } from "./session-detail-drawer";
 import { BroadcastModal } from "./broadcast-modal";
@@ -49,15 +50,15 @@ export function SessionsPage({ accounts }: { accounts: AccountInfo[] }) {
     <div>
       <PageHeader
         icon={IconChat}
-        title="Sessions"
-        subtitle="Mỗi thread (chat riêng / nhóm) là một session, ngữ cảnh giữ trong SQLite"
+        title="Phiên trò chuyện"
+        subtitle="Quản lý ngữ cảnh và lịch sử hội thoại Zalo trực tiếp, tự động lưu trữ trong SQLite"
         aside={
           <button
             type="button"
             onClick={() => setShowBroadcast(true)}
-            className="inline-flex items-center gap-2 rounded-xl bg-zalo-600 px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-zalo-700 transition-colors"
+            className="gc-button-primary text-xs py-2 px-3.5"
           >
-            <span>📢</span>
+            <IconMegaphone size={15} />
             <span>Gửi thông báo</span>
           </button>
         }
@@ -76,65 +77,59 @@ export function SessionsPage({ accounts }: { accounts: AccountInfo[] }) {
       <TableShell
         headers={
           showAccountColumn
-            ? ["Tên", "Account", "Loại", "Tin nhắn", "Token", "Tin cuối", "Bot", ""]
-            : ["Tên", "Loại", "Tin nhắn", "Token", "Tin cuối", "Bot", ""]
+            ? ["Tên hội thoại", "Tài khoản", "Phân loại", "Số tin", "Tiêu thụ Token", "Tin cuối", "Trạng thái Bot", ""]
+            : ["Tên hội thoại", "Phân loại", "Số tin", "Tiêu thụ Token", "Tin cuối", "Trạng thái Bot", ""]
         }
-        minWidth={showAccountColumn ? 960 : 860}
+        minWidth={showAccountColumn ? 980 : 880}
       >
         {items.length === 0 && (
-          <EmptyRow colSpan={showAccountColumn ? 8 : 7} text="Chưa có session nào" />
+          <EmptyRow colSpan={showAccountColumn ? 8 : 7} text="Chưa có phiên trò chuyện nào" />
         )}
         {items.map((t) => (
           <tr
             key={`${t.accountId}:${t.threadId}`}
-            className="border-b border-line/60 last:border-0 hover:bg-tile/40"
+            className="hover:bg-tile/40 transition-colors"
           >
-            <td className="px-4 py-3">
+            <td className="px-4 py-3.5">
               <div className="flex items-center gap-3">
                 <InitialAvatar name={t.displayName || t.threadId} />
                 <div className="min-w-0">
-                  <div className="truncate font-medium text-ink">{t.displayName || t.threadId}</div>
-                  <div className="truncate text-[12px] text-ink-soft/60">{t.threadId}</div>
+                  <div className="truncate font-semibold text-ink text-[13.5px]">{t.displayName || t.threadId}</div>
+                  <div className="truncate font-mono text-[11px] text-ink-soft/70">{t.threadId}</div>
                 </div>
               </div>
             </td>
             {showAccountColumn && (
-              <td className="px-4 py-3">
+              <td className="px-4 py-3.5">
                 <Badge tone="gray" dot={false}>{accountLabel(accounts, t.accountId)}</Badge>
               </td>
             )}
-            <td className="px-4 py-3">
+            <td className="px-4 py-3.5">
               <Badge tone={t.threadType === 1 ? "amber" : "blue"} dot={false}>
-                {t.threadType === 1 ? "Group" : "Direct"}
+                {t.threadType === 1 ? "👥 Nhóm" : "👤 Trực tiếp"}
               </Badge>
             </td>
-            <td className="px-4 py-3 text-ink-soft">{formatNumber(t.messageCount)}</td>
-            <td className="px-4 py-3 text-ink-soft">
-              {formatNumber(t.usage.totalTokens)}
-              <span className="text-[12px] text-ink-soft/60"> / {t.usage.turns} lượt</span>
+            <td className="px-4 py-3.5 font-medium text-ink">{formatNumber(t.messageCount)}</td>
+            <td className="px-4 py-3.5 text-ink-soft">
+              <span className="font-semibold text-ink font-mono text-[12.5px]">{formatNumber(t.usage.totalTokens)}</span>
+              <span className="text-[11.5px] text-ink-soft/70"> ({t.usage.turns} lượt)</span>
             </td>
-            <td className="px-4 py-3 text-ink-soft">{formatTime(t.lastMessageAt)}</td>
-            <td className="px-4 py-3">
+            <td className="px-4 py-3.5 text-xs text-ink-soft">{formatTime(t.lastMessageAt)}</td>
+            <td className="px-4 py-3.5">
               <button
                 onClick={() => toggleBot(t)}
-                className={`relative h-5 w-9 rounded-full transition-colors ${
-                  t.botEnabled ? "bg-zalo-500" : "bg-slate-300 dark:bg-slate-600"
-                }`}
-                title={t.botEnabled ? "Bot đang bật - bấm để tắt" : "Bot đang tắt - bấm để bật"}
+                title={t.botEnabled ? "Bot đang hoạt động - Bấm để tạm dừng" : "Bot đang tắt - Bấm để kích hoạt"}
+                className="flex items-center gap-1.5"
               >
-                <span
-                  className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-all ${
-                    t.botEnabled ? "left-[18px]" : "left-0.5"
-                  }`}
-                />
+                <ToggleKnob on={t.botEnabled} />
               </button>
             </td>
-            <td className="px-4 py-3">
+            <td className="px-4 py-3.5 text-right">
               <button
                 onClick={() => setOpenThread(t)}
-                className="text-[13px] font-medium text-zalo-600 hover:underline"
+                className="rounded-lg border border-line bg-surface/90 px-3 py-1 text-xs font-semibold text-ink hover:border-blue-500/40 hover:text-blue-500 transition-all shadow-2xs"
               >
-                Xem
+                Chi tiết
               </button>
             </td>
           </tr>

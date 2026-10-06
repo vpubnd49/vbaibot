@@ -1,0 +1,117 @@
+{
+  "id": "tang_cho",
+  "name": "Hợp đồng tặng cho tài sản / đất đai",
+  "group": "Cá nhân ↔ Cá nhân",
+  "icon": "🎁",
+  "title": "HỢP ĐỒNG TẶNG CHO TÀI SẢN",
+  "summary": "Hợp đồng tặng cho tài sản hoặc quyền sử dụng đất giữa bên tặng cho và bên được tặng cho, có quy định điều kiện tặng cho (nếu có) và nghĩa vụ làm thủ tục đăng ký quyền sở hữu theo Bộ luật Dân sự 2015.",
+  "parties": {
+    "a": "Bên tặng cho (Bên A)",
+    "b": "Bên được tặng cho (Bên B)"
+  },
+  "preamble": "Căn cứ Bộ luật Dân sự số 91/2015/QH13;\nCăn cứ nhu cầu và ý chí tự nguyện của hai bên;\nHôm nay, ngày {{ngay_ky}}, tại {{dia_diem_ky}}, chúng tôi gồm:\n- BÊN A (Bên tặng cho): {{ten_bena}}, địa chỉ: {{dia_chi_bena}}, CCCD số: {{cccd_bena}}.\n- BÊN B (Bên được tặng cho): {{ten_benb}}, địa chỉ: {{dia_chi_benb}}, CCCD số: {{cccd_benb}}.\nHai bên thống nhất ký kết hợp đồng tặng cho tài sản với các điều khoản sau:",
+  "legalBasis": [
+    "Bộ luật Dân sự 2015 (Luật số 91/2015/QH13): Mục 3 về Hợp đồng tặng cho tài sản (Điều 457 đến Điều 462)."
+  ],
+  "fields": [
+    {
+      "key": "ten_bena",
+      "label": "Họ và tên bên tặng cho (Bên A)?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Họ tên đầy đủ người tặng cho tài sản.",
+      "placeholder": "Nguyễn Văn A"
+    },
+    {
+      "key": "dia_chi_bena",
+      "label": "Địa chỉ bên A?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Địa chỉ thường trú bên A.",
+      "placeholder": "Số 1, đường X, TP HCM"
+    },
+    {
+      "key": "cccd_bena",
+      "label": "Số CCCD bên A?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "CCCD người tặng cho.",
+      "placeholder": "079095000123"
+    },
+    {
+      "key": "ten_benb",
+      "label": "Họ và tên bên được tặng cho (Bên B)?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Họ tên đầy đủ người nhận tài sản tặng cho.",
+      "placeholder": "Trần Thị B"
+    },
+    {
+      "key": "dia_chi_benb",
+      "label": "Địa chỉ bên B?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Địa chỉ thường trú bên B.",
+      "placeholder": "Số 2, đường Y, Hà Nội"
+    },
+    {
+      "key": "cccd_benb",
+      "label": "Số CCCD bên B?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "CCCD người nhận tặng cho.",
+      "placeholder": "030095000456"
+    },
+    {
+      "key": "tai_san_tang_cho",
+      "label": "Mô tả tài sản tặng cho?",
+      "section": "Tài sản tặng cho",
+      "tier": "required",
+      "type": "text",
+      "help": "Ghi cụ thể thông tin tài sản (số tài khoản, hiện vật hoặc thông tin thửa đất).",
+      "placeholder": "Quyền sử dụng đất đối với thửa đất số 105, tờ bản đồ số 72 tại Đà Lạt"
+    },
+    {
+      "key": "dieu_kien_tang_cho",
+      "label": "Điều kiện tặng cho (Nếu có)?",
+      "section": "Điều kiện tặng cho",
+      "tier": "optional",
+      "type": "text",
+      "help": "Nghĩa vụ mà bên B phải thực hiện trước hoặc sau khi nhận tài sản tặng cho theo Điều 462 Bộ luật Dân sự.",
+      "placeholder": "Bên B có nghĩa vụ chăm sóc phụng dưỡng bên A khi tuổi già"
+    }
+  ],
+  "clauses": [
+    {
+      "heading": "ĐIỀU 1: TÀI SẢN TẶNG CHO",
+      "text": "Bên A tự nguyện tặng cho và không nhận bất kỳ khoản tiền thanh toán nào đối với tài sản sau cho Bên B: {{tai_san_tang_cho}}."
+    },
+    {
+      "heading": "ĐIỀU 2: ĐIỀU KHOẢN CÓ ĐIỀU KIỆN (NẾU CÓ)",
+      "text": "Bên A tặng cho tài sản kèm theo điều kiện bên B phải hoàn thành nghĩa vụ sau: {{dieu_kien_tang_cho}}. Nếu Bên B không thực hiện đúng điều kiện cam kết, Bên A có quyền đòi lại tài sản đã tặng cho theo Điều 462 Bộ luật Dân sự 2015."
+    },
+    {
+      "heading": "ĐIỀU 3: BÀN GIAO VÀ ĐĂNG KÝ SỞ HỮU",
+      "text": "Đối với tài sản phải đăng ký quyền sở hữu (như đất đai, nhà ở), hợp đồng này phải được công chứng và bên B có nghĩa vụ làm thủ tục đăng ký quyền sở hữu tại cơ quan nhà nước. Quyền sở hữu đối với tài sản được xác lập kể từ thời điểm hoàn tất thủ tục đăng ký."
+    },
+    {
+      "heading": "ĐIỀU 4: NGHĨA VỤ THUẾ VÀ PHÍ SANG TÊN",
+      "text": "Mọi khoản thuế thu nhập cá nhân do nhận quà tặng, lệ phí trước bạ và phí công chứng liên quan đến việc sang tên tài sản sẽ do Bên B chịu trách nhiệm thanh toán đầy đủ."
+    },
+    {
+      "heading": "ĐIỀU 5: CAM KẾT CHUNG",
+      "text": "Bên A cam kết tài sản tặng cho thuộc quyền sở hữu, quyền sử dụng hợp pháp của mình và không bị thế chấp hay tranh chấp tại thời điểm ký kết hợp đồng này."
+    }
+  ],
+  "closing": "Hợp đồng này được lập thành 02 (hai) bản có giá trị pháp lý như nhau, mỗi bên giữ 01 (một) bản, có hiệu lực từ ngày hoàn thành thủ tục công chứng theo luật định.\n\nBÊN TẶNG CHO (BÊN A)        BÊN ĐƯỢC TẶNG CHO (BÊN B)",
+  "lint": [],
+  "verifyNotes": [
+    "Quy định tặng cho tài sản có điều kiện thực hiện theo Điều 462 Bộ luật Dân sự 2015. Hợp đồng tặng cho bất động sản bắt buộc phải công chứng để có hiệu lực pháp luật."
+  ]
+}

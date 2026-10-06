@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ApiError } from "../dashboard-api-client";
 import type { ScheduledJobItem, ScheduledJobRunItem } from "../dashboard-api-client";
 import { formatBotTime } from "../shared/format-bot-time";
-import { Badge } from "../shared/ui-bits";
+import { Badge, ToggleKnob } from "../shared/ui-bits";
 
 /** Nhãn kiểu lịch đọc được, không phải mã kỹ thuật */
 function scheduleLabel(job: ScheduledJobItem): string {
@@ -88,16 +88,16 @@ export function ScheduleJobRow({
     // KHÔNG đè `bg-tile/30` lên `.gc-card` như trước: lớp xám mờ đó cộng với
     // nền trắng 95% của card làm cả thẻ chìm hẳn vào ảnh nền, đọc rất mệt.
     // Để card giữ đúng nền của design system, giống hệt trang Cấu hình.
-    <div className="gc-card space-y-2.5 rounded-2xl px-5 py-4">
+    <div className="gc-card-hover space-y-3 rounded-2xl p-5 relative overflow-hidden group">
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-[15px] font-semibold text-ink">{job.name}</span>
+        <span className="text-sm font-bold text-ink">{job.name}</span>
         <Badge tone={job.kind === "agent" ? "blue" : "gray"} dot={false}>
-          {job.kind === "agent" ? "Agent" : "Nhắn tin"}
+          {job.kind === "agent" ? "⚡ Agent" : "💬 Nhắn tin"}
         </Badge>
         <Badge tone="gray" dot={false}>
           {scheduleLabel(job)}
         </Badge>
-        <Badge tone={status.tone}>{status.text}</Badge>
+        <Badge tone={status.tone} dot>{status.text}</Badge>
         {!job.enabled &&
           (finished ? (
             <Badge tone="gray" dot={false}>
@@ -110,30 +110,39 @@ export function ScheduleJobRow({
           ))}
       </div>
 
-      <div className="text-[13px] leading-[1.6] text-ink-soft">
-        {accountName && <>{accountName} · </>}
-        {threadName} · Lần kế tiếp:{" "}
-        {job.enabled ? formatBotTime(job.nextRunAt, timezone) : finished ? "không còn lần nào" : "-"}
-        {job.lastRunAt && <> · Chạy gần nhất: {formatBotTime(job.lastRunAt, timezone)}</>}
+      <div className="text-xs text-ink-soft flex flex-wrap items-center gap-2.5">
+        <span>Gửi tới: <strong className="text-ink font-semibold">{threadName}</strong> {accountName ? `(${accountName})` : ""}</span>
+        <span>•</span>
+        <span>Lần kế tiếp:{" "}
+          <strong className="text-ink font-semibold font-mono">
+            {job.enabled ? formatBotTime(job.nextRunAt, timezone) : finished ? "không còn lần nào" : "-"}
+          </strong>
+        </span>
+        {job.lastRunAt && (
+          <>
+            <span>•</span>
+            <span>Chạy gần nhất: <span className="font-mono">{formatBotTime(job.lastRunAt, timezone)}</span></span>
+          </>
+        )}
       </div>
 
       {canShowError && (
-        <div className="rounded-lg border border-red-100 dark:border-red-900/50 bg-red-50 dark:bg-red-950/40 px-3 py-2 text-[12px] leading-[1.6] text-red-700 dark:text-red-300">
-          {job.lastError}
+        <div className="rounded-xl border border-rose-500/25 bg-rose-500/10 px-3.5 py-2.5 text-xs text-rose-600 dark:text-rose-400 font-medium">
+          Lỗi lần gần nhất: {job.lastError}
         </div>
       )}
 
       {runResult && (
-        <div className="rounded-lg border border-line bg-surface px-3 py-2 text-[12px] leading-[1.6] text-ink-soft">
+        <div className="rounded-xl border border-blue-500/25 bg-blue-500/10 px-3.5 py-2.5 text-xs text-blue-600 dark:text-blue-400 font-medium">
           {runResult}
         </div>
       )}
 
-      <div className="flex flex-wrap items-center gap-2 pt-1">
+      <div className="flex flex-wrap items-center gap-2.5 pt-2 border-t border-line/60">
         <button
           onClick={onToggle}
           disabled={toggleDisabled}
-          className={`relative h-5 w-9 rounded-full transition-colors ${job.enabled ? "bg-zalo-500" : "bg-slate-300 dark:bg-slate-600"} ${toggleDisabled ? "cursor-not-allowed opacity-50" : ""}`}
+          className={`flex items-center gap-1.5 ${toggleDisabled ? "cursor-not-allowed opacity-40" : ""}`}
           title={
             toggleDisabled
               ? "Lịch này không còn mốc chạy nào - bật lại cũng không chạy nữa. Bấm Sửa để đặt lịch mới."
@@ -142,30 +151,31 @@ export function ScheduleJobRow({
                 : "Đang tắt - bấm để bật"
           }
         >
-          <span
-            className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-all ${job.enabled ? "left-[18px]" : "left-0.5"}`}
-          />
+          <ToggleKnob on={job.enabled} />
         </button>
         <button
           onClick={handleRun}
           disabled={running}
-          className="rounded-lg border border-line bg-surface px-3 py-1.5 text-[13px] font-medium text-zalo-600 hover:bg-zalo-50 disabled:opacity-50"
+          className="gc-button-primary text-xs py-1.5 px-3"
         >
-          {running ? "Đang chạy..." : "Chạy thử ngay"}
+          {running ? "Đang chạy..." : "▶ Chạy thử"}
         </button>
         <button
           onClick={onHistory}
-          className="rounded-lg border border-line bg-surface px-3 py-1.5 text-[13px] font-medium text-ink hover:bg-tile"
+          className="gc-button-secondary text-xs py-1.5 px-3 font-semibold"
         >
           Lịch sử
         </button>
         <button
           onClick={onEdit}
-          className="rounded-lg border border-line bg-surface px-3 py-1.5 text-[13px] font-medium text-ink hover:bg-tile"
+          className="gc-button-secondary text-xs py-1.5 px-3 font-semibold"
         >
           Sửa
         </button>
-        <button onClick={onDelete} className="rounded-lg px-3 py-1.5 text-[13px] text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40">
+        <button
+          onClick={onDelete}
+          className="rounded-xl border border-rose-500/20 px-3 py-1.5 text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-500/10 transition-all"
+        >
           Xóa
         </button>
       </div>

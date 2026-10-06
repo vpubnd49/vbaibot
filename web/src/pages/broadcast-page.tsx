@@ -187,12 +187,14 @@ export function BroadcastPage({ accounts }: { accounts: AccountInfo[] }) {
         title="Thông báo & Nâng cấp"
         subtitle="Soạn thảo và phát tin giới thiệu tính năng mới đến từng nhóm chat cụ thể trên Zalo"
         aside={
-          <div className="flex rounded-xl border border-line p-1 bg-tile">
+          <div className="flex rounded-xl border border-line p-1 bg-tile/70 backdrop-blur-md">
             <button
               type="button"
               onClick={() => setViewTab("compose")}
               className={`px-4 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                viewTab === "compose" ? "bg-surface text-ink shadow-sm" : "text-ink-soft hover:text-ink"
+                viewTab === "compose"
+                  ? "bg-surface text-blue-600 dark:text-blue-400 shadow-sm border border-line/60"
+                  : "text-ink-soft hover:text-ink"
               }`}
             >
               ✏️ Soạn thông báo mới
@@ -201,7 +203,9 @@ export function BroadcastPage({ accounts }: { accounts: AccountInfo[] }) {
               type="button"
               onClick={() => setViewTab("history")}
               className={`px-4 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                viewTab === "history" ? "bg-surface text-ink shadow-sm" : "text-ink-soft hover:text-ink"
+                viewTab === "history"
+                  ? "bg-surface text-blue-600 dark:text-blue-400 shadow-sm border border-line/60"
+                  : "text-ink-soft hover:text-ink"
               }`}
             >
               📜 Lịch sử đã gửi
@@ -211,13 +215,13 @@ export function BroadcastPage({ accounts }: { accounts: AccountInfo[] }) {
       />
 
       {viewTab === "history" ? (
-        <div className="rounded-2xl border border-line bg-surface p-6 shadow-xs">
+        <div className="gc-card p-6">
           <div className="flex items-center justify-between pb-4 border-b border-line">
-            <h2 className="text-base font-semibold text-ink">Nhật ký các đợt phát tin thông báo</h2>
+            <h2 className="text-base font-bold text-ink">Nhật ký các đợt phát tin thông báo</h2>
             <button
               type="button"
               onClick={loadHistory}
-              className="text-xs text-zalo-600 hover:text-zalo-700 font-medium"
+              className="text-xs text-blue-600 hover:underline font-semibold"
             >
               🔄 Tải lại
             </button>
@@ -254,12 +258,12 @@ export function BroadcastPage({ accounts }: { accounts: AccountInfo[] }) {
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Cột 1: Danh sách nhóm (5 cols) */}
-          <div className="lg:col-span-5 rounded-2xl border border-line bg-surface p-5 shadow-xs space-y-4">
+          <div className="lg:col-span-5 gc-card p-5 lg:p-6 space-y-4">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-sm font-bold text-ink flex items-center gap-2">
                   <span>1. Chọn nhóm nhận tin</span>
-                  <span className="text-xs font-normal text-ink-soft bg-tile px-2 py-0.5 rounded-full border border-line">
+                  <span className="text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-500/10 px-2.5 py-0.5 rounded-full border border-blue-500/20">
                     Đã chọn {selectedThreadIds.size}
                   </span>
                 </h2>
@@ -401,7 +405,7 @@ export function BroadcastPage({ accounts }: { accounts: AccountInfo[] }) {
           </div>
 
           {/* Cột 2: Khung Soạn thảo & Xem trước (7 cols) */}
-          <div className="lg:col-span-7 rounded-2xl border border-line bg-surface p-5 shadow-xs space-y-4">
+          <div className="lg:col-span-7 gc-card p-5 lg:p-6 space-y-4">
             <div>
               <h2 className="text-sm font-bold text-ink">2. Soạn nội dung thông báo</h2>
               <p className="text-[12px] text-ink-soft mt-0.5">
@@ -418,14 +422,14 @@ export function BroadcastPage({ accounts }: { accounts: AccountInfo[] }) {
                     key={tpl.id}
                     type="button"
                     onClick={() => handleSelectTemplate(tpl)}
-                    className={`text-left p-2.5 rounded-xl border text-xs transition-all ${
+                    className={`text-left p-3 rounded-xl border text-xs transition-all ${
                       selectedTemplateId === tpl.id
-                        ? "border-zalo-500 bg-zalo-50/60 dark:bg-zalo-950/30 text-ink font-semibold shadow-xs"
-                        : "border-line bg-tile hover:bg-surface text-ink-soft"
+                        ? "border-blue-500 bg-blue-500/10 text-ink font-semibold shadow-xs"
+                        : "border-line bg-tile/60 hover:bg-tile text-ink-soft"
                     }`}
                   >
                     <div className="font-semibold text-xs truncate text-ink">{tpl.title}</div>
-                    <div className="text-[10px] text-ink-soft truncate mt-0.5">{tpl.description}</div>
+                    <div className="text-[10.5px] text-ink-soft truncate mt-0.5">{tpl.description}</div>
                   </button>
                 ))}
               </div>
@@ -445,7 +449,7 @@ export function BroadcastPage({ accounts }: { accounts: AccountInfo[] }) {
                   setSelectedTemplateId("");
                 }}
                 placeholder="Nhập nội dung thông báo cập nhật gửi đến các nhóm..."
-                className="w-full text-xs font-mono rounded-xl border border-line bg-tile/40 p-3.5 text-ink focus:outline-none focus:border-zalo-500 focus:bg-surface transition-all leading-relaxed"
+                className="w-full text-xs font-mono rounded-xl border border-line bg-tile/40 p-3.5 text-ink focus:outline-none focus:border-blue-500 focus:bg-surface transition-all leading-relaxed"
               />
               <div className="flex flex-wrap items-center gap-2 text-[11px] text-ink-soft pt-1">
                 <span>Cú pháp màu:</span>
@@ -460,7 +464,7 @@ export function BroadcastPage({ accounts }: { accounts: AccountInfo[] }) {
             <div className="rounded-xl border border-line bg-tile/20 p-4">
               <div className="flex items-center justify-between pb-2 mb-2 border-b border-line text-xs font-semibold text-ink-soft">
                 <span>📱 Xem trước hiển thị trên Zalo (Live Preview):</span>
-                <span className="text-[10px] font-normal bg-zalo-50 text-zalo-700 px-2 py-0.5 rounded-full border border-zalo-100">
+                <span className="text-[10px] font-medium bg-blue-500/10 text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded-full border border-blue-500/20">
                   Chuẩn format Zalo
                 </span>
               </div>
@@ -488,7 +492,7 @@ export function BroadcastPage({ accounts }: { accounts: AccountInfo[] }) {
             )}
 
             {/* Action button */}
-            <div className="pt-2 flex items-center justify-between border-t border-line/60">
+            <div className="pt-3 flex items-center justify-between border-t border-line/60">
               <span className="text-xs text-ink-soft">
                 Sẽ gửi đến <strong className="text-ink">{selectedThreadIds.size}</strong> nhóm/người nhận
               </span>
@@ -497,12 +501,12 @@ export function BroadcastPage({ accounts }: { accounts: AccountInfo[] }) {
                 type="button"
                 onClick={handleSend}
                 disabled={isSending || selectedThreadIds.size === 0 || !message.trim()}
-                className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-zalo-600 hover:bg-zalo-700 disabled:opacity-50 text-white text-xs font-semibold shadow-md transition-all cursor-pointer"
+                className="gc-button-primary px-6 py-2.5"
               >
                 {isSending ? (
                   <>
-                    <span className="animate-spin text-sm">⏳</span>
-                    <span>Đang gửi tuần tự...</span>
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    <span>Đang phát tin...</span>
                   </>
                 ) : (
                   <>

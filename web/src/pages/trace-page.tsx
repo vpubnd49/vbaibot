@@ -98,46 +98,51 @@ export function TracePage() {
     <>
       <PageHeader
         icon={IconCpu}
-        title="Trace agent"
-        subtitle="Mỗi lượt bot trả lời đã chạy qua những step nào: model nói gì, gọi tool nào với tham số gì"
+        title="Truy vết suy luận (Traces)"
+        subtitle="Chi tiết từng bước suy luận của mô hình AI, các công cụ đã gọi và lượng token tiêu thụ theo từng lượt trò chuyện"
       />
 
       {loi && (
-        <div className="mb-4 rounded-xl border border-red-100 dark:border-red-900/50 bg-red-50 dark:bg-red-950/40 px-4 py-2.5 text-[13px] text-red-700 dark:text-red-300">
+        <div className="mb-4 rounded-xl border border-rose-500/25 bg-rose-500/10 px-4 py-2.5 text-xs font-medium text-rose-700 dark:text-rose-300">
           {loi}
         </div>
       )}
 
       {Number.isInteger(openTurnId) && openTurnId > 0 && (
-        <div className="mb-5 rounded-xl border border-zalo-100 bg-zalo-50/40 p-4">
-          <div className="mb-2 text-[13px] font-semibold text-zalo-700">Lượt #{openTurnId} (mở từ Lịch hẹn)</div>
-          {openLoading && <p className="text-[12px] text-ink-soft">Đang tải...</p>}
+        <div className="mb-5 gc-card p-5 space-y-3">
+          <div className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider flex items-center gap-2">
+            <span>⚡</span> Lượt #{openTurnId} (mở từ Lịch hẹn)
+          </div>
+          {openLoading && <p className="text-xs text-ink-soft">Đang nạp dữ liệu bước chạy...</p>}
           {!openLoading && openSteps.map((s, i) => <TraceStepCard key={i} step={s} />)}
           {!openLoading && openSteps.length === 0 && (
-            <p className="text-[12px] text-ink-soft">Lượt này không có step nào được ghi.</p>
+            <p className="text-xs text-ink-soft">Lượt này không có bước nào được ghi nhận.</p>
           )}
         </div>
       )}
 
       {turns.length === 0 && !loi && <TraceRong />}
 
-      <div className="space-y-2">
+      <div className="space-y-2.5">
         {turns.map((t) => (
           <div key={t.id}>
             <button
               type="button"
               onClick={() => moLuot(t.id)}
-              className="flex w-full items-center justify-between rounded-xl border border-line bg-surface px-5 py-3 text-left hover:bg-tile"
+              className="gc-card-hover flex w-full items-center justify-between p-4 text-left transition-all"
             >
               <div className="min-w-0">
-                <div className="truncate text-[14px] font-medium text-ink">{t.displayName}</div>
-                <div className="text-[11px] text-ink-soft/60">
-                  {formatTime(t.createdAt)} - {t.stepCount} step -{" "}
-                  {t.totalTokens.toLocaleString("vi-VN")} token
+                <div className="truncate text-sm font-semibold text-ink">{t.displayName}</div>
+                <div className="mt-1 text-xs text-ink-soft flex items-center gap-2">
+                  <span>{formatTime(t.createdAt)}</span>
+                  <span>•</span>
+                  <span><strong className="text-ink font-semibold">{t.stepCount}</strong> bước</span>
+                  <span>•</span>
+                  <span className="font-mono">{t.totalTokens.toLocaleString("vi-VN")} tokens</span>
                 </div>
               </div>
-              <span className="shrink-0 text-[12px] text-ink-soft">
-                {dangMo === t.id ? "Thu gọn" : "Xem"}
+              <span className="shrink-0 text-xs font-semibold text-blue-600 dark:text-blue-400 rounded-lg border border-line bg-tile/60 px-3 py-1 hover:bg-tile">
+                {dangMo === t.id ? "Thu gọn" : "Xem chi tiết"}
               </span>
             </button>
 

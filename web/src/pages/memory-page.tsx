@@ -37,14 +37,14 @@ export function MemoryPage({ accounts }: { accounts: AccountInfo[] }) {
     <div>
       <PageHeader
         icon={IconBrain}
-        title="Memory"
-        subtitle="Fact bot tự ghi nhớ qua tool save_memory - fact học ở chat riêng không bao giờ dùng trong nhóm"
+        title="Trí nhớ dài hạn"
+        subtitle="Thông tin bot tự động ghi nhớ qua tương tác — phân lập an toàn, dữ liệu cá nhân không bao giờ rò rỉ sang nhóm chung"
       />
 
       <ListToolbar
         query={query}
         onQuery={setQuery}
-        placeholder="Tìm trong nội dung hoặc subject ID..."
+        placeholder="Tìm trong nội dung trí nhớ hoặc ID người dùng..."
         filter={<AccountFilter accounts={accounts} value={accountFilter} onChange={setAccountFilter} />}
         page={page}
         hasMore={hasMore}
@@ -54,31 +54,34 @@ export function MemoryPage({ accounts }: { accounts: AccountInfo[] }) {
       <TableShell
         headers={
           showAccountColumn
-            ? ["Fact", "Account", "Về", "Học từ", "Lúc", ""]
-            : ["Fact", "Về", "Học từ", "Lúc", ""]
+            ? ["Nội dung ghi nhớ (Fact)", "Tài khoản", "Đối tượng (Subject)", "Nguồn học", "Thời điểm", "Thao tác"]
+            : ["Nội dung ghi nhớ (Fact)", "Đối tượng (Subject)", "Nguồn học", "Thời điểm", "Thao tác"]
         }
-        minWidth={showAccountColumn ? 880 : 780}
+        minWidth={showAccountColumn ? 920 : 820}
       >
         {items.length === 0 && (
-          <EmptyRow colSpan={showAccountColumn ? 6 : 5} text="Bot chưa ghi nhớ gì" />
+          <EmptyRow colSpan={showAccountColumn ? 6 : 5} text="Bot chưa ghi nhớ dữ liệu nào theo bộ lọc" />
         )}
         {items.map((m) => (
-          <tr key={m.id} className="border-b border-line/60 last:border-0 hover:bg-tile/40">
-            <td className="max-w-md px-4 py-3 text-ink">{m.content}</td>
+          <tr key={m.id} className="hover:bg-tile/40 transition-colors">
+            <td className="max-w-md px-4 py-3.5 text-ink leading-relaxed font-normal">{m.content}</td>
             {showAccountColumn && (
-              <td className="px-4 py-3">
+              <td className="px-4 py-3.5">
                 <Badge tone="gray" dot={false}>{accountLabel(accounts, m.accountId)}</Badge>
               </td>
             )}
-            <td className="px-4 py-3 text-ink-soft">{m.subjectId}</td>
-            <td className="px-4 py-3">
+            <td className="px-4 py-3.5 font-mono text-xs text-ink-soft">{m.subjectId}</td>
+            <td className="px-4 py-3.5">
               <Badge tone={m.learnedInGroup ? "amber" : "blue"} dot={false}>
-                {m.learnedInGroup ? "Nhóm" : "Chat riêng"}
+                {m.learnedInGroup ? "👥 Nhóm" : "👤 Chat riêng"}
               </Badge>
             </td>
-            <td className="px-4 py-3 text-ink-soft">{formatTime(m.createdAt)}</td>
-            <td className="px-4 py-3">
-              <button onClick={() => remove(m)} className="text-[13px] text-red-600 dark:text-red-400 hover:underline">
+            <td className="px-4 py-3.5 text-xs text-ink-soft">{formatTime(m.createdAt)}</td>
+            <td className="px-4 py-3.5 text-right">
+              <button
+                onClick={() => remove(m)}
+                className="rounded-lg border border-rose-500/20 bg-rose-500/5 px-2.5 py-1 text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-500/15 transition-all"
+              >
                 Xóa
               </button>
             </td>

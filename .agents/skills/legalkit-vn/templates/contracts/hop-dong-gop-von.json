@@ -1,0 +1,144 @@
+{
+  "id": "gop_von",
+  "name": "Hợp đồng góp vốn thành lập doanh nghiệp",
+  "group": "Cá nhân ↔ Cá nhân / Doanh nghiệp",
+  "icon": "💰",
+  "title": "HỢP ĐỒNG GÓP VỐN THÀNH LẬP DOANH NGHIỆP",
+  "summary": "Hợp đồng góp vốn giữa các thành viên sáng lập hoặc cổ đông để thành lập công ty cổ phần hoặc công ty trách nhiệm hữu hạn, tuân thủ Luật Doanh nghiệp 2020.",
+  "parties": {
+    "a": "Thành viên góp vốn thứ nhất",
+    "b": "Thành viên góp vốn thứ hai"
+  },
+  "preamble": "Căn cứ Bộ luật Dân sự số 91/2015/QH13;\nCăn cứ Luật Doanh nghiệp số 59/2020/QH14;\nCăn cứ nhu cầu thành lập doanh nghiệp của các bên;\nHôm nay, ngày {{ngay_ky}}, tại {{dia_diem_ky}}, chúng tôi gồm:\n- BÊN A: {{ten_bena}}, địa chỉ: {{dia_chi_bena}}, CCCD số: {{cccd_bena}}.\n- BÊN B: {{ten_benb}}, địa chỉ: {{dia_chi_benb}}, CCCD số: {{cccd_benb}}.\nHai bên thống nhất ký kết hợp đồng góp vốn thành lập doanh nghiệp với các điều khoản sau:",
+  "legalBasis": [
+    "Bộ luật Dân sự 2015 (Luật số 91/2015/QH13): quy định chung về hợp đồng và giao dịch dân sự.",
+    "Luật Doanh nghiệp 2020 (Luật số 59/2020/QH14): Điều 34 (Tài sản góp vốn), Điều 35 (Chuyển quyền sở hữu tài sản góp vốn), Điều 47 & Điều 113 (Thời hạn góp vốn)."
+  ],
+  "fields": [
+    {
+      "key": "ten_bena",
+      "label": "Họ và tên bên A?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Họ tên đầy đủ người góp vốn thứ nhất.",
+      "placeholder": "Nguyễn Văn A"
+    },
+    {
+      "key": "dia_chi_bena",
+      "label": "Địa chỉ thường trú bên A?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Địa chỉ cư trú của bên A theo CCCD.",
+      "placeholder": "Số 1, đường X, TP HCM"
+    },
+    {
+      "key": "cccd_bena",
+      "label": "Số CCCD bên A?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Số căn cước công dân bên A.",
+      "placeholder": "079095000123"
+    },
+    {
+      "key": "ten_benb",
+      "label": "Họ và tên bên B?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Họ tên đầy đủ người góp vốn thứ hai.",
+      "placeholder": "Trần Thị B"
+    },
+    {
+      "key": "dia_chi_benb",
+      "label": "Địa chỉ thường trú bên B?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Địa chỉ cư trú của bên B theo CCCD.",
+      "placeholder": "Số 2, đường Y, Hà Nội"
+    },
+    {
+      "key": "cccd_benb",
+      "label": "Số CCCD bên B?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Số căn cước công dân bên B.",
+      "placeholder": "030095000456"
+    },
+    {
+      "key": "ten_cong_ty",
+      "label": "Tên công ty dự kiến thành lập?",
+      "section": "Thông tin doanh nghiệp",
+      "tier": "required",
+      "type": "text",
+      "help": "Tên doanh nghiệp đăng ký thành lập.",
+      "placeholder": "Công ty TNHH Minh Đỗ"
+    },
+    {
+      "key": "von_bena",
+      "label": "Số vốn góp của bên A (VND)?",
+      "section": "Góp vốn",
+      "tier": "required",
+      "type": "number",
+      "help": "Số tiền bên A cam kết góp.",
+      "placeholder": "500000000"
+    },
+    {
+      "key": "von_benb",
+      "label": "Số vốn góp của bên B (VND)?",
+      "section": "Góp vốn",
+      "tier": "required",
+      "type": "number",
+      "help": "Số tiền bên B cam kết góp.",
+      "placeholder": "500000000"
+    }
+  ],
+  "clauses": [
+    {
+      "heading": "ĐIỀU 1: THÀNH LẬP DOANH NGHIỆP",
+      "text": "Các bên cam kết cùng góp vốn thành lập doanh nghiệp có tên dự kiến: {{ten_cong_ty}} hoạt động theo quy định của Luật Doanh nghiệp 2020 và các quy chế hoạt động đã thống nhất."
+    },
+    {
+      "heading": "ĐIỀU 2: GIÁ TRỊ VÀ PHƯƠNG THỨC GÓP VỐN",
+      "text": "2.1. Bên A cam kết góp số vốn là: {{von_bena}} VND.\n2.2. Bên B cam kết góp số vốn là: {{von_benb}} VND.\nTổng vốn điều lệ dự kiến của doanh nghiệp được hình thành từ vốn góp của các bên."
+    },
+    {
+      "heading": "ĐIỀU 3: THỜI HẠN GÓP VỐN",
+      "text": "Các bên có nghĩa vụ thanh toán đủ số vốn đã đăng ký góp trong thời hạn 90 ngày kể từ ngày được cấp Giấy chứng nhận đăng ký doanh nghiệp theo quy định tại Điều 47 Luật Doanh nghiệp 2020."
+    },
+    {
+      "heading": "ĐIỀU 4: PHÂN PHỐI LỢI NHUẬN VÀ QUYỀN BIỂU QUYẾT",
+      "text": "Quyền biểu quyết và tỷ lệ phân chia lợi nhuận của từng bên được tính tương ứng với tỷ lệ phần vốn góp của từng bên trong tổng số vốn điều lệ thực góp của doanh nghiệp."
+    },
+    {
+      "heading": "ĐIỀU 5: XỬ LÝ VI PHẠM GÓP VỐN",
+      "text": "Trường hợp một bên không góp hoặc góp không đủ số vốn cam kết trong thời hạn quy định, bên vi phạm phải chịu các chế tài theo quy định tại Luật Doanh nghiệp 2020 và phải bồi thường thiệt hại thực tế phát sinh cho bên còn lại."
+    }
+  ],
+  "closing": "Hợp đồng này được lập thành 02 (hai) bản có giá trị pháp lý như nhau, mỗi bên giữ 01 (một) bản, có hiệu lực từ ngày ký.\n\nĐẠI DIỆN BÊN A (ký, ghi rõ họ tên)        ĐẠI DIỆN BÊN B (ký, ghi rõ họ tên)",
+  "lint": [
+    {
+      "field": "von_bena",
+      "op": "min",
+      "value": 1,
+      "message": "Số vốn góp của bên A phải lớn hơn 0.",
+      "legalRef": "Điều 34 Luật Doanh nghiệp 2020",
+      "severity": "error"
+    },
+    {
+      "field": "von_benb",
+      "op": "min",
+      "value": 1,
+      "message": "Số vốn góp của bên B phải lớn hơn 0.",
+      "legalRef": "Điều 34 Luật Doanh nghiệp 2020",
+      "severity": "error"
+    }
+  ],
+  "verifyNotes": [
+    "Thời hạn góp vốn thành lập là 90 ngày kể từ ngày cấp đăng ký kinh doanh. Mọi hình thức chuyển đổi tài sản góp vốn không phải tiền Việt Nam phải tuân theo Điều 35 Luật Doanh nghiệp 2020."
+  ]
+}

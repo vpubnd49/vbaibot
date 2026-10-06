@@ -465,11 +465,23 @@ export const api = {
       body: JSON.stringify(update),
     }),
 
-  // ── System ──────────────────────────────────────────────────────────────────
+  // ── System & VPS ──────────────────────────────────────────────────────────
   restartBot: () =>
     request<{ ok: boolean; message: string }>("/api/system/restart", {
       method: "POST",
     }),
+  vps: {
+    metrics: () => request<VpsMetrics>("/api/vps/metrics"),
+    reboot: () =>
+      request<{ ok: boolean; message: string }>("/api/vps/reboot", {
+        method: "POST",
+      }),
+    restartService: (service: string) =>
+      request<{ ok: boolean; message: string }>("/api/vps/restart-service", {
+        method: "POST",
+        body: JSON.stringify({ service }),
+      }),
+  },
 };
 
 export type ManagedAccount = {
@@ -799,4 +811,66 @@ export type BroadcastLogItem = {
   error: string | null;
   createdAt: string;
 };
+
+// ===== VPS Monitoring Types =====
+
+export type VpsServiceItem = {
+  name: string;
+  type: "pm2" | "docker" | "systemd";
+  status: "online" | "stopped" | "errored" | "unknown";
+  pid?: number;
+  cpu?: number;
+  memoryBytes?: number;
+  uptime?: number;
+  restarts?: number;
+  extra?: string;
+};
+
+export type VpsProcessItem = {
+  pid: number;
+  name: string;
+  cpuPercent: number;
+  memPercent: number;
+};
+
+export type VpsMetrics = {
+  timestamp: number;
+  system: {
+    hostname: string;
+    platform: string;
+    release: string;
+    arch: string;
+    uptimeSeconds: number;
+    uptimeFormatted: string;
+    serverTime: string;
+  };
+  cpu: {
+    model: string;
+    cores: number;
+    usagePercent: number;
+    loadAvg: [number, number, number];
+  };
+  memory: {
+    totalBytes: number;
+    usedBytes: number;
+    freeBytes: number;
+    availableBytes: number;
+    buffersCachedBytes: number;
+    usagePercent: number;
+    swapTotalBytes: number;
+    swapUsedBytes: number;
+    swapUsagePercent: number;
+  };
+  disk: {
+    filesystem: string;
+    totalBytes: number;
+    usedBytes: number;
+    availableBytes: number;
+    usagePercent: number;
+    mountPoint: string;
+  };
+  services: VpsServiceItem[];
+  topProcesses: VpsProcessItem[];
+};
+
 

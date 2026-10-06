@@ -39,22 +39,17 @@ export function TuningDetailPanel({
 
   return (
     <div className="min-w-0 flex-1">
-      {/* Hơi trong (95%) để thấy được ảnh nền phía sau, kèm blur nhẹ cho chữ
-          không bị hoa văn nền làm khó đọc - card đục hoàn toàn thì ảnh nền chỉ
-          còn thấy ở mép trang, phí công đặt nền */}
-      <div className="rounded-2xl border border-line bg-surface/95 p-6">
-        {/* Tiêu đề KHÔNG lặp lại icon của nhóm: icon đã có ngay bên trái ở nav,
-            lặp lần nữa cách đó vài chục pixel chỉ thêm nhiễu chứ không thêm tin */}
-        <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
+      <div className="gc-card p-6 lg:p-7">
+        <div className="mb-6 flex flex-wrap items-start justify-between gap-3 pb-4 border-b border-line/60">
           <div className="min-w-0">
-            <h2 className="text-[19px] font-semibold text-ink">{group.title}</h2>
-            <p className="mt-1.5 max-w-3xl text-[13px] leading-[1.7] text-ink-soft">{group.hint}</p>
+            <h2 className="text-lg lg:text-xl font-bold tracking-tight text-ink">{group.title}</h2>
+            <p className="mt-1 max-w-3xl text-xs lg:text-[13px] leading-relaxed text-ink-soft">{group.hint}</p>
           </div>
           {coDoiKhoiEnv && (
             <button
               type="button"
               onClick={onResetGroup}
-              className="shrink-0 rounded-lg border border-line bg-surface px-3 py-1.5 text-[13px] text-ink-soft hover:bg-tile"
+              className="gc-button-secondary text-xs py-1.5 px-3"
             >
               Đặt lại nhóm này
             </button>

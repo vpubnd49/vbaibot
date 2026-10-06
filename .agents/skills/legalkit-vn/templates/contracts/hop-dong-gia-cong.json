@@ -1,0 +1,132 @@
+{
+  "id": "gia_cong",
+  "name": "Hợp đồng gia công thương mại",
+  "group": "Doanh nghiệp ↔ Doanh nghiệp / Cá nhân",
+  "icon": "🏭",
+  "title": "HỢP ĐỒNG GIA CÔNG THƯƠNG MẠI",
+  "summary": "Hợp đồng gia công thương mại giữa bên đặt gia công và bên nhận gia công hàng hóa, quy định rõ nguyên vật liệu, chất lượng sản phẩm, giá thù lao gia công và thời hạn bàn giao theo Luật Thương mại 2005.",
+  "parties": {
+    "a": "Bên đặt gia công (Bên A)",
+    "b": "Bên nhận gia công (Bên B)"
+  },
+  "preamble": "Căn cứ Bộ luật Dân sự số 91/2015/QH13;\nCăn cứ Luật Thương mại số 36/2005/QH11;\nCăn cứ nhu cầu và khả năng thực tế của hai bên;\nHôm nay, ngày {{ngay_ky}}, tại {{dia_diem_ky}}, chúng tôi gồm:\n- BÊN A (Bên đặt gia công): {{ten_bena}}, địa chỉ: {{dia_chi_bena}}, đại diện: {{dai_dien_bena}}.\n- BÊN B (Bên nhận gia công): {{ten_benb}}, địa chỉ: {{dia_chi_benb}}, đại diện: {{dai_dien_benb}}.\nHai bên thống nhất ký kết hợp đồng gia công thương mại với các điều khoản sau:",
+  "legalBasis": [
+    "Bộ luật Dân sự 2015 (Luật số 91/2015/QH13): quy định về hợp đồng gia công (Điều 542 đến Điều 558).",
+    "Luật Thương mại 2005 (Luật số 36/2005/QH11): quy định về hoạt động gia công trong thương mại (Điều 178 đến Điều 184)."
+  ],
+  "fields": [
+    {
+      "key": "ten_bena",
+      "label": "Tên bên đặt gia công (Bên A)?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Tên đầy đủ công ty đặt gia công.",
+      "placeholder": "Công ty Cổ phần Thời trang A"
+    },
+    {
+      "key": "dia_chi_bena",
+      "label": "Địa chỉ bên A?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Địa chỉ trụ sở công ty bên A.",
+      "placeholder": "Số 1, đường X, TP HCM"
+    },
+    {
+      "key": "dai_dien_bena",
+      "label": "Người đại diện bên A?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Họ tên và chức vụ người ký bên A.",
+      "placeholder": "Nguyễn Văn A: Giám đốc"
+    },
+    {
+      "key": "ten_benb",
+      "label": "Tên bên nhận gia công (Bên B)?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Tên đầy đủ công ty hoặc xưởng nhận gia công.",
+      "placeholder": "Công ty TNHH May mặc B"
+    },
+    {
+      "key": "dia_chi_benb",
+      "label": "Địa chỉ bên B?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Địa chỉ trụ sở đăng ký kinh doanh bên B.",
+      "placeholder": "Số 2, đường Y, Hà Nội"
+    },
+    {
+      "key": "dai_dien_benb",
+      "label": "Người đại diện bên B?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Họ tên và chức vụ người ký bên B.",
+      "placeholder": "Trần Văn B: Giám đốc"
+    },
+    {
+      "key": "san_pham_gia_cong",
+      "label": "Tên sản phẩm và số lượng cần gia công?",
+      "section": "Nội dung gia công",
+      "tier": "required",
+      "type": "text",
+      "help": "Chi tiết loại sản phẩm, mã hàng và số lượng gia công.",
+      "placeholder": "Áo sơ mi nam, số lượng 5.000 sản phẩm"
+    },
+    {
+      "key": "don_gia_gia_cong",
+      "label": "Đơn giá thù lao gia công cho một sản phẩm (VND)?",
+      "section": "Giá và Thanh toán",
+      "tier": "required",
+      "type": "number",
+      "help": "Giá công gia công trên một đơn vị sản phẩm.",
+      "placeholder": "50000"
+    },
+    {
+      "key": "nguyen_vat_lieu",
+      "label": "Quy định về cung cấp nguyên vật liệu chính?",
+      "section": "Nguyên vật liệu",
+      "tier": "default",
+      "type": "select",
+      "help": "Bên nào chịu trách nhiệm cung cấp nguyên liệu chính.",
+      "options": [
+        "Bên A cung cấp toàn bộ nguyên vật liệu chính",
+        "Bên B cung cấp toàn bộ nguyên vật liệu chính",
+        "Bên A cung cấp 50%, Bên B cung cấp 50% nguyên vật liệu"
+      ],
+      "defaultText": "Bên A cung cấp toàn bộ nguyên vật liệu chính"
+    }
+  ],
+  "clauses": [
+    {
+      "heading": "ĐIỀU 1: NỘI DUNG VÀ SẢN PHẨM GIA CÔNG",
+      "text": "Bên A đặt gia công và Bên B nhận thực hiện gia công sản phẩm: {{san_pham_gia_cong}}. Chi tiết kỹ thuật, kích thước, quy chuẩn chất lượng được thực hiện theo bảng phụ lục tài liệu đính kèm hợp đồng."
+    },
+    {
+      "heading": "ĐIỀU 2: NGUYÊN VẬT LIỆU VÀ CUNG CẤP",
+      "text": "Trách nhiệm cung cấp nguyên vật liệu chính được quy định: {{nguyen_vat_lieu}}. Bên cung cấp cam kết nguyên vật liệu đạt tiêu chuẩn chất lượng sản xuất theo yêu cầu."
+    },
+    {
+      "heading": "ĐIỀU 3: THÙ LAO GIA CÔNG VÀ THANH TOÁN",
+      "text": "3.1. Đơn giá gia công trên một sản phẩm là: {{don_gia_gia_cong}} VND.\n3.2. Phương thức thanh toán: Bên A thanh toán thù lao gia công cho bên B sau khi nghiệm thu từng đợt giao nhận sản phẩm thành phẩm."
+    },
+    {
+      "heading": "ĐIỀU 4: KIỂM TRA CHẤT LƯỢNG VÀ NGHIỆM THU",
+      "text": "Bên A có quyền cử nhân sự đại diện kiểm tra tiến độ và chất lượng gia công tại xưởng của bên B bất kỳ lúc nào nhưng phải báo trước và không gây cản trở hoạt động sản xuất bình thường của bên B."
+    },
+    {
+      "heading": "ĐIỀU 5: TRÁCH NHIỆM DO VI PHẠM CHẤT LƯỢNG",
+      "text": "Nếu sản phẩm không đạt tiêu chuẩn kỹ thuật do lỗi của bên nhận gia công, bên B có nghĩa vụ sửa chữa hoặc làm lại sản phẩm mới đạt chất lượng trong thời hạn thỏa thuận, nếu không sửa chữa được phải bồi thường thiệt hại nguyên vật liệu cho bên A."
+    }
+  ],
+  "closing": "Hợp đồng này được lập thành 02 (hai) bản có giá trị pháp lý như nhau, mỗi bên giữ 01 (một) bản, có hiệu lực từ ngày ký.\n\nĐẠI DIỆN BÊN A (ký, ghi rõ họ tên, đóng dấu)        ĐẠI DIỆN BÊN B (ký, ghi rõ họ tên, đóng dấu)",
+  "lint": [],
+  "verifyNotes": [
+    "Quy định gia công thương mại theo Luật Thương mại 2005. Đảm bảo quy định rõ định mức tiêu hao nguyên vật liệu và tỷ lệ hao hụt để tránh tranh chấp khi thanh lý vật tư thừa."
+  ]
+}

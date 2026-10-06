@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { createSanitizingFetch, stripSseDoneTrailer } from "./llm-response-sanitizer.js";
+import { assembleSseToChatCompletion, createSanitizingFetch, stripSseDoneTrailer } from "./llm-response-sanitizer.js";
 
 // Body thật từ log lỗi 25/07: JSON hoàn chỉnh + đuôi SSE
 const BUGGY_JSON = JSON.stringify({
@@ -93,5 +93,65 @@ describe("createSanitizingFetch", () => {
     const res = await fetchFn("https://router.test", { method: "POST", body: "{}" });
     assert.equal(res, original);
     assert.equal(res.status, 502);
+  });
+
+  it("response SSE stream cho request non-streaming được gom thành JSON chuẩn", async () => {
+    const sseBody = [
+      'data: {"id":"chatcmpl-123","model":"smart-pool","choices":[{"index":0,"delta":{"role":"assistant"},"finish_reason":null}]}',
+      'data: {"id":"chatcmpl-123","model":"smart-pool","choices":[{"index":0,"delta":{"content":"Chào bạn, "},"finish_reason":null}]}',
+      'data: {"id":"chatcmpl-123","model":"smart-pool","choices":[{"index":0,"delta":{"content":"tôi là bot."},"finish_reason":null}]}',
+      'data: {"id":"chatcmpl-123","model":"smart-pool","choices":[{"index":0,"delta":{},"finish_reason":"stop"}],"usage":{"prompt_tokens":10,"completion_tokens":5,"total_tokens":15}}',
+      'data: [DONE]',
+      '',
+    ].join("\n");
+
+    let sanitized = 0;
+    const fetchFn = createSanitizingFetch({
+      baseFetch: async () =>
+        new Response(sseBody, {
+          status: 200,
+          headers: { "content-type": "text/event-stream" },
+        }),
+      onSanitized: () => sanitized++,
+    });
+
+    const res = await fetchFn("https://router.test/v1/chat/completions", {
+      method: "POST",
+      body: JSON.stringify({ model: "smart-pool", messages: [{ role: "user", content: "Hi" }] }),
+    });
+
+    assert.equal(sanitized, 1);
+    assert.equal(res.headers.get("content-type"), "application/json; charset=utf-8");
+    const parsed = (await res.json()) as {
+      id: string;
+      choices: Array<{ message: { role: string; content: string }; finish_reason: string }>;
+      usage: { total_tokens: number };
+    };
+    assert.equal(parsed.id, "chatcmpl-123");
+    assert.equal(parsed.choices[0]!.message.content, "Chào bạn, tôi là bot.");
+    assert.equal(parsed.choices[0]!.finish_reason, "stop");
+    assert.equal(parsed.usage.total_tokens, 15);
+  });
+});
+
+describe("assembleSseToChatCompletion", () => {
+  it("trả về null nếu body không bắt đầu bằng data:", () => {
+    assert.equal(assembleSseToChatCompletion("hello world"), null);
+  });
+
+  it("gom các chunk delta và tool_calls chính xác", () => {
+    const sse = [
+      'data: {"id":"tc-1","model":"m","choices":[{"index":0,"delta":{"tool_calls":[{"index":0,"id":"call_1","type":"function","function":{"name":"search","arguments":"{\\"q\\": "}}]}}]}',
+      'data: {"id":"tc-1","model":"m","choices":[{"index":0,"delta":{"tool_calls":[{"index":0,"function":{"arguments":"\\"dalat\\"}"}}]}}]}',
+      'data: {"id":"tc-1","model":"m","choices":[{"index":0,"delta":{},"finish_reason":"tool_calls"}]}',
+      'data: [DONE]',
+    ].join("\n");
+
+    const jsonStr = assembleSseToChatCompletion(sse);
+    assert.notEqual(jsonStr, null);
+    const parsed = JSON.parse(jsonStr!);
+    assert.equal(parsed.choices[0].finish_reason, "tool_calls");
+    assert.equal(parsed.choices[0].message.tool_calls[0].function.name, "search");
+    assert.equal(parsed.choices[0].message.tool_calls[0].function.arguments, '{"q": "dalat"}');
   });
 });

@@ -1,0 +1,109 @@
+{
+  "id": "thoa_thuan_co_dong",
+  "name": "Thỏa thuận cổ đông sáng lập",
+  "group": "Cá nhân ↔ Cá nhân / Doanh nghiệp",
+  "icon": "👥",
+  "title": "THỎA THUẬN CỔ ĐÔNG SÁNG LẬP",
+  "summary": "Thỏa thuận cổ đông sáng lập điều chỉnh các cam kết về tỷ lệ sở hữu, quyền biểu quyết, hạn chế chuyển nhượng cổ phần, cơ chế giải quyết bế tắc và quản trị nội bộ trong công ty cổ phần theo Luật Doanh nghiệp 2020.",
+  "parties": {
+    "a": "Cổ đông sáng lập A",
+    "b": "Cổ đông sáng lập B"
+  },
+  "preamble": "Căn cứ Bộ luật Dân sự số 91/2015/QH13;\nCăn cứ Luật Doanh nghiệp số 59/2020/QH14;\nCăn cứ nhu cầu thống nhất quản trị doanh nghiệp của các bên;\nHôm nay, ngày {{ngay_ky}}, tại {{dia_diem_ky}}, chúng tôi gồm:\n- CỔ ĐÔNG A: {{ten_bena}}, địa chỉ: {{dia_chi_bena}}, sở hữu {{co_phan_bena}}% cổ phần.\n- CỔ ĐÔNG B: {{ten_benb}}, địa chỉ: {{dia_chi_benb}}, sở hữu {{co_phan_benb}}% cổ phần.\nHai bên thống nhất ký kết thỏa thuận cổ đông với các điều khoản sau:",
+  "legalBasis": [
+    "Bộ luật Dân sự 2015 (Luật số 91/2015/QH13): quy định chung về thỏa thuận hợp đồng.",
+    "Luật Doanh nghiệp 2020 (Luật số 59/2020/QH14): quy định về quyền và nghĩa vụ của cổ đông sáng lập (Điều 115 đến Điều 120), hạn chế chuyển nhượng cổ phần sáng lập (khoản 3 Điều 120)."
+  ],
+  "fields": [
+    {
+      "key": "ten_bena",
+      "label": "Tên cổ đông A?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Họ tên đầy đủ cổ đông sáng lập A.",
+      "placeholder": "Nguyễn Văn A"
+    },
+    {
+      "key": "dia_chi_bena",
+      "label": "Địa chỉ cổ đông A?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Địa chỉ thường trú cổ đông A.",
+      "placeholder": "Số 1, đường X, TP HCM"
+    },
+    {
+      "key": "co_phan_bena",
+      "label": "Tỷ lệ sở hữu cổ phần của cổ đông A (%)?",
+      "section": "Sở hữu cổ phần",
+      "tier": "required",
+      "type": "number",
+      "help": "Tỷ lệ phần trăm nắm giữ cổ phần.",
+      "placeholder": "60"
+    },
+    {
+      "key": "ten_benb",
+      "label": "Tên cổ đông B?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Họ tên đầy đủ cổ đông sáng lập B.",
+      "placeholder": "Trần Thị B"
+    },
+    {
+      "key": "dia_chi_benb",
+      "label": "Địa chỉ cổ đông B?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Địa chỉ thường trú cổ đông B.",
+      "placeholder": "Số 2, đường Y, Hà Nội"
+    },
+    {
+      "key": "co_phan_benb",
+      "label": "Tỷ lệ sở hữu cổ phần của cổ đông B (%)?",
+      "section": "Sở hữu cổ phần",
+      "tier": "required",
+      "type": "number",
+      "help": "Tỷ lệ phần trăm nắm giữ cổ phần.",
+      "placeholder": "40"
+    },
+    {
+      "key": "cam_ket_phat_trien",
+      "label": "Cam kết phát triển của cổ đông sáng lập?",
+      "section": "Cam kết trách nhiệm",
+      "tier": "required",
+      "type": "text",
+      "help": "Mô tả vai trò và nhiệm vụ cốt lõi của các bên.",
+      "placeholder": "Bên A chịu trách nhiệm điều hành kinh doanh, Bên B phụ trách công nghệ kỹ thuật"
+    }
+  ],
+  "clauses": [
+    {
+      "heading": "ĐIỀU 1: TỶ LỆ SỞ HỮU CỔ PHẦN VÀ VỐN ĐIỀU LỆ",
+      "text": "Các bên xác nhận tỷ lệ sở hữu cổ phần sáng lập trong doanh nghiệp như sau: Cổ đông A nắm giữ {{co_phan_bena}}% cổ phần, Cổ đông B nắm giữ {{co_phan_benb}}% cổ phần. Mọi thay đổi về tăng giảm vốn điều lệ phải được sự đồng ý của cả hai bên."
+    },
+    {
+      "heading": "ĐIỀU 2: PHÂN CÔNG VAI TRÒ VÀ NHIỆM VỤ",
+      "text": "Các cổ đông sáng lập phân công vai trò và trách nhiệm hoạt động cụ thể: {{cam_ket_phat_trien}}. Các bên cam kết nỗ lực hết mình vì lợi ích chung của doanh nghiệp."
+    },
+    {
+      "heading": "ĐIỀU 3: HẠN CHẾ CHUYỂN NHƯỢNG CỔ PHẦN",
+      "text": "Trong thời hạn 03 năm kể từ ngày thành lập công ty, cổ phần phổ thông của cổ đông sáng lập chỉ được chuyển nhượng cho người không phải là cổ đông sáng lập nếu được sự chấp thuận của Đại hội đồng cổ đông theo đúng quy định tại khoản 3 Điều 120 Luật Doanh nghiệp 2020."
+    },
+    {
+      "heading": "ĐIỀU 4: CƠ CHẾ GIẢI QUYẾT BẾ TẮC",
+      "text": "Khi phát sinh bất đồng hoặc bế tắc trong biểu quyết giữa các cổ đông sáng lập mà không thể hòa giải được, các bên thống nhất ưu tiên mua lại phần vốn góp của nhau dựa trên giá trị thẩm định độc lập hoặc tiến hành giải thể công ty nếu bế tắc kéo dài quá 06 tháng."
+    },
+    {
+      "heading": "ĐIỀU 5: ĐIỀU KHOẢN KHÔNG CẠNH TRANH",
+      "text": "Cổ đông sáng lập cam kết không tham gia trực tiếp hoặc gián tiếp, không góp vốn hoặc làm việc cho bất kỳ doanh nghiệp nào khác có hoạt động cạnh tranh trực tiếp với lĩnh vực kinh doanh chính của công ty trong thời gian là cổ đông và trong vòng 02 năm sau khi thoái vốn."
+    }
+  ],
+  "closing": "Thỏa thuận này được lập thành 02 (hai) bản có giá trị pháp lý như nhau, mỗi bên giữ 01 (một) bản, có hiệu lực từ ngày ký.\n\nCỔ ĐÔNG SÁNG LẬP A (ký, ghi rõ họ tên)        CỔ ĐÔNG SÁNG LẬP B (ký, ghi rõ họ tên)",
+  "lint": [],
+  "verifyNotes": [
+    "Thỏa thuận cổ đông sáng lập giúp điều chỉnh sâu các vấn đề ngoài Điều lệ công ty. Hạn chế chuyển nhượng 3 năm quy định tại khoản 3 Điều 120 Luật Doanh nghiệp 2020 phải được tuân thủ nghiêm ngặt."
+  ]
+}

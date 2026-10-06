@@ -11,6 +11,98 @@
 const SSE_DONE_TRAILER = /(?:\s*data:\s*\[DONE\]\s*)+$/;
 
 /**
+ * Chuyển một luồng SSE (`data: {...}\n\ndata: [DONE]`) thành JSON hoàn chỉnh
+ * của OpenAI Chat Completion (`chat.completion`), khi router upstream trả về
+ * stream SSE dù request của client là non-streaming (`stream: false`).
+ */
+export function assembleSseToChatCompletion(sseText: string): string | null {
+  const trimmed = sseText.trim();
+  if (!trimmed.startsWith("data:")) return null;
+
+  const lines = sseText.split(/\r?\n/);
+  let id = "";
+  let model = "";
+  let created = Math.floor(Date.now() / 1000);
+  let content = "";
+  let reasoning = "";
+  let finishReason = "stop";
+  let usage: unknown = null;
+  const toolCallsMap = new Map<number, { id: string; type: string; function: { name: string; arguments: string } }>();
+
+  let hasValidChunk = false;
+
+  for (const line of lines) {
+    const l = line.trim();
+    if (!l.startsWith("data:")) continue;
+    const dataStr = l.slice(5).trim();
+    if (!dataStr || dataStr === "[DONE]") continue;
+
+    try {
+      const chunk = JSON.parse(dataStr);
+      hasValidChunk = true;
+      if (chunk.id) id = chunk.id;
+      if (chunk.model) model = chunk.model;
+      if (chunk.created) created = chunk.created;
+      if (chunk.usage) usage = chunk.usage;
+
+      const choice = chunk.choices?.[0];
+      if (choice) {
+        if (choice.finish_reason) finishReason = choice.finish_reason;
+        const delta = choice.delta;
+        if (delta) {
+          if (delta.content) content += delta.content;
+          if (delta.reasoning_content) reasoning += delta.reasoning_content;
+          if (delta.tool_calls) {
+            for (const tc of delta.tool_calls) {
+              const idx = tc.index ?? 0;
+              const existing = toolCallsMap.get(idx) || {
+                id: tc.id || "",
+                type: tc.type || "function",
+                function: { name: "", arguments: "" },
+              };
+              if (tc.id) existing.id = tc.id;
+              if (tc.function?.name) existing.function.name += tc.function.name;
+              if (tc.function?.arguments) existing.function.arguments += tc.function.arguments;
+              toolCallsMap.set(idx, existing);
+            }
+          }
+        }
+      }
+    } catch {
+      // Bỏ qua dòng json lỗi
+    }
+  }
+
+  if (!hasValidChunk) return null;
+
+  const message: Record<string, unknown> = {
+    role: "assistant",
+    content: content || null,
+  };
+  if (reasoning) {
+    message.reasoning_content = reasoning;
+  }
+  if (toolCallsMap.size > 0) {
+    message.tool_calls = Array.from(toolCallsMap.values());
+  }
+
+  return JSON.stringify({
+    id: id || `chatcmpl-${Date.now()}`,
+    object: "chat.completion",
+    created,
+    model: model || "unknown",
+    choices: [
+      {
+        index: 0,
+        message,
+        finish_reason: finishReason,
+      },
+    ],
+    ...(usage ? { usage } : {}),
+  });
+}
+
+/**
  * Cắt đuôi `data: [DONE]` nếu phần còn lại là JSON object hoàn chỉnh.
  * Trả về body đã làm sạch, hoặc null nếu body không khớp đúng ca lỗi này
  * (không có đuôi, hoặc phần còn lại không phải JSON - vd stream SSE thật).
@@ -39,9 +131,9 @@ export type SanitizingFetchOptions = {
 };
 
 /**
- * Bọc fetch cho AI SDK provider: response non-streaming nào dính đuôi SSE thì
- * cắt sạch rồi trả về như JSON bình thường. Response streaming thật (request
- * có "stream":true) không bị đụng tới - đọc body ở đây sẽ phá stream.
+ * Bọc fetch cho AI SDK provider: response non-streaming nào dính đuôi SSE hoặc
+ * bị router trả nhầm định dạng SSE stream thì chuyển đổi sạch thành JSON chuẩn.
+ * Response streaming thật (request có "stream":true) không bị đụng tới - đọc body ở đây sẽ phá stream.
  */
 export function createSanitizingFetch(options: SanitizingFetchOptions = {}): typeof globalThis.fetch {
   const baseFetch = options.baseFetch ?? globalThis.fetch;
@@ -52,7 +144,10 @@ export function createSanitizingFetch(options: SanitizingFetchOptions = {}): typ
     if (typeof init?.body === "string" && /"stream"\s*:\s*true/.test(init.body)) return res;
 
     const text = await res.text();
-    const cleaned = stripSseDoneTrailer(text);
+    let cleaned = stripSseDoneTrailer(text);
+    if (cleaned === null && text.trim().startsWith("data:")) {
+      cleaned = assembleSseToChatCompletion(text);
+    }
 
     // Body đã bị đọc nên phải dựng lại Response dù có sửa hay không.
     // Xóa content-length/content-encoding: undici đã giải nén sẵn, giữ header

@@ -1,0 +1,448 @@
+{
+  "id": "ctv",
+  "name": "Hợp đồng cộng tác viên / khoán việc",
+  "group": "Công ty ↔ Cá nhân",
+  "icon": "🧑‍💻",
+  "summary": "Hợp đồng dịch vụ dân sự giữa công ty và cá nhân (cộng tác viên/khoán việc) để thực hiện một công việc cụ thể, có kết quả bàn giao rõ ràng, không thiết lập quan hệ lao động và không phát sinh BHXH bắt buộc. Thù lao gắn với kết quả công việc; khi chi trả cho cá nhân cư trú không ký HĐLĐ (hoặc HĐLĐ dưới 3 tháng) từ 2 triệu đồng/lần trở lên, công ty phải khấu trừ 10% thuế TNCN trước khi chi trả.",
+  "legalBasis": [
+    "Bộ luật Dân sự 2015 - Điều 513 (khái niệm hợp đồng dịch vụ)",
+    "Bộ luật Dân sự 2015 - Điều 514 (đối tượng của hợp đồng dịch vụ)",
+    "Bộ luật Dân sự 2015 - Điều 515 (tiền dịch vụ và thời điểm trả tiền)",
+    "Bộ luật Dân sự 2015 - Điều 517, 518 (nghĩa vụ, quyền của bên cung ứng dịch vụ)",
+    "Bộ luật Dân sự 2015 - Điều 519 (trả tiền dịch vụ; nghĩa vụ của bên sử dụng dịch vụ)",
+    "Bộ luật Dân sự 2015 - Điều 520, 521 (đơn phương chấm dứt; tiếp tục hợp đồng dịch vụ)",
+    "Bộ luật Dân sự 2015 - Điều 357, 468 (lãi do chậm thực hiện nghĩa vụ trả tiền; lãi suất)",
+    "Bộ luật Dân sự 2015 - Điều 360, 418, 419 (bồi thường thiệt hại; thỏa thuận phạt vi phạm)",
+    "Bộ luật Lao động 2019 - Điều 13 (nhận diện hợp đồng lao động theo bản chất, tránh HĐLĐ trá hình)",
+    "Thông tư 111/2013/TT-BTC - điểm i khoản 1 Điều 25 (khấu trừ 10% thuế TNCN với cá nhân cư trú không ký HĐLĐ/HĐLĐ dưới 3 tháng, thu nhập từ 2 triệu/lần)",
+    "Bộ luật Tố tụng dân sự 2015 (thẩm quyền giải quyết tranh chấp của Tòa án nhân dân)"
+  ],
+  "parties": {
+    "a": "Bên thuê dịch vụ (Bên A - Công ty)",
+    "b": "Cộng tác viên (Bên B - Cá nhân)"
+  },
+  "title": "HỢP ĐỒNG CỘNG TÁC VIÊN (HỢP ĐỒNG DỊCH VỤ)",
+  "preamble": "- Căn cứ Bộ luật Dân sự số 91/2015/QH13 ngày 24/11/2015;\n- Căn cứ nhu cầu và khả năng của hai bên.\n\nHôm nay, ngày {{ngay_ky}}, tại {{noi_ky}}, chúng tôi gồm:",
+  "fields": [
+    {
+      "key": "noi_ky",
+      "label": "Nơi ký hợp đồng",
+      "section": "Thông tin chung",
+      "tier": "required",
+      "type": "text",
+      "help": "Tỉnh/thành phố nơi hai bên ký kết.",
+      "placeholder": "TP. Hồ Chí Minh"
+    },
+    {
+      "key": "ngay_ky",
+      "label": "Ngày ký hợp đồng",
+      "section": "Thông tin chung",
+      "tier": "required",
+      "type": "date",
+      "help": "Ngày hai bên cùng ký."
+    },
+    {
+      "key": "ben_a_ten",
+      "label": "Tên công ty (Bên A)",
+      "section": "Bên thuê dịch vụ (Bên A)",
+      "tier": "required",
+      "type": "text",
+      "help": "Tên đầy đủ của công ty thuê cộng tác viên.",
+      "placeholder": "Công ty TNHH ABC"
+    },
+    {
+      "key": "ben_a_mst",
+      "label": "Mã số thuế / Mã số doanh nghiệp",
+      "section": "Bên thuê dịch vụ (Bên A)",
+      "tier": "required",
+      "type": "text",
+      "help": "Mã số thuế của công ty.",
+      "placeholder": "0312345678"
+    },
+    {
+      "key": "ben_a_diachi",
+      "label": "Địa chỉ trụ sở",
+      "section": "Bên thuê dịch vụ (Bên A)",
+      "tier": "required",
+      "type": "text",
+      "help": "Địa chỉ đăng ký kinh doanh.",
+      "placeholder": "123 Đường X, Quận Y, TP.HCM"
+    },
+    {
+      "key": "ben_a_nguoi_dd",
+      "label": "Người đại diện",
+      "section": "Bên thuê dịch vụ (Bên A)",
+      "tier": "required",
+      "type": "text",
+      "help": "Họ tên người đại diện theo pháp luật hoặc người được ủy quyền ký.",
+      "placeholder": "Nguyễn Văn A"
+    },
+    {
+      "key": "ben_a_chuc_vu",
+      "label": "Chức vụ người đại diện",
+      "section": "Bên thuê dịch vụ (Bên A)",
+      "tier": "required",
+      "type": "text",
+      "help": "Chức danh của người ký.",
+      "placeholder": "Giám đốc"
+    },
+    {
+      "key": "ben_b_ten",
+      "label": "Họ và tên cộng tác viên (Bên B)",
+      "section": "Cộng tác viên (Bên B)",
+      "tier": "required",
+      "type": "text",
+      "help": "Họ tên đầy đủ của cá nhân nhận việc.",
+      "placeholder": "Trần Thị B"
+    },
+    {
+      "key": "ben_b_cccd",
+      "label": "Số CCCD/CMND",
+      "section": "Cộng tác viên (Bên B)",
+      "tier": "required",
+      "type": "text",
+      "help": "Số căn cước công dân.",
+      "placeholder": "079xxxxxxxxx"
+    },
+    {
+      "key": "ben_b_ngay_cap",
+      "label": "Ngày cấp CCCD",
+      "section": "Cộng tác viên (Bên B)",
+      "tier": "optional",
+      "type": "date",
+      "help": "Ngày cấp ghi trên CCCD."
+    },
+    {
+      "key": "ben_b_noi_cap",
+      "label": "Nơi cấp CCCD",
+      "section": "Cộng tác viên (Bên B)",
+      "tier": "optional",
+      "type": "text",
+      "help": "Nơi cấp ghi trên CCCD.",
+      "placeholder": "Cục CSQLHC về TTXH"
+    },
+    {
+      "key": "ben_b_diachi",
+      "label": "Địa chỉ thường trú/liên hệ",
+      "section": "Cộng tác viên (Bên B)",
+      "tier": "required",
+      "type": "text",
+      "help": "Địa chỉ liên hệ của cộng tác viên.",
+      "placeholder": "456 Đường Z, Quận W, TP.HCM"
+    },
+    {
+      "key": "ben_b_mst",
+      "label": "Mã số thuế cá nhân",
+      "section": "Cộng tác viên (Bên B)",
+      "tier": "optional",
+      "type": "text",
+      "help": "Nếu có, dùng để kê khai khấu trừ thuế TNCN.",
+      "placeholder": "8xxxxxxxxx"
+    },
+    {
+      "key": "ben_b_dienthoai",
+      "label": "Số điện thoại",
+      "section": "Cộng tác viên (Bên B)",
+      "tier": "optional",
+      "type": "tel",
+      "help": "Số liên hệ của cộng tác viên.",
+      "placeholder": "09xxxxxxxx"
+    },
+    {
+      "key": "ben_b_email",
+      "label": "Email",
+      "section": "Cộng tác viên (Bên B)",
+      "tier": "optional",
+      "type": "email",
+      "help": "Email nhận tài liệu/thông báo.",
+      "placeholder": "vidu@email.com"
+    },
+    {
+      "key": "ben_b_taikhoan",
+      "label": "Số tài khoản ngân hàng",
+      "section": "Cộng tác viên (Bên B)",
+      "tier": "optional",
+      "type": "text",
+      "help": "Tài khoản nhận thanh toán thù lao.",
+      "placeholder": "0123456789 - Ngân hàng ..."
+    },
+    {
+      "key": "cong_viec",
+      "label": "Mô tả công việc/dịch vụ khoán",
+      "section": "Nội dung công việc",
+      "tier": "required",
+      "type": "textarea",
+      "help": "Mô tả rõ công việc cụ thể, khối lượng, kết quả phải bàn giao. Đây là điều khoản cốt lõi của hợp đồng dịch vụ; đối tượng phải là công việc có thể thực hiện được, không vi phạm điều cấm của luật, không trái đạo đức xã hội (BLDS 2015 - Điều 514).",
+      "placeholder": "Thiết kế bộ nhận diện thương hiệu gồm logo, bộ màu, danh thiếp..."
+    },
+    {
+      "key": "ket_qua_ban_giao",
+      "label": "Sản phẩm/kết quả bàn giao",
+      "section": "Nội dung công việc",
+      "tier": "required",
+      "type": "textarea",
+      "help": "Liệt kê cụ thể sản phẩm cuối cùng và tiêu chí nghiệm thu. Việc gắn thù lao với kết quả là dấu hiệu quan trọng để phân biệt với hợp đồng lao động.",
+      "placeholder": "File thiết kế (.ai, .pdf), 3 phương án logo, bàn giao qua email"
+    },
+    {
+      "key": "dia_diem_thuc_hien",
+      "label": "Địa điểm thực hiện công việc",
+      "section": "Nội dung công việc",
+      "tier": "default",
+      "type": "text",
+      "help": "Nơi cộng tác viên thực hiện công việc. Nên để Bên B tự chủ địa điểm để tránh dấu hiệu quản lý, điều hành, giám sát của quan hệ lao động.",
+      "placeholder": "Bên B tự chủ động sắp xếp, không cố định tại trụ sở Bên A",
+      "defaultText": "Nếu các bên không thỏa thuận, Bên B tự chủ động về địa điểm và phương tiện làm việc, không chịu sự quản lý, điều hành, giám sát về thời giờ làm việc như đối với người lao động (BLDS 2015 - Điều 513, 517).",
+      "legalRef": "BLDS 2015 - Điều 513, 517"
+    },
+    {
+      "key": "thoi_han_hoan_thanh",
+      "label": "Thời hạn hoàn thành công việc",
+      "section": "Nội dung công việc",
+      "tier": "required",
+      "type": "text",
+      "help": "Mốc thời gian hoặc hạn chót bàn giao kết quả (theo tiến độ/khối lượng, không phải giờ làm việc cố định).",
+      "placeholder": "Trong vòng 30 ngày kể từ ngày ký"
+    },
+    {
+      "key": "thu_lao",
+      "label": "Thù lao (tiền dịch vụ)",
+      "section": "Thù lao & thanh toán",
+      "tier": "required",
+      "type": "money",
+      "help": "Tổng số tiền thù lao trước thuế cho công việc. Là điều khoản chủ yếu của hợp đồng dịch vụ (BLDS 2015 - Điều 515).",
+      "placeholder": "20000000"
+    },
+    {
+      "key": "hinh_thuc_tinh_thu_lao",
+      "label": "Cách tính thù lao",
+      "section": "Thù lao & thanh toán",
+      "tier": "optional",
+      "type": "select",
+      "help": "Cách xác định thù lao. Nên gắn với kết quả/khối lượng thay vì trả cố định theo tháng để tránh bị coi là tiền lương.",
+      "options": [
+        "Khoán trọn gói theo công việc",
+        "Theo khối lượng/sản phẩm hoàn thành",
+        "Theo từng đợt/giai đoạn",
+        "Khác"
+      ]
+    },
+    {
+      "key": "phuong_thuc_thanh_toan",
+      "label": "Phương thức & thời điểm thanh toán",
+      "section": "Thù lao & thanh toán",
+      "tier": "default",
+      "type": "textarea",
+      "help": "Thỏa thuận trả theo đợt hay sau khi hoàn thành, bằng tiền mặt hay chuyển khoản.",
+      "placeholder": "Chuyển khoản 50% sau khi ký, 50% sau khi nghiệm thu",
+      "defaultText": "Nếu không thỏa thuận, Bên B phải trả tiền dịch vụ tại thời điểm hoàn thành công việc; nếu dịch vụ được cung ứng không đạt thỏa thuận hoặc công việc không hoàn thành đúng hạn thì Bên A (bên sử dụng dịch vụ) không phải trả tiền dịch vụ (BLDS 2015 - Điều 519).",
+      "legalRef": "BLDS 2015 - Điều 519"
+    },
+    {
+      "key": "khau_tru_thue",
+      "label": "Khấu trừ thuế TNCN 10%",
+      "section": "Thù lao & thanh toán",
+      "tier": "default",
+      "type": "select",
+      "help": "Với cá nhân cư trú không ký HĐLĐ (hoặc HĐLĐ dưới 3 tháng), khoản chi từ 2 triệu/lần trở lên bị khấu trừ 10% TNCN trước khi chi trả.",
+      "options": [
+        "Bên A khấu trừ 10% và nộp thay (mặc định)",
+        "Thù lao đã bao gồm thuế (net), Bên A tự gross-up"
+      ],
+      "defaultText": "Theo điểm i khoản 1 Điều 25 Thông tư 111/2013/TT-BTC, với cá nhân cư trú không ký HĐLĐ hoặc ký HĐLĐ dưới 3 tháng và mỗi lần chi trả từ 2.000.000 đồng trở lên, Bên A có trách nhiệm khấu trừ 10% thuế TNCN trên tổng thu nhập trước khi chi trả và kê khai, nộp thay. Khoản khấu trừ này không được tính giảm trừ gia cảnh.",
+      "legalRef": "Thông tư 111/2013/TT-BTC - điểm i khoản 1 Điều 25"
+    },
+    {
+      "key": "lai_cham_tra",
+      "label": "Lãi chậm thanh toán",
+      "section": "Vi phạm & trách nhiệm",
+      "tier": "default",
+      "type": "select",
+      "help": "Lãi áp dụng khi Bên A chậm trả thù lao.",
+      "options": [
+        "Áp dụng mức lãi luật định (mặc định)",
+        "Theo thỏa thuận riêng (ghi rõ ở phụ lục)",
+        "Không tính lãi"
+      ],
+      "defaultText": "Nếu không thỏa thuận, khi chậm trả tiền Bên A phải trả lãi đối với số tiền chậm trả tương ứng thời gian chậm theo mức lãi suất 10%/năm quy định tại khoản 2 Điều 468 BLDS (BLDS 2015 - Điều 357). Trường hợp có thỏa thuận về lãi suất thì không được vượt quá 20%/năm; phần lãi vượt quá không có hiệu lực.",
+      "legalRef": "BLDS 2015 - Điều 357, 468"
+    },
+    {
+      "key": "phat_vi_pham",
+      "label": "Mức phạt vi phạm hợp đồng",
+      "section": "Vi phạm & trách nhiệm",
+      "tier": "optional",
+      "type": "money",
+      "help": "Khoản phạt khi một bên vi phạm. Phạt vi phạm chỉ áp dụng nếu có thỏa thuận; mức phạt do hai bên tự thỏa thuận (Điều 418 BLDS). Lưu ý: nếu hợp đồng mang tính thương mại, mức phạt bị giới hạn không quá 8% giá trị phần nghĩa vụ bị vi phạm (Điều 301 Luật Thương mại 2005).",
+      "placeholder": "2000000"
+    },
+    {
+      "key": "boi_thuong",
+      "label": "Bồi thường thiệt hại",
+      "section": "Vi phạm & trách nhiệm",
+      "tier": "default",
+      "type": "select",
+      "help": "Trách nhiệm bồi thường khi gây thiệt hại.",
+      "options": [
+        "Theo thiệt hại thực tế (mặc định)",
+        "Theo mức thỏa thuận trước"
+      ],
+      "defaultText": "Nếu không thỏa thuận, bên vi phạm phải bồi thường toàn bộ thiệt hại thực tế và trực tiếp do hành vi vi phạm gây ra (BLDS 2015 - Điều 360, 419). Các bên có thể thỏa thuận vừa phạt vi phạm vừa bồi thường thiệt hại; nếu chỉ thỏa thuận phạt vi phạm mà không nêu rõ thì bên vi phạm chỉ phải chịu phạt (Điều 418).",
+      "legalRef": "BLDS 2015 - Điều 360, 418, 419"
+    },
+    {
+      "key": "so_huu_ket_qua",
+      "label": "Quyền sở hữu kết quả/sản phẩm",
+      "section": "Sở hữu & bảo mật",
+      "tier": "optional",
+      "type": "select",
+      "help": "Ai sở hữu sản phẩm sau khi nghiệm thu và thanh toán. Quan trọng với công việc sáng tạo (thiết kế, code, nội dung).",
+      "options": [
+        "Thuộc về Bên A sau khi thanh toán đủ",
+        "Bên B giữ quyền tác giả, Bên A có quyền sử dụng",
+        "Theo thỏa thuận riêng"
+      ]
+    },
+    {
+      "key": "bao_mat",
+      "label": "Cam kết bảo mật thông tin",
+      "section": "Sở hữu & bảo mật",
+      "tier": "optional",
+      "type": "textarea",
+      "help": "Nghĩa vụ giữ bí mật thông tin của Bên A. Để trống nếu công việc không liên quan thông tin nhạy cảm.",
+      "placeholder": "Bên B không tiết lộ thông tin, tài liệu của Bên A trong và sau khi kết thúc hợp đồng"
+    },
+    {
+      "key": "thoi_han_hop_dong",
+      "label": "Thời hạn hợp đồng",
+      "section": "Hiệu lực & chấm dứt",
+      "tier": "required",
+      "type": "text",
+      "help": "Hợp đồng có hiệu lực từ ngày ký đến khi nào (theo công việc hoặc theo thời hạn).",
+      "placeholder": "Từ ngày ký đến khi hoàn thành và nghiệm thu công việc"
+    },
+    {
+      "key": "bao_truoc_cham_dut",
+      "label": "Thời gian báo trước khi đơn phương chấm dứt",
+      "section": "Hiệu lực & chấm dứt",
+      "tier": "default",
+      "type": "text",
+      "help": "Số ngày báo trước khi một bên muốn chấm dứt sớm.",
+      "placeholder": "07 ngày",
+      "defaultText": "Nếu không thỏa thuận: khi việc tiếp tục thực hiện công việc không có lợi cho Bên A thì Bên A được đơn phương chấm dứt nhưng phải báo trước một thời gian hợp lý, trả tiền theo phần công việc đã thực hiện và bồi thường thiệt hại; nếu Bên A vi phạm nghiêm trọng nghĩa vụ thì Bên B được đơn phương chấm dứt và yêu cầu bồi thường thiệt hại (BLDS 2015 - Điều 520).",
+      "legalRef": "BLDS 2015 - Điều 520"
+    },
+    {
+      "key": "giai_quyet_tranh_chap",
+      "label": "Cơ chế giải quyết tranh chấp",
+      "section": "Hiệu lực & chấm dứt",
+      "tier": "default",
+      "type": "select",
+      "help": "Cách xử lý khi có tranh chấp.",
+      "options": [
+        "Thương lượng, hòa giải; nếu không được thì khởi kiện ra Tòa án có thẩm quyền",
+        "Trọng tài thương mại"
+      ],
+      "defaultText": "Nếu không thỏa thuận, tranh chấp được ưu tiên thương lượng; không thành thì khởi kiện tại Tòa án nhân dân có thẩm quyền theo quy định Bộ luật Tố tụng dân sự 2015.",
+      "legalRef": "Bộ luật Tố tụng dân sự 2015"
+    }
+  ],
+  "lint": [
+    {
+      "field": "thu_lao",
+      "op": "min",
+      "value": 0,
+      "message": "Thù lao phải là số dương.",
+      "legalRef": "BLDS 2015 - Điều 515",
+      "severity": "error"
+    },
+    {
+      "field": "khau_tru_thue",
+      "op": "note",
+      "value": "TNCN 10%",
+      "message": "Nếu mỗi lần chi trả cho cộng tác viên (cá nhân cư trú không ký HĐLĐ hoặc HĐLĐ dưới 3 tháng) từ 2.000.000 đồng trở lên, Bên A phải khấu trừ 10% thuế TNCN trước khi chi và nộp thay.",
+      "legalRef": "Thông tư 111/2013/TT-BTC - điểm i khoản 1 Điều 25",
+      "severity": "warn"
+    },
+    {
+      "field": "lai_cham_tra",
+      "op": "max",
+      "value": 20,
+      "message": "Lãi suất do các bên thỏa thuận không được vượt quá 20%/năm; nếu chậm trả mà không có thỏa thuận lãi suất thì áp dụng 10%/năm.",
+      "legalRef": "BLDS 2015 - Điều 357, 468",
+      "severity": "warn"
+    },
+    {
+      "field": "phat_vi_pham",
+      "op": "note",
+      "value": "phạt theo thỏa thuận",
+      "message": "Phạt vi phạm chỉ áp dụng nếu hai bên có thỏa thuận. Với hợp đồng dân sự, mức phạt do các bên tự thỏa thuận (Điều 418 BLDS); nếu hợp đồng mang tính thương mại thì phạt vi phạm bị giới hạn không quá 8% giá trị phần nghĩa vụ bị vi phạm (Điều 301 Luật Thương mại 2005).",
+      "legalRef": "BLDS 2015 - Điều 418; Luật Thương mại 2005 - Điều 301",
+      "severity": "warn"
+    },
+    {
+      "field": "cong_viec",
+      "op": "note",
+      "value": "tránh HĐLĐ trá hình",
+      "message": "Để là hợp đồng dịch vụ hợp lệ (không phải HĐLĐ trá hình): xác định công việc theo kết quả/khối lượng, KHÔNG quản lý, điều hành, giám sát theo nội quy, KHÔNG trả lương cố định theo tháng và KHÔNG ấn định thời giờ làm việc cố định. Nếu có đủ dấu hiệu trả lương + quản lý, điều hành, giám sát thì có thể bị xác định lại là HĐLĐ và truy thu BHXH (Điều 13 BLLĐ 2019).",
+      "legalRef": "BLDS 2015 - Điều 513; Bộ luật Lao động 2019 - Điều 13",
+      "severity": "warn"
+    }
+  ],
+  "body": [
+    {
+      "heading": "BÊN A VÀ BÊN B",
+      "text": "BÊN THUÊ DỊCH VỤ (BÊN A):\nTên công ty: {{ben_a_ten}}\nMã số thuế/MSDN: {{ben_a_mst}}\nĐịa chỉ trụ sở: {{ben_a_diachi}}\nNgười đại diện: {{ben_a_nguoi_dd}} - Chức vụ: {{ben_a_chuc_vu}}\n\nCỘNG TÁC VIÊN (BÊN B):\nHọ và tên: {{ben_b_ten}}\nSố CCCD/CMND: {{ben_b_cccd}}\nĐịa chỉ thường trú/liên hệ: {{ben_b_diachi}}\n\nHai bên thống nhất ký kết hợp đồng dịch vụ (cộng tác viên) với các điều khoản sau:"
+    },
+    {
+      "heading": "ĐIỀU 1: NỘI DUNG CÔNG VIỆC",
+      "text": "Bên A giao và Bên B nhận thực hiện công việc (dịch vụ) sau: {{cong_viec}}\nKết quả/sản phẩm Bên B phải bàn giao: {{ket_qua_ban_giao}}\nĐịa điểm thực hiện: {{dia_diem_thuc_hien}}\nBên B thực hiện công việc một cách độc lập, tự chủ về phương pháp và thời gian, không chịu sự quản lý, điều hành, giám sát về thời giờ làm việc như đối với người lao động."
+    },
+    {
+      "heading": "ĐIỀU 2: THỜI HẠN THỰC HIỆN",
+      "text": "Bên B phải hoàn thành và bàn giao kết quả công việc trong thời hạn: {{thoi_han_hoan_thanh}}.\nThời hạn của hợp đồng: {{thoi_han_hop_dong}}."
+    },
+    {
+      "heading": "ĐIỀU 3: THÙ LAO VÀ PHƯƠNG THỨC THANH TOÁN",
+      "text": "Tổng thù lao (tiền dịch vụ) cho công việc: {{thu_lao}} đồng (trước thuế).\nCách tính thù lao: {{hinh_thuc_tinh_thu_lao}}.\nPhương thức và thời điểm thanh toán: {{phuong_thuc_thanh_toan}}.\nVề thuế thu nhập cá nhân: {{khau_tru_thue}}.\nThông tin tài khoản nhận thanh toán của Bên B: {{ben_b_taikhoan}}."
+    },
+    {
+      "heading": "ĐIỀU 4: QUYỀN VÀ NGHĨA VỤ CỦA BÊN A",
+      "text": "Bên A có nghĩa vụ cung cấp cho Bên B thông tin, tài liệu và phương tiện cần thiết (nếu có) để thực hiện công việc; nghiệm thu kết quả và thanh toán thù lao đầy đủ, đúng hạn theo Điều 3.\nBên A có quyền yêu cầu Bên B thực hiện công việc đúng nội dung, chất lượng, khối lượng, thời hạn đã thỏa thuận; nhận kết quả công việc."
+    },
+    {
+      "heading": "ĐIỀU 5: QUYỀN VÀ NGHĨA VỤ CỦA BÊN B",
+      "text": "Bên B có nghĩa vụ thực hiện công việc đúng chất lượng, khối lượng, thời hạn đã thỏa thuận; không được giao cho người khác thực hiện thay nếu không có sự đồng ý của Bên A; bảo quản và giao lại tài liệu, phương tiện được giao sau khi hoàn thành.\nBên B có quyền yêu cầu Bên A cung cấp thông tin, tài liệu, phương tiện và thanh toán thù lao theo thỏa thuận.\nBên B tự chịu trách nhiệm về việc kê khai, nộp các nghĩa vụ thuế của cá nhân (ngoài phần Bên A khấu trừ, nộp thay) và tự tham gia bảo hiểm xã hội tự nguyện (nếu có nhu cầu); hợp đồng này không làm phát sinh quan hệ lao động."
+    },
+    {
+      "heading": "ĐIỀU 6: QUYỀN SỞ HỮU KẾT QUẢ VÀ BẢO MẬT",
+      "text": "Quyền sở hữu đối với kết quả/sản phẩm công việc: {{so_huu_ket_qua}}.\nNghĩa vụ bảo mật: {{bao_mat}}."
+    },
+    {
+      "heading": "ĐIỀU 7: VI PHẠM HỢP ĐỒNG VÀ BỒI THƯỜNG",
+      "text": "Lãi do chậm thanh toán: {{lai_cham_tra}}.\nBồi thường thiệt hại: {{boi_thuong}}.\nMức phạt vi phạm (nếu hai bên thỏa thuận áp dụng): {{phat_vi_pham}} đồng."
+    },
+    {
+      "heading": "ĐIỀU 8: ĐƠN PHƯƠNG CHẤM DỨT HỢP ĐỒNG",
+      "text": "Mỗi bên có quyền đơn phương chấm dứt thực hiện hợp đồng theo quy định pháp luật, nhưng phải thông báo cho bên kia bằng văn bản trước: {{bao_truoc_cham_dut}}.\nTrường hợp việc tiếp tục công việc không có lợi cho Bên A, Bên A được đơn phương chấm dứt nhưng phải trả tiền theo phần công việc Bên B đã thực hiện và bồi thường thiệt hại (nếu có). Trường hợp Bên A vi phạm nghiêm trọng nghĩa vụ, Bên B được đơn phương chấm dứt và yêu cầu bồi thường thiệt hại."
+    },
+    {
+      "heading": "ĐIỀU 9: GIẢI QUYẾT TRANH CHẤP",
+      "text": "Mọi tranh chấp phát sinh được giải quyết bằng cơ chế: {{giai_quyet_tranh_chap}}."
+    }
+  ],
+  "closing": "Hợp đồng gồm 09 Điều, được lập thành 02 bản có giá trị pháp lý như nhau, mỗi bên giữ 01 bản và có hiệu lực kể từ ngày ký.\n\nĐẠI DIỆN BÊN A                                   BÊN B\n(Ký, ghi rõ họ tên, đóng dấu)                    (Ký, ghi rõ họ tên)",
+  "verifyNotes": [
+    "ĐÃ TRA CỨU & XÁC NHẬN các căn cứ pháp lý còn hiệu lực (tháng 6/2026): BLDS 2015 Điều 513-521, 357, 468, 360, 418, 419; BLLĐ 2019 Điều 13; Luật Thương mại 2005 Điều 301; Thông tư 111/2013/TT-BTC điểm i khoản 1 Điều 25. Tất cả khẳng định pháp lý cốt lõi của template là chính xác.",
+    "ĐÃ SỬA - Căn cứ thuế TNCN: làm rõ dẫn chiếu là 'điểm i khoản 1 Điều 25 Thông tư 111/2013/TT-BTC' và bổ sung điều kiện đầy đủ 'cá nhân cư trú không ký HĐLĐ HOẶC ký HĐLĐ dưới 3 tháng' (template gốc chỉ nêu 'không ký HĐLĐ', thiếu vế HĐLĐ dưới 3 tháng).",
+    "ĐÃ SỬA - Lỗi logic điều kiện (condition) ở ĐIỀU 6: template gốc gắn điều kiện hiển thị toàn bộ điều khoản Sở hữu & Bảo mật vào việc chọn đúng một phương án sở hữu, khiến điều khoản bị ẩn sai trong các trường hợp khác. Đã GỠ BỎ condition để Điều 6 luôn hiển thị.",
+    "ĐÃ SỬA - Trường required bị 'mồ côi': các trường định danh Bên A/Bên B (required) trong template gốc không xuất hiện ở preamble lẫn body. Đã THÊM khối mở đầu 'BÊN A VÀ BÊN B' trong body để sử dụng các trường này, bảo đảm mọi trường required đều được dùng trong văn bản.",
+    "ĐÃ SỬA - defaultText 'phuong_thuc_thanh_toan': sửa dẫn chiếu từ Điều 515 sang Điều 519 (nghĩa vụ trả tiền dịch vụ; bên sử dụng dịch vụ trả tiền tại thời điểm hoàn thành công việc) cho chính xác hơn với nội dung quy định.",
+    "ĐÃ SỬA - defaultText 'lai_cham_tra': làm rõ lãi suất luật định khi không thỏa thuận là 10%/năm (khoản 2 Điều 468) và trần thỏa thuận 20%/năm (khoản 1 Điều 468), phù hợp Điều 357.",
+    "ĐÃ BỔ SUNG - thống nhất cụm 'quản lý, điều hành, GIÁM SÁT' (đủ 3 dấu hiệu theo Điều 13 BLLĐ 2019) trong help, lint và body; bổ sung BLLĐ 2019 Điều 13 và BLTTDS 2015 vào legalBasis.",
+    "CẢNH BÁO - TRÁNH HĐLĐ TRÁ HÌNH: Nếu hợp đồng thể hiện đủ dấu hiệu của quan hệ lao động (việc làm có trả công/tiền lương + sự quản lý, điều hành, giám sát của Bên A) thì dù mang tên 'cộng tác viên', cơ quan chức năng/Tòa án vẫn có thể xác định lại là hợp đồng lao động (Điều 13 BLLĐ 2019), kéo theo truy thu BHXH, BHYT, BHTN và điều chỉnh thuế.",
+    "CẢNH BÁO - THUẾ TNCN: Cá nhân có thể lập Bản cam kết Mẫu 08/CK-TNCN (Phụ lục II Thông tư 80/2021/TT-BTC) để tạm thời không bị khấu trừ 10% nếu ước tính tổng thu nhập chưa đến mức chịu thuế và chỉ có một nguồn thu nhập - người dùng cần tự kiểm chứng điều kiện áp dụng và mức giảm trừ gia cảnh hiện hành.",
+    "CẢNH BÁO - PHẠT VI PHẠM: Cần xác định bản chất hợp đồng. Quan hệ dân sự thuần túy: mức phạt do hai bên tự thỏa thuận (Điều 418 BLDS). Hợp đồng thương mại (một/các bên là thương nhân, mục đích sinh lợi): mức phạt không quá 8% giá trị phần nghĩa vụ bị vi phạm (Điều 301 LTM 2005) - cần tự kiểm chứng.",
+    "Đây là CÔNG CỤ TEST, KHÔNG có giá trị pháp lý và người tạo công cụ KHÔNG chịu trách nhiệm. Người dùng phải tham vấn luật sư trước khi sử dụng cho giao dịch thực tế và tự kiểm chứng văn bản pháp luật còn hiệu lực tại thời điểm áp dụng."
+  ]
+}

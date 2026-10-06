@@ -1,0 +1,579 @@
+{
+  "id": "nguyen_tac",
+  "name": "Hợp đồng nguyên tắc",
+  "group": "Công ty ↔ Công ty",
+  "icon": "📜",
+  "summary": "Hợp đồng khung thiết lập các nguyên tắc chung, quyền và nghĩa vụ cơ bản giữa hai doanh nghiệp cho một chuỗi giao dịch lặp lại; chi tiết từng lần (số lượng, giá, thời gian giao) được cụ thể hóa bằng đơn đặt hàng/phụ lục. Dựa trên Bộ luật Dân sự 2015 và Luật Thương mại 2005.",
+  "legalBasis": [
+    "Bộ luật Dân sự 2015: Điều 385 (khái niệm hợp đồng), Điều 398 (nội dung hợp đồng), Điều 401 (hiệu lực hợp đồng), Điều 402 (hợp đồng chính/hợp đồng phụ), Điều 403 (phụ lục hợp đồng)",
+    "Luật Thương mại 2005: Điều 24 (hình thức hợp đồng mua bán), Điều 50 (nghĩa vụ thanh toán), Điều 54 (địa điểm thanh toán - bổ khuyết), Điều 55 (thời hạn thanh toán - bổ khuyết), Điều 300-301 (phạt vi phạm, mức tối đa 8%), Điều 302-307 (bồi thường thiệt hại), Điều 306 (lãi suất chậm thanh toán - bổ khuyết)",
+    "Luật Trọng tài thương mại 2010: Điều 5, Điều 16 (thỏa thuận trọng tài)",
+    "Bộ luật Tố tụng dân sự 2015: thẩm quyền Tòa án giải quyết tranh chấp kinh doanh thương mại"
+  ],
+  "parties": {
+    "a": "Bên A (Bên cung cấp / Bên bán)",
+    "b": "Bên B (Bên mua / Bên sử dụng)"
+  },
+  "title": "HỢP ĐỒNG NGUYÊN TẮC",
+  "preamble": "- Căn cứ Bộ luật Dân sự số 91/2015/QH13 ngày 24/11/2015;\n- Căn cứ Luật Thương mại số 36/2005/QH11 ngày 14/6/2005;\n- Căn cứ nhu cầu và khả năng của hai Bên,\n\nHôm nay, ngày {{ngay_ky}}, tại {{dia_diem_ky}}, chúng tôi gồm:",
+  "fields": [
+    {
+      "key": "ngay_ky",
+      "label": "Ngày ký hợp đồng",
+      "section": "Thông tin chung",
+      "tier": "required",
+      "type": "date",
+      "help": "Ngày hai bên cùng ký kết hợp đồng nguyên tắc.",
+      "placeholder": "15/06/2026"
+    },
+    {
+      "key": "dia_diem_ky",
+      "label": "Địa điểm ký hợp đồng",
+      "section": "Thông tin chung",
+      "tier": "optional",
+      "type": "text",
+      "help": "Tỉnh/thành phố nơi ký. Không bắt buộc nhưng nên ghi để rõ ràng.",
+      "placeholder": "TP. Hồ Chí Minh"
+    },
+    {
+      "key": "so_hop_dong",
+      "label": "Số hợp đồng",
+      "section": "Thông tin chung",
+      "tier": "optional",
+      "type": "text",
+      "help": "Số hiệu để hai bên tiện theo dõi, lưu trữ.",
+      "placeholder": "01/2026/HĐNT"
+    },
+    {
+      "key": "ben_a_ten",
+      "label": "Tên Bên A (Bên cung cấp/Bên bán)",
+      "section": "Bên A",
+      "tier": "required",
+      "type": "text",
+      "help": "Tên đầy đủ của công ty theo Giấy chứng nhận đăng ký doanh nghiệp.",
+      "placeholder": "CÔNG TY TNHH ABC"
+    },
+    {
+      "key": "ben_a_mst",
+      "label": "Mã số thuế Bên A",
+      "section": "Bên A",
+      "tier": "required",
+      "type": "text",
+      "help": "Mã số thuế / mã số doanh nghiệp của Bên A.",
+      "placeholder": "0301234567"
+    },
+    {
+      "key": "ben_a_dia_chi",
+      "label": "Địa chỉ trụ sở Bên A",
+      "section": "Bên A",
+      "tier": "required",
+      "type": "text",
+      "help": "Địa chỉ trụ sở chính theo đăng ký kinh doanh.",
+      "placeholder": "123 Đường X, Quận Y, TP.HCM"
+    },
+    {
+      "key": "ben_a_dai_dien",
+      "label": "Người đại diện Bên A",
+      "section": "Bên A",
+      "tier": "required",
+      "type": "text",
+      "help": "Họ tên người đại diện theo pháp luật hoặc người được ủy quyền ký.",
+      "placeholder": "Nguyễn Văn A"
+    },
+    {
+      "key": "ben_a_chuc_vu",
+      "label": "Chức vụ người đại diện Bên A",
+      "section": "Bên A",
+      "tier": "required",
+      "type": "text",
+      "help": "Ví dụ: Giám đốc, Tổng Giám đốc. Nếu ký theo ủy quyền cần ghi rõ căn cứ ủy quyền.",
+      "placeholder": "Giám đốc"
+    },
+    {
+      "key": "ben_a_dien_thoai",
+      "label": "Điện thoại Bên A",
+      "section": "Bên A",
+      "tier": "optional",
+      "type": "tel",
+      "help": "Số điện thoại liên hệ.",
+      "placeholder": "028 1234 5678"
+    },
+    {
+      "key": "ben_a_email",
+      "label": "Email Bên A",
+      "section": "Bên A",
+      "tier": "optional",
+      "type": "email",
+      "help": "Email dùng để trao đổi, gửi đơn hàng/thông báo.",
+      "placeholder": "info@cong-ty-a.vn"
+    },
+    {
+      "key": "ben_b_ten",
+      "label": "Tên Bên B (Bên mua/Bên sử dụng)",
+      "section": "Bên B",
+      "tier": "required",
+      "type": "text",
+      "help": "Tên đầy đủ của công ty theo Giấy chứng nhận đăng ký doanh nghiệp.",
+      "placeholder": "CÔNG TY CỔ PHẦN XYZ"
+    },
+    {
+      "key": "ben_b_mst",
+      "label": "Mã số thuế Bên B",
+      "section": "Bên B",
+      "tier": "required",
+      "type": "text",
+      "help": "Mã số thuế / mã số doanh nghiệp của Bên B.",
+      "placeholder": "0307654321"
+    },
+    {
+      "key": "ben_b_dia_chi",
+      "label": "Địa chỉ trụ sở Bên B",
+      "section": "Bên B",
+      "tier": "required",
+      "type": "text",
+      "help": "Địa chỉ trụ sở chính theo đăng ký kinh doanh.",
+      "placeholder": "456 Đường Z, Quận W, Hà Nội"
+    },
+    {
+      "key": "ben_b_dai_dien",
+      "label": "Người đại diện Bên B",
+      "section": "Bên B",
+      "tier": "required",
+      "type": "text",
+      "help": "Họ tên người đại diện theo pháp luật hoặc người được ủy quyền ký.",
+      "placeholder": "Trần Thị B"
+    },
+    {
+      "key": "ben_b_chuc_vu",
+      "label": "Chức vụ người đại diện Bên B",
+      "section": "Bên B",
+      "tier": "required",
+      "type": "text",
+      "help": "Ví dụ: Giám đốc, Tổng Giám đốc. Nếu ký theo ủy quyền cần ghi rõ căn cứ ủy quyền.",
+      "placeholder": "Tổng Giám đốc"
+    },
+    {
+      "key": "ben_b_dien_thoai",
+      "label": "Điện thoại Bên B",
+      "section": "Bên B",
+      "tier": "optional",
+      "type": "tel",
+      "help": "Số điện thoại liên hệ.",
+      "placeholder": "024 8765 4321"
+    },
+    {
+      "key": "ben_b_email",
+      "label": "Email Bên B",
+      "section": "Bên B",
+      "tier": "optional",
+      "type": "email",
+      "help": "Email dùng để trao đổi, gửi đơn hàng/thông báo.",
+      "placeholder": "contact@cong-ty-b.vn"
+    },
+    {
+      "key": "doi_tuong",
+      "label": "Đối tượng / phạm vi hợp tác",
+      "section": "Nội dung hợp tác",
+      "tier": "required",
+      "type": "textarea",
+      "help": "Mô tả loại hàng hóa/dịch vụ và phạm vi hợp tác chung mà hai bên sẽ giao dịch nhiều lần dưới khung hợp đồng này.",
+      "placeholder": "Bên A cung cấp cho Bên B các sản phẩm bao bì giấy theo từng đơn đặt hàng phát sinh."
+    },
+    {
+      "key": "hinh_thuc_giao_dich",
+      "label": "Hình thức cụ thể hóa từng giao dịch",
+      "section": "Nội dung hợp tác",
+      "tier": "required",
+      "type": "select",
+      "help": "Cách hai bên xác lập chi tiết mỗi lần giao dịch (số lượng, giá, thời gian giao) dựa trên khung này.",
+      "options": [
+        "Đơn đặt hàng",
+        "Phụ lục hợp đồng",
+        "Đơn đặt hàng hoặc Phụ lục hợp đồng"
+      ],
+      "placeholder": "Đơn đặt hàng hoặc Phụ lục hợp đồng"
+    },
+    {
+      "key": "thu_tu_uu_tien",
+      "label": "Thứ tự ưu tiên khi mâu thuẫn",
+      "section": "Nội dung hợp tác",
+      "tier": "default",
+      "type": "select",
+      "help": "Khi nội dung đơn hàng/phụ lục khác với hợp đồng khung thì áp dụng cái nào trước. Thông lệ: ưu tiên đơn hàng/phụ lục cụ thể của từng giao dịch.",
+      "options": [
+        "Ưu tiên đơn đặt hàng/phụ lục cụ thể",
+        "Ưu tiên hợp đồng nguyên tắc"
+      ],
+      "defaultText": "Nếu các bên không thỏa thuận, theo thông lệ và bản chất hợp đồng khung, nội dung của đơn đặt hàng/phụ lục cụ thể cho từng giao dịch được ưu tiên áp dụng so với hợp đồng nguyên tắc; các vấn đề không quy định trong đơn hàng/phụ lục thì áp dụng hợp đồng nguyên tắc và pháp luật. Lưu ý: phụ lục hợp đồng có nội dung trái với hợp đồng thì điều khoản đó vô hiệu, trừ khi các bên có thỏa thuận khác (Bộ luật Dân sự 2015 Điều 403).",
+      "legalRef": "Bộ luật Dân sự 2015 Điều 402, Điều 403; Luật Thương mại 2005",
+      "placeholder": "Ưu tiên đơn đặt hàng/phụ lục cụ thể"
+    },
+    {
+      "key": "gia_phuong_thuc",
+      "label": "Nguyên tắc xác định giá",
+      "section": "Giá và thanh toán",
+      "tier": "required",
+      "type": "textarea",
+      "help": "Cách hình thành giá cho từng giao dịch (theo báo giá, bảng giá, hoặc thỏa thuận theo từng đơn hàng). Giá cụ thể nêu trong đơn hàng/phụ lục.",
+      "placeholder": "Giá từng lần giao dịch theo báo giá được hai bên xác nhận tại mỗi đơn đặt hàng; đã/chưa bao gồm thuế GTGT, ghi rõ trong đơn hàng."
+    },
+    {
+      "key": "dong_tien",
+      "label": "Đồng tiền thanh toán",
+      "section": "Giá và thanh toán",
+      "tier": "default",
+      "type": "select",
+      "help": "Loại tiền dùng để thanh toán. Giao dịch trong nước theo nguyên tắc dùng đồng Việt Nam.",
+      "options": [
+        "VND (Đồng Việt Nam)",
+        "USD",
+        "Khác"
+      ],
+      "defaultText": "Nếu không thỏa thuận, giao dịch trên lãnh thổ Việt Nam phải thanh toán bằng Đồng Việt Nam (VND); mọi giao dịch, thanh toán, niêm yết, ghi giá trong hợp đồng không được thực hiện bằng ngoại hối trừ các trường hợp được phép theo quy định về quản lý ngoại hối (Pháp lệnh Ngoại hối 2005, sửa đổi 2013; Thông tư 32/2013/TT-NHNN).",
+      "legalRef": "Pháp lệnh Ngoại hối 2005 (sửa đổi 2013); Thông tư 32/2013/TT-NHNN",
+      "placeholder": "VND (Đồng Việt Nam)"
+    },
+    {
+      "key": "phuong_thuc_thanh_toan",
+      "label": "Phương thức thanh toán",
+      "section": "Giá và thanh toán",
+      "tier": "default",
+      "type": "select",
+      "help": "Cách thức trả tiền. Nếu không thỏa thuận, bên mua thanh toán theo thời gian, địa điểm luật quy định.",
+      "options": [
+        "Chuyển khoản ngân hàng",
+        "Tiền mặt",
+        "Chuyển khoản hoặc tiền mặt"
+      ],
+      "defaultText": "Nếu không thỏa thuận, bên mua phải thanh toán tại địa điểm và thời điểm theo Luật Thương mại 2005: thanh toán vào thời điểm bên bán giao hàng/giao chứng từ liên quan đến hàng hóa (Điều 55); địa điểm thanh toán là địa điểm kinh doanh của bên bán xác định tại thời điểm giao kết, hoặc địa điểm giao hàng/giao chứng từ nếu thanh toán tiến hành đồng thời với giao hàng (Điều 54).",
+      "legalRef": "Luật Thương mại 2005 Điều 50, Điều 54, Điều 55",
+      "placeholder": "Chuyển khoản ngân hàng"
+    },
+    {
+      "key": "thoi_han_thanh_toan",
+      "label": "Thời hạn thanh toán",
+      "section": "Giá và thanh toán",
+      "tier": "default",
+      "type": "text",
+      "help": "Thời hạn bên mua phải trả tiền (vd: trong 15 ngày kể từ ngày nhận hàng và hóa đơn). Nếu không thỏa thuận sẽ áp dụng mặc định của luật.",
+      "defaultText": "Nếu không thỏa thuận, bên mua phải thanh toán vào thời điểm bên bán giao hàng hoặc giao chứng từ liên quan đến hàng hóa; bên mua không có nghĩa vụ thanh toán cho đến khi có thể kiểm tra xong hàng hóa trong trường hợp có thỏa thuận về việc kiểm tra hàng hóa, trừ trường hợp có thỏa thuận khác (Luật Thương mại 2005 Điều 55, Điều 50, Điều 44).",
+      "legalRef": "Luật Thương mại 2005 Điều 55, Điều 50, Điều 44",
+      "placeholder": "Trong vòng 15 ngày kể từ ngày nhận đủ hàng và hóa đơn GTGT hợp lệ"
+    },
+    {
+      "key": "lai_cham_thanh_toan",
+      "label": "Lãi suất chậm thanh toán",
+      "section": "Giá và thanh toán",
+      "tier": "default",
+      "type": "text",
+      "help": "Mức lãi bên mua phải trả nếu thanh toán trễ. Nếu không thỏa thuận, áp dụng lãi suất nợ quá hạn trung bình trên thị trường theo luật.",
+      "defaultText": "Nếu không thỏa thuận mức lãi, bên bị vi phạm có quyền yêu cầu trả tiền lãi trên số tiền chậm trả theo lãi suất nợ quá hạn trung bình trên thị trường tại thời điểm thanh toán, tương ứng với thời gian chậm trả (Luật Thương mại 2005 Điều 306).",
+      "legalRef": "Luật Thương mại 2005 Điều 306",
+      "placeholder": "Theo lãi suất nợ quá hạn trung bình trên thị trường tại thời điểm thanh toán"
+    },
+    {
+      "key": "giao_nhan",
+      "label": "Nguyên tắc giao nhận hàng hóa/dịch vụ",
+      "section": "Giao nhận và chất lượng",
+      "tier": "required",
+      "type": "textarea",
+      "help": "Quy định chung về địa điểm, thời gian, điều kiện giao nhận; chi tiết theo từng đơn hàng.",
+      "placeholder": "Địa điểm, thời gian, số lượng giao nhận cụ thể theo từng đơn đặt hàng; hai bên lập biên bản giao nhận khi giao hàng."
+    },
+    {
+      "key": "tieu_chuan_chat_luong",
+      "label": "Tiêu chuẩn chất lượng",
+      "section": "Giao nhận và chất lượng",
+      "tier": "default",
+      "type": "textarea",
+      "help": "Tiêu chuẩn chất lượng hàng hóa/dịch vụ. Nếu không thỏa thuận, áp dụng tiêu chuẩn mặc định của luật.",
+      "defaultText": "Nếu không thỏa thuận cụ thể, hàng hóa phải phù hợp với mục đích sử dụng thông thường của hàng hóa cùng chủng loại, phù hợp với mục đích cụ thể mà bên mua đã cho bên bán biết, bảo đảm chất lượng như mẫu hàng hóa đã giao, và được bảo quản, đóng gói theo cách thông thường hoặc thích hợp để bảo quản hàng hóa (Luật Thương mại 2005 Điều 39).",
+      "legalRef": "Luật Thương mại 2005 Điều 39",
+      "placeholder": "Theo tiêu chuẩn công bố của nhà sản xuất / mẫu được hai bên xác nhận"
+    },
+    {
+      "key": "bao_hanh",
+      "label": "Bảo hành (nếu có)",
+      "section": "Giao nhận và chất lượng",
+      "tier": "optional",
+      "type": "textarea",
+      "help": "Phạm vi, thời hạn bảo hành nếu hàng hóa/dịch vụ có bảo hành.",
+      "placeholder": "Bảo hành 12 tháng kể từ ngày giao hàng đối với lỗi kỹ thuật do nhà sản xuất."
+    },
+    {
+      "key": "quyen_nghia_vu_a",
+      "label": "Quyền và nghĩa vụ chính của Bên A",
+      "section": "Quyền và nghĩa vụ",
+      "tier": "optional",
+      "type": "textarea",
+      "help": "Bổ sung các nghĩa vụ riêng của Bên A ngoài nghĩa vụ giao hàng đúng, đủ, đúng chất lượng.",
+      "placeholder": "Cung cấp hàng đúng số lượng, chất lượng, thời gian; xuất hóa đơn GTGT hợp lệ."
+    },
+    {
+      "key": "quyen_nghia_vu_b",
+      "label": "Quyền và nghĩa vụ chính của Bên B",
+      "section": "Quyền và nghĩa vụ",
+      "tier": "optional",
+      "type": "textarea",
+      "help": "Bổ sung các nghĩa vụ riêng của Bên B ngoài nghĩa vụ nhận hàng và thanh toán.",
+      "placeholder": "Nhận hàng, thanh toán đúng hạn; phối hợp cung cấp thông tin đặt hàng."
+    },
+    {
+      "key": "bao_mat",
+      "label": "Bảo mật thông tin",
+      "section": "Quyền và nghĩa vụ",
+      "tier": "optional",
+      "type": "textarea",
+      "help": "Cam kết giữ bí mật thông tin trao đổi trong quá trình hợp tác.",
+      "placeholder": "Hai bên giữ bí mật thông tin kinh doanh, giá cả, kỹ thuật của nhau trong và sau khi hợp đồng chấm dứt."
+    },
+    {
+      "key": "phat_vi_pham_co",
+      "label": "Có áp dụng phạt vi phạm không?",
+      "section": "Trách nhiệm vi phạm",
+      "tier": "default",
+      "type": "select",
+      "help": "Phạt vi phạm chỉ được áp dụng nếu các bên có thỏa thuận. Nếu không thỏa thuận thì KHÔNG được phạt.",
+      "options": [
+        "Có",
+        "Không"
+      ],
+      "defaultText": "Phạt vi phạm chỉ phát sinh khi các bên có thỏa thuận trong hợp đồng; nếu không thỏa thuận thì không được áp dụng phạt vi phạm (Luật Thương mại 2005 Điều 300; Bộ luật Dân sự 2015 Điều 418).",
+      "legalRef": "Luật Thương mại 2005 Điều 300; Bộ luật Dân sự 2015 Điều 418",
+      "placeholder": "Có"
+    },
+    {
+      "key": "muc_phat",
+      "label": "Mức phạt vi phạm (% giá trị nghĩa vụ bị vi phạm)",
+      "section": "Trách nhiệm vi phạm",
+      "tier": "default",
+      "type": "number",
+      "help": "Tỷ lệ phạt tính trên phần giá trị nghĩa vụ bị vi phạm. Luật Thương mại giới hạn tối đa 8%.",
+      "condition": {
+        "key": "phat_vi_pham_co",
+        "equals": "Có"
+      },
+      "defaultText": "Tổng mức phạt cho một hoặc nhiều vi phạm do các bên thỏa thuận nhưng không được vượt quá 8% giá trị phần nghĩa vụ hợp đồng bị vi phạm (Luật Thương mại 2005 Điều 301).",
+      "legalRef": "Luật Thương mại 2005 Điều 301",
+      "placeholder": "8"
+    },
+    {
+      "key": "boi_thuong",
+      "label": "Bồi thường thiệt hại",
+      "section": "Trách nhiệm vi phạm",
+      "tier": "default",
+      "type": "textarea",
+      "help": "Trách nhiệm bồi thường khi vi phạm gây thiệt hại. Đây là chế tài độc lập với phạt vi phạm.",
+      "defaultText": "Bên vi phạm phải bồi thường toàn bộ thiệt hại thực tế, trực tiếp mà bên bị vi phạm phải gánh chịu và khoản lợi trực tiếp đáng lẽ được hưởng; bên bị vi phạm có nghĩa vụ áp dụng các biện pháp hợp lý để hạn chế tổn thất. Bồi thường thiệt hại được áp dụng kể cả khi không có thỏa thuận và độc lập với phạt vi phạm (Luật Thương mại 2005 Điều 302, 303, 305, 307).",
+      "legalRef": "Luật Thương mại 2005 Điều 302, 303, 305, 307",
+      "placeholder": "Bồi thường thiệt hại thực tế, trực tiếp theo quy định pháp luật"
+    },
+    {
+      "key": "bat_kha_khang",
+      "label": "Sự kiện bất khả kháng",
+      "section": "Trách nhiệm vi phạm",
+      "tier": "default",
+      "type": "textarea",
+      "help": "Các trường hợp miễn trách khi xảy ra sự kiện ngoài tầm kiểm soát. Nếu không thỏa thuận vẫn áp dụng quy định miễn trách của luật.",
+      "defaultText": "Bên vi phạm được miễn trách nhiệm khi xảy ra sự kiện bất khả kháng (sự kiện xảy ra khách quan, không thể lường trước được và không thể khắc phục được dù đã áp dụng mọi biện pháp cần thiết và khả năng cho phép); bên gặp bất khả kháng phải thông báo ngay bằng văn bản cho bên kia về sự kiện và hậu quả, nếu không thông báo kịp thời mà gây thiệt hại thì phải bồi thường (Luật Thương mại 2005 Điều 294, 295; Bộ luật Dân sự 2015 Điều 156).",
+      "legalRef": "Luật Thương mại 2005 Điều 294, 295; Bộ luật Dân sự 2015 Điều 156",
+      "placeholder": "Thiên tai, dịch bệnh, chiến tranh, quyết định của cơ quan nhà nước..."
+    },
+    {
+      "key": "thoi_han_hieu_luc",
+      "label": "Thời hạn hiệu lực hợp đồng",
+      "section": "Hiệu lực và chấm dứt",
+      "tier": "required",
+      "type": "text",
+      "help": "Thời gian hợp đồng khung có hiệu lực (vd: 12 tháng, 24 tháng kể từ ngày ký). Luật không ấn định, do hai bên thỏa thuận.",
+      "placeholder": "12 tháng kể từ ngày ký, tự động gia hạn từng năm nếu không bên nào phản đối"
+    },
+    {
+      "key": "dieu_kien_cham_dut",
+      "label": "Điều kiện chấm dứt / đơn phương chấm dứt",
+      "section": "Hiệu lực và chấm dứt",
+      "tier": "default",
+      "type": "textarea",
+      "help": "Các trường hợp được chấm dứt hợp đồng và thời hạn báo trước. Nếu không thỏa thuận, áp dụng căn cứ chấm dứt của luật.",
+      "defaultText": "Nếu không thỏa thuận, hợp đồng chấm dứt theo các căn cứ luật định: hoàn thành; theo thỏa thuận; hết thời hạn; bên có quyền hủy bỏ hợp đồng hoặc đơn phương chấm dứt thực hiện hợp đồng khi bên kia vi phạm nghiêm trọng nghĩa vụ hợp đồng; bên đơn phương chấm dứt phải thông báo ngay cho bên kia (Bộ luật Dân sự 2015 Điều 422, 423, 428; Luật Thương mại 2005 Điều 310-312).",
+      "legalRef": "Bộ luật Dân sự 2015 Điều 422, 423, 428; Luật Thương mại 2005 Điều 310-312",
+      "placeholder": "Mỗi bên được đơn phương chấm dứt bằng văn bản, báo trước 30 ngày; chấm dứt ngay khi bên kia vi phạm nghiêm trọng nghĩa vụ"
+    },
+    {
+      "key": "phuong_thuc_tranh_chap",
+      "label": "Phương thức giải quyết tranh chấp",
+      "section": "Giải quyết tranh chấp",
+      "tier": "default",
+      "type": "select",
+      "help": "Chọn cơ quan giải quyết khi có tranh chấp không thương lượng được. Nếu chọn trọng tài phải ghi rõ tên trung tâm trọng tài.",
+      "options": [
+        "Tòa án có thẩm quyền",
+        "Trọng tài thương mại"
+      ],
+      "defaultText": "Nếu không thỏa thuận chọn trọng tài, tranh chấp được giải quyết tại Tòa án có thẩm quyền theo quy định của Bộ luật Tố tụng dân sự 2015. Thỏa thuận trọng tài chỉ có giá trị khi được lập bằng văn bản và xác định rõ tổ chức/hình thức trọng tài (Luật Trọng tài thương mại 2010 Điều 5, 16).",
+      "legalRef": "Bộ luật Tố tụng dân sự 2015; Luật Trọng tài thương mại 2010 Điều 5, Điều 16",
+      "placeholder": "Tòa án có thẩm quyền"
+    },
+    {
+      "key": "ten_trong_tai",
+      "label": "Tên tổ chức trọng tài",
+      "section": "Giải quyết tranh chấp",
+      "tier": "optional",
+      "type": "text",
+      "help": "Bắt buộc ghi rõ tên trung tâm trọng tài nếu chọn giải quyết bằng trọng tài (nếu không, thỏa thuận trọng tài có thể vô hiệu/khó thực thi).",
+      "condition": {
+        "key": "phuong_thuc_tranh_chap",
+        "equals": "Trọng tài thương mại"
+      },
+      "placeholder": "Trung tâm Trọng tài Quốc tế Việt Nam (VIAC)"
+    },
+    {
+      "key": "luat_ap_dung",
+      "label": "Luật áp dụng",
+      "section": "Giải quyết tranh chấp",
+      "tier": "default",
+      "type": "text",
+      "help": "Pháp luật điều chỉnh hợp đồng. Với giao dịch giữa các doanh nghiệp tại Việt Nam, mặc định là pháp luật Việt Nam.",
+      "defaultText": "Nếu không thỏa thuận khác, hợp đồng được điều chỉnh bởi pháp luật Việt Nam (Bộ luật Dân sự 2015, Luật Thương mại 2005 và các văn bản liên quan).",
+      "legalRef": "Bộ luật Dân sự 2015; Luật Thương mại 2005",
+      "placeholder": "Pháp luật Việt Nam"
+    },
+    {
+      "key": "so_ban",
+      "label": "Số bản hợp đồng",
+      "section": "Điều khoản cuối",
+      "tier": "default",
+      "type": "number",
+      "help": "Số bản gốc, chia đều cho hai bên. Thông thường 02 bản, mỗi bên giữ 01 bản có giá trị như nhau.",
+      "defaultText": "Nếu không ghi, hợp đồng được lập thành 02 bản có giá trị pháp lý như nhau, mỗi bên giữ 01 bản.",
+      "legalRef": "Thông lệ giao kết; Bộ luật Dân sự 2015 Điều 119 (hình thức giao dịch)",
+      "placeholder": "2"
+    }
+  ],
+  "lint": [
+    {
+      "field": "muc_phat",
+      "op": "max",
+      "value": 8,
+      "message": "Mức phạt vi phạm không được vượt quá 8% giá trị phần nghĩa vụ hợp đồng bị vi phạm. Thỏa thuận cao hơn sẽ bị giới hạn về 8% khi giải quyết tranh chấp.",
+      "legalRef": "Luật Thương mại 2005 Điều 301",
+      "severity": "error"
+    },
+    {
+      "field": "muc_phat",
+      "op": "min",
+      "value": 0,
+      "message": "Mức phạt không thể là số âm.",
+      "legalRef": "Luật Thương mại 2005 Điều 300-301",
+      "severity": "error"
+    },
+    {
+      "field": "phat_vi_pham_co",
+      "op": "note",
+      "value": "Phạt vi phạm chỉ áp dụng khi có thỏa thuận",
+      "message": "Lưu ý: Phạt vi phạm và bồi thường thiệt hại là hai chế tài độc lập. Muốn áp dụng phạt thì BẮT BUỘC phải có điều khoản thỏa thuận; muốn vừa phạt vừa đòi bồi thường thì hợp đồng phải ghi rõ thỏa thuận phạt vi phạm.",
+      "legalRef": "Luật Thương mại 2005 Điều 300, 301, 307",
+      "severity": "warn"
+    },
+    {
+      "field": "ten_trong_tai",
+      "op": "note",
+      "value": "Phải ghi rõ tổ chức trọng tài",
+      "message": "Nếu chọn giải quyết bằng trọng tài, phải xác định rõ tên tổ chức/hình thức trọng tài; thỏa thuận trọng tài không rõ ràng có thể bị coi là không thực hiện được.",
+      "legalRef": "Luật Trọng tài thương mại 2010 Điều 16, 43",
+      "severity": "warn"
+    },
+    {
+      "field": "dong_tien",
+      "op": "note",
+      "value": "Giao dịch trong nước dùng VND",
+      "message": "Trên lãnh thổ Việt Nam, mọi giao dịch, thanh toán, niêm yết, ghi giá trong hợp đồng giữa các bên cư trú về nguyên tắc phải thực hiện bằng Đồng Việt Nam, trừ trường hợp được phép theo pháp luật về ngoại hối.",
+      "legalRef": "Pháp lệnh Ngoại hối 2005 (sửa đổi 2013); Thông tư 32/2013/TT-NHNN",
+      "severity": "warn"
+    }
+  ],
+  "body": [
+    {
+      "heading": "ĐIỀU 1: ĐỐI TƯỢNG VÀ PHẠM VI HỢP ĐỒNG",
+      "text": "1.1. Hợp đồng nguyên tắc này (sau đây gọi là \"Hợp đồng\") quy định các nguyên tắc chung làm cơ sở để hai Bên hợp tác với nội dung: {{doi_tuong}}\n1.2. Hợp đồng là khung pháp lý chung. Chi tiết của từng giao dịch (số lượng, quy cách, giá, thời gian và địa điểm giao nhận...) được hai Bên cụ thể hóa bằng {{hinh_thuc_giao_dich}} cho mỗi lần phát sinh và là bộ phận không tách rời của Hợp đồng."
+    },
+    {
+      "heading": "ĐIỀU 2: NGUYÊN TẮC ƯU TIÊN ÁP DỤNG",
+      "text": "2.1. Khi có mâu thuẫn giữa Hợp đồng nguyên tắc và đơn đặt hàng/phụ lục cụ thể của từng giao dịch, các Bên thống nhất áp dụng theo nguyên tắc: {{thu_tu_uu_tien}}.\n2.2. Những vấn đề không được quy định trong đơn đặt hàng/phụ lục thì áp dụng Hợp đồng nguyên tắc; vấn đề không được quy định trong Hợp đồng thì áp dụng quy định của pháp luật Việt Nam."
+    },
+    {
+      "heading": "ĐIỀU 3: GIÁ VÀ PHƯƠNG THỨC THANH TOÁN",
+      "text": "3.1. Nguyên tắc xác định giá: {{gia_phuong_thuc}} Giá cụ thể của từng giao dịch được ghi trong đơn đặt hàng/phụ lục tương ứng.\n3.2. Đồng tiền thanh toán: {{dong_tien}}.\n3.3. Phương thức thanh toán: {{phuong_thuc_thanh_toan}}.\n3.4. Thời hạn thanh toán: {{thoi_han_thanh_toan}}.\n3.5. Trường hợp chậm thanh toán, bên chậm trả phải chịu lãi: {{lai_cham_thanh_toan}}."
+    },
+    {
+      "heading": "ĐIỀU 4: GIAO NHẬN, CHẤT LƯỢNG VÀ BẢO HÀNH",
+      "text": "4.1. Nguyên tắc giao nhận: {{giao_nhan}}\n4.2. Tiêu chuẩn chất lượng: {{tieu_chuan_chat_luong}}"
+    },
+    {
+      "heading": "ĐIỀU 4: GIAO NHẬN, CHẤT LƯỢNG VÀ BẢO HÀNH",
+      "text": "4.3. Bảo hành: {{bao_hanh}}",
+      "condition": {
+        "key": "bao_hanh",
+        "equals": "*"
+      }
+    },
+    {
+      "heading": "ĐIỀU 5: QUYỀN VÀ NGHĨA VỤ CỦA CÁC BÊN",
+      "text": "5.1. Quyền và nghĩa vụ của Bên A: {{quyen_nghia_vu_a}}\n5.2. Quyền và nghĩa vụ của Bên B: {{quyen_nghia_vu_b}}\n5.3. Ngoài các nghĩa vụ nêu trên, mỗi Bên thực hiện đầy đủ các quyền, nghĩa vụ theo từng đơn đặt hàng/phụ lục và theo quy định của pháp luật."
+    },
+    {
+      "heading": "ĐIỀU 6: BẢO MẬT THÔNG TIN",
+      "text": "{{bao_mat}}",
+      "condition": {
+        "key": "bao_mat",
+        "equals": "*"
+      }
+    },
+    {
+      "heading": "ĐIỀU 7: PHẠT VI PHẠM VÀ BỒI THƯỜNG THIỆT HẠI",
+      "text": "7.1. Phạt vi phạm: Bên vi phạm nghĩa vụ phải chịu phạt {{muc_phat}}% giá trị phần nghĩa vụ hợp đồng bị vi phạm. Tổng mức phạt không vượt quá 8% giá trị phần nghĩa vụ bị vi phạm theo quy định pháp luật.",
+      "condition": {
+        "key": "phat_vi_pham_co",
+        "equals": "Có"
+      }
+    },
+    {
+      "heading": "ĐIỀU 7: PHẠT VI PHẠM VÀ BỒI THƯỜNG THIỆT HẠI",
+      "text": "7.2. Bồi thường thiệt hại: {{boi_thuong}} Phạt vi phạm và bồi thường thiệt hại là hai chế tài độc lập, có thể được áp dụng đồng thời nếu các Bên có thỏa thuận về phạt vi phạm."
+    },
+    {
+      "heading": "ĐIỀU 8: BẤT KHẢ KHÁNG",
+      "text": "{{bat_kha_khang}} Bên gặp sự kiện bất khả kháng phải thông báo kịp thời bằng văn bản cho Bên kia và áp dụng mọi biện pháp cần thiết để hạn chế thiệt hại."
+    },
+    {
+      "heading": "ĐIỀU 9: HIỆU LỰC VÀ CHẤM DỨT HỢP ĐỒNG",
+      "text": "9.1. Hợp đồng có hiệu lực kể từ ngày ký và có thời hạn: {{thoi_han_hieu_luc}}.\n9.2. Điều kiện chấm dứt / đơn phương chấm dứt hợp đồng: {{dieu_kien_cham_dut}}\n9.3. Việc chấm dứt Hợp đồng nguyên tắc không làm ảnh hưởng đến các đơn đặt hàng/phụ lục đã được xác lập và đang thực hiện, trừ khi các Bên có thỏa thuận khác."
+    },
+    {
+      "heading": "ĐIỀU 10: LUẬT ÁP DỤNG VÀ GIẢI QUYẾT TRANH CHẤP",
+      "text": "10.1. Luật áp dụng: {{luat_ap_dung}}.\n10.2. Mọi tranh chấp phát sinh trước hết được giải quyết thông qua thương lượng, hòa giải thiện chí giữa hai Bên.\n10.3. Trường hợp không thương lượng được, tranh chấp sẽ được giải quyết bằng: {{phuong_thuc_tranh_chap}}."
+    },
+    {
+      "heading": "ĐIỀU 10: LUẬT ÁP DỤNG VÀ GIẢI QUYẾT TRANH CHẤP",
+      "text": "10.4. Tổ chức trọng tài giải quyết tranh chấp: {{ten_trong_tai}}. Phán quyết trọng tài là chung thẩm và có giá trị ràng buộc đối với hai Bên.",
+      "condition": {
+        "key": "phuong_thuc_tranh_chap",
+        "equals": "Trọng tài thương mại"
+      }
+    }
+  ],
+  "closing": "Hợp đồng được lập thành {{so_ban}} bản có giá trị pháp lý như nhau, mỗi Bên giữ số bản bằng nhau để thực hiện. Hợp đồng có hiệu lực kể từ ngày ký. Các đơn đặt hàng, phụ lục được ký kết hợp lệ trong thời gian hiệu lực là bộ phận không tách rời của Hợp đồng.\n\nĐẠI DIỆN BÊN A                                        ĐẠI DIỆN BÊN B\n{{ben_a_chuc_vu}}                                     {{ben_b_chuc_vu}}\n(Ký, ghi rõ họ tên, đóng dấu)                         (Ký, ghi rõ họ tên, đóng dấu)\n\n{{ben_a_dai_dien}}                                     {{ben_b_dai_dien}}",
+  "verifyNotes": [
+    "SỬA LỖI CĂN CỨ QUAN TRỌNG: Địa điểm thanh toán là Điều 54 Luật Thương mại 2005, KHÔNG phải Điều 50. Điều 50 chỉ là nghĩa vụ thanh toán chung. Đã sửa dẫn chiếu trong legalBasis và các trường phuong_thuc_thanh_toan, thoi_han_thanh_toan (Điều 50→54 cho địa điểm; giữ Điều 55 cho thời hạn, Điều 50 cho nghĩa vụ thanh toán, Điều 44 cho kiểm tra hàng hóa).",
+    "Mức phạt vi phạm tối đa 8% giá trị phần nghĩa vụ bị vi phạm theo Điều 301 Luật Thương mại 2005 (đã kiểm chứng qua Báo Chính phủ, VIAC, htpldn.moj.gov.vn). Lint max=8 chính xác.",
+    "Lãi chậm thanh toán mặc định = lãi suất nợ quá hạn trung bình trên thị trường tại thời điểm thanh toán theo Điều 306 Luật Thương mại 2005 (kiểm chứng qua Lawnet, caselaw.vn). Tòa án thường lấy trung bình lãi suất nợ quá hạn của ít nhất 3 ngân hàng tại địa phương.",
+    "Phạt vi phạm chỉ áp dụng khi có thỏa thuận (Điều 300 LTM 2005, Điều 418 BLDS 2015); bồi thường thiệt hại áp dụng kể cả không thỏa thuận và độc lập với phạt (Điều 302, 303, 305, 307 LTM 2005). Đã kiểm chứng.",
+    "Tiêu chuẩn chất lượng bổ khuyết theo Điều 39 LTM 2005 — đã bổ sung đầy đủ 4 tiêu chí (mục đích thông thường, mục đích cụ thể đã thông báo, chất lượng như mẫu, bảo quản/đóng gói thích hợp).",
+    "Bất khả kháng: định nghĩa theo Điều 156 BLDS 2015; miễn trách theo Điều 294 và nghĩa vụ thông báo ngay bằng văn bản theo Điều 295 LTM 2005 — đã bổ sung cảnh báo nếu không thông báo kịp thời thì phải bồi thường.",
+    "Hợp đồng nguyên tắc là hợp đồng khung; luật không ấn định thời hạn. Phụ lục/đơn hàng cụ thể: phụ lục trái với hợp đồng thì điều khoản đó vô hiệu trừ khi có thỏa thuận khác (BLDS 2015 Điều 403); đã làm rõ thay vì chỉ nói 'ưu tiên'.",
+    "Thỏa thuận trọng tài phải bằng văn bản và xác định rõ tổ chức trọng tài, nếu không có thể không thực hiện được (Luật TTTM 2010 Điều 16, 43). Tòa án có thẩm quyền theo BLTTDS 2015 nếu không có thỏa thuận trọng tài hợp lệ.",
+    "CẢNH BÁO CÒN LẠI: Body Điều 9.2 placeholder dùng 'vi phạm nghiêm trọng' (thuật ngữ BLDS 2015 Điều 423, 428); LTM 2005 dùng 'vi phạm cơ bản' (Điều 3 khoản 13, Điều 310-312). Cả hai đều hợp lệ tùy luật áp dụng; người dùng nên thống nhất thuật ngữ theo luật điều chỉnh đã chọn.",
+    "CẢNH BÁO: Hai trường quyen_nghia_vu_a và quyen_nghia_vu_b để tier 'optional' nhưng được dùng cố định trong body Điều 5.1/5.2; nếu để trống sẽ tạo điều khoản rỗng. Cân nhắc nâng lên 'default' hoặc bổ sung nội dung khi soạn.",
+    "ĐÂY LÀ CÔNG CỤ TEST — mẫu chỉ mang tính tham khảo, không có giá trị pháp lý; người dùng cần luật sư rà soát trước khi ký."
+  ]
+}

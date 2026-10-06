@@ -1,0 +1,496 @@
+{
+  "id": "mua_ban_hh",
+  "name": "Hợp đồng mua bán hàng hóa",
+  "group": "Công ty ↔ Công ty",
+  "icon": "📦",
+  "summary": "Hợp đồng giữa hai doanh nghiệp, theo đó Bên bán giao hàng hóa và chuyển quyền sở hữu cho Bên mua, Bên mua nhận hàng và thanh toán. Soạn theo Luật Thương mại 2005 và Bộ luật Dân sự 2015, có điều khoản về số lượng/chất lượng, giao hàng, chuyển rủi ro, thanh toán, bảo hành và phạt vi phạm (tối đa 8%).",
+  "legalBasis": [
+    "Luật Thương mại 2005 (số 36/2005/QH11) - Mục 2 Chương II, Điều 24-62: hợp đồng mua bán hàng hóa, quyền và nghĩa vụ các bên",
+    "Luật Thương mại 2005 - Điều 34 (giao hàng và chứng từ), Điều 35 (địa điểm giao hàng), Điều 37 (thời hạn giao hàng), Điều 44 (kiểm tra hàng hóa trước khi giao)",
+    "Luật Thương mại 2005 - Điều 39, 40 (hàng hóa không phù hợp với hợp đồng và trách nhiệm), Điều 49 (bảo hành hàng hóa)",
+    "Luật Thương mại 2005 - Điều 50 (nghĩa vụ thanh toán), Điều 54 (địa điểm thanh toán), Điều 55 (thời hạn thanh toán)",
+    "Luật Thương mại 2005 - Điều 57-61 (chuyển rủi ro), Điều 62 (chuyển quyền sở hữu)",
+    "Luật Thương mại 2005 - Điều 292, 294, 295, 300, 301 (chế tài; bất khả kháng; phạt vi phạm tối đa 8% giá trị phần nghĩa vụ bị vi phạm), Điều 302, 307 (bồi thường thiệt hại; quan hệ giữa phạt và bồi thường), Điều 317 (hình thức giải quyết tranh chấp)",
+    "Bộ luật Dân sự 2015 (số 91/2015/QH13) - Điều 398 (nội dung hợp đồng), Điều 385, 401 (giao kết, hiệu lực hợp đồng), Điều 156 (sự kiện bất khả kháng)",
+    "Luật Trọng tài thương mại 2010 (số 54/2010/QH12) - thỏa thuận trọng tài và thẩm quyền của trọng tài thương mại",
+    "Luật Thuế giá trị gia tăng 2024 (số 48/2024/QH15) - Điều 14; Nghị định 181/2025/NĐ-CP - Điều 26: từ 01/7/2025, hàng hóa/dịch vụ mua vào từ 5 triệu đồng (đã gồm GTGT) phải có chứng từ thanh toán không dùng tiền mặt để được khấu trừ thuế GTGT",
+    "Nghị định 222/2013/NĐ-CP (được hướng dẫn bởi Thông tư 09/2015/TT-BTC) - hạn chế thanh toán bằng tiền mặt trong một số giao dịch giữa doanh nghiệp"
+  ],
+  "parties": {
+    "a": "Bên bán",
+    "b": "Bên mua"
+  },
+  "title": "HỢP ĐỒNG MUA BÁN HÀNG HÓA",
+  "preamble": "- Căn cứ Bộ luật Dân sự số 91/2015/QH13;\n- Căn cứ Luật Thương mại số 36/2005/QH11;\n- Căn cứ nhu cầu và khả năng của hai Bên.\n\nHôm nay, ngày {{ngay_ky}}, tại {{dia_diem_ky}}, chúng tôi gồm:",
+  "fields": [
+    {
+      "key": "ten_ben_ban",
+      "label": "Tên doanh nghiệp Bên bán",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Ghi đúng tên trên Giấy chứng nhận đăng ký doanh nghiệp.",
+      "placeholder": "CÔNG TY TNHH ABC"
+    },
+    {
+      "key": "mst_ben_ban",
+      "label": "Mã số thuế / Mã số doanh nghiệp Bên bán",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Mã số doanh nghiệp dùng để xác định chủ thể.",
+      "placeholder": "0312345678"
+    },
+    {
+      "key": "dia_chi_ben_ban",
+      "label": "Địa chỉ trụ sở Bên bán",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Địa chỉ trụ sở chính theo đăng ký kinh doanh. Đây cũng là nơi mặc định để thanh toán nếu không thỏa thuận khác (Điều 54 LTM).",
+      "placeholder": "Số ..., đường ..., quận ..., TP ..."
+    },
+    {
+      "key": "dai_dien_ben_ban",
+      "label": "Người đại diện Bên bán (họ tên, chức vụ)",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Người có thẩm quyền ký kết hợp đồng (người đại diện theo pháp luật hoặc người được ủy quyền).",
+      "placeholder": "Ông Nguyễn Văn A - Giám đốc"
+    },
+    {
+      "key": "ten_ben_mua",
+      "label": "Tên doanh nghiệp Bên mua",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Ghi đúng tên trên Giấy chứng nhận đăng ký doanh nghiệp.",
+      "placeholder": "CÔNG TY CỔ PHẦN XYZ"
+    },
+    {
+      "key": "mst_ben_mua",
+      "label": "Mã số thuế / Mã số doanh nghiệp Bên mua",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Mã số doanh nghiệp dùng để xác định chủ thể.",
+      "placeholder": "0398765432"
+    },
+    {
+      "key": "dia_chi_ben_mua",
+      "label": "Địa chỉ trụ sở Bên mua",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Địa chỉ trụ sở chính theo đăng ký kinh doanh.",
+      "placeholder": "Số ..., đường ..., quận ..., TP ..."
+    },
+    {
+      "key": "dai_dien_ben_mua",
+      "label": "Người đại diện Bên mua (họ tên, chức vụ)",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Người có thẩm quyền ký kết hợp đồng (người đại diện theo pháp luật hoặc người được ủy quyền).",
+      "placeholder": "Bà Trần Thị B - Tổng giám đốc"
+    },
+    {
+      "key": "ten_hang_hoa",
+      "label": "Tên hàng hóa / mô tả đối tượng",
+      "section": "Hàng hóa",
+      "tier": "required",
+      "type": "text",
+      "help": "Đối tượng của hợp đồng. Đây là điều khoản chủ yếu - thiếu thì hợp đồng không hình thành.",
+      "placeholder": "Xi măng PCB40 hiệu ..."
+    },
+    {
+      "key": "quy_cach_chat_luong",
+      "label": "Quy cách, tiêu chuẩn chất lượng",
+      "section": "Hàng hóa",
+      "tier": "required",
+      "type": "textarea",
+      "help": "Mô tả tiêu chuẩn kỹ thuật, model, xuất xứ, tiêu chuẩn áp dụng (TCVN, ISO...). Nếu không thỏa thuận, hàng phải phù hợp với mục đích sử dụng thông thường (Điều 39 LTM).",
+      "placeholder": "Đóng bao 50kg, đạt TCVN 6260:2009, mới 100%, xuất xứ Việt Nam"
+    },
+    {
+      "key": "so_luong",
+      "label": "Số lượng",
+      "section": "Hàng hóa",
+      "tier": "required",
+      "type": "text",
+      "help": "Số lượng kèm đơn vị tính. Điều khoản chủ yếu của hợp đồng.",
+      "placeholder": "1.000 bao"
+    },
+    {
+      "key": "don_vi_tinh",
+      "label": "Đơn vị tính",
+      "section": "Hàng hóa",
+      "tier": "required",
+      "type": "text",
+      "help": "Đơn vị đo lường của hàng hóa.",
+      "placeholder": "bao / tấn / cái / m3"
+    },
+    {
+      "key": "don_gia",
+      "label": "Đơn giá (VNĐ)",
+      "section": "Giá và thanh toán",
+      "tier": "required",
+      "type": "money",
+      "help": "Giá cho một đơn vị hàng hóa. Nêu rõ đã/chưa gồm thuế GTGT.",
+      "placeholder": "1.500.000"
+    },
+    {
+      "key": "tong_gia_tri",
+      "label": "Tổng giá trị hợp đồng (VNĐ)",
+      "section": "Giá và thanh toán",
+      "tier": "required",
+      "type": "money",
+      "help": "Tổng tiền hàng. Nên ghi cả bằng số và bằng chữ trong bản in.",
+      "placeholder": "1.500.000.000"
+    },
+    {
+      "key": "gia_da_gom_vat",
+      "label": "Giá đã bao gồm thuế GTGT chưa?",
+      "section": "Giá và thanh toán",
+      "tier": "required",
+      "type": "select",
+      "options": [
+        "Đã bao gồm thuế GTGT",
+        "Chưa bao gồm thuế GTGT (cộng thêm khi xuất hóa đơn)"
+      ],
+      "help": "Tránh tranh chấp về việc ai chịu thuế GTGT.",
+      "placeholder": ""
+    },
+    {
+      "key": "phuong_thuc_thanh_toan",
+      "label": "Phương thức thanh toán",
+      "section": "Giá và thanh toán",
+      "tier": "required",
+      "type": "select",
+      "options": [
+        "Chuyển khoản ngân hàng",
+        "Tiền mặt",
+        "Kết hợp tạm ứng và chuyển khoản"
+      ],
+      "help": "Từ 01/7/2025, hàng hóa/dịch vụ mua vào từ 5 triệu đồng (đã gồm GTGT) phải có chứng từ thanh toán không dùng tiền mặt mới được khấu trừ thuế GTGT và tính chi phí được trừ (Điều 14 Luật Thuế GTGT 2024; Điều 26 Nghị định 181/2025/NĐ-CP). Vì vậy giao dịch giữa doanh nghiệp nên thanh toán qua tài khoản ngân hàng.",
+      "placeholder": ""
+    },
+    {
+      "key": "tien_do_thanh_toan",
+      "label": "Tiến độ / điều kiện thanh toán",
+      "section": "Giá và thanh toán",
+      "tier": "default",
+      "type": "textarea",
+      "help": "Ví dụ: tạm ứng 30% khi ký, 70% sau khi nhận hàng. Nếu im lặng, luật áp dụng quy định bổ khuyết bên dưới.",
+      "placeholder": "Tạm ứng 30% trong 03 ngày sau khi ký; thanh toán 70% còn lại trong 07 ngày sau khi nhận đủ hàng và hóa đơn.",
+      "defaultText": "Nếu các bên không thỏa thuận: Bên mua phải thanh toán cho Bên bán vào thời điểm Bên bán giao hàng hoặc giao chứng từ liên quan đến hàng hóa; địa điểm thanh toán là trụ sở/địa điểm kinh doanh của Bên bán (Điều 54). Trường hợp các bên có thỏa thuận về việc kiểm tra hàng hóa theo Điều 44, Bên mua không có nghĩa vụ thanh toán cho đến khi có thể kiểm tra xong hàng hóa.",
+      "legalRef": "Điều 50, 54, 55 Luật Thương mại 2005"
+    },
+    {
+      "key": "thong_tin_tai_khoan",
+      "label": "Tài khoản nhận tiền của Bên bán",
+      "section": "Giá và thanh toán",
+      "tier": "optional",
+      "type": "textarea",
+      "help": "Số tài khoản, ngân hàng, chi nhánh để Bên mua chuyển khoản.",
+      "placeholder": "Số TK ..., Ngân hàng ..., Chi nhánh ..., Chủ TK: ...",
+      "condition": {
+        "key": "phuong_thuc_thanh_toan",
+        "equals": "Chuyển khoản ngân hàng"
+      }
+    },
+    {
+      "key": "dia_diem_giao_hang",
+      "label": "Địa điểm giao hàng",
+      "section": "Giao nhận hàng hóa",
+      "tier": "default",
+      "type": "text",
+      "help": "Nơi Bên bán giao hàng cho Bên mua. Nên ghi rõ để xác định thời điểm chuyển rủi ro.",
+      "placeholder": "Kho của Bên mua tại số ..., ...",
+      "defaultText": "Nếu không thỏa thuận địa điểm giao hàng: (a) nếu hàng gắn liền với đất thì giao tại nơi có hàng; (b) nếu hợp đồng có vận chuyển thì Bên bán giao hàng cho người vận chuyển đầu tiên; (c) nếu các bên biết địa điểm kho/nơi sản xuất thì giao tại đó; (d) các trường hợp khác giao tại địa điểm kinh doanh của Bên bán.",
+      "legalRef": "Điều 35 Luật Thương mại 2005"
+    },
+    {
+      "key": "thoi_han_giao_hang",
+      "label": "Thời hạn / thời điểm giao hàng",
+      "section": "Giao nhận hàng hóa",
+      "tier": "default",
+      "type": "text",
+      "help": "Ngày hoặc khoảng thời gian Bên bán phải giao hàng.",
+      "placeholder": "Trong vòng 15 ngày kể từ ngày ký hợp đồng",
+      "defaultText": "Nếu chỉ thỏa thuận thời hạn (khoảng thời gian) mà không có thời điểm cụ thể, Bên bán được giao hàng vào bất kỳ thời điểm nào trong thời hạn đó nhưng phải báo trước cho Bên mua. Nếu không thỏa thuận thời hạn, Bên bán phải giao hàng trong một thời hạn hợp lý sau khi giao kết hợp đồng.",
+      "legalRef": "Điều 37 Luật Thương mại 2005"
+    },
+    {
+      "key": "chi_phi_van_chuyen",
+      "label": "Bên chịu chi phí vận chuyển, bốc dỡ",
+      "section": "Giao nhận hàng hóa",
+      "tier": "default",
+      "type": "select",
+      "options": [
+        "Bên bán chịu (giao tại địa điểm Bên mua)",
+        "Bên mua chịu (nhận tại kho Bên bán)",
+        "Hai bên thỏa thuận chia sẻ"
+      ],
+      "help": "Xác định ai trả phí vận chuyển, bốc xếp tới địa điểm giao hàng.",
+      "placeholder": "",
+      "defaultText": "Pháp luật không ấn định cứng; thông thường gắn với địa điểm giao hàng: bên có nghĩa vụ đưa hàng tới địa điểm giao hàng chịu chi phí đến điểm đó. Nếu không rõ, chi phí được phân bổ theo nghĩa vụ giao hàng tại Điều 34-35.",
+      "legalRef": "Điều 34, 35 Luật Thương mại 2005"
+    },
+    {
+      "key": "kiem_tra_hang",
+      "label": "Quy định kiểm tra hàng khi nhận",
+      "section": "Giao nhận hàng hóa",
+      "tier": "default",
+      "type": "textarea",
+      "help": "Thời hạn và cách Bên mua kiểm tra hàng, lập biên bản giao nhận, thông báo khiếm khuyết. Nếu để trống, áp dụng nguyên tắc bổ khuyết bên dưới.",
+      "placeholder": "Bên mua kiểm tra trong 03 ngày kể từ khi nhận; thông báo bằng văn bản nếu phát hiện hàng không phù hợp.",
+      "defaultText": "Trường hợp các bên thỏa thuận để Bên mua kiểm tra hàng hóa, Bên mua phải kiểm tra trong thời gian ngắn nhất mà hoàn cảnh thực tế cho phép; nếu hợp đồng có vận chuyển thì việc kiểm tra có thể hoãn đến khi hàng tới địa điểm đến. Bên bán phải chịu trách nhiệm về khiếm khuyết của hàng hóa mà Bên mua đã kiểm tra nếu khiếm khuyết đó không thể phát hiện được bằng biện pháp thông thường mà Bên bán đã biết hoặc phải biết nhưng không thông báo cho Bên mua.",
+      "legalRef": "Điều 44 Luật Thương mại 2005"
+    },
+    {
+      "key": "thoi_diem_chuyen_rui_ro",
+      "label": "Thời điểm chuyển rủi ro",
+      "section": "Chuyển rủi ro và quyền sở hữu",
+      "tier": "default",
+      "type": "select",
+      "options": [
+        "Khi hàng được giao cho Bên mua tại địa điểm giao hàng",
+        "Khi hàng được giao cho người vận chuyển đầu tiên",
+        "Theo quy định mặc định của Luật Thương mại"
+      ],
+      "help": "Mốc thời điểm rủi ro mất mát, hư hỏng chuyển từ Bên bán sang Bên mua. Rất quan trọng để xác định ai chịu thiệt hại.",
+      "placeholder": "",
+      "defaultText": "Nếu không thỏa thuận: (a) có địa điểm giao hàng xác định - rủi ro chuyển khi hàng được giao tại địa điểm đó; (b) không có địa điểm xác định mà hợp đồng có vận chuyển - rủi ro chuyển khi hàng giao cho người vận chuyển đầu tiên; (c) hàng do người nhận để giao giữ - khi Bên mua nhận chứng từ sở hữu hoặc người nhận xác nhận quyền chiếm hữu của Bên mua; (d) hàng đang trên đường vận chuyển - rủi ro chuyển từ thời điểm giao kết; (e) các trường hợp khác - khi hàng thuộc quyền định đoạt của Bên mua và Bên mua vi phạm nghĩa vụ nhận hàng.",
+      "legalRef": "Điều 57-61 Luật Thương mại 2005"
+    },
+    {
+      "key": "thoi_diem_chuyen_so_huu",
+      "label": "Thời điểm chuyển quyền sở hữu",
+      "section": "Chuyển rủi ro và quyền sở hữu",
+      "tier": "default",
+      "type": "text",
+      "help": "Mốc Bên mua trở thành chủ sở hữu hàng hóa. Có thể gắn với việc thanh toán đủ.",
+      "placeholder": "Khi Bên mua thanh toán đủ tiền hàng",
+      "defaultText": "Nếu không thỏa thuận khác, quyền sở hữu hàng hóa được chuyển từ Bên bán sang Bên mua kể từ thời điểm hàng hóa được chuyển giao.",
+      "legalRef": "Điều 62 Luật Thương mại 2005"
+    },
+    {
+      "key": "bao_hanh",
+      "label": "Điều khoản bảo hành",
+      "section": "Bảo hành và chất lượng",
+      "tier": "default",
+      "type": "textarea",
+      "help": "Thời hạn và phạm vi bảo hành (nếu hàng có bảo hành). Bỏ trống nếu hàng không thuộc loại bảo hành.",
+      "placeholder": "Bảo hành 12 tháng kể từ ngày giao hàng đối với lỗi kỹ thuật do nhà sản xuất.",
+      "defaultText": "Trường hợp hàng hóa có bảo hành thì Bên bán phải chịu trách nhiệm bảo hành theo nội dung và thời hạn đã thỏa thuận; Bên bán chịu chi phí bảo hành trừ khi có thỏa thuận khác. Nếu không thỏa thuận bảo hành, Bên bán vẫn chịu trách nhiệm về hàng hóa không phù hợp với hợp đồng theo Điều 39, 40.",
+      "legalRef": "Điều 39, 40, 49 Luật Thương mại 2005"
+    },
+    {
+      "key": "muc_phat_vi_pham",
+      "label": "Mức phạt vi phạm hợp đồng (%)",
+      "section": "Trách nhiệm vi phạm",
+      "tier": "default",
+      "type": "number",
+      "help": "Tỷ lệ phạt tính trên giá trị phần nghĩa vụ bị vi phạm. Theo luật KHÔNG được vượt quá 8%.",
+      "placeholder": "8",
+      "defaultText": "Phạt vi phạm chỉ áp dụng nếu các bên có thỏa thuận trong hợp đồng. Mức phạt do các bên thỏa thuận nhưng không quá 8% giá trị phần nghĩa vụ hợp đồng bị vi phạm. Nếu không thỏa thuận điều khoản phạt thì không được áp dụng phạt vi phạm (nhưng vẫn có thể yêu cầu bồi thường thiệt hại thực tế).",
+      "legalRef": "Điều 300, 301 Luật Thương mại 2005"
+    },
+    {
+      "key": "boi_thuong_thiet_hai",
+      "label": "Thỏa thuận về bồi thường thiệt hại",
+      "section": "Trách nhiệm vi phạm",
+      "tier": "default",
+      "type": "textarea",
+      "help": "Trách nhiệm bồi thường thiệt hại thực tế khi vi phạm gây thiệt hại.",
+      "placeholder": "Bên vi phạm phải bồi thường toàn bộ thiệt hại thực tế, trực tiếp mà bên bị vi phạm phải chịu.",
+      "defaultText": "Bên vi phạm phải bồi thường thiệt hại thực tế, trực tiếp và khoản lợi đáng lẽ được hưởng mà bên bị vi phạm phải gánh chịu do hành vi vi phạm gây ra; bên yêu cầu bồi thường có nghĩa vụ chứng minh tổn thất và hạn chế tổn thất. Phạt vi phạm và bồi thường thiệt hại có thể áp dụng đồng thời nếu hợp đồng có thỏa thuận phạt.",
+      "legalRef": "Điều 302, 303, 305, 307 Luật Thương mại 2005"
+    },
+    {
+      "key": "truong_hop_bat_kha_khang",
+      "label": "Điều khoản bất khả kháng",
+      "section": "Trách nhiệm vi phạm",
+      "tier": "default",
+      "type": "textarea",
+      "help": "Miễn trách khi xảy ra sự kiện khách quan không thể lường trước, không khắc phục được (thiên tai, dịch bệnh...).",
+      "placeholder": "Hai bên được miễn trách nhiệm trong trường hợp bất khả kháng theo quy định pháp luật.",
+      "defaultText": "Bên vi phạm được miễn trách nhiệm nếu xảy ra sự kiện bất khả kháng; bên gặp bất khả kháng phải thông báo ngay bằng văn bản cho bên kia và phải áp dụng mọi biện pháp cần thiết để khắc phục, hạn chế thiệt hại.",
+      "legalRef": "Điều 294, 295 Luật Thương mại 2005; Điều 156 BLDS 2015"
+    },
+    {
+      "key": "co_quan_giai_quyet",
+      "label": "Cơ quan giải quyết tranh chấp",
+      "section": "Giải quyết tranh chấp và hiệu lực",
+      "tier": "default",
+      "type": "select",
+      "options": [
+        "Tòa án có thẩm quyền",
+        "Trọng tài thương mại"
+      ],
+      "help": "Nơi giải quyết khi thương lượng không thành. Chọn trọng tài thì phải có thỏa thuận trọng tài rõ ràng.",
+      "placeholder": "",
+      "defaultText": "Nếu không có thỏa thuận trọng tài, tranh chấp được giải quyết tại Tòa án nhân dân có thẩm quyền theo quy định của Bộ luật Tố tụng dân sự. Hai bên ưu tiên thương lượng, hòa giải trước khi khởi kiện.",
+      "legalRef": "Điều 317 Luật Thương mại 2005; Luật Trọng tài thương mại 2010"
+    },
+    {
+      "key": "ten_trong_tai",
+      "label": "Tên tổ chức trọng tài",
+      "section": "Giải quyết tranh chấp và hiệu lực",
+      "tier": "optional",
+      "type": "text",
+      "help": "Tên cụ thể của trung tâm trọng tài (ví dụ VIAC). Bắt buộc ghi rõ nếu chọn trọng tài.",
+      "placeholder": "Trung tâm Trọng tài Quốc tế Việt Nam (VIAC)",
+      "condition": {
+        "key": "co_quan_giai_quyet",
+        "equals": "Trọng tài thương mại"
+      }
+    },
+    {
+      "key": "so_ban",
+      "label": "Số bản hợp đồng",
+      "section": "Giải quyết tranh chấp và hiệu lực",
+      "tier": "optional",
+      "type": "number",
+      "help": "Số bản gốc, mỗi bên giữ số lượng bằng nhau, có giá trị như nhau.",
+      "placeholder": "02"
+    },
+    {
+      "key": "ngay_ky",
+      "label": "Ngày ký hợp đồng",
+      "section": "Giải quyết tranh chấp và hiệu lực",
+      "tier": "required",
+      "type": "date",
+      "help": "Ngày hai bên ký kết. Hợp đồng thường có hiệu lực kể từ ngày này nếu không thỏa thuận khác.",
+      "placeholder": "2026-06-15"
+    },
+    {
+      "key": "dia_diem_ky",
+      "label": "Địa điểm ký hợp đồng",
+      "section": "Giải quyết tranh chấp và hiệu lực",
+      "tier": "optional",
+      "type": "text",
+      "help": "Nơi ký kết (thường là trụ sở một trong hai bên).",
+      "placeholder": "TP. Hồ Chí Minh"
+    }
+  ],
+  "lint": [
+    {
+      "field": "muc_phat_vi_pham",
+      "op": "max",
+      "value": 8,
+      "message": "Mức phạt vi phạm không được vượt quá 8% giá trị phần nghĩa vụ hợp đồng bị vi phạm. Thỏa thuận vượt 8% sẽ bị vô hiệu phần vượt quá.",
+      "legalRef": "Điều 301 Luật Thương mại 2005",
+      "severity": "error"
+    },
+    {
+      "field": "muc_phat_vi_pham",
+      "op": "min",
+      "value": 0,
+      "message": "Mức phạt không thể âm. Để 0 hoặc bỏ trống nếu không áp dụng phạt vi phạm.",
+      "legalRef": "Điều 300, 301 Luật Thương mại 2005",
+      "severity": "warn"
+    },
+    {
+      "field": "thoi_diem_chuyen_rui_ro",
+      "op": "note",
+      "value": "",
+      "message": "Cần xác định rõ địa điểm và thời điểm chuyển rủi ro để biết bên nào chịu mất mát, hư hỏng hàng hóa. Mốc này thường gắn với địa điểm giao hàng (Điều 57) hoặc thời điểm giao cho người vận chuyển đầu tiên (Điều 58).",
+      "legalRef": "Điều 57-61 Luật Thương mại 2005",
+      "severity": "warn"
+    },
+    {
+      "field": "ten_hang_hoa",
+      "op": "note",
+      "value": "",
+      "message": "Đối tượng, số lượng, chất lượng và giá là các nội dung chủ yếu. Thiếu đối tượng hợp đồng thì hợp đồng có thể bị coi là chưa hình thành.",
+      "legalRef": "Điều 398 BLDS 2015; Điều 24, 25 LTM 2005",
+      "severity": "warn"
+    },
+    {
+      "field": "phuong_thuc_thanh_toan",
+      "op": "note",
+      "value": "",
+      "message": "Từ 01/7/2025, hàng hóa/dịch vụ mua vào từ 5 triệu đồng (đã gồm GTGT) phải có chứng từ thanh toán không dùng tiền mặt mới được khấu trừ thuế GTGT đầu vào và tính vào chi phí được trừ khi tính thuế TNDN. Giao dịch giữa doanh nghiệp nên thanh toán qua tài khoản ngân hàng.",
+      "legalRef": "Điều 14 Luật Thuế GTGT 2024 (số 48/2024/QH15); Điều 26 Nghị định 181/2025/NĐ-CP",
+      "severity": "warn"
+    }
+  ],
+  "body": [
+    {
+      "heading": "ĐIỀU 1: ĐỐI TƯỢNG VÀ ĐẶC ĐIỂM HÀNG HÓA",
+      "text": "Bên bán đồng ý bán và Bên mua đồng ý mua hàng hóa với các đặc điểm sau:\n- Tên hàng hóa: {{ten_hang_hoa}}\n- Quy cách, tiêu chuẩn chất lượng: {{quy_cach_chat_luong}}\n- Số lượng: {{so_luong}} ({{don_vi_tinh}})\nHàng hóa phải phù hợp với mô tả nêu trên; trường hợp các bên không thỏa thuận cụ thể về chất lượng thì hàng hóa phải phù hợp với mục đích sử dụng thông thường theo Điều 39 Luật Thương mại 2005."
+    },
+    {
+      "heading": "ĐIỀU 2: GIÁ CẢ VÀ GIÁ TRỊ HỢP ĐỒNG",
+      "text": "- Đơn giá: {{don_gia}} VNĐ/{{don_vi_tinh}}.\n- Tổng giá trị hợp đồng: {{tong_gia_tri}} VNĐ.\n- Về thuế giá trị gia tăng: {{gia_da_gom_vat}}.\nGiá trên là giá cố định trong suốt thời hạn thực hiện hợp đồng, trừ khi hai bên có thỏa thuận khác bằng văn bản."
+    },
+    {
+      "heading": "ĐIỀU 3: PHƯƠNG THỨC VÀ THỜI HẠN THANH TOÁN",
+      "text": "- Phương thức thanh toán: {{phuong_thuc_thanh_toan}}.\n- Tiến độ và điều kiện thanh toán: {{tien_do_thanh_toan}}.\nTrường hợp các bên không thỏa thuận, Bên mua thanh toán cho Bên bán vào thời điểm Bên bán giao hàng hoặc giao chứng từ liên quan đến hàng hóa, tại địa điểm kinh doanh của Bên bán theo Điều 50, 54, 55 Luật Thương mại 2005. Bên bán có nghĩa vụ xuất hóa đơn giá trị gia tăng hợp lệ cho Bên mua. Đối với hàng hóa, dịch vụ từ 5 triệu đồng (đã gồm GTGT), Bên mua nên thanh toán bằng chứng từ không dùng tiền mặt để được khấu trừ thuế GTGT theo quy định pháp luật thuế hiện hành."
+    },
+    {
+      "heading": "ĐIỀU 3A: THÔNG TIN TÀI KHOẢN THANH TOÁN",
+      "text": "Bên mua chuyển khoản tiền hàng vào tài khoản của Bên bán: {{thong_tin_tai_khoan}}.",
+      "condition": {
+        "key": "phuong_thuc_thanh_toan",
+        "equals": "Chuyển khoản ngân hàng"
+      }
+    },
+    {
+      "heading": "ĐIỀU 4: GIAO NHẬN HÀNG HÓA",
+      "text": "- Địa điểm giao hàng: {{dia_diem_giao_hang}}.\n- Thời hạn giao hàng: {{thoi_han_giao_hang}}.\n- Chi phí vận chuyển, bốc dỡ: {{chi_phi_van_chuyen}}.\nHai bên lập biên bản giao nhận hàng hóa tại thời điểm giao hàng. Trường hợp không thỏa thuận thời hạn giao hàng, Bên bán phải giao hàng trong một thời hạn hợp lý sau khi giao kết hợp đồng theo Điều 37 Luật Thương mại 2005."
+    },
+    {
+      "heading": "ĐIỀU 5: KIỂM TRA HÀNG HÓA KHI NHẬN",
+      "text": "Việc kiểm tra hàng hóa khi giao nhận được thực hiện như sau: {{kiem_tra_hang}}. Trường hợp các bên có thỏa thuận về việc kiểm tra hàng hóa, Bên mua phải kiểm tra trong thời gian ngắn nhất mà hoàn cảnh thực tế cho phép và thông báo bằng văn bản cho Bên bán nếu phát hiện hàng hóa không phù hợp với hợp đồng. Bên bán phải chịu trách nhiệm về những khiếm khuyết của hàng hóa mà Bên bán đã biết hoặc phải biết nhưng không thông báo cho Bên mua, kể cả khiếm khuyết không thể phát hiện được bằng biện pháp kiểm tra thông thường (Điều 44 Luật Thương mại 2005)."
+    },
+    {
+      "heading": "ĐIỀU 6: CHUYỂN RỦI RO VÀ QUYỀN SỞ HỮU",
+      "text": "- Thời điểm chuyển rủi ro: {{thoi_diem_chuyen_rui_ro}}. Kể từ thời điểm này, mọi rủi ro mất mát, hư hỏng hàng hóa (không do lỗi của Bên bán) chuyển sang Bên mua.\n- Thời điểm chuyển quyền sở hữu: {{thoi_diem_chuyen_so_huu}}.\nCác nội dung không thỏa thuận được áp dụng theo Điều 57-62 Luật Thương mại 2005."
+    },
+    {
+      "heading": "ĐIỀU 7: BẢO HÀNH VÀ TRÁCH NHIỆM VỚI HÀNG HÓA KHÔNG PHÙ HỢP",
+      "text": "Điều kiện bảo hành: {{bao_hanh}}.\nTrường hợp hàng hóa không phù hợp với hợp đồng, Bên bán phải chịu trách nhiệm theo Điều 40 Luật Thương mại 2005; Bên mua có quyền yêu cầu sửa chữa, thay thế, giảm giá hoặc các biện pháp khắc phục phù hợp."
+    },
+    {
+      "heading": "ĐIỀU 8: QUYỀN VÀ NGHĨA VỤ CỦA BÊN BÁN",
+      "text": "Bên bán có nghĩa vụ: giao hàng đúng đối tượng, số lượng, chất lượng, thời hạn và địa điểm đã thỏa thuận; giao chứng từ liên quan đến hàng hóa; chuyển quyền sở hữu hàng hóa cho Bên mua; bảo đảm hàng hóa không bị tranh chấp về quyền sở hữu của bên thứ ba. Bên bán có quyền nhận thanh toán đầy đủ, đúng hạn."
+    },
+    {
+      "heading": "ĐIỀU 9: QUYỀN VÀ NGHĨA VỤ CỦA BÊN MUA",
+      "text": "Bên mua có nghĩa vụ: nhận hàng và thanh toán đầy đủ, đúng thời hạn, đúng phương thức đã thỏa thuận; thực hiện các công việc hợp lý để Bên bán giao hàng. Bên mua có quyền nhận hàng đúng đối tượng, số lượng, chất lượng và từ chối nhận hàng không phù hợp với hợp đồng theo quy định pháp luật."
+    },
+    {
+      "heading": "ĐIỀU 10: PHẠT VI PHẠM VÀ BỒI THƯỜNG THIỆT HẠI",
+      "text": "- Phạt vi phạm: Bên vi phạm phải chịu phạt {{muc_phat_vi_pham}}% giá trị phần nghĩa vụ hợp đồng bị vi phạm. Mức phạt này tuân thủ giới hạn không quá 8% theo Điều 301 Luật Thương mại 2005.\n- Bồi thường thiệt hại: {{boi_thuong_thiet_hai}}.\nPhạt vi phạm và bồi thường thiệt hại có thể được áp dụng đồng thời theo Điều 307 Luật Thương mại 2005."
+    },
+    {
+      "heading": "ĐIỀU 11: BẤT KHẢ KHÁNG",
+      "text": "{{truong_hop_bat_kha_khang}} Bên gặp sự kiện bất khả kháng phải thông báo bằng văn bản cho bên kia trong thời gian sớm nhất và áp dụng mọi biện pháp cần thiết để hạn chế thiệt hại."
+    },
+    {
+      "heading": "ĐIỀU 12: GIẢI QUYẾT TRANH CHẤP",
+      "text": "Mọi tranh chấp phát sinh từ hoặc liên quan đến hợp đồng này trước hết được giải quyết thông qua thương lượng, hòa giải. Nếu không đạt được thỏa thuận, tranh chấp được đưa ra giải quyết tại: {{co_quan_giai_quyet}}, theo quy định của pháp luật Việt Nam."
+    },
+    {
+      "heading": "ĐIỀU 12A: THỎA THUẬN TRỌNG TÀI",
+      "text": "Tổ chức trọng tài giải quyết tranh chấp là: {{ten_trong_tai}}. Phán quyết của trọng tài là chung thẩm và ràng buộc các bên.",
+      "condition": {
+        "key": "co_quan_giai_quyet",
+        "equals": "Trọng tài thương mại"
+      }
+    }
+  ],
+  "closing": "Hợp đồng được lập thành {{so_ban}} bản có giá trị pháp lý như nhau, mỗi bên giữ số bản bằng nhau. Hợp đồng có hiệu lực kể từ ngày {{ngay_ky}}. Các nội dung không quy định trong hợp đồng này được thực hiện theo Luật Thương mại 2005, Bộ luật Dân sự 2015 và pháp luật có liên quan.\n\nĐẠI DIỆN BÊN BÁN                              ĐẠI DIỆN BÊN MUA\n(Ký, ghi rõ họ tên, đóng dấu)                 (Ký, ghi rõ họ tên, đóng dấu)\n\n{{dai_dien_ben_ban}}                          {{dai_dien_ben_mua}}",
+  "verifyNotes": [
+    "Đã TỰ tra cứu và xác minh: Điều 301 LTM 2005 (phạt tối đa 8% giá trị phần nghĩa vụ bị vi phạm) - đúng; Điều 50/54/55 (thanh toán; địa điểm thanh toán mặc định là trụ sở/địa điểm kinh doanh Bên bán) - đúng; Điều 37 (thời hạn giao hàng - thời hạn hợp lý nếu không thỏa thuận) - đúng; Điều 35 (địa điểm giao hàng) - đúng; Điều 44 (kiểm tra hàng hóa) - đúng; Điều 39/40/49 (hàng không phù hợp, bảo hành) - đúng; Điều 57-62 (chuyển rủi ro, chuyển quyền sở hữu) - đúng; Điều 317 (hình thức giải quyết tranh chấp) - đúng; Điều 398 BLDS 2015 (nội dung hợp đồng) - đúng.",
+    "SỬA QUAN TRỌNG (cập nhật pháp luật thuế): Bản gốc dẫn ngưỡng thanh toán không tiền mặt 20 triệu đồng và chỉ căn cứ Nghị định 222/2013. Từ 01/7/2025 ngưỡng giảm còn 5 triệu đồng (đã gồm GTGT) theo Điều 14 Luật Thuế GTGT 2024 (số 48/2024/QH15) và Điều 26 Nghị định 181/2025/NĐ-CP. Đã sửa help của 'phuong_thuc_thanh_toan', lint note, Điều 3 body và bổ sung căn cứ pháp lý.",
+    "SỬA LỖI ĐÁNH SỐ ĐIỀU TRÙNG: bản gốc có hai 'ĐIỀU 3' và hai 'ĐIỀU 12'. Đã đổi điều khoản điều kiện thành 'ĐIỀU 3A' (thông tin tài khoản) và 'ĐIỀU 12A' (thỏa thuận trọng tài) để tránh trùng số.",
+    "SỬA LOGIC ĐIỀU KIỆN BỊ NGƯỢC: body 'ĐIỀU 5: KIỂM TRA HÀNG HÓA' bản gốc có condition {kiem_tra_hang == ''} khiến điều khoản chỉ hiện khi field để TRỐNG (ngược ý đồ). Đã bỏ condition để điều khoản luôn xuất hiện; đồng thời nâng field 'kiem_tra_hang' từ optional lên default và bổ sung defaultText theo đúng Điều 44.",
+    "SỬA DIỄN ĐẠT ĐIỀU 44: bản gốc viết Bên mua 'mất quyền viện dẫn khiếm khuyết có thể phát hiện được' - không sát câu chữ Điều 44 LTM. Đã chỉnh lại theo đúng quy định: Bên bán chịu trách nhiệm về khiếm khuyết mà mình đã biết/phải biết nhưng không thông báo, kể cả khiếm khuyết không phát hiện được bằng biện pháp thông thường.",
+    "CẢNH BÁO CÒN LẠI: (1) Đây là CÔNG CỤ MẪU, KHÔNG CÓ GIÁ TRỊ PHÁP LÝ; nên tham vấn luật sư và đối chiếu văn bản luật mới nhất tại thời điểm sử dụng. (2) Nếu chọn trọng tài, phải có thỏa thuận trọng tài rõ ràng (ghi đúng tên trung tâm), nếu không có thể bị vô hiệu theo Luật Trọng tài thương mại 2010. (3) Phân biệt chế tài thương mại (phạt vi phạm ≤8%) với phạt cọc theo Điều 328 BLDS nếu hợp đồng có đặt cọc - đây là hai cơ chế khác nhau. (4) Nghị định 222/2013 chỉ hạn chế tiền mặt với một số giao dịch (góp vốn, vay giữa các DN không phải TCTD); căn cứ chính buộc thanh toán không dùng tiền mặt cho mua bán hàng hóa là điều kiện khấu trừ GTGT (ngưỡng 5 triệu từ 01/7/2025)."
+  ]
+}

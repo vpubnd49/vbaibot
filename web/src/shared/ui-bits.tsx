@@ -13,10 +13,14 @@ import { IconSearch } from "./dashboard-icons";
 export function ToggleKnob({ on }: { on: boolean }) {
   return (
     <span
-      className={`relative inline-block h-5 w-9 shrink-0 rounded-full transition-colors ${on ? "bg-zalo-500" : "bg-slate-300 dark:bg-slate-600"}`}
+      className={`relative inline-block h-5 w-9 shrink-0 rounded-full transition-colors duration-200 ${
+        on ? "bg-gradient-to-r from-blue-600 to-indigo-600 shadow-sm shadow-blue-500/30" : "bg-slate-300 dark:bg-slate-700"
+      }`}
     >
       <span
-        className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-all ${on ? "left-[18px]" : "left-0.5"}`}
+        className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-md transition-all duration-200 ${
+          on ? "left-[18px]" : "left-0.5"
+        }`}
       />
     </span>
   );
@@ -32,15 +36,15 @@ export function Badge({
   children: ReactNode;
 }) {
   const tones = {
-    blue: { chip: "bg-zalo-50 text-zalo-700 border-zalo-100", dot: "bg-zalo-500" },
-    gray: { chip: "bg-tile text-ink-soft border-line", dot: "bg-slate-400 dark:bg-slate-500" },
-    green: { chip: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-100 dark:border-emerald-900/50", dot: "bg-emerald-500" },
-    red: { chip: "bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 border-red-100 dark:border-red-900/50", dot: "bg-red-500" },
-    amber: { chip: "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-100 dark:border-amber-900/50", dot: "bg-amber-500" },
+    blue: { chip: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/25", dot: "bg-blue-500" },
+    gray: { chip: "bg-slate-500/10 text-slate-600 dark:text-slate-400 border-slate-500/20", dot: "bg-slate-400 dark:bg-slate-500" },
+    green: { chip: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/25", dot: "bg-emerald-500" },
+    red: { chip: "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/25", dot: "bg-rose-500" },
+    amber: { chip: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/25", dot: "bg-amber-500" },
   }[tone];
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[12px] font-medium ${tones.chip}`}
+      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11.5px] font-semibold backdrop-blur-xs ${tones.chip}`}
     >
       {dot && <span className={`h-1.5 w-1.5 rounded-full ${tones.dot}`} />}
       {children}
@@ -73,7 +77,7 @@ export function Sparkline({ values, className }: { values: number[]; className?:
   );
 }
 
-/** Stat card theo mẫu: icon box 32px góc trên, label nhỏ, số to, sparkline đáy */
+/** Stat card theo mẫu: icon box góc trên, label nhỏ, số to, sparkline đáy */
 export function StatCard({
   icon: Icon,
   label,
@@ -88,18 +92,18 @@ export function StatCard({
   series?: number[];
 }) {
   return (
-    <div className="gc-card flex flex-col justify-between p-5">
-      <div className="flex items-start gap-3">
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] bg-tile text-ink">
-          <Icon size={17} />
-        </span>
+    <div className="gc-card-hover flex flex-col justify-between p-5 relative overflow-hidden group">
+      <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <div className="text-[13px] leading-tight text-ink-soft">{label}</div>
-          <div className="mt-1.5 text-[24px] font-bold leading-none tabular-nums text-ink">{value}</div>
-          {sub && <div className="mt-1.5 text-[11px] leading-normal text-ink-soft">{sub}</div>}
+          <div className="text-[11.5px] font-semibold uppercase tracking-wider text-ink-soft">{label}</div>
+          <div className="mt-2 text-2xl lg:text-[26px] font-bold tracking-tight text-ink tabular-nums">{value}</div>
+          {sub && <div className="mt-1.5 text-[11.5px] font-medium text-ink-soft">{sub}</div>}
         </div>
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-blue-500/20 bg-blue-500/10 text-blue-600 dark:text-blue-400 group-hover:scale-105 transition-transform duration-200">
+          <Icon size={19} />
+        </span>
       </div>
-      {series && <Sparkline values={series} className="mt-4 h-7 w-full text-zalo-500" />}
+      {series && <Sparkline values={series} className="mt-4 h-7 w-full text-blue-500" />}
     </div>
   );
 }
@@ -114,23 +118,22 @@ export function SectionCard({
 }: {
   icon?: (p: SVGProps<SVGSVGElement> & { size?: number }) => ReactNode;
   title: string;
-  /** Câu phụ dưới tiêu đề - nói panel này đang cho xem cái gì */
   subtitle?: string;
   aside?: ReactNode;
   children: ReactNode;
 }) {
   return (
-    <section className="gc-card p-5">
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+    <section className="gc-card p-5 lg:p-6">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-line/60">
         <div className="flex items-center gap-3">
           {Icon && (
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-zalo-50 text-zalo-500">
-              <Icon size={19} />
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-blue-500/20 bg-blue-500/10 text-blue-600 dark:text-blue-400">
+              <Icon size={18} />
             </span>
           )}
           <div className="min-w-0">
-            <h2 className="text-[16px] font-semibold text-ink">{title}</h2>
-            {subtitle && <p className="mt-0.5 text-[13px] text-ink-soft">{subtitle}</p>}
+            <h2 className="text-[15px] font-bold text-ink">{title}</h2>
+            {subtitle && <p className="mt-0.5 text-xs text-ink-soft">{subtitle}</p>}
           </div>
         </div>
         {aside}
@@ -140,12 +143,6 @@ export function SectionCard({
   );
 }
 
-/**
- * Tile nhỏ trong panel: icon + label + value (+ mô tả phụ).
- *
- * Giá trị đứng TRÊN mô tả: đọc lướt một bảng số thì mắt bắt số trước, câu giải
- * thích chỉ cần khi người ta dừng lại ở đúng ô đó.
- */
 export function InfoTile({
   icon: Icon,
   label,
@@ -159,12 +156,12 @@ export function InfoTile({
 }) {
   return (
     <div className="gc-tile flex items-center gap-3">
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-surface text-zalo-500">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-blue-500/20 bg-surface text-blue-600 dark:text-blue-400">
         <Icon size={17} />
       </span>
       <div className="min-w-0">
-        <div className="text-[12px] text-ink-soft">{label}</div>
-        <div className="truncate text-[15px] font-semibold text-ink">{value}</div>
+        <div className="text-[11.5px] font-medium text-ink-soft">{label}</div>
+        <div className="truncate text-[14.5px] font-bold text-ink">{value}</div>
         {hint && <div className="truncate text-[11px] text-ink-soft/80">{hint}</div>}
       </div>
     </div>
@@ -181,13 +178,13 @@ export function Pager({
   onPage: (p: number) => void;
 }) {
   const btn =
-    "rounded-lg border border-line bg-surface px-3 py-1.5 text-[13px] font-medium text-ink disabled:opacity-40 hover:bg-tile";
+    "rounded-xl border border-line bg-surface/90 px-3 py-1.5 text-xs font-semibold text-ink disabled:opacity-40 hover:bg-tile hover:border-line transition-colors";
   return (
     <div className="flex items-center gap-2">
       <button className={btn} disabled={page === 0} onClick={() => onPage(page - 1)}>
         Trước
       </button>
-      <span className="text-[13px] text-ink-soft">Trang {page + 1}</span>
+      <span className="text-xs font-medium text-ink-soft">Trang {page + 1}</span>
       <button className={btn} disabled={!hasMore} onClick={() => onPage(page + 1)}>
         Sau
       </button>
@@ -195,10 +192,6 @@ export function Pager({
   );
 }
 
-/**
- * Bảng cuộn ngang trên màn hẹp thay vì bóp cột cho vỡ chữ.
- * minWidth đặt theo số cột để mobile luôn có thanh cuộn thay vì wrap xấu.
- */
 export function TableShell({
   headers,
   minWidth = 720,
@@ -209,19 +202,21 @@ export function TableShell({
   children: ReactNode;
 }) {
   return (
-    <div className="gc-card overflow-x-auto">
-      <table className="w-full text-left text-[14px]" style={{ minWidth }}>
-        <thead>
-          <tr className="border-b border-line text-[11px] uppercase tracking-wider text-ink-soft">
-            {headers.map((h, i) => (
-              <th key={i} className="whitespace-nowrap px-4 py-3 font-semibold">
-                {h}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>{children}</tbody>
-      </table>
+    <div className="gc-card overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="w-full text-left text-[13.5px]" style={{ minWidth }}>
+          <thead>
+            <tr className="border-b border-line/80 bg-tile/50 text-[11px] font-semibold uppercase tracking-wider text-ink-soft">
+              {headers.map((h, i) => (
+                <th key={i} className="whitespace-nowrap px-4 py-3 font-semibold">
+                  {h}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-line/60">{children}</tbody>
+        </table>
+      </div>
     </div>
   );
 }
@@ -279,12 +274,19 @@ export function EmptyRow({ colSpan, text }: { colSpan: number; text: string }) {
 
 /** Avatar tròn chữ cái đầu - màu sinh từ tên để ổn định */
 export function InitialAvatar({ name }: { name: string }) {
-  const palette = ["bg-zalo-500", "bg-sky-500", "bg-indigo-500", "bg-teal-500", "bg-rose-500", "bg-amber-500"];
+  const palette = [
+    "bg-gradient-to-br from-blue-600 to-indigo-600 shadow-blue-500/20",
+    "bg-gradient-to-br from-indigo-600 to-purple-600 shadow-indigo-500/20",
+    "bg-gradient-to-br from-emerald-600 to-teal-600 shadow-emerald-500/20",
+    "bg-gradient-to-br from-rose-600 to-pink-600 shadow-rose-500/20",
+    "bg-gradient-to-br from-amber-500 to-orange-600 shadow-amber-500/20",
+    "bg-gradient-to-br from-sky-500 to-blue-600 shadow-sky-500/20",
+  ];
   const hash = [...name].reduce((a, ch) => a + ch.charCodeAt(0), 0);
   const initial = (name.trim()[0] ?? "?").toUpperCase();
   return (
     <span
-      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[13px] font-semibold text-white ${palette[hash % palette.length]}`}
+      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-[12.5px] font-bold text-white shadow-sm border border-white/15 ${palette[hash % palette.length]}`}
     >
       {initial}
     </span>

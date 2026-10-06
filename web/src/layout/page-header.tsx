@@ -25,16 +25,16 @@ export function PageHeader({
     <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
       <div className="flex items-center gap-3.5">
         {Icon && (
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-zalo-50 text-zalo-500">
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-blue-500/25 bg-gradient-to-br from-blue-500/15 via-indigo-500/10 to-transparent text-blue-600 dark:text-blue-400 shadow-sm shadow-blue-500/10 backdrop-blur-md">
             <Icon size={22} />
           </span>
         )}
         <div className="min-w-0">
-          <h1 className="text-2xl font-semibold text-ink">{title}</h1>
-          <p className="mt-0.5 text-[14px] text-ink-soft">{subtitle}</p>
+          <h1 className="text-2xl lg:text-[26px] font-bold tracking-tight text-ink">{title}</h1>
+          <p className="mt-0.5 text-xs lg:text-[13.5px] font-medium text-ink-soft">{subtitle}</p>
         </div>
       </div>
-      {aside}
+      {aside && <div className="flex items-center gap-2">{aside}</div>}
     </div>
   );
 }

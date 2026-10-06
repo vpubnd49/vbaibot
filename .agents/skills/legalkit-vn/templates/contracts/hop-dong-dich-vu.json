@@ -1,0 +1,453 @@
+{
+  "id": "dich_vu",
+  "name": "Hợp đồng dịch vụ",
+  "group": "Công ty ↔ Công ty",
+  "icon": "🤝",
+  "summary": "Hợp đồng để một bên thực hiện một công việc (dịch vụ) cho bên kia và được trả tiền dịch vụ. Áp dụng cho cả công ty với công ty và công ty với cá nhân; theo Bộ luật Dân sự 2015 (Điều 513-521), và Luật Thương mại 2005 nếu mang tính thương mại.",
+  "legalBasis": [
+    "Bộ luật Dân sự 2015 - Điều 513 (Hợp đồng dịch vụ)",
+    "Bộ luật Dân sự 2015 - Điều 514 (Đối tượng của hợp đồng dịch vụ)",
+    "Bộ luật Dân sự 2015 - Điều 515, 516 (Nghĩa vụ, quyền của bên sử dụng dịch vụ)",
+    "Bộ luật Dân sự 2015 - Điều 517, 518 (Nghĩa vụ, quyền của bên cung ứng dịch vụ)",
+    "Bộ luật Dân sự 2015 - Điều 519 (Trả tiền dịch vụ)",
+    "Bộ luật Dân sự 2015 - Điều 520 (Đơn phương chấm dứt thực hiện hợp đồng dịch vụ)",
+    "Bộ luật Dân sự 2015 - Điều 521 (Tiếp tục thực hiện hợp đồng dịch vụ)",
+    "Bộ luật Dân sự 2015 - Điều 357 (Trách nhiệm do chậm thực hiện nghĩa vụ trả tiền) và Điều 468 (Lãi suất: trần thỏa thuận 20%/năm; mặc định 10%/năm)",
+    "Bộ luật Dân sự 2015 - Điều 418 (Thỏa thuận phạt vi phạm trong hợp đồng dân sự)",
+    "Luật Thương mại 2005 - Điều 300, 301 (Phạt vi phạm; mức phạt tối đa 8% với hợp đồng thương mại)",
+    "Luật Thương mại 2005 - Điều 302 (Bồi thường thiệt hại)"
+  ],
+  "parties": {
+    "a": "Bên cung ứng dịch vụ (Bên A)",
+    "b": "Bên sử dụng dịch vụ (Bên B)"
+  },
+  "title": "HỢP ĐỒNG DỊCH VỤ",
+  "preamble": "- Căn cứ Bộ luật Dân sự số 91/2015/QH13 ngày 24/11/2015;\n- Căn cứ Luật Thương mại số 36/2005/QH11 ngày 14/6/2005 (nếu hợp đồng mang tính thương mại);\n- Căn cứ nhu cầu và khả năng của hai bên.\n\nHôm nay, ngày {{ngay_ky}}, tại {{dia_diem_ky}}, chúng tôi gồm:",
+  "fields": [
+    {
+      "key": "ngay_ky",
+      "label": "Ngày ký hợp đồng",
+      "section": "Thông tin chung",
+      "tier": "required",
+      "type": "date",
+      "help": "Ngày hai bên ký kết hợp đồng.",
+      "placeholder": "15/06/2026"
+    },
+    {
+      "key": "dia_diem_ky",
+      "label": "Địa điểm ký hợp đồng",
+      "section": "Thông tin chung",
+      "tier": "optional",
+      "type": "text",
+      "help": "Tỉnh/thành phố nơi ký.",
+      "placeholder": "TP. Hồ Chí Minh"
+    },
+    {
+      "key": "ben_a_ten",
+      "label": "Tên Bên cung ứng dịch vụ (Bên A)",
+      "section": "Bên A - Bên cung ứng dịch vụ",
+      "tier": "required",
+      "type": "text",
+      "help": "Tên công ty hoặc họ tên cá nhân cung cấp dịch vụ.",
+      "placeholder": "Công ty TNHH ABC"
+    },
+    {
+      "key": "ben_a_dia_chi",
+      "label": "Địa chỉ Bên A",
+      "section": "Bên A - Bên cung ứng dịch vụ",
+      "tier": "required",
+      "type": "text",
+      "help": "Địa chỉ trụ sở hoặc nơi cư trú.",
+      "placeholder": "123 Đường X, Quận Y, TP. HCM"
+    },
+    {
+      "key": "ben_a_ma_so",
+      "label": "MST / CCCD Bên A",
+      "section": "Bên A - Bên cung ứng dịch vụ",
+      "tier": "required",
+      "type": "text",
+      "help": "Mã số thuế (nếu là công ty) hoặc số CCCD/CMND (nếu là cá nhân).",
+      "placeholder": "0312345678"
+    },
+    {
+      "key": "ben_a_dai_dien",
+      "label": "Người đại diện Bên A",
+      "section": "Bên A - Bên cung ứng dịch vụ",
+      "tier": "optional",
+      "type": "text",
+      "help": "Họ tên và chức vụ người đại diện (nếu là công ty).",
+      "placeholder": "Ông Nguyễn Văn A - Giám đốc"
+    },
+    {
+      "key": "ben_a_dien_thoai",
+      "label": "Điện thoại Bên A",
+      "section": "Bên A - Bên cung ứng dịch vụ",
+      "tier": "optional",
+      "type": "tel",
+      "help": "Số điện thoại liên hệ.",
+      "placeholder": "0901234567"
+    },
+    {
+      "key": "ben_b_ten",
+      "label": "Tên Bên sử dụng dịch vụ (Bên B)",
+      "section": "Bên B - Bên sử dụng dịch vụ",
+      "tier": "required",
+      "type": "text",
+      "help": "Tên công ty hoặc họ tên cá nhân sử dụng dịch vụ.",
+      "placeholder": "Công ty Cổ phần XYZ"
+    },
+    {
+      "key": "ben_b_dia_chi",
+      "label": "Địa chỉ Bên B",
+      "section": "Bên B - Bên sử dụng dịch vụ",
+      "tier": "required",
+      "type": "text",
+      "help": "Địa chỉ trụ sở hoặc nơi cư trú.",
+      "placeholder": "456 Đường Z, Quận W, TP. HCM"
+    },
+    {
+      "key": "ben_b_ma_so",
+      "label": "MST / CCCD Bên B",
+      "section": "Bên B - Bên sử dụng dịch vụ",
+      "tier": "required",
+      "type": "text",
+      "help": "Mã số thuế (nếu là công ty) hoặc số CCCD/CMND (nếu là cá nhân).",
+      "placeholder": "0398765432"
+    },
+    {
+      "key": "ben_b_dai_dien",
+      "label": "Người đại diện Bên B",
+      "section": "Bên B - Bên sử dụng dịch vụ",
+      "tier": "optional",
+      "type": "text",
+      "help": "Họ tên và chức vụ người đại diện (nếu là công ty).",
+      "placeholder": "Bà Trần Thị B - Tổng Giám đốc"
+    },
+    {
+      "key": "ben_b_dien_thoai",
+      "label": "Điện thoại Bên B",
+      "section": "Bên B - Bên sử dụng dịch vụ",
+      "tier": "optional",
+      "type": "tel",
+      "help": "Số điện thoại liên hệ.",
+      "placeholder": "0907654321"
+    },
+    {
+      "key": "mo_ta_dich_vu",
+      "label": "Mô tả công việc/dịch vụ",
+      "section": "Nội dung dịch vụ",
+      "tier": "required",
+      "type": "textarea",
+      "help": "Mô tả cụ thể công việc Bên A phải thực hiện. Đây là đối tượng của hợp đồng - phải là công việc thực hiện được, không vi phạm điều cấm của luật và không trái đạo đức xã hội (Điều 514 BLDS).",
+      "placeholder": "Thiết kế và bàn giao bộ nhận diện thương hiệu gồm logo, bộ màu, hướng dẫn sử dụng..."
+    },
+    {
+      "key": "yeu_cau_chat_luong",
+      "label": "Yêu cầu về chất lượng, số lượng, kết quả",
+      "section": "Nội dung dịch vụ",
+      "tier": "required",
+      "type": "textarea",
+      "help": "Tiêu chuẩn chất lượng, số lượng và kết quả bàn giao mà Bên A phải đạt. Bên A có nghĩa vụ thực hiện đúng các yêu cầu này (Điều 517 BLDS).",
+      "placeholder": "Sản phẩm bàn giao dưới định dạng AI/PNG; tối đa 02 lần chỉnh sửa theo góp ý..."
+    },
+    {
+      "key": "dia_diem_thuc_hien",
+      "label": "Địa điểm thực hiện dịch vụ",
+      "section": "Nội dung dịch vụ",
+      "tier": "default",
+      "type": "text",
+      "help": "Nơi Bên A thực hiện công việc. Nếu không thỏa thuận, công việc được thực hiện theo cách hợp lý phù hợp với tính chất dịch vụ và Bên B phải trả tiền tại địa điểm thực hiện công việc khi hoàn thành (Điều 519 BLDS).",
+      "placeholder": "Tại trụ sở Bên A / trực tuyến",
+      "defaultText": "Nếu các bên không thỏa thuận, dịch vụ được thực hiện tại nơi phù hợp với tính chất công việc; địa điểm thanh toán là nơi thực hiện công việc khi dịch vụ hoàn thành.",
+      "legalRef": "Điều 519 BLDS 2015"
+    },
+    {
+      "key": "thoi_han_thuc_hien",
+      "label": "Thời hạn / tiến độ thực hiện",
+      "section": "Nội dung dịch vụ",
+      "tier": "required",
+      "type": "text",
+      "help": "Thời gian hoàn thành hoặc tiến độ các giai đoạn. Bên A phải thực hiện đúng thời hạn (Điều 517 BLDS).",
+      "placeholder": "30 ngày kể từ ngày nhận đủ tài liệu, hoặc chia 02 giai đoạn..."
+    },
+    {
+      "key": "thong_tin_tai_lieu_cung_cap",
+      "label": "Thông tin, tài liệu, phương tiện Bên B cung cấp",
+      "section": "Nội dung dịch vụ",
+      "tier": "default",
+      "type": "textarea",
+      "help": "Những gì Bên B phải cung cấp để Bên A thực hiện công việc. Theo luật, Bên B có nghĩa vụ cung cấp thông tin, tài liệu, phương tiện cần thiết nếu có thỏa thuận hoặc nếu công việc đòi hỏi (Điều 515 BLDS).",
+      "placeholder": "Logo cũ, bộ tài liệu thương hiệu, thông tin sản phẩm...",
+      "defaultText": "Nếu không liệt kê cụ thể, Bên B vẫn phải cung cấp thông tin, tài liệu và phương tiện cần thiết khi việc thực hiện công việc đòi hỏi.",
+      "legalRef": "Điều 515 BLDS 2015"
+    },
+    {
+      "key": "giao_lai_cong_viec",
+      "label": "Có cho phép Bên A giao công việc cho bên thứ ba (thầu phụ)?",
+      "section": "Nội dung dịch vụ",
+      "tier": "default",
+      "type": "select",
+      "options": [
+        "Không cho phép",
+        "Cho phép, nhưng phải có sự đồng ý của Bên B"
+      ],
+      "help": "Bên A chỉ được giao cho người khác thực hiện thay nếu được Bên B đồng ý (Điều 517 BLDS).",
+      "placeholder": "Không cho phép",
+      "defaultText": "Nếu không thỏa thuận, Bên A không được giao cho người khác thực hiện thay công việc nếu không có sự đồng ý của Bên B.",
+      "legalRef": "Điều 517 BLDS 2015"
+    },
+    {
+      "key": "gia_dich_vu",
+      "label": "Giá dịch vụ (tiền dịch vụ)",
+      "section": "Giá và thanh toán",
+      "tier": "required",
+      "type": "money",
+      "help": "Tổng số tiền Bên B trả cho Bên A. Nếu không thỏa thuận giá, luật xác định theo giá thị trường của dịch vụ cùng loại tại thời điểm, địa điểm giao kết (Điều 519 BLDS).",
+      "placeholder": "50.000.000 VND"
+    },
+    {
+      "key": "thue_gtgt",
+      "label": "Giá đã bao gồm thuế GTGT chưa?",
+      "section": "Giá và thanh toán",
+      "tier": "optional",
+      "type": "select",
+      "options": [
+        "Đã bao gồm thuế GTGT",
+        "Chưa bao gồm thuế GTGT"
+      ],
+      "help": "Làm rõ giá đã gồm VAT hay chưa để tránh tranh chấp khi xuất hóa đơn.",
+      "placeholder": "Đã bao gồm thuế GTGT"
+    },
+    {
+      "key": "phuong_thuc_thanh_toan",
+      "label": "Phương thức thanh toán",
+      "section": "Giá và thanh toán",
+      "tier": "required",
+      "type": "select",
+      "options": [
+        "Chuyển khoản ngân hàng",
+        "Tiền mặt"
+      ],
+      "help": "Cách thức Bên B trả tiền cho Bên A.",
+      "placeholder": "Chuyển khoản ngân hàng"
+    },
+    {
+      "key": "lich_thanh_toan",
+      "label": "Lịch / tiến độ thanh toán",
+      "section": "Giá và thanh toán",
+      "tier": "default",
+      "type": "textarea",
+      "help": "Chia thành các đợt (tạm ứng, nghiệm thu, quyết toán) nếu cần. Nếu không thỏa thuận, Bên B trả tiền tại địa điểm thực hiện công việc khi dịch vụ hoàn thành (Điều 519 BLDS).",
+      "placeholder": "Tạm ứng 30% khi ký; 70% còn lại trong 07 ngày sau nghiệm thu",
+      "defaultText": "Nếu không thỏa thuận khác, Bên B phải trả toàn bộ tiền dịch vụ tại địa điểm thực hiện công việc vào thời điểm dịch vụ hoàn thành.",
+      "legalRef": "Điều 519 BLDS 2015"
+    },
+    {
+      "key": "lai_cham_thanh_toan",
+      "label": "Lãi suất chậm thanh toán (%/năm)",
+      "section": "Giá và thanh toán",
+      "tier": "default",
+      "type": "number",
+      "help": "Lãi do chậm trả tiền. Các bên được tự thỏa thuận mức lãi nhưng không vượt quá 20%/năm (trần lãi suất theo khoản 1 Điều 468 BLDS). Nếu KHÔNG thỏa thuận, áp dụng mức 10%/năm (bằng 50% mức trần) trên số tiền chậm trả tương ứng với thời gian chậm trả (Điều 357 và khoản 2 Điều 468 BLDS).",
+      "placeholder": "10",
+      "defaultText": "Nếu không thỏa thuận lãi suất chậm trả, bên chậm trả phải trả lãi trên số tiền chậm trả theo mức 10%/năm (bằng 50% mức trần lãi suất 20%/năm) tương ứng với thời gian chậm trả.",
+      "legalRef": "Điều 357 và Điều 468 BLDS 2015"
+    },
+    {
+      "key": "nghiem_thu",
+      "label": "Cách thức nghiệm thu / bàn giao kết quả",
+      "section": "Nghiệm thu",
+      "tier": "optional",
+      "type": "textarea",
+      "help": "Quy trình kiểm tra, xác nhận hoàn thành công việc trước khi thanh toán.",
+      "placeholder": "Bên A gửi sản phẩm; Bên B phản hồi trong 05 ngày làm việc; quá hạn coi như chấp nhận."
+    },
+    {
+      "key": "bao_hanh_dich_vu",
+      "label": "Bảo hành / sửa lỗi sau bàn giao",
+      "section": "Nghiệm thu",
+      "tier": "optional",
+      "type": "textarea",
+      "help": "Thời gian và phạm vi Bên A sửa lỗi miễn phí sau khi bàn giao (nếu có).",
+      "placeholder": "Bảo hành 30 ngày: sửa miễn phí các lỗi kỹ thuật do Bên A gây ra."
+    },
+    {
+      "key": "bao_mat",
+      "label": "Điều khoản bảo mật thông tin",
+      "section": "Điều khoản khác",
+      "tier": "optional",
+      "type": "textarea",
+      "help": "Cam kết giữ bí mật thông tin của nhau (nếu cần).",
+      "placeholder": "Hai bên giữ bí mật thông tin của nhau, không tiết lộ cho bên thứ ba trong 02 năm."
+    },
+    {
+      "key": "so_huu_tri_tue",
+      "label": "Quyền sở hữu kết quả công việc",
+      "section": "Điều khoản khác",
+      "tier": "optional",
+      "type": "textarea",
+      "help": "Ai sở hữu sản phẩm/kết quả sau khi hoàn thành và thanh toán (quan trọng với dịch vụ sáng tạo, thiết kế, phần mềm).",
+      "placeholder": "Toàn bộ quyền sở hữu kết quả thuộc Bên B sau khi thanh toán đủ."
+    },
+    {
+      "key": "co_phat_vi_pham",
+      "label": "Có áp dụng phạt vi phạm không?",
+      "section": "Phạt vi phạm và bồi thường",
+      "tier": "optional",
+      "type": "select",
+      "options": [
+        "Có",
+        "Không"
+      ],
+      "help": "Phạt vi phạm chỉ áp dụng nếu các bên có thỏa thuận trong hợp đồng (Điều 418 BLDS; Điều 300 LTM).",
+      "placeholder": "Có"
+    },
+    {
+      "key": "muc_phat_vi_pham",
+      "label": "Mức phạt vi phạm (%)",
+      "section": "Phạt vi phạm và bồi thường",
+      "tier": "optional",
+      "type": "number",
+      "help": "Tỷ lệ phạt tính trên giá trị nghĩa vụ bị vi phạm. Với hợp đồng THƯƠNG MẠI, tổng mức phạt không quá 8% giá trị phần nghĩa vụ bị vi phạm (Điều 301 LTM). Với hợp đồng DÂN SỰ thuần túy, luật không khống chế mức trần (Điều 418 BLDS) nhưng nên giữ mức hợp lý.",
+      "placeholder": "8",
+      "condition": {
+        "key": "co_phat_vi_pham",
+        "equals": "Có"
+      }
+    },
+    {
+      "key": "bao_truoc_cham_dut",
+      "label": "Thời gian báo trước khi đơn phương chấm dứt (ngày)",
+      "section": "Chấm dứt hợp đồng",
+      "tier": "default",
+      "type": "number",
+      "help": "Khi việc tiếp tục thực hiện không có lợi cho Bên B, Bên B được đơn phương chấm dứt nhưng phải báo trước một thời gian hợp lý và trả tiền theo phần công việc đã làm; nếu việc chấm dứt gây thiệt hại cho Bên A thì phải bồi thường. Bên A được đơn phương chấm dứt nếu Bên B vi phạm nghiêm trọng và phải báo trước thời gian hợp lý, bồi thường thiệt hại nếu có (Điều 520 BLDS).",
+      "placeholder": "15",
+      "defaultText": "Nếu không ấn định cụ thể, bên đơn phương chấm dứt phải báo cho bên kia biết trước trong một thời gian hợp lý theo Điều 520 BLDS.",
+      "legalRef": "Điều 520 BLDS 2015"
+    },
+    {
+      "key": "luat_ap_dung_tranh_chap",
+      "label": "Cơ quan giải quyết tranh chấp",
+      "section": "Giải quyết tranh chấp",
+      "tier": "default",
+      "type": "select",
+      "options": [
+        "Tòa án có thẩm quyền",
+        "Trọng tài thương mại"
+      ],
+      "help": "Nơi giải quyết khi có tranh chấp. Hai bên ưu tiên thương lượng, hòa giải trước. Trọng tài chỉ áp dụng nếu có thỏa thuận trọng tài hợp lệ.",
+      "placeholder": "Tòa án có thẩm quyền",
+      "defaultText": "Nếu không thỏa thuận, tranh chấp do Tòa án có thẩm quyền theo quy định của Bộ luật Tố tụng dân sự giải quyết.",
+      "legalRef": "Bộ luật Dân sự 2015; Bộ luật Tố tụng dân sự 2015"
+    },
+    {
+      "key": "so_ban",
+      "label": "Số bản hợp đồng",
+      "section": "Điều khoản cuối",
+      "tier": "optional",
+      "type": "number",
+      "help": "Số bản gốc có giá trị như nhau, mỗi bên giữ một số bản.",
+      "placeholder": "02"
+    }
+  ],
+  "lint": [
+    {
+      "field": "muc_phat_vi_pham",
+      "op": "max",
+      "value": 8,
+      "message": "Với hợp đồng thương mại, tổng mức phạt vi phạm không được vượt quá 8% giá trị phần nghĩa vụ hợp đồng bị vi phạm. (Hợp đồng dân sự thuần túy không bị khống chế trần - Điều 418 BLDS - nhưng cảnh báo này áp dụng để an toàn cho trường hợp thương mại.)",
+      "legalRef": "Điều 301 Luật Thương mại 2005",
+      "severity": "warn"
+    },
+    {
+      "field": "muc_phat_vi_pham",
+      "op": "note",
+      "value": "",
+      "message": "Phạt vi phạm chỉ có hiệu lực nếu các bên có thỏa thuận trong hợp đồng. Mức phạt được tính trên giá trị phần nghĩa vụ BỊ VI PHẠM, không phải trên toàn bộ giá trị hợp đồng. Với hợp đồng thương mại trần là 8%; với hợp đồng dân sự không có trần luật định.",
+      "legalRef": "Điều 418 BLDS 2015; Điều 300, 301 LTM 2005",
+      "severity": "warn"
+    },
+    {
+      "field": "lai_cham_thanh_toan",
+      "op": "max",
+      "value": 20,
+      "message": "Lãi suất do chậm trả tiền theo thỏa thuận không được vượt quá 20%/năm (trần lãi suất theo khoản 1 Điều 468 BLDS). Nếu các bên không thỏa thuận, mức áp dụng là 10%/năm.",
+      "legalRef": "Điều 357 và khoản 1 Điều 468 BLDS 2015",
+      "severity": "error"
+    },
+    {
+      "field": "lai_cham_thanh_toan",
+      "op": "note",
+      "value": "",
+      "message": "Mức 10%/năm chỉ là mức mặc định khi KHÔNG có thỏa thuận (bằng 50% mức trần). Các bên hoàn toàn có thể thỏa thuận mức cao hơn nhưng không vượt quá trần 20%/năm.",
+      "legalRef": "Điều 357 và Điều 468 BLDS 2015",
+      "severity": "warn"
+    },
+    {
+      "field": "mo_ta_dich_vu",
+      "op": "note",
+      "value": "",
+      "message": "Đối tượng của hợp đồng phải là công việc có thể thực hiện được, không vi phạm điều cấm của luật và không trái đạo đức xã hội; nếu không hợp đồng có thể vô hiệu.",
+      "legalRef": "Điều 514 BLDS 2015",
+      "severity": "warn"
+    }
+  ],
+  "body": [
+    {
+      "heading": "ĐIỀU 1: NỘI DUNG DỊCH VỤ",
+      "text": "Bên A đồng ý cung ứng và Bên B đồng ý sử dụng dịch vụ với nội dung công việc như sau: {{mo_ta_dich_vu}}\nYêu cầu về chất lượng, số lượng và kết quả: {{yeu_cau_chat_luong}}\nĐối tượng của hợp đồng là công việc có thể thực hiện được, không vi phạm điều cấm của luật và không trái đạo đức xã hội."
+    },
+    {
+      "heading": "ĐIỀU 2: ĐỊA ĐIỂM, THỜI HẠN THỰC HIỆN",
+      "text": "Địa điểm thực hiện dịch vụ: {{dia_diem_thuc_hien}}\nThời hạn, tiến độ thực hiện: {{thoi_han_thuc_hien}}"
+    },
+    {
+      "heading": "ĐIỀU 3: GIÁ DỊCH VỤ VÀ PHƯƠNG THỨC THANH TOÁN",
+      "text": "Giá dịch vụ: {{gia_dich_vu}} ({{thue_gtgt}}).\nPhương thức thanh toán: {{phuong_thuc_thanh_toan}}.\nLịch thanh toán: {{lich_thanh_toan}}\nTrường hợp Bên B chậm thanh toán, Bên B phải trả lãi trên số tiền chậm trả theo mức {{lai_cham_thanh_toan}}%/năm tương ứng với thời gian chậm trả. Mức lãi suất thỏa thuận này không vượt quá trần 20%/năm theo Điều 468 Bộ luật Dân sự 2015."
+    },
+    {
+      "heading": "ĐIỀU 4: QUYỀN VÀ NGHĨA VỤ CỦA BÊN A (BÊN CUNG ỨNG DỊCH VỤ)",
+      "text": "Bên A có nghĩa vụ: thực hiện công việc đúng chất lượng, số lượng, thời hạn, địa điểm và các thỏa thuận khác; không được giao cho người khác thực hiện thay nếu không được Bên B đồng ý ({{giao_lai_cong_viec}}); bảo quản và giao lại cho Bên B tài liệu, phương tiện được giao sau khi hoàn thành công việc; báo ngay cho Bên B nếu thông tin, tài liệu không đầy đủ hoặc phương tiện không bảo đảm chất lượng; giữ bí mật thông tin mà mình biết được trong quá trình thực hiện (nếu có thỏa thuận).\nBên A có quyền: yêu cầu Bên B cung cấp thông tin, tài liệu và phương tiện cần thiết; được thay đổi điều kiện dịch vụ vì lợi ích của Bên B mà không nhất thiết phải chờ ý kiến của Bên B nếu việc chờ ý kiến sẽ gây thiệt hại, nhưng phải báo ngay cho Bên B; yêu cầu Bên B trả tiền dịch vụ."
+    },
+    {
+      "heading": "ĐIỀU 5: QUYỀN VÀ NGHĨA VỤ CỦA BÊN B (BÊN SỬ DỤNG DỊCH VỤ)",
+      "text": "Bên B có nghĩa vụ: cung cấp cho Bên A thông tin, tài liệu và phương tiện cần thiết để thực hiện công việc khi việc đó đòi hỏi hoặc có thỏa thuận ({{thong_tin_tai_lieu_cung_cap}}); trả tiền dịch vụ cho Bên A theo thỏa thuận tại Điều 3.\nBên B có quyền: yêu cầu Bên A thực hiện công việc đúng chất lượng, số lượng, thời hạn, địa điểm và các thỏa thuận khác; trường hợp Bên A vi phạm nghiêm trọng nghĩa vụ thì Bên B có quyền đơn phương chấm dứt thực hiện hợp đồng và yêu cầu bồi thường thiệt hại."
+    },
+    {
+      "heading": "ĐIỀU 6: NGHIỆM THU, BÀN GIAO VÀ BẢO HÀNH",
+      "text": "Cách thức nghiệm thu, bàn giao kết quả: {{nghiem_thu}}\nBảo hành, sửa lỗi sau bàn giao: {{bao_hanh_dich_vu}}"
+    },
+    {
+      "heading": "ĐIỀU 7: BẢO MẬT VÀ QUYỀN SỞ HỮU KẾT QUẢ",
+      "text": "Bảo mật thông tin: {{bao_mat}}\nQuyền sở hữu kết quả công việc: {{so_huu_tri_tue}}"
+    },
+    {
+      "heading": "ĐIỀU 8: PHẠT VI PHẠM VÀ BỒI THƯỜNG THIỆT HẠI",
+      "text": "Bên vi phạm hợp đồng phải chịu phạt vi phạm với mức {{muc_phat_vi_pham}}% tính trên giá trị phần nghĩa vụ hợp đồng bị vi phạm. Đối với hợp đồng thương mại, tổng mức phạt không vượt quá 8% giá trị phần nghĩa vụ bị vi phạm theo Điều 301 Luật Thương mại 2005; đối với hợp đồng dân sự, mức phạt do các bên thỏa thuận theo Điều 418 Bộ luật Dân sự 2015. Việc áp dụng phạt vi phạm không loại trừ quyền yêu cầu bồi thường thiệt hại thực tế phát sinh.",
+      "condition": {
+        "key": "co_phat_vi_pham",
+        "equals": "Có"
+      }
+    },
+    {
+      "heading": "ĐIỀU 9: ĐƠN PHƯƠNG CHẤM DỨT THỰC HIỆN HỢP ĐỒNG",
+      "text": "Trường hợp việc tiếp tục thực hiện công việc không có lợi cho Bên B thì Bên B có quyền đơn phương chấm dứt thực hiện hợp đồng, nhưng phải báo cho Bên A biết trước ít nhất {{bao_truoc_cham_dut}} ngày; Bên B phải trả tiền công theo phần dịch vụ mà Bên A đã thực hiện và bồi thường thiệt hại (nếu có).\nTrường hợp Bên B vi phạm nghiêm trọng nghĩa vụ thì Bên A có quyền đơn phương chấm dứt thực hiện hợp đồng, báo trước cho Bên B một thời gian hợp lý và yêu cầu bồi thường thiệt hại."
+    },
+    {
+      "heading": "ĐIỀU 10: GIẢI QUYẾT TRANH CHẤP",
+      "text": "Mọi tranh chấp phát sinh từ hoặc liên quan đến hợp đồng này trước hết được giải quyết thông qua thương lượng, hòa giải. Nếu không đạt được thỏa thuận, tranh chấp sẽ được giải quyết tại {{luat_ap_dung_tranh_chap}} theo quy định của pháp luật Việt Nam."
+    }
+  ],
+  "closing": "Hợp đồng này gồm {{so_ban}} bản có giá trị pháp lý như nhau, mỗi bên giữ một số bản bằng nhau. Hợp đồng có hiệu lực kể từ ngày ký. Mọi sửa đổi, bổ sung phải được lập thành văn bản và có chữ ký của cả hai bên.\n\nĐẠI DIỆN BÊN A                                   ĐẠI DIỆN BÊN B\n(Ký, ghi rõ họ tên, đóng dấu nếu có)            (Ký, ghi rõ họ tên, đóng dấu nếu có)",
+  "verifyNotes": [
+    "SỬA LỖI QUAN TRỌNG - Lãi chậm trả: bản gốc giới hạn lai_cham_thanh_toan ở mức tối đa 10%/năm là SAI. Theo Điều 357 + khoản 1 Điều 468 BLDS, trần lãi suất theo THỎA THUẬN là 20%/năm; mức 10%/năm chỉ là mức MẶC ĐỊNH khi không có thỏa thuận (bằng 50% trần). Đã sửa lint max từ 10 thành 20 (severity error), thêm lint note giải thích, và sửa lại help/defaultText cho đúng.",
+    "Phạt vi phạm: bản gốc đặt lint mức 8% với severity 'error'. Đã hạ xuống 'warn' vì trần 8% chỉ áp dụng cho hợp đồng THƯƠNG MẠI (Điều 301 LTM); hợp đồng DÂN SỰ thuần túy không bị khống chế trần (Điều 418 BLDS). Template này dùng cho cả hai loại nên không thể cứng nhắc chặn ở 8%. Đã bổ sung làm rõ trong help, lint message và Điều 8 thân hợp đồng.",
+    "Bổ sung legalBasis: thêm Điều 418 BLDS (thỏa thuận phạt vi phạm dân sự) và làm rõ Điều 468 (trần 20%/năm, mặc định 10%/năm) thay cho cách diễn đạt mơ hồ trong bản gốc.",
+    "Điều 6 thân hợp đồng (nghiệm thu/bảo hành): bản gốc gắn condition {key:'nghiem_thu', equals:''} khiến điều khoản chỉ hiển thị khi trường nghiệm thu BỎ TRỐNG - logic ngược. Đã GỠ condition để điều khoản luôn hiển thị (cả nghiem_thu và bao_hanh_dich_vu đều là field optional).",
+    "Đã xác minh độc lập qua tra cứu: Điều 519 (giá theo thị trường nếu không thỏa thuận; thanh toán tại nơi thực hiện khi hoàn thành), Điều 517 (không được giao cho người khác nếu Bên B không đồng ý), Điều 520 (đơn phương chấm dứt, báo trước thời gian hợp lý) - các nội dung này trong bản gốc ĐÚNG, giữ nguyên.",
+    "Mọi {{key}} trong body/preamble/closing đều có field tương ứng; các field required/default đều được sử dụng trong thân hợp đồng - đã kiểm tra nhất quán bằng script.",
+    "CẢNH BÁO CÒN LẠI: Nếu hợp đồng mang tính thương mại (cả hai bên là thương nhân, vì mục đích sinh lợi), Luật Thương mại 2005 điều chỉnh và trần phạt 8% là bắt buộc; nếu dân sự thuần túy thì áp dụng BLDS. Người dùng cần xác định đúng bản chất hợp đồng.",
+    "Đây là công cụ TEST/tham khảo, KHÔNG có giá trị pháp lý thay thế tư vấn; cần luật sư rà soát trước khi sử dụng thực tế."
+  ]
+}

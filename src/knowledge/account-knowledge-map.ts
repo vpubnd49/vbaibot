@@ -20,6 +20,7 @@
 
 import { LEGAL_WORKFLOW_PROMPT } from "../knowledge/noi-chinh-templates.js";
 import { CONG_THUONG_KNOWLEDGE_PROMPT } from "../knowledge/cong-thuong-templates.js";
+import { LEGALKIT_KNOWLEDGE_PROMPT } from "../knowledge/legalkit-templates.js";
 
 // ─── Account IDs ────────────────────────────────────────────────────────────
 // Khai báo hằng số để tránh typo khi dùng nhiều chỗ
@@ -46,12 +47,12 @@ export const ACC_CHAU_PBS = "acc-0984310011";
  */
 export const ACCOUNT_KNOWLEDGE_MAP: ReadonlyMap<string, readonly string[]> = new Map([
   // ── Công Thương Phiên Bản Số ──────────────────────────────────────────
-  // Sở Công Thương: nhận cả tri thức Nội chính (chung) + Công Thương (riêng)
-  [ACC_CONG_THUONG, [LEGAL_WORKFLOW_PROMPT, CONG_THUONG_KNOWLEDGE_PROMPT]],
+  // Sở Công Thương: nhận tri thức Nội chính (chung) + Công Thương (riêng) + LegalKit (hợp đồng, pháp luật)
+  [ACC_CONG_THUONG, [LEGAL_WORKFLOW_PROMPT, CONG_THUONG_KNOWLEDGE_PROMPT, LEGALKIT_KNOWLEDGE_PROMPT]],
 
   // ── Châu Phiên Bản Số ─────────────────────────────────────────────────
-  // Bot chính: nhận Nội chính + Công Thương (đọc được tri thức cả hai ngành)
-  [ACC_CHAU_PBS, [LEGAL_WORKFLOW_PROMPT, CONG_THUONG_KNOWLEDGE_PROMPT]],
+  // Bot chính: nhận Nội chính + Công Thương + LegalKit (tư vấn luật, án lệ, 20 mẫu hợp đồng)
+  [ACC_CHAU_PBS, [LEGAL_WORKFLOW_PROMPT, CONG_THUONG_KNOWLEDGE_PROMPT, LEGALKIT_KNOWLEDGE_PROMPT]],
 
   // ── P-Bot ─────────────────────────────────────────────────────────────
   // Bot tiện ích chung: không nhận tri thức chuyên ngành — chỉ BASE_PERSONA

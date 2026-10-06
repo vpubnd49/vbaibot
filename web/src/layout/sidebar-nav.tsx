@@ -28,36 +28,39 @@ import { useTheme } from "../shared/use-theme";
 
 type IconFn = (p: SVGProps<SVGSVGElement> & { size?: number }) => ReactNode;
 
-const SECTIONS: { title: string; items: { to: string; label: string; icon: IconFn }[] }[] = [
-  { title: "Core", items: [{ to: "/", label: "Overview", icon: IconGrid }] },
+const SECTIONS: { title: string; items: { to: string; label: string; icon: IconFn; badge?: string }[] }[] = [
   {
-    title: "Hội thoại",
+    title: "Hạ tầng & Hệ thống",
     items: [
-      { to: "/sessions", label: "Sessions", icon: IconChat },
-      { to: "/broadcast", label: "Thông báo", icon: IconMegaphone },
-      { to: "/contacts", label: "Contacts", icon: IconUsers },
-      { to: "/schedule", label: "Lịch hẹn", icon: IconClock },
+      { to: "/", label: "Tổng quan", icon: IconGrid },
+      { to: "/vps", label: "Giám sát VPS", icon: IconCpu, badge: "Live" },
     ],
   },
   {
-    title: "Dữ liệu",
+    title: "Hội thoại & Giao tiếp",
     items: [
-      { to: "/memory", label: "Memory", icon: IconBrain },
-      { to: "/knowledge", label: "Tri thức", icon: IconDatabase },
+      { to: "/sessions", label: "Phiên trò chuyện", icon: IconChat },
+      { to: "/broadcast", label: "Gửi thông báo", icon: IconMegaphone },
+      { to: "/contacts", label: "Danh bạ Zalo", icon: IconUsers },
+      { to: "/schedule", label: "Lịch hẹn & Cron", icon: IconClock },
     ],
   },
   {
-    title: "Hệ thống",
+    title: "Trí nhớ & Tri thức",
     items: [
-      { to: "/accounts", label: "Accounts", icon: IconSignal },
-      { to: "/agents", label: "Agents", icon: IconBot },
-      { to: "/tools", label: "Tools", icon: IconBolt },
-      { to: "/trace", label: "Trace agent", icon: IconCpu },
-      { to: "/logs", label: "Logs", icon: IconDatabase },
-      // Nhà cung cấp LLM KHÔNG còn là mục riêng: nó là một nhóm trong trang
-      // Cấu hình (/tuning/providers). Một trang chỉ chứa 4 ô mà chiếm một
-      // dòng sidebar ngang hàng với Accounts, Agents là không cân.
-      { to: "/tuning", label: "Cấu hình", icon: IconGear },
+      { to: "/memory", label: "Trí nhớ bền vững", icon: IconBrain },
+      { to: "/knowledge", label: "Kho tri thức", icon: IconDatabase },
+    ],
+  },
+  {
+    title: "Cấu hình & Quản trị",
+    items: [
+      { to: "/accounts", label: "Tài khoản Zalo", icon: IconSignal },
+      { to: "/agents", label: "Trợ lý Agent", icon: IconBot },
+      { to: "/tools", label: "Công cụ & Skill", icon: IconBolt },
+      { to: "/trace", label: "Trace Agent", icon: IconCpu },
+      { to: "/logs", label: "Nhật ký Logs", icon: IconDatabase },
+      { to: "/tuning", label: "Cấu hình AI", icon: IconGear },
     ],
   },
 ];
@@ -154,20 +157,38 @@ export function SidebarNav({
                   end={item.to === "/"}
                   onClick={(e) => chanNeuChuaLuu(e, item.to)}
                   className={({ isActive }) =>
-                    `mb-0.5 flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-[14px] transition-colors ${
+                    `mb-0.5 flex items-center justify-between rounded-xl px-2.5 py-2 text-[14px] transition-all ${
                       isActive
-                        ? "bg-zalo-50 font-medium text-zalo-700"
+                        ? "bg-zalo-50 font-semibold text-zalo-700 shadow-xs"
                         : "text-ink-soft hover:bg-tile hover:text-ink"
                     }`
                   }
                 >
-                  <item.icon size={17} />
-                  {item.label}
+                  <div className="flex items-center gap-2.5">
+                    <item.icon size={17} />
+                    <span>{item.label}</span>
+                  </div>
+                  {item.badge && (
+                    <span className="flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      {item.badge}
+                    </span>
+                  )}
                 </NavLink>
               ))}
             </div>
           ))}
         </nav>
+
+        <div className="px-3 pt-2">
+          <a
+            href="/vbaibot.apk"
+            download="vbaibot.apk"
+            className="flex items-center justify-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-xs font-medium text-emerald-400 hover:bg-emerald-500/20 hover:border-emerald-500/50 transition-all shadow-xs"
+          >
+            <span>📱 Tải App Android (.apk)</span>
+          </a>
+        </div>
 
         <div className="flex items-center justify-between border-t border-line px-4 py-3">
           <span className="flex items-center gap-2 text-[12px] text-ink-soft">

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { BrowserRouter, Link, Navigate, Route, Routes, useNavigate } from "react-router-dom";
+import { BrowserRouter, Link, NavLink, Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import type { AccountInfo } from "./dashboard-api-client";
 import { api } from "./dashboard-api-client";
 import { coCanHoiTruocKhiRoi, xinPhepRoiTrang } from "./shared/unsaved-changes-guard";
@@ -21,8 +21,9 @@ import { LogsPage } from "./pages/logs-page";
 import { TracePage } from "./pages/trace-page";
 import { TuningPage } from "./pages/tuning-page";
 import { ToolsPage } from "./pages/tools-page";
+import { VpsMonitorPage } from "./pages/vps-monitor-page";
 import { anhNen } from "./shared/background-image";
-import { IconMenu } from "./shared/dashboard-icons";
+import { IconBot, IconChat, IconCpu, IconGear, IconGrid, IconMenu } from "./shared/dashboard-icons";
 import { useTheme } from "./shared/use-theme";
 
 /**
@@ -59,7 +60,7 @@ function DashboardShell() {
   if (!checked) return null;
 
   return (
-    <div className="flex min-h-[100dvh] bg-canvas">
+    <div className="flex h-[100dvh] max-h-[100dvh] w-full max-w-[100vw] overflow-hidden bg-canvas">
       <SidebarNav
         online={accounts.some((a) => a.online)}
         onLogout={logout}
@@ -67,54 +68,63 @@ function DashboardShell() {
         onCloseMobile={() => setMenuOpen(false)}
       />
 
-      <div className="flex min-w-0 flex-1 flex-col lg:h-screen lg:overflow-hidden">
-        {/* Topbar chỉ ở mobile - desktop đã có sidebar cố định */}
-        <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-line bg-surface/90 px-4 py-3 backdrop-blur lg:hidden">
-          <button
-            onClick={() => setMenuOpen(true)}
-            aria-label="Mở menu"
-            className="rounded-lg p-1.5 text-ink-soft hover:bg-tile hover:text-ink"
-          >
-            <IconMenu size={20} />
-          </button>
-          {/* Logo topbar MOBILE - phải qua chốt "chưa lưu" y như logo trong
-              sidebar. Trên điện thoại đây là đường rời trang dễ chạm nhất, mà
-              trước đó nó là `Link` trần: chạm một cái là mất ô persona đang gõ. */}
-          <Link
-            to="/"
-            onClick={(e) => {
-              if (!coCanHoiTruocKhiRoi()) return;
-              e.preventDefault();
-              void xinPhepRoiTrang().then((ok) => ok && navigate("/"));
-            }}
-            className="flex items-center gap-2"
-            title="Về trang chính"
-          >
-            <img
-              src="/zalo-agent-icon.webp"
-              alt="Zalo Agent"
-              width={128}
-              height={128}
-              className="h-7 w-7"
-            />
-            <span className="truncate text-[15px] font-semibold text-ink">Zalo Agent</span>
-          </Link>
+      <div className="flex min-w-0 flex-1 flex-col h-full max-h-full w-full max-w-full overflow-hidden">
+        {/* Topbar cố định tuyệt đối ở mobile - không trượt lên/xuống khi vuốt nội dung */}
+        <header className="flex-shrink-0 z-30 flex items-center justify-between gap-3 border-b border-line bg-surface/95 px-3.5 py-2.5 sm:px-4 sm:py-3 backdrop-blur-md lg:hidden pt-[max(0.5rem,env(safe-area-inset-top))] select-none">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <button
+              onClick={() => setMenuOpen(true)}
+              aria-label="Mở menu"
+              className="rounded-xl p-2 text-ink-soft hover:bg-tile hover:text-ink active:scale-95 transition-all"
+            >
+              <IconMenu size={20} />
+            </button>
+            <Link
+              to="/"
+              onClick={(e) => {
+                if (!coCanHoiTruocKhiRoi()) return;
+                e.preventDefault();
+                void xinPhepRoiTrang().then((ok) => ok && navigate("/"));
+              }}
+              className="flex items-center gap-2 min-w-0"
+              title="Về trang chính"
+            >
+              <img
+                src="/apple-touch-icon.png"
+                alt="VBAIBot"
+                width={32}
+                height={32}
+                className="h-7 w-7 rounded-lg shadow-xs"
+              />
+              <span className="truncate text-[15px] font-bold tracking-tight text-ink font-heading">VBAIBot</span>
+            </Link>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Link
+              to="/vps"
+              className="flex items-center gap-1.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400"
+            >
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span>VPS</span>
+            </Link>
+          </div>
         </header>
 
         {/*
-          Ảnh nền phủ vùng NỘI DUNG, không phủ sidebar - sidebar giữ nền trắng
-          đặc để danh sách điều hướng luôn đọc rõ.
-          - `bg-fixed`: nền đứng yên khi cuộn, không trôi theo nội dung dài
-          - `bg-cover`: luôn phủ kín, không lộ mép ở màn hình rất rộng/rất cao
-          Vẫn giữ `bg-canvas` làm màu lót: ảnh chưa tải xong (hoặc chặn tải) thì
-          trang vẫn ra đúng tông, không nháy trắng.
+          Ảnh nền phủ vùng NỘI DUNG, cuộn độc lập bên trong mà không làm xê dịch Topbar và Bottombar.
+          Tối ưu padding co giãn cho Samsung Z Fold (màn gập 360px -> mở 890px):
+          - Cover screen hẹp: px-2.5 py-3.5
+          - Fold mở / Tablet: sm:px-5 sm:py-5
+          - Desktop: lg:px-8 lg:py-7
         */}
         <main
-          className="min-w-0 flex-1 bg-canvas bg-cover bg-fixed bg-center px-4 py-5 sm:px-6 lg:overflow-y-auto lg:px-8 lg:py-7"
+          className="min-w-0 flex-1 h-full w-full max-w-full overflow-y-auto overflow-x-hidden overscroll-contain bg-canvas bg-cover bg-fixed bg-center px-2.5 py-3.5 sm:px-5 sm:py-5 lg:px-8 lg:py-7"
           style={{ backgroundImage: `url(${anhNen(theme)})` }}
         >
           <Routes>
             <Route path="/" element={<OverviewPage />} />
+            <Route path="/vps" element={<VpsMonitorPage />} />
             <Route path="/sessions" element={<SessionsPage accounts={accounts} />} />
             <Route path="/broadcast" element={<BroadcastPage accounts={accounts} />} />
             <Route path="/schedule" element={<SchedulePage accounts={accounts} />} />
@@ -138,6 +148,69 @@ function DashboardShell() {
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>
+
+        {/* ── Mobile Bottom Navigation Bar (Cố định khóa cứng dưới đáy, không trôi) ── */}
+        <nav className="flex-shrink-0 z-30 flex items-center justify-around border-t border-line bg-surface/95 px-2 py-1.5 pb-[max(0.6rem,env(safe-area-inset-bottom))] backdrop-blur-md lg:hidden select-none">
+          <NavLink
+            to="/"
+            end
+            className={({ isActive }) =>
+              `flex flex-col items-center gap-0.5 rounded-xl px-3 py-1 transition-all active:scale-95 ${
+                isActive ? "text-blue-600 dark:text-blue-400 font-semibold" : "text-ink-soft hover:text-ink"
+              }`
+            }
+          >
+            <IconGrid size={19} />
+            <span className="text-[10px]">Tổng quan</span>
+          </NavLink>
+          <NavLink
+            to="/vps"
+            className={({ isActive }) =>
+              `flex flex-col items-center gap-0.5 rounded-xl px-3 py-1 transition-all active:scale-95 ${
+                isActive ? "text-emerald-600 dark:text-emerald-400 font-semibold" : "text-ink-soft hover:text-ink"
+              }`
+            }
+          >
+            <div className="relative">
+              <IconCpu size={19} />
+              <span className="absolute -top-0.5 -right-1 h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+            </div>
+            <span className="text-[10px]">VPS Live</span>
+          </NavLink>
+          <NavLink
+            to="/sessions"
+            className={({ isActive }) =>
+              `flex flex-col items-center gap-0.5 rounded-xl px-3 py-1 transition-all active:scale-95 ${
+                isActive ? "text-blue-600 dark:text-blue-400 font-semibold" : "text-ink-soft hover:text-ink"
+              }`
+            }
+          >
+            <IconChat size={19} />
+            <span className="text-[10px]">Phiên chat</span>
+          </NavLink>
+          <NavLink
+            to="/agents"
+            className={({ isActive }) =>
+              `flex flex-col items-center gap-0.5 rounded-xl px-3 py-1 transition-all active:scale-95 ${
+                isActive ? "text-blue-600 dark:text-blue-400 font-semibold" : "text-ink-soft hover:text-ink"
+              }`
+            }
+          >
+            <IconBot size={19} />
+            <span className="text-[10px]">Agents</span>
+          </NavLink>
+          <NavLink
+            to="/tuning"
+            className={({ isActive }) =>
+              `flex flex-col items-center gap-0.5 rounded-xl px-3 py-1 transition-all active:scale-95 ${
+                isActive ? "text-blue-600 dark:text-blue-400 font-semibold" : "text-ink-soft hover:text-ink"
+              }`
+            }
+          >
+            <IconGear size={19} />
+            <span className="text-[10px]">Cài đặt</span>
+          </NavLink>
+        </nav>
       </div>
     </div>
   );

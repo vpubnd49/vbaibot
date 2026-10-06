@@ -1,0 +1,133 @@
+{
+  "id": "thiet_ke_phan_mem",
+  "name": "Hợp đồng phát triển / thiết kế phần mềm",
+  "group": "Doanh nghiệp ↔ Doanh nghiệp / Cá nhân",
+  "icon": "💻",
+  "title": "HỢP ĐỒNG PHÁT TRIỂN PHẦN MỀM",
+  "summary": "Hợp đồng phát triển hoặc thiết kế phần mềm, ứng dụng di động ký kết giữa bên thuê phát triển ứng dụng và đối tác công nghệ thông tin, quy định rõ yêu cầu kỹ thuật, nghiệm thu tính năng và chuyển giao quyền sở hữu trí tuệ.",
+  "parties": {
+    "a": "Bên thuê phát triển (Bên A)",
+    "b": "Bên phát triển phần mềm (Bên B)"
+  },
+  "preamble": "Căn cứ Bộ luật Dân sự số 91/2015/QH13;\nCăn cứ Luật Công nghệ thông tin số 67/2006/QH11;\nCăn cứ Luật Sở hữu trí tuệ số 50/2005/QH11 và các luật sửa đổi bổ sung;\nCăn cứ nhu cầu và khả năng thực tế của hai bên;\nHôm nay, ngày {{ngay_ky}}, tại {{dia_diem_ky}}, chúng tôi gồm:\n- BÊN A: {{ten_bena}}, địa chỉ: {{dia_chi_bena}}, đại diện: {{dai_dien_bena}}.\n- BÊN B: {{ten_benb}}, địa chỉ: {{dia_chi_benb}}, đại diện: {{dai_dien_benb}}.\nHai bên thống nhất ký kết hợp đồng phát triển phần mềm với các điều khoản sau:",
+  "legalBasis": [
+    "Bộ luật Dân sự 2015 (Luật số 91/2015/QH13): quy định về hợp đồng dịch vụ (Điều 513 đến Điều 521).",
+    "Luật Công nghệ thông tin 2006 (Luật số 67/2006/QH11): quy định về phát triển ứng dụng và dịch vụ công nghệ thông tin.",
+    "Luật Sở hữu trí tuệ 2005 (Luật số 50/2005/QH11): quy định về quyền tác giả đối với chương trình máy tính (Điều 22) và chuyển quyền sở hữu quyền tác giả."
+  ],
+  "fields": [
+    {
+      "key": "ten_bena",
+      "label": "Tên bên thuê phát triển (Bên A)?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Tên đầy đủ công ty hoặc cá nhân thuê phát triển phần mềm.",
+      "placeholder": "Công ty Cổ phần Công nghệ A"
+    },
+    {
+      "key": "dia_chi_bena",
+      "label": "Địa chỉ bên A?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Địa chỉ trụ sở công ty bên A.",
+      "placeholder": "Số 1, đường X, TP HCM"
+    },
+    {
+      "key": "dai_dien_bena",
+      "label": "Người đại diện bên A?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Họ tên và chức vụ người ký bên A.",
+      "placeholder": "Nguyễn Văn A: Giám đốc"
+    },
+    {
+      "key": "ten_benb",
+      "label": "Tên bên phát triển phần mềm (Bên B)?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Tên công ty công nghệ hoặc cá nhân lập trình phần mềm.",
+      "placeholder": "Công ty TNHH Phần mềm B"
+    },
+    {
+      "key": "dia_chi_benb",
+      "label": "Địa chỉ bên B?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Địa chỉ trụ sở đăng ký kinh doanh bên B.",
+      "placeholder": "Số 2, đường Y, Hà Nội"
+    },
+    {
+      "key": "dai_dien_benb",
+      "label": "Người đại diện bên B?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Họ tên và chức vụ người ký bên B.",
+      "placeholder": "Trần Văn B: Giám đốc"
+    },
+    {
+      "key": "ten_phan_mem",
+      "label": "Tên phần mềm hoặc ứng dụng cần thiết kế?",
+      "section": "Nội dung phần mềm",
+      "tier": "required",
+      "type": "text",
+      "help": "Tên gọi và mô tả tóm tắt ứng dụng cần lập trình.",
+      "placeholder": "Hệ thống Quản lý Nhân sự legalkit-hr"
+    },
+    {
+      "key": "gia_tri_hd",
+      "label": "Giá trị hợp đồng trọn gói (VND)?",
+      "section": "Giá và Thanh toán",
+      "tier": "required",
+      "type": "number",
+      "help": "Tổng chi phí thiết kế và lập trình phần mềm.",
+      "placeholder": "150000000"
+    },
+    {
+      "key": "quyen_shtt",
+      "label": "Quy định chuyển giao quyền sở hữu trí tuệ đối với mã nguồn (Source code)?",
+      "section": "Sở hữu trí tuệ",
+      "tier": "default",
+      "type": "select",
+      "help": "Bên nào nắm giữ quyền sở hữu trí tuệ sau khi hoàn thành bàn giao.",
+      "options": [
+        "Quyền sở hữu trí tuệ và mã nguồn thuộc về Bên A sau khi thanh toán đầy đủ",
+        "Quyền sở hữu trí tuệ thuộc Bên B, Bên A chỉ được cấp quyền sử dụng phần mềm",
+        "Hai bên đồng sở hữu quyền sở hữu trí tuệ"
+      ],
+      "defaultText": "Quyền sở hữu trí tuệ và mã nguồn thuộc về Bên A sau khi thanh toán đầy đủ"
+    }
+  ],
+  "clauses": [
+    {
+      "heading": "ĐIỀU 1: NỘI DUNG VÀ YÊU CẦU PHẦN MỀM",
+      "text": "Bên A thuê và Bên B nhận thực hiện lập trình, phát triển phần mềm sau: {{ten_phan_mem}}. Chi tiết tính năng hệ thống, yêu cầu giao diện được mô tả trong phụ lục kỹ thuật kèm theo hợp đồng."
+    },
+    {
+      "heading": "ĐIỀU 2: GIÁ TRỊ VÀ PHƯƠNG THỨC THANH TOÁN",
+      "text": "2.1. Tổng giá trị thực hiện hợp đồng là: {{gia_tri_hd}} VND.\n2.2. Thanh toán được chia làm 02 đợt: Đợt 1 thanh toán tạm ứng 30% sau khi ký hợp đồng, Đợt 2 thanh toán 70% còn lại sau khi nghiệm thu bàn giao hệ thống."
+    },
+    {
+      "heading": "ĐIỀU 3: NGHIỆM THU VÀ BÀN GIAO",
+      "text": "Bên A tiến hành kiểm tra chạy thử nghiệm phần mềm trong vòng 07 ngày làm việc kể từ ngày Bên B thông báo hoàn thành bản Beta. Mọi yêu cầu chỉnh sửa lỗi hệ thống được Bên B khắc phục miễn phí."
+    },
+    {
+      "heading": "ĐIỀU 4: BẢO HÀNH VÀ HỖ TRỢ KỸ THUẬT",
+      "text": "Bên B cam kết bảo hành kỹ thuật phần mềm miễn phí trong thời hạn 12 tháng kể từ ngày ký biên bản nghiệm thu bàn giao chính thức. Bảo hành bao gồm sửa lỗi lập trình phát sinh trong quá trình vận hành bình thường."
+    },
+    {
+      "heading": "ĐIỀU 5: QUYỀN SỞ HỮU TRÍ TUỆ ĐỐI VỚI MÃ NGUỒN",
+      "text": "Thỏa thuận về sở hữu trí tuệ đối với phần mềm và mã nguồn như sau: {{quyen_shtt}}. Bên B cam kết không vi phạm bản quyền thư viện của bên thứ ba trong quá trình xây dựng sản phẩm phần mềm."
+    }
+  ],
+  "closing": "Hợp đồng này được lập thành 02 (hai) bản có giá trị pháp lý như nhau, mỗi bên giữ 01 (một) bản, có hiệu lực từ ngày ký.\n\nĐẠI DIỆN BÊN A (ký, ghi rõ họ tên, đóng dấu)        ĐẠI DIỆN BÊN B (ký, ghi rõ họ tên, đóng dấu)",
+  "lint": [],
+  "verifyNotes": [
+    "Quy định chuyển quyền sở hữu trí tuệ mã nguồn theo Điều 22 Luật Sở hữu trí tuệ 2005. Đảm bảo quy định rõ việc bàn giao mã nguồn gốc (source code) và tài liệu hướng dẫn kỹ thuật để bên thuê có thể tự bảo trì."
+  ]
+}

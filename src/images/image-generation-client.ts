@@ -92,10 +92,6 @@ export async function generateImage(
 
   const cleanBaseUrl = settings.baseUrl.replace(/\/+$/, "");
   let modelName = settings.model;
-  // Cá Shop yêu cầu endpoint /images/generations model có tiền tố req/ (như req/gpt-image-2)
-  if (cleanBaseUrl.includes("cashop") && !modelName.startsWith("req/") && !modelName.startsWith("req-")) {
-    modelName = `req/${modelName}`;
-  }
   // 9Router yêu cầu tiền tố ag/ cho tất cả model
   if (cleanBaseUrl.includes("9router.flowgiare.com") && !modelName.startsWith("ag/")) {
     modelName = `ag/${modelName}`;

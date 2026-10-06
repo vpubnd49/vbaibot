@@ -1,0 +1,136 @@
+{
+  "id": "hop_tac_kinh_doanh",
+  "name": "Hợp đồng hợp tác kinh doanh (BCC)",
+  "group": "Doanh nghiệp ↔ Doanh nghiệp",
+  "icon": "🤝",
+  "title": "HỢP ĐỒNG HỢP TÁC KINH DOANH (BCC)",
+  "summary": "Hợp đồng hợp tác kinh doanh (BCC) ký kết giữa các đối tác nhằm thực hiện hoạt động đầu tư kinh doanh, phân chia lợi nhuận hoặc phân chia sản phẩm mà không thành lập pháp nhân mới, tuân thủ Luật Đầu tư 2020 và Bộ luật Dân sự 2015.",
+  "parties": {
+    "a": "Bên A (Đối tác thứ nhất)",
+    "b": "Bên B (Đối tác thứ hai)"
+  },
+  "preamble": "Căn cứ Bộ luật Dân sự số 91/2015/QH13;\nCăn cứ Luật Đầu tư số 61/2020/QH14;\nCăn cứ nhu cầu và khả năng của các bên;\nHôm nay, ngày {{ngay_ky}}, tại {{dia_diem_ky}}, chúng tôi gồm:\n- BÊN A: {{ten_bena}}, địa chỉ: {{dia_chi_bena}}, đại diện: {{dai_dien_bena}}.\n- BÊN B: {{ten_benb}}, địa chỉ: {{dia_chi_benb}}, đại diện: {{dai_dien_benb}}.\nHai bên thống nhất ký kết hợp đồng hợp tác kinh doanh với các điều khoản sau:",
+  "legalBasis": [
+    "Bộ luật Dân sự 2015 (Luật số 91/2015/QH13): quy định về hợp đồng hợp tác (Điều 504 đến Điều 512).",
+    "Luật Đầu tư 2020 (Luật số 61/2020/QH14): quy định về hình thức đầu tư theo hợp đồng BCC (Điều 27, Điều 28)."
+  ],
+  "fields": [
+    {
+      "key": "ten_bena",
+      "label": "Tên đầy đủ bên A?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Tên công ty hoặc tổ chức đối tác bên A.",
+      "placeholder": "Công ty Cổ phần A"
+    },
+    {
+      "key": "dia_chi_bena",
+      "label": "Địa chỉ bên A?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Địa chỉ trụ sở đăng ký kinh doanh bên A.",
+      "placeholder": "Số 1, đường X, TP HCM"
+    },
+    {
+      "key": "dai_dien_bena",
+      "label": "Người đại diện bên A?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Họ tên và chức vụ người ký bên A.",
+      "placeholder": "Nguyễn Văn A: Giám đốc"
+    },
+    {
+      "key": "ten_benb",
+      "label": "Tên đầy đủ bên B?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Tên công ty hoặc tổ chức đối tác bên B.",
+      "placeholder": "Công ty TNHH B"
+    },
+    {
+      "key": "dia_chi_benb",
+      "label": "Địa chỉ bên B?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Địa chỉ trụ sở đăng ký kinh doanh bên B.",
+      "placeholder": "Số 2, đường Y, Hà Nội"
+    },
+    {
+      "key": "dai_dien_benb",
+      "label": "Người đại diện bên B?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Họ tên và chức vụ người ký bên B.",
+      "placeholder": "Trần Văn B: Giám đốc"
+    },
+    {
+      "key": "muc_tieu",
+      "label": "Mục tiêu và nội dung hợp tác?",
+      "section": "Mục tiêu",
+      "tier": "required",
+      "type": "text",
+      "help": "Mô tả dự án hoặc công việc hợp tác kinh doanh.",
+      "placeholder": "Đầu tư xây dựng và vận hành chuỗi phân phối sản phẩm"
+    },
+    {
+      "key": "von_bena",
+      "label": "Số vốn góp của bên A (VND hoặc giá trị tài sản)?",
+      "section": "Góp vốn",
+      "tier": "required",
+      "type": "text",
+      "help": "Số tiền góp hoặc hiện vật quy đổi.",
+      "placeholder": "1.000.000.000 VND"
+    },
+    {
+      "key": "von_benb",
+      "label": "Số vốn góp của bên B (VND hoặc giá trị tài sản)?",
+      "section": "Góp vốn",
+      "tier": "required",
+      "type": "text",
+      "help": "Số tiền góp hoặc hiện vật quy đổi.",
+      "placeholder": "1.000.000.000 VND"
+    },
+    {
+      "key": "chia_loi_nhuan",
+      "label": "Tỷ lệ phân chia lợi nhuận và nghĩa vụ lỗ (Bên A:Bên B)?",
+      "section": "Phân chia kết quả",
+      "tier": "required",
+      "type": "text",
+      "help": "Cách thức chia lãi lỗ giữa các bên.",
+      "placeholder": "50% bên A: 50% bên B"
+    }
+  ],
+  "clauses": [
+    {
+      "heading": "ĐIỀU 1: MỤC TIÊU VÀ NỘI DUNG HỢP TÁC",
+      "text": "Các bên nhất trí hợp tác kinh doanh nhằm thực hiện mục tiêu: {{muc_tieu}}. Hoạt động hợp tác này được thực hiện theo mô hình hợp đồng BCC không thành lập pháp nhân mới theo quy định tại Điều 27 Luật Đầu tư 2020."
+    },
+    {
+      "heading": "ĐIỀU 2: PHƯƠNG THỨC GÓP VỐN VÀ TIẾN ĐỘ",
+      "text": "2.1. Vốn góp bên A: {{von_bena}}.\n2.2. Vốn góp bên B: {{von_benb}}.\nCác bên cam kết góp vốn đúng tiến độ và phương thức thỏa thuận để đảm bảo tiến độ triển khai dự án."
+    },
+    {
+      "heading": "ĐIỀU 3: BAN ĐIỀU HÀNH VÀ PHÂN CÔNG CÔNG VIỆC",
+      "text": "Các bên thống nhất thành lập Ban điều hành dự án chung để đại diện cho các bên trong các hoạt động liên kết. Việc ra quyết định của Ban điều hành dựa trên nguyên tắc đồng thuận."
+    },
+    {
+      "heading": "ĐIỀU 4: PHÂN CHIA KẾT QUẢ KINH DOANH VÀ RỦI RO",
+      "text": "Lợi nhuận từ hoạt động hợp tác được phân chia theo tỷ lệ: {{chia_loi_nhuan}}. Nghĩa vụ chịu rủi ro và các khoản lỗ phát sinh từ dự án hợp tác cũng được phân chia theo tỷ lệ tương ứng."
+    },
+    {
+      "heading": "ĐIỀU 5: CHẤM DỨT HỢP ĐỒNG",
+      "text": "Hợp đồng chấm dứt khi hoàn thành dự án hợp tác hoặc theo thỏa thuận bằng văn bản của cả hai bên. Khi chấm dứt, các bên tiến hành thanh lý hợp đồng và bàn giao tài sản chung."
+    }
+  ],
+  "closing": "Hợp đồng này được lập thành 04 (bốn) bản có giá trị pháp lý như nhau, mỗi bên giữ 02 (hai) bản, có hiệu lực từ ngày {{ngay_ky}}.\n\nĐẠI DIỆN BÊN A (ký, ghi rõ họ tên, đóng dấu)        ĐẠI DIỆN BÊN B (ký, ghi rõ họ tên, đóng dấu)",
+  "lint": [],
+  "verifyNotes": [
+    "Quy định BCC theo Điều 27 Luật Đầu tư 2020 và Điều 504 Bộ luật Dân sự 2015. Đảm bảo ghi rõ không thành lập pháp nhân mới để tránh tranh chấp."
+  ]
+}

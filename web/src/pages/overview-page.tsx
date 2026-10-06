@@ -458,6 +458,25 @@ export function OverviewPage() {
           </div>
         </div>
 
+        {/* Liên kết Giám sát & Quản trị VPS */}
+        <div className="mt-5 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-blue-500/20 bg-blue-500/5 px-5 py-4 dark:border-blue-500/30 dark:bg-blue-500/10">
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2 text-[14px] font-semibold text-ink">
+              <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+              🖥️ Giám sát & Quản trị VPS
+            </div>
+            <p className="mt-1 max-w-2xl text-[13px] leading-[1.7] text-ink-soft">
+              Theo dõi tải vi xử lý CPU, bộ nhớ RAM, dung lượng SSD, trạng thái dịch vụ (PM2, Docker, 9Router, Caddy) và chức năng khởi động lại máy chủ (Reboot VPS).
+            </p>
+          </div>
+          <Link
+            to="/vps"
+            className="shrink-0 rounded-xl bg-blue-600 px-4 py-2.5 text-[13px] font-semibold text-white hover:bg-blue-700 active:scale-95 transition-all shadow-md shadow-blue-500/20"
+          >
+            Mở Giám sát VPS →
+          </Link>
+        </div>
+
         {/* Nút restart bot */}
         <RestartBotSection />
       </SectionCard>
@@ -547,38 +566,38 @@ function TokenPeriodCard({
   metric: { inputTokens: number; outputTokens: number; totalTokens: number; turns: number };
 }) {
   return (
-    <div className="rounded-xl border border-line bg-surface p-4 shadow-sm transition-shadow hover:shadow-md">
+    <div className="gc-card-hover p-4 sm:p-5 relative overflow-hidden group">
       <div className="flex items-center justify-between">
-        <span className="text-[13px] font-semibold text-ink">{title}</span>
-        <span className={`rounded px-1.5 py-0.5 text-[11px] font-medium ${badgeColor}`}>
+        <span className="text-sm font-bold text-ink">{title}</span>
+        <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold border ${badgeColor}`}>
           {badge}
         </span>
       </div>
-      <div className="mt-0.5 text-[11px] text-ink-soft">{subTitle}</div>
+      <div className="mt-0.5 text-[11.5px] text-ink-soft">{subTitle}</div>
 
-      <div className="mt-3 text-[22px] font-bold tabular-nums text-ink">
+      <div className="mt-3 text-[24px] font-extrabold tabular-nums tracking-tight text-ink">
         {formatNumber(metric.totalTokens)}
-        <span className="ml-1 text-[12px] font-normal text-ink-soft">tokens</span>
+        <span className="ml-1 text-[12px] font-semibold text-ink-soft">tokens</span>
       </div>
 
-      <div className="mt-3 grid grid-cols-2 gap-2 border-t border-line/60 pt-2.5 text-[11px]">
-        <div>
-          <span className="text-ink-soft">Vào (Prompt):</span>
-          <div className="font-semibold tabular-nums text-ink">
+      <div className="mt-3.5 grid grid-cols-2 gap-2 border-t border-line/60 pt-3 text-[11px]">
+        <div className="rounded-lg bg-tile/50 p-2">
+          <span className="text-ink-soft block text-[10.5px]">Vào (Prompt):</span>
+          <div className="font-bold tabular-nums text-ink font-mono text-[12px] mt-0.5">
             {formatNumber(metric.inputTokens)}
           </div>
         </div>
-        <div>
-          <span className="text-ink-soft">Ra (Output):</span>
-          <div className="font-semibold tabular-nums text-ink">
+        <div className="rounded-lg bg-tile/50 p-2">
+          <span className="text-ink-soft block text-[10.5px]">Ra (Output):</span>
+          <div className="font-bold tabular-nums text-ink font-mono text-[12px] mt-0.5">
             {formatNumber(metric.outputTokens)}
           </div>
         </div>
       </div>
 
-      <div className="mt-2 flex items-center justify-between text-[11px] text-ink-soft">
+      <div className="mt-3 flex items-center justify-between text-[11.5px] text-ink-soft pt-1">
         <span>Lượt agent:</span>
-        <span className="font-semibold tabular-nums text-zalo-600 dark:text-zalo-400">
+        <span className="font-bold tabular-nums text-blue-600 dark:text-blue-400 font-mono">
           {formatNumber(metric.turns)} lượt
         </span>
       </div>
@@ -610,13 +629,13 @@ function TongKet({
   mau: string;
 }) {
   return (
-    <div className="gc-tile">
+    <div className="gc-tile flex flex-col justify-between">
       <div className="flex items-center gap-2">
-        <span className={`h-2 w-2 shrink-0 rounded-full ${mau}`} />
-        <span className="text-[12px] text-ink-soft">{nhan}</span>
+        <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${mau} shadow-sm`} />
+        <span className="text-[11.5px] font-semibold text-ink-soft uppercase tracking-wider">{nhan}</span>
       </div>
-      <div className="mt-1 text-[20px] font-semibold text-ink">{giaTri}</div>
-      {phu && <div className="mt-0.5 text-[11px] text-ink-soft">{phu}</div>}
+      <div className="mt-2 text-2xl font-bold tracking-tight text-ink font-mono">{giaTri}</div>
+      {phu && <div className="mt-1 text-[11.5px] font-medium text-ink-soft">{phu}</div>}
     </div>
   );
 }

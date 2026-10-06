@@ -105,9 +105,9 @@ export function AgentCard({
           <button
             type="button"
             onClick={onSua}
-            className="flex items-center gap-1.5 rounded-lg border border-zalo-200 bg-zalo-50 px-3 py-1.5 text-[13px] font-medium text-zalo-700 hover:bg-zalo-100 dark:border-zalo-800 dark:bg-zalo-950/50 dark:text-zalo-300 dark:hover:bg-zalo-950/80"
+            className="flex items-center gap-1.5 gc-button-primary text-xs py-1.5 px-3"
           >
-            <IconPencil size={15} />
+            <IconPencil size={14} />
             Sửa
           </button>
         </div>
@@ -123,7 +123,7 @@ function moTaAccount(a: ManagedAgent): string {
 function Avatar({ icon, nho }: { icon: string; nho?: boolean }) {
   return (
     <span
-      className={`flex shrink-0 items-center justify-center rounded-2xl bg-tile ${
+      className={`flex shrink-0 items-center justify-center rounded-2xl border border-blue-500/20 bg-gradient-to-br from-blue-500/15 via-indigo-500/10 to-transparent shadow-sm shadow-blue-500/10 ${
         nho ? "h-10 w-10 text-[20px]" : "h-14 w-14 text-[28px]"
       }`}
     >

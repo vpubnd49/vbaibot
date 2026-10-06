@@ -79,22 +79,22 @@ export function LogsPage() {
     <>
       <PageHeader
         icon={IconDatabase}
-        title="Logs"
-        subtitle="Log toàn hệ thống đọc từ file. File ghi cả mức debug nên đầy đủ hơn nhìn terminal."
+        title="Nhật ký hệ thống (Logs)"
+        subtitle="Toàn bộ nhật ký hoạt động thời gian thực từ máy chủ — kết nối Zalo, định tuyến tin, trạng thái Whisper và các sự kiện AI"
       />
 
       {tat && (
-        <div className="mb-4 rounded-xl border border-amber-100 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/40 px-4 py-2.5 text-[13px] text-amber-800 dark:text-amber-200">
+        <div className="mb-4 rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-2.5 text-xs font-medium text-amber-700 dark:text-amber-300">
           {goiY || "Ghi log ra file đang tắt"}
         </div>
       )}
       {loi && (
-        <div className="mb-4 rounded-xl border border-red-100 dark:border-red-900/50 bg-red-50 dark:bg-red-950/40 px-4 py-2.5 text-[13px] text-red-700 dark:text-red-300">
+        <div className="mb-4 rounded-xl border border-rose-500/25 bg-rose-500/10 px-4 py-2.5 text-xs font-medium text-rose-700 dark:text-rose-300">
           {loi}
         </div>
       )}
 
-      <div className="mb-4 flex flex-wrap items-center gap-2">
+      <div className="mb-4 flex flex-wrap items-center gap-2.5">
         <div className="min-w-[150px]">
           <SelectMenu value={level} onChange={setLevel} options={MUC_LOC} ariaLabel="Lọc theo mức" />
         </div>
@@ -110,45 +110,42 @@ export function LogsPage() {
           />
         </div>
         <input
-          className="gc-input min-w-[200px] flex-1"
+          className="gc-input min-w-[200px] flex-1 text-xs"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && void nap()}
-          placeholder="Tìm trong log rồi Enter..."
+          placeholder="Tìm từ khóa trong log rồi Enter..."
         />
         <button
           type="button"
           onClick={() => void nap()}
           disabled={dangTai}
-          className="rounded-lg border border-line bg-surface px-4 py-2 text-[13px] font-medium text-ink hover:bg-tile disabled:opacity-50"
+          className="gc-button-secondary text-xs py-2 px-4"
         >
-          {dangTai ? "Đang tải..." : "Tải lại"}
+          {dangTai ? "Đang nạp..." : "🔄 Làm mới"}
         </button>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-line bg-surface">
+      <div className="gc-card overflow-hidden divide-y divide-line/60">
         {entries.map((e, i) => (
           <DongLog key={i} e={e} />
         ))}
         {entries.length === 0 && !dangTai && !tat && (
-          <p className="py-10 text-center text-[13px] text-ink-soft/60">
-            Không có dòng log nào khớp.
+          <p className="py-12 text-center text-xs text-ink-soft">
+            Không có dòng nhật ký nào khớp bộ lọc.
           </p>
         )}
       </div>
 
-      {/* Chỉ hiện khi server nói còn log phía sau. Không dùng cuộn-vô-tận: đọc
-          log là việc dò tìm, tự nạp thêm lúc người dùng đang đọc làm trang nhảy
-          mất chỗ vừa nhìn. */}
       {conTro && (
         <div className="mt-4 flex justify-center">
           <button
             type="button"
             onClick={() => void nap(conTro)}
             disabled={dangTaiThem}
-            className="rounded-lg border border-line bg-surface px-4 py-2 text-[13px] font-medium text-ink hover:bg-tile disabled:opacity-50"
+            className="gc-button-secondary text-xs py-2 px-5"
           >
-            {dangTaiThem ? "Đang tải..." : `Xem thêm ${MOI_TRANG} dòng cũ hơn`}
+            {dangTaiThem ? "Đang tải thêm..." : `Xem thêm ${MOI_TRANG} dòng cũ hơn`}
           </button>
         </div>
       )}

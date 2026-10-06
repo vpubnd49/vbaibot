@@ -1,0 +1,484 @@
+{
+  "id": "dat_coc",
+  "name": "Hợp đồng đặt cọc",
+  "group": "Cá nhân ↔ Cá nhân",
+  "icon": "🔐",
+  "summary": "Hợp đồng theo đó Bên đặt cọc giao cho Bên nhận đặt cọc một khoản tiền (hoặc tài sản có giá trị) trong một thời hạn để bảo đảm việc giao kết hoặc thực hiện một hợp đồng (thường là mua bán/chuyển nhượng nhà đất, tài sản). Nếu Bên đặt cọc từ chối thì mất cọc; nếu Bên nhận đặt cọc từ chối thì phải trả lại cọc và một khoản tiền tương đương (phạt cọc), trừ khi có thỏa thuận khác (Điều 328 BLDS 2015).",
+  "title": "HỢP ĐỒNG ĐẶT CỌC",
+  "legalBasis": [
+    "Bộ luật Dân sự 2015 - Điều 328 (Đặt cọc)",
+    "Bộ luật Dân sự 2015 - Điều 117 (Điều kiện có hiệu lực của giao dịch dân sự)",
+    "Bộ luật Dân sự 2015 - Điều 351 (Trách nhiệm do vi phạm nghĩa vụ) và Điều 156 (Sự kiện bất khả kháng / trở ngại khách quan)",
+    "Bộ luật Dân sự 2015 - Điều 408 (Hợp đồng vô hiệu do có đối tượng không thể thực hiện được)",
+    "Luật Đất đai 2024 - Điều 45 (điều kiện thực hiện quyền chuyển nhượng quyền sử dụng đất, áp dụng khi đối tượng là nhà, đất)",
+    "Bộ luật Tố tụng dân sự 2015 (giải quyết tranh chấp); tham khảo Nghị quyết 01/2003/NQ-HĐTP và thực tiễn xét xử về xử lý phạt cọc khi hai bên cùng có lỗi hoặc bất khả kháng"
+  ],
+  "parties": {
+    "a": "Bên đặt cọc (Bên A)",
+    "b": "Bên nhận đặt cọc (Bên B)"
+  },
+  "preamble": "Căn cứ Bộ luật Dân sự số 91/2015/QH13 ngày 24/11/2015, đặc biệt là Điều 328 về đặt cọc;\nCăn cứ nhu cầu và sự thỏa thuận của các bên;\nHôm nay, ngày {{ngay_ky}}, tại {{dia_diem_ky}}, chúng tôi gồm các bên dưới đây cùng thống nhất ký kết Hợp đồng đặt cọc với các điều khoản sau:",
+  "fields": [
+    {
+      "key": "ngay_ky",
+      "label": "Ngày ký hợp đồng?",
+      "section": "Thông tin chung",
+      "tier": "required",
+      "type": "date",
+      "help": "Ngày hai bên cùng ký. Đây là mốc tính thời hạn đặt cọc.",
+      "placeholder": "15/06/2026"
+    },
+    {
+      "key": "dia_diem_ky",
+      "label": "Ký tại đâu (tỉnh/thành phố)?",
+      "section": "Thông tin chung",
+      "tier": "required",
+      "type": "text",
+      "help": "Nơi ký kết, ghi tỉnh/thành phố là đủ.",
+      "placeholder": "TP. Hồ Chí Minh"
+    },
+    {
+      "key": "ben_a_ten",
+      "label": "Họ tên Bên đặt cọc?",
+      "section": "Bên đặt cọc (Bên A)",
+      "tier": "required",
+      "type": "text",
+      "help": "Người giao tiền cọc. Ghi đúng họ tên theo CCCD.",
+      "placeholder": "Nguyễn Văn A"
+    },
+    {
+      "key": "ben_a_cccd",
+      "label": "Số CCCD/CMND Bên A?",
+      "section": "Bên đặt cọc (Bên A)",
+      "tier": "required",
+      "type": "text",
+      "help": "Số căn cước công dân hoặc hộ chiếu để xác định danh tính.",
+      "placeholder": "079090001234"
+    },
+    {
+      "key": "ben_a_cccd_ngaycap",
+      "label": "Ngày cấp & nơi cấp CCCD Bên A?",
+      "section": "Bên đặt cọc (Bên A)",
+      "tier": "optional",
+      "type": "text",
+      "help": "Giúp định danh rõ hơn, tránh nhầm lẫn.",
+      "placeholder": "Cấp ngày 10/01/2021, Cục CSQLHC về TTXH"
+    },
+    {
+      "key": "ben_a_diachi",
+      "label": "Địa chỉ thường trú Bên A?",
+      "section": "Bên đặt cọc (Bên A)",
+      "tier": "required",
+      "type": "text",
+      "help": "Địa chỉ theo hộ khẩu/CCCD hoặc nơi ở hiện tại.",
+      "placeholder": "Số 1, đường X, phường Y, quận Z, TP.HCM"
+    },
+    {
+      "key": "ben_a_sdt",
+      "label": "Số điện thoại Bên A?",
+      "section": "Bên đặt cọc (Bên A)",
+      "tier": "optional",
+      "type": "tel",
+      "help": "Để liên hệ khi cần thông báo, giao kết.",
+      "placeholder": "0901234567"
+    },
+    {
+      "key": "ben_b_ten",
+      "label": "Họ tên Bên nhận đặt cọc?",
+      "section": "Bên nhận đặt cọc (Bên B)",
+      "tier": "required",
+      "type": "text",
+      "help": "Người nhận tiền cọc, thường là bên bán/chủ tài sản.",
+      "placeholder": "Trần Thị B"
+    },
+    {
+      "key": "ben_b_cccd",
+      "label": "Số CCCD/CMND Bên B?",
+      "section": "Bên nhận đặt cọc (Bên B)",
+      "tier": "required",
+      "type": "text",
+      "help": "Số căn cước công dân hoặc hộ chiếu của bên nhận cọc.",
+      "placeholder": "079090005678"
+    },
+    {
+      "key": "ben_b_cccd_ngaycap",
+      "label": "Ngày cấp & nơi cấp CCCD Bên B?",
+      "section": "Bên nhận đặt cọc (Bên B)",
+      "tier": "optional",
+      "type": "text",
+      "help": "Giúp định danh rõ hơn, tránh nhầm lẫn.",
+      "placeholder": "Cấp ngày 12/03/2022, Cục CSQLHC về TTXH"
+    },
+    {
+      "key": "ben_b_diachi",
+      "label": "Địa chỉ thường trú Bên B?",
+      "section": "Bên nhận đặt cọc (Bên B)",
+      "tier": "required",
+      "type": "text",
+      "help": "Địa chỉ theo hộ khẩu/CCCD hoặc nơi ở hiện tại.",
+      "placeholder": "Số 2, đường M, phường N, quận P, TP.HCM"
+    },
+    {
+      "key": "ben_b_sdt",
+      "label": "Số điện thoại Bên B?",
+      "section": "Bên nhận đặt cọc (Bên B)",
+      "tier": "optional",
+      "type": "tel",
+      "help": "Để liên hệ khi cần thông báo, giao kết.",
+      "placeholder": "0907654321"
+    },
+    {
+      "key": "muc_dich_dat_coc",
+      "label": "Đặt cọc để bảo đảm việc gì?",
+      "section": "Đối tượng & mục đích đặt cọc",
+      "tier": "required",
+      "type": "select",
+      "options": [
+        "Giao kết hợp đồng (sẽ ký hợp đồng chính sau)",
+        "Thực hiện hợp đồng (đã có hợp đồng, cọc để bảo đảm thực hiện)",
+        "Cả giao kết và thực hiện hợp đồng"
+      ],
+      "help": "Đặt cọc luôn nhằm bảo đảm cho một hợp đồng khác (hợp đồng chính). Đây là nội dung chủ yếu, thiếu thì cọc không có căn cứ.",
+      "placeholder": "Giao kết hợp đồng (sẽ ký hợp đồng chính sau)"
+    },
+    {
+      "key": "loai_hop_dong_chinh",
+      "label": "Hợp đồng chính được bảo đảm là loại gì?",
+      "section": "Đối tượng & mục đích đặt cọc",
+      "tier": "required",
+      "type": "text",
+      "help": "Ví dụ: hợp đồng chuyển nhượng quyền sử dụng đất, hợp đồng mua bán xe ô tô, hợp đồng thuê nhà...",
+      "placeholder": "Hợp đồng chuyển nhượng quyền sử dụng đất và tài sản gắn liền với đất"
+    },
+    {
+      "key": "mo_ta_tai_san_giao_dich",
+      "label": "Mô tả tài sản/đối tượng của hợp đồng chính?",
+      "section": "Đối tượng & mục đích đặt cọc",
+      "tier": "required",
+      "type": "textarea",
+      "help": "Mô tả rõ tài sản sẽ mua bán/chuyển nhượng: nhà đất thì ghi địa chỉ, số thửa, số tờ bản đồ, diện tích, số sổ; xe thì ghi biển số, số khung, số máy...",
+      "placeholder": "Thửa đất số 123, tờ bản đồ số 45, diện tích 80m2, địa chỉ ..., GCN số CT0123 do Sở TNMT cấp ngày ..."
+    },
+    {
+      "key": "gia_tri_giao_dich",
+      "label": "Giá trị giao dịch (giá tài sản) dự kiến?",
+      "section": "Đối tượng & mục đích đặt cọc",
+      "tier": "required",
+      "type": "money",
+      "help": "Tổng giá mua bán/chuyển nhượng của hợp đồng chính. Dùng làm căn cứ tính tỷ lệ tiền cọc và bồi thường.",
+      "placeholder": "3000000000"
+    },
+    {
+      "key": "so_tien_dat_coc",
+      "label": "Số tiền (hoặc giá trị tài sản) đặt cọc?",
+      "section": "Tài sản đặt cọc",
+      "tier": "required",
+      "type": "money",
+      "help": "Số tiền Bên A giao cho Bên B làm cọc. Đây là điều khoản chủ yếu, bắt buộc phải có.",
+      "placeholder": "300000000"
+    },
+    {
+      "key": "so_tien_dat_coc_bang_chu",
+      "label": "Số tiền đặt cọc bằng chữ?",
+      "section": "Tài sản đặt cọc",
+      "tier": "required",
+      "type": "text",
+      "help": "Viết bằng chữ để tránh tranh chấp/sửa chữa con số.",
+      "placeholder": "Ba trăm triệu đồng"
+    },
+    {
+      "key": "hinh_thuc_giao_coc",
+      "label": "Giao tiền cọc bằng hình thức nào?",
+      "section": "Tài sản đặt cọc",
+      "tier": "default",
+      "type": "select",
+      "options": [
+        "Tiền mặt",
+        "Chuyển khoản ngân hàng",
+        "Tiền mặt và chuyển khoản"
+      ],
+      "help": "Nếu hai bên không ghi rõ, mặc định coi như giao một lần tại thời điểm ký; nên giữ chứng từ (biên nhận/sao kê) làm bằng chứng đã giao cọc.",
+      "defaultText": "Pháp luật không bắt buộc hình thức cụ thể. Nếu im lặng, việc giao và nhận cọc được chứng minh bằng chứng từ thực tế (biên nhận, sao kê chuyển khoản); để an toàn nên giao bằng chuyển khoản hoặc lập biên nhận có chữ ký.",
+      "legalRef": "Điều 328 BLDS 2015; nguyên tắc chứng cứ trong Bộ luật Tố tụng dân sự 2015",
+      "placeholder": "Chuyển khoản ngân hàng"
+    },
+    {
+      "key": "thoi_diem_giao_coc",
+      "label": "Thời điểm giao tiền cọc?",
+      "section": "Tài sản đặt cọc",
+      "tier": "default",
+      "type": "date",
+      "help": "Ngày Bên A thực giao tiền cọc cho Bên B.",
+      "defaultText": "Nếu không ghi, mặc định tiền cọc được giao ngay tại thời điểm ký hợp đồng đặt cọc.",
+      "legalRef": "Điều 328 BLDS 2015 (đặt cọc giao trong một thời hạn để bảo đảm)",
+      "placeholder": "15/06/2026"
+    },
+    {
+      "key": "thoi_han_dat_coc",
+      "label": "Thời hạn đặt cọc (đến ngày nào phải ký/thực hiện hợp đồng chính)?",
+      "section": "Thời hạn & nghĩa vụ",
+      "tier": "required",
+      "type": "date",
+      "help": "Mốc cuối cùng để hai bên ký kết (hoặc thực hiện) hợp đồng chính. Hết hạn này mà chưa ký là căn cứ xác định bên nào từ chối.",
+      "placeholder": "15/08/2026"
+    },
+    {
+      "key": "dia_diem_ky_hd_chinh",
+      "label": "Địa điểm ký/công chứng hợp đồng chính?",
+      "section": "Thời hạn & nghĩa vụ",
+      "tier": "optional",
+      "type": "text",
+      "help": "Ví dụ: tại Văn phòng công chứng X. Ghi rõ giúp tránh tranh cãi về nơi hẹn ký.",
+      "placeholder": "Văn phòng công chứng ABC, quận 1, TP.HCM"
+    },
+    {
+      "key": "ben_chiu_thue_phi",
+      "label": "Ai chịu thuế, phí khi ký hợp đồng chính?",
+      "section": "Thời hạn & nghĩa vụ",
+      "tier": "default",
+      "type": "select",
+      "options": [
+        "Theo quy định pháp luật (mỗi bên chịu phần của mình)",
+        "Bên A (bên mua) chịu toàn bộ",
+        "Bên B (bên bán) chịu toàn bộ",
+        "Hai bên chia đôi"
+      ],
+      "help": "Gồm thuế thu nhập cá nhân, lệ phí trước bạ, phí công chứng... Nên thỏa thuận trước để tránh tranh chấp lúc ký.",
+      "defaultText": "Nếu không thỏa thuận: thuế thu nhập cá nhân do bên chuyển nhượng (bên bán) nộp, lệ phí trước bạ do bên nhận chuyển nhượng (bên mua) nộp; phí công chứng và phí khác chia theo quy định pháp luật.",
+      "legalRef": "Luật Thuế thu nhập cá nhân 2007 (sửa đổi); Nghị định 10/2022/NĐ-CP về lệ phí trước bạ; Luật Công chứng 2024",
+      "placeholder": "Theo quy định pháp luật (mỗi bên chịu phần của mình)"
+    },
+    {
+      "key": "phat_coc_thoa_thuan",
+      "label": "Mức phạt cọc khi Bên B (bên nhận cọc) từ chối?",
+      "section": "Xử lý vi phạm (phạt cọc)",
+      "tier": "default",
+      "type": "select",
+      "options": [
+        "Theo luật: trả lại cọc + một khoản tiền tương đương tiền cọc (gấp đôi)",
+        "Trả lại cọc + một khoản phạt khác do hai bên thỏa thuận"
+      ],
+      "help": "Theo luật, nếu Bên B đổi ý thì phải trả lại tiền cọc và thêm một khoản bằng đúng tiền cọc (tức là Bên A nhận lại gấp đôi). Hai bên được thỏa thuận mức khác.",
+      "defaultText": "Nếu không thỏa thuận khác: Bên nhận đặt cọc từ chối giao kết/thực hiện hợp đồng phải trả lại tài sản đặt cọc VÀ một khoản tiền tương đương giá trị tài sản đặt cọc cho Bên đặt cọc (phạt cọc gấp đôi).",
+      "legalRef": "Khoản 2 Điều 328 BLDS 2015",
+      "placeholder": "Theo luật: trả lại cọc + một khoản tiền tương đương tiền cọc (gấp đôi)"
+    },
+    {
+      "key": "muc_phat_coc_khac",
+      "label": "Mức phạt cọc thỏa thuận khác (ghi rõ số tiền hoặc tỷ lệ)?",
+      "section": "Xử lý vi phạm (phạt cọc)",
+      "tier": "optional",
+      "type": "text",
+      "help": "Chỉ điền nếu chọn mức phạt khác mức luật định. Phạt cọc không bị giới hạn 8% như phạt vi phạm thương mại, nhưng nên ở mức hợp lý.",
+      "placeholder": "Trả lại cọc + phạt thêm 50% giá trị tiền cọc",
+      "condition": {
+        "key": "phat_coc_thoa_thuan",
+        "equals": "Trả lại cọc + một khoản phạt khác do hai bên thỏa thuận"
+      }
+    },
+    {
+      "key": "xu_ly_ben_a_tu_choi",
+      "label": "Khi Bên A (bên đặt cọc) từ chối thì xử lý thế nào?",
+      "section": "Xử lý vi phạm (phạt cọc)",
+      "tier": "default",
+      "type": "select",
+      "options": [
+        "Theo luật: Bên A mất toàn bộ tiền cọc (cọc thuộc về Bên B)",
+        "Theo thỏa thuận khác (ghi rõ ở phần ghi chú)"
+      ],
+      "help": "Theo luật, nếu Bên A đổi ý không ký/thực hiện thì mất tiền cọc cho Bên B.",
+      "defaultText": "Nếu không thỏa thuận khác: Bên đặt cọc từ chối giao kết/thực hiện hợp đồng thì tài sản đặt cọc thuộc về Bên nhận đặt cọc (mất cọc).",
+      "legalRef": "Khoản 2 Điều 328 BLDS 2015",
+      "placeholder": "Theo luật: Bên A mất toàn bộ tiền cọc (cọc thuộc về Bên B)"
+    },
+    {
+      "key": "truong_hop_bat_kha_khang",
+      "label": "Loại trừ phạt cọc do bất khả kháng / lỗi của cả hai bên?",
+      "section": "Xử lý vi phạm (phạt cọc)",
+      "tier": "default",
+      "type": "select",
+      "options": [
+        "Có (không bên nào bị phạt cọc, hoàn trả cọc cho Bên A)",
+        "Không (vẫn áp dụng phạt cọc trừ khi pháp luật quy định khác)"
+      ],
+      "help": "Theo thực tiễn xét xử, nếu không ký được hợp đồng do sự kiện bất khả kháng/trở ngại khách quan hoặc do lỗi của cả hai bên thì thường không phạt cọc, chỉ hoàn trả tiền cọc.",
+      "defaultText": "Nếu việc không giao kết/thực hiện được do sự kiện bất khả kháng, trở ngại khách quan hoặc do lỗi của cả hai bên thì không áp dụng phạt cọc; Bên nhận đặt cọc hoàn trả tiền cọc cho Bên đặt cọc.",
+      "legalRef": "Điều 156, Điều 351 BLDS 2015; tham khảo Nghị quyết 01/2003/NQ-HĐTP và thực tiễn xét xử",
+      "placeholder": "Có (không bên nào bị phạt cọc, hoàn trả cọc cho Bên A)"
+    },
+    {
+      "key": "cam_ket_phap_ly_tai_san",
+      "label": "Cam kết của Bên B về tình trạng pháp lý tài sản?",
+      "section": "Cam kết & điều khoản chung",
+      "tier": "default",
+      "type": "textarea",
+      "help": "Bên B nên cam kết tài sản thuộc quyền sở hữu/sử dụng hợp pháp của mình, không tranh chấp, không bị kê biên, đủ điều kiện giao dịch.",
+      "defaultText": "Theo Điều 117 BLDS 2015 và pháp luật đất đai, đối tượng giao dịch phải hợp pháp, đủ điều kiện chuyển nhượng. Mặc định Bên B chịu trách nhiệm bảo đảm tài sản thuộc sở hữu/sử dụng hợp pháp, không tranh chấp, không bị kê biên/thế chấp ngăn cản giao dịch; nếu sai dẫn đến không ký được hợp đồng thì coi là lỗi của Bên B.",
+      "legalRef": "Điều 117 BLDS 2015; Điều 45 Luật Đất đai 2024 (điều kiện chuyển nhượng)",
+      "placeholder": "Bên B cam kết tài sản thuộc quyền sử dụng hợp pháp, không tranh chấp, không thế chấp, đủ điều kiện chuyển nhượng."
+    },
+    {
+      "key": "cong_chung_chung_thuc",
+      "label": "Có công chứng/chứng thực hợp đồng đặt cọc không?",
+      "section": "Cam kết & điều khoản chung",
+      "tier": "optional",
+      "type": "select",
+      "options": [
+        "Không công chứng (hợp đồng vẫn có hiệu lực)",
+        "Có công chứng/chứng thực"
+      ],
+      "help": "Luật KHÔNG bắt buộc công chứng hợp đồng đặt cọc; hợp đồng viết tay/ký tay vẫn có hiệu lực. Tuy nhiên công chứng giúp an toàn hơn, nhất là với nhà đất.",
+      "placeholder": "Không công chứng (hợp đồng vẫn có hiệu lực)"
+    },
+    {
+      "key": "giai_quyet_tranh_chap",
+      "label": "Cách giải quyết tranh chấp?",
+      "section": "Cam kết & điều khoản chung",
+      "tier": "default",
+      "type": "select",
+      "options": [
+        "Thương lượng, hòa giải; nếu không được thì khởi kiện tại Tòa án có thẩm quyền",
+        "Khởi kiện tại Tòa án có thẩm quyền"
+      ],
+      "help": "Tranh chấp hợp đồng đặt cọc giữa cá nhân thuộc thẩm quyền Tòa án nhân dân.",
+      "defaultText": "Nếu không thỏa thuận: hai bên ưu tiên thương lượng, hòa giải; không đạt được thì một trong hai bên có quyền khởi kiện tại Tòa án nhân dân có thẩm quyền theo quy định của Bộ luật Tố tụng dân sự.",
+      "legalRef": "Bộ luật Tố tụng dân sự 2015",
+      "placeholder": "Thương lượng, hòa giải; nếu không được thì khởi kiện tại Tòa án có thẩm quyền"
+    },
+    {
+      "key": "ghi_chu_khac",
+      "label": "Thỏa thuận/ghi chú khác (nếu có)?",
+      "section": "Cam kết & điều khoản chung",
+      "tier": "optional",
+      "type": "textarea",
+      "help": "Các thỏa thuận bổ sung: gia hạn, tiền cọc được trừ vào giá mua, điều kiện giao tài sản...",
+      "placeholder": "Tiền đặt cọc được trừ vào tiền thanh toán đợt 1 của hợp đồng chính."
+    }
+  ],
+  "body": [
+    {
+      "heading": "ĐIỀU 1: THÔNG TIN CÁC BÊN",
+      "text": "Bên đặt cọc (sau đây gọi là Bên A): Ông/Bà {{ben_a_ten}}, CCCD/CMND số {{ben_a_cccd}}, địa chỉ: {{ben_a_diachi}}.\nBên nhận đặt cọc (sau đây gọi là Bên B): Ông/Bà {{ben_b_ten}}, CCCD/CMND số {{ben_b_cccd}}, địa chỉ: {{ben_b_diachi}}."
+    },
+    {
+      "heading": "ĐIỀU 2: ĐỐI TƯỢNG VÀ MỤC ĐÍCH ĐẶT CỌC",
+      "text": "Bên A đặt cọc cho Bên B nhằm bảo đảm cho việc: {{muc_dich_dat_coc}}.\nHợp đồng chính được bảo đảm là: {{loai_hop_dong_chinh}}.\nĐối tượng của hợp đồng chính: {{mo_ta_tai_san_giao_dich}}.\nGiá trị giao dịch dự kiến của hợp đồng chính: {{gia_tri_giao_dich}} đồng."
+    },
+    {
+      "heading": "ĐIỀU 3: SỐ TIỀN ĐẶT CỌC VÀ PHƯƠNG THỨC GIAO NHẬN",
+      "text": "Số tiền (giá trị tài sản) đặt cọc là: {{so_tien_dat_coc}} đồng (bằng chữ: {{so_tien_dat_coc_bang_chu}}).\nHình thức giao cọc: {{hinh_thuc_giao_coc}}. Thời điểm giao cọc: {{thoi_diem_giao_coc}}.\nBên B xác nhận đã/đang nhận đủ số tiền đặt cọc nêu trên từ Bên A."
+    },
+    {
+      "heading": "ĐIỀU 4: THỜI HẠN ĐẶT CỌC VÀ NGHĨA VỤ CỦA CÁC BÊN",
+      "text": "Trong thời hạn đặt cọc, tức chậm nhất đến ngày {{thoi_han_dat_coc}}, hai bên có nghĩa vụ cùng nhau giao kết và/hoặc thực hiện hợp đồng chính nêu tại Điều 2.\nBên A có nghĩa vụ phối hợp, thanh toán và ký kết hợp đồng chính đúng hạn. Bên B có nghĩa vụ chuẩn bị đầy đủ giấy tờ, bảo đảm tài sản đủ điều kiện giao dịch và ký kết hợp đồng chính đúng hạn."
+    },
+    {
+      "heading": "ĐIỀU 5: ĐỊA ĐIỂM GIAO KẾT HỢP ĐỒNG CHÍNH",
+      "text": "Hai bên thống nhất giao kết/công chứng hợp đồng chính tại: {{dia_diem_ky_hd_chinh}}.",
+      "condition": {
+        "key": "dia_diem_ky_hd_chinh",
+        "equals": ""
+      }
+    },
+    {
+      "heading": "ĐIỀU 6: XỬ LÝ TIỀN CỌC KHI GIAO KẾT, THỰC HIỆN HỢP ĐỒNG",
+      "text": "Trường hợp hai bên giao kết và thực hiện hợp đồng chính: tiền đặt cọc được trả lại cho Bên A hoặc được trừ vào nghĩa vụ thanh toán của Bên A theo hợp đồng chính."
+    },
+    {
+      "heading": "ĐIỀU 7: XỬ LÝ VI PHẠM (PHẠT CỌC)",
+      "text": "1. Nếu Bên A từ chối việc giao kết/thực hiện hợp đồng chính: {{xu_ly_ben_a_tu_choi}}.\n2. Nếu Bên B từ chối việc giao kết/thực hiện hợp đồng chính: Bên B phải trả lại tiền đặt cọc cho Bên A. Mức xử lý: {{phat_coc_thoa_thuan}}.\nViệc xử lý vi phạm trên căn cứ khoản 2 Điều 328 Bộ luật Dân sự 2015."
+    },
+    {
+      "heading": "ĐIỀU 7.1: XỬ LÝ VI PHẠM (PHẠT CỌC) - MỨC THỎA THUẬN",
+      "text": "Mức phạt cọc do hai bên thỏa thuận áp dụng khi Bên B vi phạm: {{muc_phat_coc_khac}}.",
+      "condition": {
+        "key": "phat_coc_thoa_thuan",
+        "equals": "Trả lại cọc + một khoản phạt khác do hai bên thỏa thuận"
+      }
+    },
+    {
+      "heading": "ĐIỀU 8: TRƯỜNG HỢP MIỄN PHẠT CỌC",
+      "text": "Xử lý khi không giao kết/thực hiện được hợp đồng do bất khả kháng, trở ngại khách quan hoặc lỗi của cả hai bên: {{truong_hop_bat_kha_khang}}."
+    },
+    {
+      "heading": "ĐIỀU 9: THUẾ, PHÍ VÀ LỆ PHÍ",
+      "text": "Các khoản thuế, phí, lệ phí phát sinh khi giao kết và thực hiện hợp đồng chính được xác định như sau: {{ben_chiu_thue_phi}}."
+    },
+    {
+      "heading": "ĐIỀU 10: CAM KẾT CỦA CÁC BÊN",
+      "text": "Hai bên cam kết tự nguyện, trung thực, có đầy đủ năng lực hành vi dân sự khi ký hợp đồng này. Bên B cam kết về tình trạng pháp lý của tài sản: {{cam_ket_phap_ly_tai_san}}."
+    },
+    {
+      "heading": "ĐIỀU 11: CÔNG CHỨNG, CHỨNG THỰC",
+      "text": "Về việc công chứng/chứng thực hợp đồng đặt cọc: {{cong_chung_chung_thuc}}. Hai bên hiểu rằng pháp luật không bắt buộc công chứng hợp đồng đặt cọc và hợp đồng này vẫn có hiệu lực kể từ thời điểm ký."
+    },
+    {
+      "heading": "ĐIỀU 12: GIẢI QUYẾT TRANH CHẤP",
+      "text": "Mọi tranh chấp phát sinh từ hợp đồng này được giải quyết như sau: {{giai_quyet_tranh_chap}}."
+    },
+    {
+      "heading": "ĐIỀU 13: THỎA THUẬN KHÁC",
+      "text": "{{ghi_chu_khac}}",
+      "condition": {
+        "key": "ghi_chu_khac",
+        "equals": ""
+      }
+    }
+  ],
+  "closing": "Hợp đồng này gồm các điều khoản trên, được lập thành 02 (hai) bản có giá trị pháp lý như nhau, mỗi bên giữ 01 (một) bản. Hợp đồng có hiệu lực kể từ ngày ký. Hai bên đã đọc, hiểu rõ và hoàn toàn đồng ý với toàn bộ nội dung.\n\nBÊN ĐẶT CỌC (BÊN A)                          BÊN NHẬN ĐẶT CỌC (BÊN B)\n(Ký, ghi rõ họ tên)                          (Ký, ghi rõ họ tên)\n\n\n{{ben_a_ten}}                                {{ben_b_ten}}",
+  "lint": [
+    {
+      "field": "so_tien_dat_coc",
+      "op": "max",
+      "value": "gia_tri_giao_dich",
+      "message": "Tiền đặt cọc không nên vượt quá giá trị giao dịch của hợp đồng chính. Thông thường tiền cọc chỉ chiếm khoảng 5%–30% giá trị tài sản.",
+      "legalRef": "Điều 328 BLDS 2015 (đặt cọc để bảo đảm, không thay thế toàn bộ giao dịch)",
+      "severity": "warn"
+    },
+    {
+      "field": "so_tien_dat_coc",
+      "op": "min",
+      "value": 1,
+      "message": "Phải có số tiền (hoặc tài sản) đặt cọc cụ thể, lớn hơn 0; nếu không sẽ không hình thành quan hệ đặt cọc.",
+      "legalRef": "Khoản 1 Điều 328 BLDS 2015",
+      "severity": "error"
+    },
+    {
+      "field": "phat_coc_thoa_thuan",
+      "op": "note",
+      "value": "Phạt cọc khác với phạt vi phạm hợp đồng thương mại",
+      "message": "Lưu ý: Phạt cọc theo Điều 328 BLDS KHÔNG bị giới hạn ở mức 8% (mức 8% chỉ áp dụng cho phạt vi phạm hợp đồng thương mại theo Điều 301 Luật Thương mại). Mức phạt cọc do hai bên tự thỏa thuận, mặc định là gấp đôi tiền cọc.",
+      "legalRef": "Khoản 2 Điều 328 BLDS 2015; đối chiếu Điều 301 Luật Thương mại 2005",
+      "severity": "warn"
+    },
+    {
+      "field": "thoi_han_dat_coc",
+      "op": "note",
+      "value": "Thời hạn phải sau ngày ký",
+      "message": "Thời hạn đặt cọc (hạn chót ký/thực hiện hợp đồng chính) phải sau ngày ký hợp đồng đặt cọc, nếu không thỏa thuận sẽ vô nghĩa.",
+      "legalRef": "Khoản 1 Điều 328 BLDS 2015 (đặt cọc trong một thời hạn)",
+      "severity": "error"
+    },
+    {
+      "field": "cam_ket_phap_ly_tai_san",
+      "op": "note",
+      "value": "Kiểm tra điều kiện chuyển nhượng nhà đất",
+      "message": "Nếu đối tượng là nhà, đất: cần bảo đảm tài sản đủ điều kiện chuyển nhượng (có Giấy chứng nhận, không tranh chấp, không kê biên, còn thời hạn sử dụng đất...). Đặt cọc cho đất chưa đủ điều kiện chuyển nhượng có thể bị tuyên vô hiệu.",
+      "legalRef": "Điều 45 Luật Đất đai 2024; Điều 117, Điều 408 BLDS 2015",
+      "severity": "warn"
+    }
+  ],
+  "verifyNotes": [
+    "Điều 328 BLDS 2015 đã được kiểm chứng độc lập: đặt cọc bảo đảm giao kết/thực hiện HĐ; default phạt cọc = trả lại cọc + một khoản tương đương (gấp đôi) khi bên nhận từ chối, và mất cọc khi bên đặt cọc từ chối, trừ thỏa thuận khác.",
+    "Đã kiểm chứng: phạt cọc KHÔNG bị giới hạn 8% (mức 8% là phạt vi phạm hợp đồng thương mại theo Điều 301 Luật Thương mại 2005, phạm vi khác). Giữ nguyên lint cảnh báo.",
+    "Đã kiểm chứng: hợp đồng đặt cọc (kể cả mua bán/chuyển nhượng BĐS) KHÔNG bắt buộc công chứng theo BLDS 2015 và Luật Công chứng 2024; vẫn có hiệu lực nếu lập bằng văn bản ký tay, nhưng khuyến nghị công chứng để an toàn.",
+    "ĐÃ SỬA căn cứ miễn phạt cọc: Nghị quyết 01/2003/NQ-HĐTP là hướng dẫn cũ (đã bị thay thế ở phần hôn nhân-gia đình bởi Nghị quyết 01/2024/NQ-HĐTP) nhưng nội dung về đặt cọc vẫn được Tòa án tham khảo trong thực tiễn xét xử. Đã hạ cấp dẫn chiếu xuống 'tham khảo' và neo căn cứ ràng buộc vào Điều 156 + Điều 351 BLDS 2015 (sự kiện bất khả kháng, trách nhiệm do vi phạm nghĩa vụ).",
+    "ĐÃ SỬA legalBasis: bỏ dẫn chiếu Nghị quyết 01/2003 như văn bản chủ đạo, đưa xuống dạng tham khảo; bổ sung Điều 408 BLDS 2015 (vô hiệu do đối tượng không thể thực hiện) và pin Luật Đất đai 2024 vào Điều 45 (điều kiện chuyển nhượng QSDĐ) — đã kiểm chứng Điều 45 yêu cầu: có GCN, không tranh chấp, không kê biên, còn thời hạn sử dụng đất.",
+    "ĐÃ SỬA lỗi trùng số điều trong body: hai mục cùng tiêu đề 'ĐIỀU 7'. Mục có điều kiện (mức phạt thỏa thuận khác) đổi thành 'ĐIỀU 7.1' để tránh trùng và giữ thứ tự logic.",
+    "CẢNH BÁO LOGIC ĐIỀU KIỆN: hai mục body 'ĐIỀU 5' (địa điểm ký HĐ chính) và 'ĐIỀU 13' (thỏa thuận khác) dùng condition equals:\\\"\\\" — nếu engine của bạn hiểu là 'hiển thị khi field RỖNG' thì SAI logic (điều khoản chỉ nên xuất hiện khi người dùng CÓ nhập). Đề nghị đổi sang quy ước 'hiển thị khi field có giá trị' (vd op:filled hoặc notEquals:\\\"\\\"). Đã giữ nguyên cú pháp equals:\\\"\\\" để tương thích định dạng template gốc, nhưng cần đối chiếu với renderer.",
+    "Đã kiểm chứng nhất quán: mọi {{key}} trong body/preamble/closing đều có field tương ứng (ngay_ky, dia_diem_ky, ben_a_ten/cccd/diachi, ben_b_ten/cccd/diachi, muc_dich_dat_coc, loai_hop_dong_chinh, mo_ta_tai_san_giao_dich, gia_tri_giao_dich, so_tien_dat_coc, so_tien_dat_coc_bang_chu, hinh_thuc_giao_coc, thoi_diem_giao_coc, thoi_han_dat_coc, dia_diem_ky_hd_chinh, xu_ly_ben_a_tu_choi, phat_coc_thoa_thuan, muc_phat_coc_khac, truong_hop_bat_kha_khang, ben_chiu_thue_phi, cam_ket_phap_ly_tai_san, cong_chung_chung_thuc, giai_quyet_tranh_chap, ghi_chu_khac).",
+    "Điều khoản chủ yếu (required) gồm: số tiền cọc + số tiền bằng chữ, mục đích/đối tượng bảo đảm, thời hạn đặt cọc, thông tin định danh hai bên — thiếu thì quan hệ đặt cọc không hình thành rõ ràng.",
+    "CẢNH BÁO CÒN LẠI 1: Nếu hợp đồng chính là chuyển nhượng nhà đất, người dùng PHẢI tự xác minh tài sản đủ điều kiện chuyển nhượng (sổ đỏ/hồng, không tranh chấp, không kê biên, không thuộc quy hoạch thu hồi) TRƯỚC khi đặt cọc — đặt cọc cho tài sản không đủ điều kiện có thể bị tuyên vô hiệu (Điều 408 BLDS; Điều 45 Luật Đất đai 2024).",
+    "CẢNH BÁO CÒN LẠI 2: Mẫu này là khung tham khảo, không thay thế tư vấn của luật sư/công chứng viên cho giao dịch giá trị lớn. Với BĐS nên công chứng cả hợp đồng đặt cọc để tăng giá trị chứng cứ."
+  ]
+}

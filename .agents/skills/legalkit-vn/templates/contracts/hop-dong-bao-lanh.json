@@ -1,0 +1,146 @@
+{
+  "id": "bao_lanh",
+  "name": "Hợp đồng bảo lãnh thực hiện nghĩa vụ",
+  "group": "Doanh nghiệp ↔ Doanh nghiệp / Cá nhân",
+  "icon": "🛡️",
+  "title": "HỢP ĐỒNG BẢO LÃNH THỰC HIỆN NGHĨA VỤ",
+  "summary": "Hợp đồng bảo lãnh thế chấp hoặc thực hiện nghĩa vụ thanh toán giữa bên bảo lãnh, bên được bảo lãnh và bên nhận bảo lãnh, quy định rõ phạm vi bảo lãnh, tài sản bảo đảm và xử lý tài sản khi vi phạm nghĩa vụ theo Bộ luật Dân sự 2015.",
+  "parties": {
+    "a": "Bên nhận bảo lãnh (Bên A)",
+    "b": "Bên bảo lãnh (Bên B)",
+    "c": "Bên được bảo lãnh (Bên C)"
+  },
+  "preamble": "Căn cứ Bộ luật Dân sự số 91/2015/QH13;\nCăn cứ Nghị định số 21/2021/NĐ-CP quy định thi hành Bộ luật Dân sự về bảo đảm thực hiện nghĩa vụ;\nCăn cứ thỏa thuận thực hiện nghĩa vụ giữa các bên;\nHôm nay, ngày {{ngay_ky}}, tại {{dia_diem_ky}}, chúng tôi gồm:\n- BÊN A (Bên nhận bảo lãnh): {{ten_bena}}, địa chỉ: {{dia_chi_bena}}, đại diện: {{dai_dien_bena}}.\n- BÊN B (Bên bảo lãnh): {{ten_benb}}, địa chỉ: {{dia_chi_benb}}, CCCD số: {{cccd_benb}}.\n- BÊN C (Bên được bảo lãnh): {{ten_benc}}, địa chỉ: {{dia_chi_benc}}, đại diện: {{dai_dien_benc}}.\nHai bên thống nhất ký kết hợp đồng bảo lãnh với các điều khoản sau:",
+  "legalBasis": [
+    "Bộ luật Dân sự 2015 (Luật số 91/2015/QH13): các quy định về biện pháp bảo lãnh (Điều 335 đến Điều 343).",
+    "Nghị định 21/2021/NĐ-CP: hướng dẫn thi hành các biện pháp bảo đảm thực hiện nghĩa vụ dân sự."
+  ],
+  "fields": [
+    {
+      "key": "ten_bena",
+      "label": "Tên bên nhận bảo lãnh (Bên A)?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Tên công ty hoặc ngân hàng nhận bảo lãnh.",
+      "placeholder": "Ngân hàng Thương mại Cổ phần A"
+    },
+    {
+      "key": "dia_chi_bena",
+      "label": "Địa chỉ bên A?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Địa chỉ trụ sở bên A.",
+      "placeholder": "Số 1, đường X, TP HCM"
+    },
+    {
+      "key": "dai_dien_bena",
+      "label": "Người đại diện bên A?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Họ tên và chức vụ người ký bên A.",
+      "placeholder": "Nguyễn Văn A: Giám đốc"
+    },
+    {
+      "key": "ten_benb",
+      "label": "Tên bên bảo lãnh (Bên B)?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Họ tên cá nhân hoặc pháp nhân đứng ra bảo lãnh.",
+      "placeholder": "Trần Văn B"
+    },
+    {
+      "key": "dia_chi_benb",
+      "label": "Địa chỉ bên B?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Địa chỉ thường trú bên B.",
+      "placeholder": "Số 2, đường Y, Hà Nội"
+    },
+    {
+      "key": "cccd_benb",
+      "label": "Số CCCD bên B?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Số căn cước công dân người bảo lãnh.",
+      "placeholder": "079095000123"
+    },
+    {
+      "key": "ten_benc",
+      "label": "Tên bên được bảo lãnh (Bên C)?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Tên công ty hoặc cá nhân có nghĩa vụ chính cần bảo lãnh.",
+      "placeholder": "Công ty TNHH Minh Đỗ"
+    },
+    {
+      "key": "dia_chi_benc",
+      "label": "Địa chỉ bên C?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Địa chỉ trụ sở công ty bên C.",
+      "placeholder": "859 Mỹ Phong, Đồng Tháp"
+    },
+    {
+      "key": "dai_dien_benc",
+      "label": "Người đại diện bên C?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Họ tên và chức vụ người ký bên C.",
+      "placeholder": "Đỗ Tấn Minh: Giám đốc"
+    },
+    {
+      "key": "nghia_vu_bao_lanh",
+      "label": "Nghĩa vụ được bảo lãnh (Ví dụ: nghĩa vụ thanh toán hợp đồng vay)?",
+      "section": "Phạm vi bảo lãnh",
+      "tier": "required",
+      "type": "text",
+      "help": "Mô tả cụ thể nghĩa vụ chính được bảo lãnh.",
+      "placeholder": "Nghĩa vụ thanh toán gốc và lãi của Hợp đồng tín dụng số 01"
+    },
+    {
+      "key": "han_muc_bao_lanh",
+      "label": "Hạn mức bảo lãnh tối đa (VND)?",
+      "section": "Phạm vi bảo lãnh",
+      "tier": "required",
+      "type": "number",
+      "help": "Số tiền tối đa bên bảo lãnh cam kết trả thay.",
+      "placeholder": "500000000"
+    }
+  ],
+  "clauses": [
+    {
+      "heading": "ĐIỀU 1: NỘI DUNG BẢO LÃNH",
+      "text": "Bên B cam kết với Bên A sẽ thực hiện nghĩa vụ thay cho Bên C nếu khi đến hạn Bên C không thực hiện hoặc thực hiện không đúng nghĩa vụ chính sau: {{nghia_vu_bao_lanh}}."
+    },
+    {
+      "heading": "ĐIỀU 2: PHẠM VI VÀ HẠN MỨC BẢO LÃNH",
+      "text": "Phạm vi bảo lãnh bao gồm toàn bộ dư nợ gốc, lãi trong hạn, lãi quá hạn và các khoản phạt vi phạm hợp đồng chính của Bên C, nhưng tối đa không vượt quá hạn mức bảo lãnh: {{han_muc_bao_lanh}} VND."
+    },
+    {
+      "heading": "ĐIỀU 3: XỬ LÝ NGHĨA VỤ KHI VI PHẠM",
+      "text": "Khi Bên C không thực hiện nghĩa vụ đến hạn, Bên A có quyền yêu cầu Bên B thực hiện nghĩa vụ bảo lãnh thanh toán. Bên B có nghĩa vụ thanh toán ngay số tiền yêu cầu trong vòng 05 ngày làm việc kể từ ngày nhận được thông báo hợp lệ của Bên A."
+    },
+    {
+      "heading": "ĐIỀU 4: QUYỀN ĐÒI LẠI TÀI SẢN CỦA BÊN BẢO LÃNH",
+      "text": "Sau khi Bên B đã hoàn thành nghĩa vụ bảo lãnh thay cho Bên C, Bên B có quyền yêu cầu Bên C hoàn trả số tiền mà Bên B đã trả thay cho Bên A, kèm theo lãi phát sinh thực tế tính theo lãi suất cơ bản thỏa thuận."
+    },
+    {
+      "heading": "ĐIỀU 5: GIẢI QUYẾT TRANH CHẤP",
+      "text": "Mọi tranh chấp phát sinh từ hoặc liên quan đến hợp đồng bảo lãnh này được giải quyết bằng thương lượng hòa giải, trường hợp không hòa giải được sẽ đưa ra Tòa án nhân dân có thẩm quyền để xét xử."
+    }
+  ],
+  "closing": "Hợp đồng này được lập thành 03 (ba) bản có giá trị pháp lý như nhau, mỗi bên giữ 01 (một) bản, có hiệu lực từ ngày ký.\n\nĐẠI DIỆN BÊN A        BÊN BẢO LÃNH (BÊN B)        ĐẠI DIỆN BÊN C",
+  "lint": [],
+  "verifyNotes": [
+    "Quy định về bảo lãnh thực hiện nghĩa vụ theo Điều 335 Bộ luật Dân sự 2015. Bên bảo lãnh chịu trách nhiệm trả thay khi bên được bảo lãnh vi phạm nghĩa vụ chính."
+  ]
+}

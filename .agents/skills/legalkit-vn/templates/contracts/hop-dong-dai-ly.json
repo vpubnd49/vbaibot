@@ -1,0 +1,123 @@
+{
+  "id": "dai_ly",
+  "name": "Hợp đồng đại lý thương mại",
+  "group": "Doanh nghiệp ↔ Doanh nghiệp / Cá nhân",
+  "icon": "🤝",
+  "title": "HỢP ĐỒNG ĐẠI LÝ THƯƠNG MẠI",
+  "summary": "Hợp đồng đại lý thương mại quy định quyền và nghĩa vụ của bên giao đại lý và bên làm đại lý bán hàng hóa, mức thù lao đại lý hoặc chênh lệch giá, bảo hành sản phẩm và thanh quyết toán tiền bán hàng theo Luật Thương mại 2005.",
+  "parties": {
+    "a": "Bên giao đại lý (Bên A)",
+    "b": "Bên làm đại lý (Bên B)"
+  },
+  "preamble": "Căn cứ Bộ luật Dân sự số 91/2015/QH13;\nCăn cứ Luật Thương mại số 36/2005/QH11;\nCăn cứ nhu cầu và khả năng kinh doanh của hai bên;\nHôm nay, ngày {{ngay_ky}}, tại {{dia_diem_ky}}, chúng tôi gồm:\n- BÊN A (Bên giao đại lý): {{ten_bena}}, địa chỉ: {{dia_chi_bena}}, đại diện: {{dai_dien_bena}}.\n- BÊN B (Bên làm đại lý): {{ten_benb}}, địa chỉ: {{dia_chi_benb}}, đại diện: {{dai_dien_benb}}.\nHai bên thống nhất ký kết hợp đồng đại lý thương mại với các điều khoản sau:",
+  "legalBasis": [
+    "Bộ luật Dân sự 2015 (Luật số 91/2015/QH13): quy định chung về hợp đồng thương mại và giao dịch.",
+    "Luật Thương mại 2005 (Luật số 36/2005/QH11): Mục 6 về Đại lý thương mại (Điều 166 đến Điều 177)."
+  ],
+  "fields": [
+    {
+      "key": "ten_bena",
+      "label": "Tên bên giao đại lý (Bên A)?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Tên đầy đủ công ty giao hàng hóa làm đại lý.",
+      "placeholder": "Công ty Cổ phần Sữa Việt Nam"
+    },
+    {
+      "key": "dia_chi_bena",
+      "label": "Địa chỉ bên A?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Địa chỉ trụ sở công ty bên A.",
+      "placeholder": "Số 1, đường X, TP HCM"
+    },
+    {
+      "key": "dai_dien_bena",
+      "label": "Người đại diện bên A?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Họ tên và chức vụ người ký bên A.",
+      "placeholder": "Nguyễn Văn A: Giám đốc"
+    },
+    {
+      "key": "ten_benb",
+      "label": "Tên bên làm đại lý (Bên B)?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Tên công ty hoặc hộ kinh doanh cá thể làm đại lý.",
+      "placeholder": "Công ty TNHH Thương mại B"
+    },
+    {
+      "key": "dia_chi_benb",
+      "label": "Địa chỉ bên B?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Địa chỉ trụ sở kinh doanh bên B.",
+      "placeholder": "Số 2, đường Y, Hà Nội"
+    },
+    {
+      "key": "dai_dien_benb",
+      "label": "Người đại diện bên B?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Họ tên và chức vụ người ký bên B.",
+      "placeholder": "Trần Văn B: Giám đốc"
+    },
+    {
+      "key": "hang_hoa_dai_ly",
+      "label": "Danh mục hàng hóa làm đại lý?",
+      "section": "Hàng hóa đại lý",
+      "tier": "required",
+      "type": "text",
+      "help": "Tên các loại sản phẩm giao nhận đại lý.",
+      "placeholder": "Sữa và các chế phẩm từ sữa thương hiệu A"
+    },
+    {
+      "key": "thu_lao_dai_ly",
+      "label": "Phương thức xác định thù lao đại lý?",
+      "section": "Thù lao đại lý",
+      "tier": "default",
+      "type": "select",
+      "help": "Thù lao tính theo phần trăm doanh số hoặc hưởng chênh lệch giá.",
+      "options": [
+        "Hưởng thù lao bằng tỷ lệ phần trăm (10%) trên giá bán thực tế của hàng hóa",
+        "Hưởng chênh lệch giá bán thực tế so với giá giao đại lý của Bên A",
+        "Thù lao khoán cố định theo tháng thỏa thuận"
+      ],
+      "defaultText": "Hưởng thù lao bằng tỷ lệ phần trăm (10%) trên giá bán thực tế của hàng hóa"
+    }
+  ],
+  "clauses": [
+    {
+      "heading": "ĐIỀU 1: HÌNH THỨC VÀ HÀNG HÓA ĐẠI LÝ",
+      "text": "Bên A giao và Bên B nhận làm đại lý bán hàng hóa đối với danh mục hàng hóa sau: {{hang_hoa_dai_ly}}. Hình thức đại lý là đại lý hoa hồng hoặc đại lý bao tiêu theo quy định tại Điều 169 Luật Thương mại 2005."
+    },
+    {
+      "heading": "ĐIỀU 2: GIÁ BÁN VÀ QUY ĐỊNH BÁN HÀNG",
+      "text": "Bên B có nghĩa vụ bán hàng hóa đại lý theo đúng mức giá do Bên A ấn định và niêm yết công khai. Bên B không được tự ý giảm giá hoặc tăng giá bán khi không có sự đồng ý bằng văn bản của Bên A."
+    },
+    {
+      "heading": "ĐIỀU 3: THÙ LAO ĐẠI LÝ VÀ THANH TOÁN",
+      "text": "Phương thức tính thù lao đại lý cho Bên B thực hiện như sau: {{thu_lao_dai_ly}}. Việc đối chiếu doanh thu bán hàng và thanh toán tiền đại lý được tiến hành định kỳ trước ngày 10 hàng tháng."
+    },
+    {
+      "heading": "ĐIỀU 4: QUYỀN SỞ HỮU HÀNG HÓA",
+      "text": "Bên A là chủ sở hữu đối với toàn bộ hàng hóa giao cho Bên B làm đại lý cho đến khi hàng hóa đó được bán cho khách hàng. Bên B chịu trách nhiệm bảo quản hàng hóa tránh hư hỏng tại kho bãi của mình."
+    },
+    {
+      "heading": "ĐIỀU 5: CHẤM DỨT HỢP ĐỒNG ĐẠI LÝ",
+      "text": "Một bên có quyền đơn phương chấm dứt hợp đồng đại lý bằng việc thông báo bằng văn bản cho bên kia trước ít nhất 60 ngày theo quy định tại Điều 177 Luật Thương mại 2005. Khi chấm dứt, bên B bàn giao lại toàn bộ hàng hóa tồn kho chưa bán cho bên A."
+    }
+  ],
+  "closing": "Hợp đồng này được lập thành 02 (hai) bản có giá trị pháp lý như nhau, mỗi bên giữ 01 (một) bản, có hiệu lực từ ngày ký.\n\nĐẠI DIỆN BÊN A (ký, ghi rõ họ tên, đóng dấu)        ĐẠI DIỆN BÊN B (ký, ghi rõ họ tên, đóng dấu)",
+  "lint": [],
+  "verifyNotes": [
+    "Quy định đại lý thương mại bắt buộc phải lập thành văn bản theo quy định tại Điều 168 Luật Thương mại 2005. Thời hạn báo trước khi chấm dứt tối thiểu 60 ngày quy định tại Điều 177."
+  ]
+}

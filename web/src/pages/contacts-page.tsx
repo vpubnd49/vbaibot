@@ -40,14 +40,14 @@ export function ContactsPage({ accounts }: { accounts: AccountInfo[] }) {
     <div>
       <PageHeader
         icon={IconUsers}
-        title="Contacts"
-        subtitle="Tự thu thập từ mọi tin nhắn đến, kể cả người bot không trả lời"
+        title="Danh bạ người dùng"
+        subtitle="Hồ sơ người dùng và thành viên tự động đồng bộ từ các cuộc trò chuyện trên Zalo"
       />
 
       <ListToolbar
         query={query}
         onQuery={setQuery}
-        placeholder="Tìm theo tên hoặc user ID..."
+        placeholder="Tìm theo tên hiển thị hoặc Zalo User ID..."
         filter={<AccountFilter accounts={accounts} value={accountFilter} onChange={setAccountFilter} />}
         page={page}
         hasMore={hasMore}
@@ -57,34 +57,34 @@ export function ContactsPage({ accounts }: { accounts: AccountInfo[] }) {
       <TableShell
         headers={
           showAccountColumn
-            ? ["Tên", "Account", "User ID", "Số tin", "Lần đầu", "Gần nhất"]
-            : ["Tên", "User ID", "Số tin", "Lần đầu", "Gần nhất"]
+            ? ["Tên người dùng", "Tài khoản bot", "User ID", "Tổng số tin", "Tương tác đầu", "Tương tác gần nhất"]
+            : ["Tên người dùng", "User ID", "Tổng số tin", "Tương tác đầu", "Tương tác gần nhất"]
         }
-        minWidth={showAccountColumn ? 860 : 760}
+        minWidth={showAccountColumn ? 900 : 800}
       >
         {items.length === 0 && (
-          <EmptyRow colSpan={showAccountColumn ? 6 : 5} text="Chưa có contact nào" />
+          <EmptyRow colSpan={showAccountColumn ? 6 : 5} text="Chưa có liên hệ nào trong danh bạ" />
         )}
         {items.map((contact) => (
           <tr
             key={`${contact.accountId}:${contact.userId}`}
-            className="border-b border-line/60 last:border-0 hover:bg-tile/40"
+            className="hover:bg-tile/40 transition-colors"
           >
-            <td className="px-4 py-3">
+            <td className="px-4 py-3.5">
               <div className="flex items-center gap-3">
                 <InitialAvatar name={contact.displayName || contact.userId} />
-                <span className="font-medium text-ink">{contact.displayName || "(không tên)"}</span>
+                <span className="font-semibold text-ink text-[13.5px]">{contact.displayName || "(Chưa đặt tên)"}</span>
               </div>
             </td>
             {showAccountColumn && (
-              <td className="px-4 py-3">
+              <td className="px-4 py-3.5">
                 <Badge tone="gray" dot={false}>{accountLabel(accounts, contact.accountId)}</Badge>
               </td>
             )}
-            <td className="px-4 py-3 text-ink-soft">{contact.userId}</td>
-            <td className="px-4 py-3 text-ink-soft">{formatNumber(contact.messageCount)}</td>
-            <td className="px-4 py-3 text-ink-soft">{formatTime(contact.firstSeen)}</td>
-            <td className="px-4 py-3 text-ink-soft">{formatTime(contact.lastSeen)}</td>
+            <td className="px-4 py-3.5 font-mono text-xs text-ink-soft">{contact.userId}</td>
+            <td className="px-4 py-3.5 font-bold text-ink font-mono">{formatNumber(contact.messageCount)}</td>
+            <td className="px-4 py-3.5 text-xs text-ink-soft">{formatTime(contact.firstSeen)}</td>
+            <td className="px-4 py-3.5 text-xs text-ink font-medium">{formatTime(contact.lastSeen)}</td>
           </tr>
         ))}
       </TableShell>

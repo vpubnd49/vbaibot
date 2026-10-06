@@ -107,25 +107,25 @@ export function KnowledgePage({ accounts }: { accounts: AccountInfo[] }) {
     <div>
       <PageHeader
         icon={IconDatabase}
-        title="Tri thức dùng chung"
-        subtitle="Tri thức đã duyệt được inject vào MỌI cuộc trò chuyện — luật mới, quy trình, đính chính"
+        title="Kho tri thức dùng chung"
+        subtitle="Tri thức đã duyệt được tự động cung cấp vào MỌI phiên trò chuyện — văn bản pháp lý, quy chế, thủ tục và đính chính"
       />
 
       {/* Status tabs */}
-      <div className="mb-4 flex items-center gap-2 px-1">
+      <div className="mb-4 flex flex-wrap items-center gap-2 px-1">
         {STATUS_TABS.map((tab) => (
           <button
             key={tab.value}
             onClick={() => setStatusFilter(tab.value)}
-            className={`rounded-full px-3 py-1.5 text-[13px] font-medium transition-colors ${
+            className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all ${
               statusFilter === tab.value
-                ? "bg-zalo-600 text-white"
-                : "bg-tile text-ink-soft hover:bg-line hover:text-ink"
+                ? "bg-blue-600 text-white shadow-sm shadow-blue-500/20"
+                : "bg-tile/70 border border-line/60 text-ink-soft hover:text-ink hover:bg-tile"
             }`}
           >
             {tab.label}
             {tab.value === "pending" && pendingCount > 0 && (
-              <span className="ml-1.5 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1.5 text-[11px] font-bold text-white">
+              <span className="ml-1.5 inline-flex h-4 min-w-[18px] items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white">
                 {pendingCount}
               </span>
             )}
@@ -136,7 +136,7 @@ export function KnowledgePage({ accounts }: { accounts: AccountInfo[] }) {
           <button
             onClick={approveAll}
             disabled={busyApproveAll}
-            className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-[13px] font-medium text-white hover:bg-emerald-700 disabled:opacity-50 transition-colors shadow-sm"
+            className="flex items-center gap-1.5 rounded-xl bg-emerald-600 px-3.5 py-2 text-xs font-semibold text-white hover:bg-emerald-700 disabled:opacity-50 transition-all shadow-sm"
             title="Duyệt toàn bộ tri thức đang chờ"
           >
             <IconCheck size={14} />
@@ -145,23 +145,28 @@ export function KnowledgePage({ accounts }: { accounts: AccountInfo[] }) {
         )}
         <button
           onClick={() => setShowAdd(!showAdd)}
-          className="flex items-center gap-1.5 rounded-lg bg-zalo-600 px-3 py-1.5 text-[13px] font-medium text-white hover:bg-zalo-700 transition-colors"
+          className="gc-button-primary text-xs py-2 px-3.5"
         >
           <IconPlus size={14} />
-          Thêm mới
+          Thêm tri thức
         </button>
       </div>
 
       {/* Add form */}
       {showAdd && (
-        <div className="mb-4 rounded-xl border border-line bg-tile p-4">
-          <div className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="mb-5 gc-card p-5 space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-line/60">
+            <h3 className="text-sm font-bold text-ink">Thêm mục tri thức mới</h3>
+            <span className="text-xs text-ink-soft">Tự động kích hoạt cho các trợ lý bot</span>
+          </div>
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
-              <label className="mb-1 block text-[13px] text-ink-soft">Phân loại</label>
+              <label className="mb-1 block text-xs font-semibold text-ink-soft">Phân loại</label>
               <select
                 value={newCategory}
                 onChange={(e) => setNewCategory(e.target.value)}
-                className="w-full rounded-lg border border-line bg-surface px-3 py-2 text-[14px] text-ink"
+                className="gc-input w-full text-xs"
               >
                 {Object.entries(CATEGORY_LABELS).map(([k, v]) => (
                   <option key={k} value={k}>{v.text}</option>
@@ -169,36 +174,36 @@ export function KnowledgePage({ accounts }: { accounts: AccountInfo[] }) {
               </select>
             </div>
             <div>
-              <label className="mb-1 block text-[13px] text-ink-soft">Nguồn (tùy chọn)</label>
+              <label className="mb-1 block text-xs font-semibold text-ink-soft">Nguồn trích dẫn (tùy chọn)</label>
               <input
                 value={newSource}
                 onChange={(e) => setNewSource(e.target.value)}
-                placeholder="VD: NĐ 30/2020/NĐ-CP, admin:Hải..."
-                className="w-full rounded-lg border border-line bg-surface px-3 py-2 text-[14px] text-ink"
+                placeholder="VD: NĐ 30/2020/NĐ-CP, Công văn 1234/UBND..."
+                className="gc-input w-full text-xs"
               />
             </div>
           </div>
-          <div className="mb-3">
-            <label className="mb-1 block text-[13px] text-ink-soft">Nội dung tri thức</label>
+          <div>
+            <label className="mb-1 block text-xs font-semibold text-ink-soft">Nội dung tri thức</label>
             <textarea
               value={newContent}
               onChange={(e) => setNewContent(e.target.value)}
-              placeholder="VD: Nghị định 30/2020/NĐ-CP đã được sửa đổi bởi Nghị định XX/2025/NĐ-CP, có hiệu lực từ..."
+              placeholder="VD: Nghị định 30/2020/NĐ-CP quy định về thể thức và kỹ thuật trình bày văn bản hành chính..."
               rows={3}
-              className="w-full rounded-lg border border-line bg-surface px-3 py-2 text-[14px] text-ink"
+              className="gc-input w-full text-xs leading-relaxed"
             />
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2.5 pt-1">
             <button
               onClick={addNew}
               disabled={!newContent.trim()}
-              className="rounded-lg bg-zalo-600 px-4 py-2 text-[13px] font-medium text-white hover:bg-zalo-700 disabled:opacity-50"
+              className="gc-button-primary text-xs py-2 px-4"
             >
-              Thêm & tự động duyệt
+              Lưu & tự động duyệt
             </button>
             <button
               onClick={() => setShowAdd(false)}
-              className="rounded-lg bg-tile px-4 py-2 text-[13px] text-ink-soft hover:bg-line"
+              className="gc-button-secondary text-xs py-2 px-4"
             >
               Hủy
             </button>
@@ -209,7 +214,7 @@ export function KnowledgePage({ accounts }: { accounts: AccountInfo[] }) {
       <ListToolbar
         query={query}
         onQuery={setQuery}
-        placeholder="Tìm trong nội dung hoặc nguồn..."
+        placeholder="Tìm trong nội dung hoặc nguồn trích dẫn..."
         filter={
           accounts.length > 1
             ? <AccountFilter accounts={accounts} value={accountFilter} onChange={setAccountFilter} />
@@ -221,39 +226,48 @@ export function KnowledgePage({ accounts }: { accounts: AccountInfo[] }) {
       />
 
       <TableShell
-        headers={["Nội dung", "Phân loại", "Nguồn", "Trạng thái", "Ngày tạo", "Hành động"]}
+        headers={["Nội dung tri thức", "Phân loại", "Nguồn", "Trạng thái", "Ngày tạo", "Thao tác"]}
         minWidth={900}
       >
         {items.length === 0 && (
-          <EmptyRow colSpan={6} text="Chưa có tri thức nào" />
+          <EmptyRow colSpan={6} text="Chưa có mục tri thức nào phù hợp bộ lọc" />
         )}
         {items.map((item) => {
           const cat = CATEGORY_LABELS[item.category] ?? { text: item.category, tone: "gray" as const };
           const st = STATUS_LABELS[item.status] ?? { text: item.status, tone: "gray" as const };
           return (
-            <tr key={item.id} className="border-b border-line/60 last:border-0 hover:bg-tile/40">
-              <td className="max-w-md px-4 py-3 text-ink">{item.content}</td>
-              <td className="px-4 py-3">
+            <tr key={item.id} className="hover:bg-tile/40 transition-colors">
+              <td className="max-w-md px-4 py-3.5 text-ink leading-relaxed font-normal">{item.content}</td>
+              <td className="px-4 py-3.5">
                 <Badge tone={cat.tone} dot={false}>{cat.text}</Badge>
               </td>
-              <td className="px-4 py-3 text-[13px] text-ink-soft">{item.source || "—"}</td>
-              <td className="px-4 py-3">
-                <Badge tone={st.tone} dot={false}>{st.text}</Badge>
+              <td className="px-4 py-3.5 text-xs text-ink-soft font-medium">{item.source || "—"}</td>
+              <td className="px-4 py-3.5">
+                <Badge tone={st.tone} dot>{st.text}</Badge>
               </td>
-              <td className="px-4 py-3 text-ink-soft">{formatTime(item.createdAt)}</td>
-              <td className="px-4 py-3">
-                <div className="flex gap-2">
+              <td className="px-4 py-3.5 text-xs text-ink-soft">{formatTime(item.createdAt)}</td>
+              <td className="px-4 py-3.5">
+                <div className="flex items-center gap-1.5">
                   {item.status === "pending" && (
                     <>
-                      <button onClick={() => approve(item)} className="text-[13px] text-green-600 dark:text-green-400 hover:underline">
+                      <button
+                        onClick={() => approve(item)}
+                        className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 transition-all"
+                      >
                         Duyệt
                       </button>
-                      <button onClick={() => reject(item)} className="text-[13px] text-red-600 dark:text-red-400 hover:underline">
+                      <button
+                        onClick={() => reject(item)}
+                        className="rounded-lg border border-line bg-tile/60 px-2.5 py-1 text-xs font-semibold text-ink-soft hover:bg-tile hover:text-ink transition-all"
+                      >
                         Từ chối
                       </button>
                     </>
                   )}
-                  <button onClick={() => remove(item)} className="text-[13px] text-red-600 dark:text-red-400 hover:underline">
+                  <button
+                    onClick={() => remove(item)}
+                    className="rounded-lg border border-rose-500/20 bg-rose-500/5 px-2.5 py-1 text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-500/15 transition-all"
+                  >
                     Xóa
                   </button>
                 </div>

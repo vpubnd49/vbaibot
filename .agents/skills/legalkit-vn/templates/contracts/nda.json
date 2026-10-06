@@ -1,0 +1,387 @@
+{
+  "id": "nda",
+  "name": "Thỏa thuận bảo mật thông tin (NDA)",
+  "group": "Công ty ↔ Công ty",
+  "icon": "🤐",
+  "summary": "Thỏa thuận để hai doanh nghiệp cam kết giữ bí mật các thông tin trao đổi trong quá trình hợp tác (xác định phạm vi thông tin mật, thời hạn bảo mật, các trường hợp ngoại lệ và chế tài khi vi phạm). Đây là hợp đồng dân sự dựa trên nguyên tắc tự do thỏa thuận, kết hợp cơ chế bảo hộ bí mật kinh doanh theo Luật Sở hữu trí tuệ.",
+  "legalBasis": [
+    "Bộ luật Dân sự 2015 - Điều 3 (tự do, tự nguyện cam kết, thỏa thuận)",
+    "Bộ luật Dân sự 2015 - Điều 385, 398, 401 (khái niệm và nội dung hợp đồng)",
+    "Bộ luật Dân sự 2015 - Điều 387 (thông tin trong giao kết hợp đồng; trách nhiệm bảo mật thông tin bí mật)",
+    "Bộ luật Dân sự 2015 - Điều 418 (thỏa thuận phạt vi phạm; mức phạt do các bên thỏa thuận, trừ khi luật liên quan quy định khác)",
+    "Bộ luật Dân sự 2015 - Điều 360, 361, 419 (bồi thường thiệt hại do vi phạm hợp đồng)",
+    "Luật Sở hữu trí tuệ 2005 (sửa đổi, bổ sung 2009, 2019, 2022) - Điều 4 khoản 23 (định nghĩa bí mật kinh doanh)",
+    "Luật Sở hữu trí tuệ 2005 - Điều 84 (điều kiện bảo hộ bí mật kinh doanh: không phải hiểu biết thông thường và không dễ dàng có được; tạo lợi thế thương mại; được bảo mật bằng biện pháp cần thiết)",
+    "Luật Thương mại 2005 - Điều 301 (mức phạt vi phạm do các bên thỏa thuận nhưng không quá 8% giá trị phần nghĩa vụ hợp đồng bị vi phạm - áp dụng khi NDA mang tính thương mại)",
+    "Luật Thương mại 2005 - Điều 302 (bồi thường thiệt hại)",
+    "Án lệ số 69/2023/AL (thẩm quyền của Trọng tài thương mại đối với tranh chấp thỏa thuận bảo mật thông tin và không cạnh tranh)"
+  ],
+  "parties": {
+    "a": "Bên tiết lộ thông tin (Bên A)",
+    "b": "Bên nhận thông tin (Bên B)"
+  },
+  "title": "THỎA THUẬN BẢO MẬT THÔNG TIN",
+  "preamble": "- Căn cứ Bộ luật Dân sự số 91/2015/QH13 ngày 24/11/2015;\n- Căn cứ Luật Sở hữu trí tuệ năm 2005 (được sửa đổi, bổ sung năm 2009, 2019, 2022);\n- Căn cứ nhu cầu hợp tác và trao đổi thông tin giữa hai Bên;\n\nHôm nay, ngày {{ngay_ky}}, tại {{dia_diem_ky}}, chúng tôi gồm:\n\nBÊN A (BÊN TIẾT LỘ THÔNG TIN):\n- Tên: {{ben_a_ten}}\n- Mã số thuế/Mã số doanh nghiệp: {{ben_a_mst}}\n- Địa chỉ trụ sở: {{ben_a_dia_chi}}\n- Người đại diện: {{ben_a_nguoi_dai_dien}}        Chức vụ: {{ben_a_chuc_vu}}\n\nBÊN B (BÊN NHẬN THÔNG TIN):\n- Tên: {{ben_b_ten}}\n- Mã số thuế/Mã số doanh nghiệp: {{ben_b_mst}}\n- Địa chỉ trụ sở: {{ben_b_dia_chi}}\n- Người đại diện: {{ben_b_nguoi_dai_dien}}        Chức vụ: {{ben_b_chuc_vu}}\n\nHai Bên cùng thống nhất ký kết Thỏa thuận bảo mật thông tin với các điều khoản sau:",
+  "fields": [
+    {
+      "key": "ngay_ky",
+      "label": "Ngày ký thỏa thuận",
+      "section": "Thông tin chung",
+      "tier": "required",
+      "type": "date",
+      "help": "Ngày hai bên cùng ký vào thỏa thuận này.",
+      "placeholder": "15/06/2026"
+    },
+    {
+      "key": "dia_diem_ky",
+      "label": "Địa điểm ký",
+      "section": "Thông tin chung",
+      "tier": "optional",
+      "type": "text",
+      "help": "Tỉnh/thành phố nơi ký kết. Không bắt buộc nhưng nên ghi để rõ ràng.",
+      "placeholder": "TP. Hồ Chí Minh"
+    },
+    {
+      "key": "ben_a_ten",
+      "label": "Tên Bên tiết lộ (Bên A)",
+      "section": "Bên A - Bên tiết lộ thông tin",
+      "tier": "required",
+      "type": "text",
+      "help": "Tên đầy đủ của công ty/tổ chức sẽ cung cấp thông tin mật.",
+      "placeholder": "CÔNG TY TNHH ABC"
+    },
+    {
+      "key": "ben_a_mst",
+      "label": "Mã số thuế Bên A",
+      "section": "Bên A - Bên tiết lộ thông tin",
+      "tier": "required",
+      "type": "text",
+      "help": "Mã số thuế / mã số doanh nghiệp của Bên A.",
+      "placeholder": "0312345678"
+    },
+    {
+      "key": "ben_a_dia_chi",
+      "label": "Địa chỉ trụ sở Bên A",
+      "section": "Bên A - Bên tiết lộ thông tin",
+      "tier": "required",
+      "type": "text",
+      "help": "Địa chỉ trụ sở chính theo Giấy chứng nhận đăng ký doanh nghiệp.",
+      "placeholder": "Số 1 đường X, Phường Y, Quận Z, TP.HCM"
+    },
+    {
+      "key": "ben_a_nguoi_dai_dien",
+      "label": "Người đại diện Bên A",
+      "section": "Bên A - Bên tiết lộ thông tin",
+      "tier": "required",
+      "type": "text",
+      "help": "Họ tên người ký kết thay mặt Bên A (người đại diện theo pháp luật hoặc người được ủy quyền).",
+      "placeholder": "Nguyễn Văn A"
+    },
+    {
+      "key": "ben_a_chuc_vu",
+      "label": "Chức vụ người đại diện Bên A",
+      "section": "Bên A - Bên tiết lộ thông tin",
+      "tier": "required",
+      "type": "text",
+      "help": "Chức vụ của người ký (Giám đốc, Tổng giám đốc...).",
+      "placeholder": "Tổng Giám đốc"
+    },
+    {
+      "key": "ben_b_ten",
+      "label": "Tên Bên nhận (Bên B)",
+      "section": "Bên B - Bên nhận thông tin",
+      "tier": "required",
+      "type": "text",
+      "help": "Tên đầy đủ của công ty/tổ chức sẽ nhận và phải giữ bí mật thông tin.",
+      "placeholder": "CÔNG TY CỔ PHẦN DEF"
+    },
+    {
+      "key": "ben_b_mst",
+      "label": "Mã số thuế Bên B",
+      "section": "Bên B - Bên nhận thông tin",
+      "tier": "required",
+      "type": "text",
+      "help": "Mã số thuế / mã số doanh nghiệp của Bên B.",
+      "placeholder": "0398765432"
+    },
+    {
+      "key": "ben_b_dia_chi",
+      "label": "Địa chỉ trụ sở Bên B",
+      "section": "Bên B - Bên nhận thông tin",
+      "tier": "required",
+      "type": "text",
+      "help": "Địa chỉ trụ sở chính theo Giấy chứng nhận đăng ký doanh nghiệp.",
+      "placeholder": "Số 2 đường M, Phường N, Quận P, Hà Nội"
+    },
+    {
+      "key": "ben_b_nguoi_dai_dien",
+      "label": "Người đại diện Bên B",
+      "section": "Bên B - Bên nhận thông tin",
+      "tier": "required",
+      "type": "text",
+      "help": "Họ tên người ký kết thay mặt Bên B.",
+      "placeholder": "Trần Thị B"
+    },
+    {
+      "key": "ben_b_chuc_vu",
+      "label": "Chức vụ người đại diện Bên B",
+      "section": "Bên B - Bên nhận thông tin",
+      "tier": "required",
+      "type": "text",
+      "help": "Chức vụ của người ký.",
+      "placeholder": "Giám đốc"
+    },
+    {
+      "key": "chieu_bao_mat",
+      "label": "Chiều bảo mật thông tin",
+      "section": "Phạm vi & mục đích",
+      "tier": "required",
+      "type": "select",
+      "options": [
+        "Một chiều (chỉ Bên B giữ bí mật thông tin của Bên A)",
+        "Hai chiều (cả hai bên cùng giữ bí mật thông tin của nhau)"
+      ],
+      "help": "Chọn một chiều nếu chỉ có một bên cung cấp thông tin; chọn hai chiều nếu cả hai bên cùng trao đổi thông tin mật cho nhau.",
+      "placeholder": "Hai chiều (cả hai bên cùng giữ bí mật thông tin của nhau)"
+    },
+    {
+      "key": "muc_dich_su_dung",
+      "label": "Mục đích trao đổi/sử dụng thông tin",
+      "section": "Phạm vi & mục đích",
+      "tier": "required",
+      "type": "textarea",
+      "help": "Nêu rõ lý do hai bên trao đổi thông tin. Bên nhận chỉ được dùng thông tin cho đúng mục đích này.",
+      "placeholder": "Đánh giá khả năng hợp tác cung cấp dịch vụ phần mềm và đàm phán hợp đồng hợp tác kinh doanh giữa hai bên."
+    },
+    {
+      "key": "pham_vi_thong_tin_mat",
+      "label": "Phạm vi thông tin được coi là 'Thông tin mật'",
+      "section": "Phạm vi & mục đích",
+      "tier": "required",
+      "type": "textarea",
+      "help": "Liệt kê loại thông tin được bảo mật (vd: bí quyết kỹ thuật, danh sách khách hàng, giá cả, kế hoạch kinh doanh, mã nguồn, dữ liệu tài chính...). Mô tả càng cụ thể càng dễ bảo vệ và càng dễ chứng minh khi tranh chấp.",
+      "placeholder": "Mọi thông tin kỹ thuật, kinh doanh, tài chính, danh sách khách hàng/nhà cung cấp, bảng giá, mã nguồn phần mềm, tài liệu thiết kế, kế hoạch kinh doanh được một bên cung cấp dưới dạng văn bản, điện tử hoặc lời nói trong quá trình hợp tác."
+    },
+    {
+      "key": "yeu_cau_danh_dau_mat",
+      "label": "Có yêu cầu đánh dấu 'MẬT' / xác nhận bằng văn bản không?",
+      "section": "Phạm vi & mục đích",
+      "tier": "default",
+      "type": "select",
+      "options": [
+        "Không - mọi thông tin trao đổi vì mục đích trên đều mặc định là Thông tin mật",
+        "Có - chỉ thông tin được đánh dấu 'MẬT' hoặc xác nhận bằng văn bản trong 15 ngày mới được bảo mật"
+      ],
+      "help": "Quy định cách nhận biết thông tin nào là mật. Nếu im lặng, để an toàn cho Bên tiết lộ, mọi thông tin trao đổi vì mục đích hợp tác đều được coi là mật.",
+      "defaultText": "Nếu các bên không thỏa thuận khác, mọi thông tin do một bên cung cấp cho bên kia nhằm thực hiện mục đích nêu trên đều được mặc định coi là Thông tin mật, không phụ thuộc vào việc có được đánh dấu 'MẬT' hay không. Đây là cách diễn giải an toàn nhằm bảo vệ tối đa cho Bên tiết lộ, phù hợp nguyên tắc tự do thỏa thuận và trách nhiệm bảo mật thông tin bí mật tại Điều 387 Bộ luật Dân sự 2015.",
+      "legalRef": "Bộ luật Dân sự 2015 - Điều 387",
+      "placeholder": "Không - mọi thông tin trao đổi vì mục đích trên đều mặc định là Thông tin mật"
+    },
+    {
+      "key": "thoi_han_bao_mat_nam",
+      "label": "Thời hạn bảo mật (số năm sau khi kết thúc hợp tác)",
+      "section": "Thời hạn",
+      "tier": "default",
+      "type": "number",
+      "help": "Số năm Bên nhận phải tiếp tục giữ bí mật sau khi quan hệ hợp tác/thỏa thuận chấm dứt. Thông thường 2-5 năm; với bí mật kinh doanh có thể dài hơn hoặc vô thời hạn.",
+      "defaultText": "Nếu các bên không thỏa thuận, nghĩa vụ bảo mật được hiểu là kéo dài 03 (ba) năm kể từ ngày chấm dứt thỏa thuận. Riêng các thông tin đáp ứng điều kiện bí mật kinh doanh theo Điều 84 Luật Sở hữu trí tuệ thì nghĩa vụ bảo mật được duy trì chừng nào thông tin còn giữ được tính chất bí mật, kể cả sau thời hạn nói trên.",
+      "legalRef": "Luật Sở hữu trí tuệ 2005 - Điều 84; Bộ luật Dân sự 2015 - Điều 387",
+      "placeholder": "3"
+    },
+    {
+      "key": "bao_mat_vo_thoi_han_bmkd",
+      "label": "Bí mật kinh doanh được bảo mật vô thời hạn (chừng nào còn là bí mật)?",
+      "section": "Thời hạn",
+      "tier": "optional",
+      "type": "select",
+      "options": [
+        "Có",
+        "Không"
+      ],
+      "help": "Nếu chọn 'Có', các thông tin là bí mật kinh doanh (bí quyết, công thức...) phải giữ bí mật mãi mãi cho đến khi thông tin tự công khai hợp pháp, không bị giới hạn bởi số năm ở trên.",
+      "placeholder": "Có"
+    },
+    {
+      "key": "ngoai_le_bao_mat",
+      "label": "Các trường hợp ngoại lệ (không bị coi là vi phạm)",
+      "section": "Ngoại lệ",
+      "tier": "default",
+      "type": "textarea",
+      "help": "Những trường hợp Bên nhận được phép tiết lộ hoặc thông tin không còn là mật. Đây là điều khoản chuẩn để thỏa thuận cân bằng và đúng luật.",
+      "defaultText": "Nếu các bên không liệt kê, áp dụng các ngoại lệ mặc định sau (phù hợp Điều 84 Luật Sở hữu trí tuệ và bản chất bí mật kinh doanh): (i) thông tin đã hoặc trở thành công khai mà không do lỗi của Bên nhận; (ii) thông tin Bên nhận đã biết hợp pháp trước khi nhận; (iii) thông tin do bên thứ ba cung cấp hợp pháp mà không vi phạm nghĩa vụ bảo mật; (iv) thông tin Bên nhận tự phát triển độc lập; (v) thông tin buộc phải tiết lộ theo yêu cầu của cơ quan nhà nước có thẩm quyền hoặc theo quy định pháp luật, với điều kiện Bên nhận thông báo trước cho Bên tiết lộ (nếu pháp luật cho phép) để Bên tiết lộ có biện pháp bảo vệ.",
+      "legalRef": "Luật Sở hữu trí tuệ 2005 - Điều 84",
+      "placeholder": "(Để trống để áp dụng ngoại lệ mặc định, hoặc bổ sung trường hợp riêng của bạn)"
+    },
+    {
+      "key": "duoc_tiet_lo_noi_bo",
+      "label": "Cho phép tiết lộ trong nội bộ (nhân viên, tư vấn) không?",
+      "section": "Ngoại lệ",
+      "tier": "default",
+      "type": "select",
+      "options": [
+        "Có - được tiết lộ cho nhân viên/cố vấn có nhu cầu biết và ràng buộc họ bảo mật",
+        "Không - không được tiết lộ cho bất kỳ ai nếu chưa có văn bản đồng ý của Bên tiết lộ"
+      ],
+      "help": "Bên nhận thường cần chia sẻ thông tin cho nhân viên/luật sư/kiểm toán để làm việc. Quy định ai được tiếp cận.",
+      "defaultText": "Nếu không thỏa thuận khác, Bên nhận được phép tiết lộ Thông tin mật cho nhân viên, người lao động, cố vấn chuyên môn (luật sư, kiểm toán...) trên cơ sở 'cần phải biết' để thực hiện mục đích, với điều kiện những người này bị ràng buộc nghĩa vụ bảo mật tương đương; Bên nhận chịu trách nhiệm về hành vi của những người này.",
+      "legalRef": "Bộ luật Dân sự 2015 - Điều 387",
+      "placeholder": "Có - được tiết lộ cho nhân viên/cố vấn có nhu cầu biết và ràng buộc họ bảo mật"
+    },
+    {
+      "key": "ap_dung_phat_vi_pham",
+      "label": "Có áp dụng phạt vi phạm không?",
+      "section": "Chế tài",
+      "tier": "required",
+      "type": "select",
+      "options": [
+        "Có",
+        "Không"
+      ],
+      "help": "Phạt vi phạm là khoản tiền cố định bên vi phạm phải trả, không cần chứng minh thiệt hại. Phải có thỏa thuận thì mới được phạt.",
+      "placeholder": "Có"
+    },
+    {
+      "key": "muc_phat_vi_pham",
+      "label": "Mức phạt vi phạm (VNĐ cho mỗi lần vi phạm)",
+      "section": "Chế tài",
+      "tier": "required",
+      "type": "money",
+      "help": "Số tiền phạt cho mỗi hành vi vi phạm bảo mật. Lưu ý: nếu thỏa thuận này mang tính thương mại, mức phạt không được vượt quá 8% giá trị phần nghĩa vụ bị vi phạm (Điều 301 Luật Thương mại 2005).",
+      "placeholder": "100.000.000",
+      "condition": {
+        "key": "ap_dung_phat_vi_pham",
+        "equals": "Có"
+      }
+    },
+    {
+      "key": "boi_thuong_thiet_hai",
+      "label": "Bồi thường thiệt hại thực tế",
+      "section": "Chế tài",
+      "tier": "default",
+      "type": "select",
+      "options": [
+        "Phạt vi phạm và bồi thường toàn bộ thiệt hại thực tế",
+        "Chỉ phạt vi phạm, không bồi thường",
+        "Chỉ bồi thường thiệt hại thực tế, không phạt"
+      ],
+      "help": "Quy định bên vi phạm phải bồi thường thiệt hại thực tế hay không, và quan hệ với khoản phạt.",
+      "defaultText": "Nếu các bên không thỏa thuận, bên vi phạm phải bồi thường toàn bộ thiệt hại thực tế phát sinh do hành vi vi phạm gây ra theo Điều 360 và Điều 419 Bộ luật Dân sự 2015. Bên bị vi phạm được áp dụng đồng thời phạt vi phạm và bồi thường thiệt hại (Điều 418 khoản 3 Bộ luật Dân sự 2015), trừ khi các bên thỏa thuận chỉ áp dụng một biện pháp.",
+      "legalRef": "Bộ luật Dân sự 2015 - Điều 360, 418 khoản 3, 419",
+      "placeholder": "Phạt vi phạm và bồi thường toàn bộ thiệt hại thực tế"
+    },
+    {
+      "key": "luat_ap_dung",
+      "label": "Luật áp dụng",
+      "section": "Giải quyết tranh chấp",
+      "tier": "default",
+      "type": "text",
+      "help": "Hệ thống pháp luật điều chỉnh thỏa thuận. Với hợp đồng trong nước thường là pháp luật Việt Nam.",
+      "defaultText": "Nếu các bên không ghi rõ, thỏa thuận này được điều chỉnh và giải thích theo pháp luật Việt Nam.",
+      "placeholder": "Pháp luật Việt Nam"
+    },
+    {
+      "key": "co_quan_giai_quyet",
+      "label": "Cơ quan giải quyết tranh chấp",
+      "section": "Giải quyết tranh chấp",
+      "tier": "default",
+      "type": "select",
+      "options": [
+        "Tòa án có thẩm quyền theo quy định pháp luật",
+        "Trọng tài thương mại (VIAC)"
+      ],
+      "help": "Nơi giải quyết khi có tranh chấp. Trọng tài kín đáo, phù hợp tranh chấp bảo mật; tòa án phổ biến và không cần thỏa thuận trước.",
+      "defaultText": "Nếu các bên không thỏa thuận chọn Trọng tài, tranh chấp sẽ do Tòa án nhân dân có thẩm quyền của Việt Nam giải quyết theo quy định pháp luật tố tụng dân sự. Lưu ý: theo Án lệ 69/2023/AL, thỏa thuận trọng tài đối với tranh chấp bảo mật thông tin được công nhận; muốn dùng trọng tài thì phải ghi rõ điều khoản trọng tài bằng văn bản.",
+      "legalRef": "Án lệ số 69/2023/AL; Bộ luật Tố tụng dân sự 2015; Luật Trọng tài thương mại 2010",
+      "placeholder": "Tòa án có thẩm quyền theo quy định pháp luật"
+    }
+  ],
+  "lint": [
+    {
+      "field": "thoi_han_bao_mat_nam",
+      "op": "min",
+      "value": 1,
+      "message": "Thời hạn bảo mật nên tối thiểu 1 năm để có ý nghĩa bảo vệ.",
+      "severity": "warn"
+    },
+    {
+      "field": "muc_phat_vi_pham",
+      "op": "note",
+      "value": "8%",
+      "message": "Nếu thỏa thuận này được coi là có tính thương mại (giữa hai thương nhân, vì mục đích sinh lợi), mức phạt vi phạm KHÔNG ĐƯỢC VƯỢT QUÁ 8% giá trị phần nghĩa vụ hợp đồng bị vi phạm (Điều 301 Luật Thương mại 2005); phần vượt quá có thể bị tuyên vô hiệu. Nếu thuần túy là hợp đồng dân sự thì mức phạt do các bên tự thỏa thuận, không bị giới hạn (Điều 418 khoản 2 Bộ luật Dân sự 2015).",
+      "legalRef": "Luật Thương mại 2005 - Điều 301; Bộ luật Dân sự 2015 - Điều 418",
+      "severity": "warn"
+    },
+    {
+      "field": "pham_vi_thong_tin_mat",
+      "op": "note",
+      "value": "Điều 84 SHTT",
+      "message": "Để thông tin được pháp luật bảo hộ như bí mật kinh doanh, thông tin phải: (i) không phải là hiểu biết thông thường và không dễ dàng có được; (ii) khi sử dụng trong kinh doanh tạo lợi thế cho người nắm giữ so với người không nắm giữ; (iii) được chủ sở hữu bảo mật bằng các biện pháp cần thiết. Mô tả phạm vi càng cụ thể càng dễ chứng minh và bảo vệ.",
+      "legalRef": "Luật Sở hữu trí tuệ 2005 - Điều 84",
+      "severity": "warn"
+    }
+  ],
+  "body": [
+    {
+      "heading": "ĐIỀU 1: ĐỊNH NGHĨA THÔNG TIN MẬT",
+      "text": "1.1. \"Thông tin mật\" là các thông tin sau đây do một Bên (\"Bên tiết lộ\") cung cấp cho Bên còn lại (\"Bên nhận\"): {{pham_vi_thong_tin_mat}}\n1.2. Cách xác định Thông tin mật: {{yeu_cau_danh_dau_mat}}\n1.3. Để được bảo hộ như bí mật kinh doanh, Thông tin mật phải đáp ứng điều kiện tại Điều 84 Luật Sở hữu trí tuệ: không phải là hiểu biết thông thường và không dễ dàng có được; khi sử dụng trong kinh doanh tạo lợi thế cho người nắm giữ; và được bảo mật bằng các biện pháp cần thiết."
+    },
+    {
+      "heading": "ĐIỀU 2: MỤC ĐÍCH VÀ PHẠM VI BẢO MẬT",
+      "text": "2.1. Hai Bên trao đổi Thông tin mật nhằm mục đích: {{muc_dich_su_dung}}\n2.2. Chiều bảo mật: {{chieu_bao_mat}}\n2.3. Bên nhận chỉ được sử dụng Thông tin mật cho đúng mục đích nêu trên; không được sử dụng cho bất kỳ mục đích nào khác nếu không có sự đồng ý bằng văn bản của Bên tiết lộ."
+    },
+    {
+      "heading": "ĐIỀU 3: NGHĨA VỤ CỦA BÊN NHẬN",
+      "text": "3.1. Giữ bí mật tuyệt đối Thông tin mật; áp dụng các biện pháp bảo vệ ít nhất tương đương với biện pháp bảo vệ thông tin mật của chính mình.\n3.2. Không sao chép, công bố, chuyển giao, tiết lộ Thông tin mật cho bất kỳ bên thứ ba nào ngoài phạm vi cho phép tại Điều 4.\n3.3. Phạm vi được phép tiết lộ trong nội bộ: {{duoc_tiet_lo_noi_bo}}\n3.4. Hoàn trả hoặc tiêu hủy Thông tin mật theo yêu cầu của Bên tiết lộ khi thỏa thuận chấm dứt."
+    },
+    {
+      "heading": "ĐIỀU 4: CÁC TRƯỜNG HỢP NGOẠI LỆ",
+      "text": "Bên nhận không bị coi là vi phạm nghĩa vụ bảo mật trong các trường hợp sau: {{ngoai_le_bao_mat}}"
+    },
+    {
+      "heading": "ĐIỀU 5: THỜI HẠN BẢO MẬT",
+      "text": "5.1. Nghĩa vụ bảo mật có hiệu lực kể từ ngày ký và tiếp tục có hiệu lực trong {{thoi_han_bao_mat_nam}} năm kể từ ngày thỏa thuận hoặc quan hệ hợp tác giữa hai Bên chấm dứt."
+    },
+    {
+      "heading": "ĐIỀU 5: THỜI HẠN BẢO MẬT",
+      "text": "5.2. Đối với các thông tin là bí mật kinh doanh theo Điều 84 Luật Sở hữu trí tuệ, nghĩa vụ bảo mật được duy trì vô thời hạn, chừng nào thông tin còn giữ được tính chất bí mật và chưa được công khai hợp pháp.",
+      "condition": {
+        "key": "bao_mat_vo_thoi_han_bmkd",
+        "equals": "Có"
+      }
+    },
+    {
+      "heading": "ĐIỀU 6: CHẾ TÀI XỬ LÝ VI PHẠM",
+      "text": "6.1. Bên vi phạm nghĩa vụ bảo mật phải chịu phạt vi phạm số tiền {{muc_phat_vi_pham}} VNĐ cho mỗi lần vi phạm.",
+      "condition": {
+        "key": "ap_dung_phat_vi_pham",
+        "equals": "Có"
+      }
+    },
+    {
+      "heading": "ĐIỀU 6: CHẾ TÀI XỬ LÝ VI PHẠM",
+      "text": "6.2. Trách nhiệm bồi thường thiệt hại: {{boi_thuong_thiet_hai}}\n6.3. Việc áp dụng chế tài tuân theo Điều 360, 418 và 419 Bộ luật Dân sự 2015. Trường hợp thỏa thuận mang tính thương mại, mức phạt vi phạm không vượt quá 8% giá trị phần nghĩa vụ bị vi phạm theo Điều 301 Luật Thương mại 2005."
+    },
+    {
+      "heading": "ĐIỀU 7: LUẬT ÁP DỤNG VÀ GIẢI QUYẾT TRANH CHẤP",
+      "text": "7.1. Thỏa thuận này được điều chỉnh và giải thích theo {{luat_ap_dung}}.\n7.2. Mọi tranh chấp phát sinh trước hết được giải quyết thông qua thương lượng, hòa giải. Nếu không đạt kết quả trong 30 ngày, tranh chấp được đưa ra: {{co_quan_giai_quyet}}."
+    },
+    {
+      "heading": "ĐIỀU 8: ĐIỀU KHOẢN CHUNG",
+      "text": "8.1. Việc một Bên cung cấp Thông tin mật không đồng nghĩa với việc chuyển giao bất kỳ quyền sở hữu trí tuệ nào cho Bên nhận.\n8.2. Mọi sửa đổi, bổ sung phải được lập thành văn bản và có chữ ký của cả hai Bên.\n8.3. Nếu một điều khoản bị tuyên vô hiệu, các điều khoản còn lại vẫn giữ nguyên hiệu lực."
+    }
+  ],
+  "closing": "Thỏa thuận này được lập thành 02 (hai) bản có giá trị pháp lý như nhau, mỗi Bên giữ 01 (một) bản, và có hiệu lực kể từ ngày ký.\n\nĐẠI DIỆN BÊN A                                              ĐẠI DIỆN BÊN B\n(Ký, ghi rõ họ tên, đóng dấu)                          (Ký, ghi rõ họ tên, đóng dấu)\n\n{{ben_a_nguoi_dai_dien}}                              {{ben_b_nguoi_dai_dien}}\n{{ben_a_chuc_vu}}                                            {{ben_b_chuc_vu}}",
+  "verifyNotes": [
+    "Đã TRA CỨU và XÁC NHẬN các căn cứ pháp lý chính đều đúng văn bản hiện hành: Điều 301 Luật Thương mại 2005 (trần phạt 8%); Điều 418 BLDS 2015 (mức phạt do các bên thỏa thuận, được áp dụng đồng thời phạt + bồi thường); Điều 84 và Điều 4 khoản 23 Luật SHTT 2005 (định nghĩa và 3 điều kiện bảo hộ bí mật kinh doanh); Điều 387 BLDS 2015 (trách nhiệm bảo mật thông tin bí mật trong giao kết hợp đồng); Án lệ 69/2023/AL (hiệu lực 01/11/2023, công nhận thẩm quyền trọng tài đối với tranh chấp bảo mật + không cạnh tranh).",
+    "ĐÃ SỬA - Bổ sung khối định danh hai Bên (tên, MST, địa chỉ, người đại diện, chức vụ) vào preamble: trước đây các field required ben_a_ten/ben_a_mst/ben_a_dia_chi/ben_b_ten/ben_b_mst/ben_b_dia_chi KHÔNG được dùng ở bất kỳ đâu trong văn bản, gây thiếu nội dung và phần 'chúng tôi gồm:' bị bỏ trống.",
+    "ĐÃ SỬA - Đổi field 'luat_ap_dung' từ tier 'optional' sang 'default' và thêm defaultText (mặc định pháp luật Việt Nam): trước đây field optional này được dùng trong Điều 7.1, nếu để trống sẽ tạo câu lỗi 'điều chỉnh theo .'.",
+    "ĐÃ SỬA - Đổi field 'co_quan_giai_quyet' từ optional sang default kèm defaultText (mặc định Tòa án có thẩm quyền VN) và bổ sung Luật Trọng tài thương mại 2010 vào legalRef.",
+    "ĐÃ SỬA - Gỡ Điều 357 BLDS (lãi chậm trả) khỏi legalBasis vì template KHÔNG có cơ chế trả tiền/chậm trả nào dẫn chiếu tới điều này; tránh căn cứ thừa, gây hiểu nhầm.",
+    "ĐÃ SỬA - Chuẩn hóa diễn đạt 3 điều kiện bảo hộ bí mật kinh doanh tại Điều 1.3 và lint cho khớp đúng từ ngữ Điều 84 Luật SHTT ('không phải là hiểu biết thông thường và không dễ dàng có được'; 'tạo lợi thế khi sử dụng trong kinh doanh'); ghi rõ Điều 418 khoản 2 cho cơ chế mức phạt dân sự tự do.",
+    "CẢNH BÁO CÒN LẠI - Tính chất thỏa thuận: cần tự xác định NDA là dân sự thuần túy hay thương mại. Nếu thương mại (hai thương nhân, mục đích sinh lợi) thì trần phạt 8% theo Điều 301 LTM áp dụng; nếu dân sự thì mức phạt tự do theo Điều 418 BLDS. Lint 'note' đã cảnh báo.",
+    "CẢNH BÁO CÒN LẠI - Án lệ 69/2023/AL phát sinh từ bối cảnh thỏa thuận bảo mật + KHÔNG cạnh tranh gắn với quan hệ lao động; với NDA thuần B2B thẩm quyền trọng tài thường rõ ràng hơn. Muốn dùng trọng tài PHẢI có điều khoản trọng tài bằng văn bản hợp lệ (Luật Trọng tài thương mại 2010).",
+    "CẢNH BÁO CÒN LẠI - Điều khoản KHÔNG cạnh tranh (non-compete) cố ý KHÔNG đưa vào template này vì còn nhiều tranh cãi (đặc biệt với người lao động - quyền làm việc theo Hiến pháp); nếu cần phải soạn riêng và cân nhắc kỹ.",
+    "CẢNH BÁO CÒN LẠI - Thời hạn bảo mật 'vô thời hạn' đối với bí mật kinh doanh chỉ có ý nghĩa chừng nào thông tin còn giữ được tính bí mật theo Điều 84 Luật SHTT; tòa án/trọng tài vẫn có thể xem xét tính hợp lý.",
+    "Đây là công cụ hỗ trợ soạn thảo, KHÔNG thay thế tư vấn pháp lý; người dùng nên tham vấn luật sư trước khi ký kết thực tế."
+  ]
+}

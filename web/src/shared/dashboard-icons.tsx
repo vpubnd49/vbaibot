@@ -289,3 +289,16 @@ export const IconTrash = (p: IconProps) => (
     <path d="M6.5 7l.8 11.2a2 2 0 0 0 2 1.8h5.4a2 2 0 0 0 2-1.8L17.5 7" />
   </svg>
 );
+
+export const IconRefresh = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M21 12a9 9 0 0 0-15.5-6.4L3 8" />
+    <path d="M3 3v5h5" />
+    <path d="M3 12a9 9 0 0 0 15.5 6.4l2.5-2.4" />
+    <path d="M21 21v-5h-5" />
+  </svg>
+);
+
+export const IconX = IconClose;
+
+

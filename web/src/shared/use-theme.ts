@@ -23,7 +23,7 @@ import { useCallback, useEffect, useState } from "react";
 
 export type Theme = "light" | "dark";
 
-const KEY = "zalo-agent-theme";
+const KEY = "zalo-agent-theme-v2";
 
 /** Đọc trạng thái ĐANG hiệu lực từ chính DOM, không đoán lại từ localStorage */
 function themeHienTai(): Theme {

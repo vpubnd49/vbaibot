@@ -1,0 +1,29 @@
+{
+  "name": "VBAIBot - Quản trị Bot & VPS",
+  "short_name": "VBAIBot",
+  "description": "Dashboard quản trị Zalo AI Bot và giám sát máy chủ VPS Lâm Đồng",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#090d16",
+  "theme_color": "#090d16",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/zalo-agent-icon.webp",
+      "sizes": "128x128 192x192 512x512",
+      "type": "image/webp",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon.png",
+      "sizes": "48x48",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["productivity", "utilities", "business"]
+}

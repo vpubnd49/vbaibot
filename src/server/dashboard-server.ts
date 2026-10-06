@@ -47,6 +47,7 @@ import { insightRoutes } from "./routes/insight-routes.js";
 import { ticketRoutes } from "./routes/ticket-routes.js";
 import { disasterAlertPublicRoutes } from "./routes/disaster-alert-public-routes.js";
 import { ttsSettingsRoutes } from "./routes/tts-settings-routes.js";
+import { vpsRoutes } from "./routes/vps-routes.js";
 
 const log = createLogger("dashboard-server");
 const SESSION_COOKIE = "dashboard_session";
@@ -74,10 +75,14 @@ const setStaticCacheHeaders: MiddlewareHandler = async (c, next) => {
   const p = c.req.path;
   if (p.startsWith("/assets/")) {
     c.header("Cache-Control", "public, max-age=31536000, immutable");
+  } else if (p === "/sw.js" || p === "/index.html" || p === "/" || !p.includes(".")) {
+    c.header("Cache-Control", "no-cache, no-store, must-revalidate");
+    c.header("Pragma", "no-cache");
+    c.header("Expires", "0");
   } else if (/\.(webp|png|jpg|jpeg|svg|ico|woff2?)$/i.test(p)) {
     c.header("Cache-Control", "public, max-age=86400");
   } else {
-    c.header("Cache-Control", "no-cache");
+    c.header("Cache-Control", "no-cache, no-store, must-revalidate");
   }
 };
 
@@ -241,6 +246,7 @@ export function buildDashboardApp(): Hono {
   app.route("/api/feedback", feedbackRoutes);
   app.route("/api/audit", auditRoutes);
   app.route("/api/system", systemRoutes);
+  app.route("/api/vps", vpsRoutes);
   app.route("/api/server-health", healthRoutes);
   app.route("/api/insights", insightRoutes);
   app.route("/api/tickets", ticketRoutes);
@@ -256,7 +262,7 @@ export function buildDashboardApp(): Hono {
   const thuMucWeb = timThuMucWebDist();
   if (thuMucWeb) {
     app.use("/*", setStaticCacheHeaders, serveStatic({ root: thuMucWeb }));
-    app.get("*", serveStatic({ path: path.join(thuMucWeb, "index.html") }));
+    app.get("*", setStaticCacheHeaders, serveStatic({ path: path.join(thuMucWeb, "index.html") }));
   } else {
     // NÓI RA thay vì im lặng. Trước đây thiếu `web/dist` thì dashboard trả 404
     // trần cho mọi đường dẫn, không một dòng log nào - người ta ngồi đoán giữa

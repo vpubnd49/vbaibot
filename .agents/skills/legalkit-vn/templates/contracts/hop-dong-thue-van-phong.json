@@ -1,0 +1,136 @@
+{
+  "id": "thue_van_phong",
+  "name": "Hợp đồng thuê văn phòng / mặt bằng thương mại",
+  "group": "Doanh nghiệp ↔ Doanh nghiệp / Cá nhân",
+  "icon": "🏢",
+  "title": "HỢP ĐỒNG THUÊ VĂN PHÒNG KINH DOANH",
+  "summary": "Hợp đồng thuê văn phòng hoặc mặt bằng thương mại ký giữa doanh nghiệp cho thuê và doanh nghiệp thuê hoặc cá nhân, tuân thủ Luật Kinh doanh bất động sản 2023 và Bộ luật Dân sự 2015.",
+  "parties": {
+    "a": "Bên cho thuê (Bên A)",
+    "b": "Bên thuê (Bên B)"
+  },
+  "preamble": "Căn cứ Bộ luật Dân sự số 91/2015/QH13;\nCăn cứ Luật Kinh doanh bất động sản số 29/2023/QH15;\nCăn cứ nhu cầu và sự tự nguyện của hai bên;\nHôm nay, ngày {{ngay_ky}}, tại {{dia_diem_ky}}, chúng tôi gồm:\n- BÊN A (Bên cho thuê): {{ten_bena}}, địa chỉ: {{dia_chi_bena}}, đại diện: {{dai_dien_bena}}.\n- BÊN B (Bên thuê): {{ten_benb}}, địa chỉ: {{dia_chi_benb}}, đại diện: {{dai_dien_benb}}.\nHai bên thống nhất ký kết hợp đồng thuê văn phòng với các điều khoản sau:",
+  "legalBasis": [
+    "Bộ luật Dân sự 2015 (Luật số 91/2015/QH13): các quy định về thuê tài sản (Điều 472 đến Điều 491).",
+    "Luật Kinh doanh bất động sản 2023 (Luật số 29/2023/QH15): các quy định về cho thuê nhà ở, công trình xây dựng."
+  ],
+  "fields": [
+    {
+      "key": "ten_bena",
+      "label": "Tên bên cho thuê (Bên A)?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Tên đầy đủ công ty hoặc chủ sở hữu mặt bằng.",
+      "placeholder": "Công ty TNHH Bất động sản A"
+    },
+    {
+      "key": "dia_chi_bena",
+      "label": "Địa chỉ bên A?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Địa chỉ trụ sở công ty bên A.",
+      "placeholder": "Số 1, đường X, TP HCM"
+    },
+    {
+      "key": "dai_dien_bena",
+      "label": "Người đại diện bên A?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Họ tên và chức vụ người ký bên A.",
+      "placeholder": "Nguyễn Văn A: Giám đốc"
+    },
+    {
+      "key": "ten_benb",
+      "label": "Tên bên thuê (Bên B)?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Tên đầy đủ công ty thuê văn phòng.",
+      "placeholder": "Công ty TNHH Minh Đỗ"
+    },
+    {
+      "key": "dia_chi_benb",
+      "label": "Địa chỉ bên B?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Địa chỉ trụ sở đăng ký kinh doanh bên B.",
+      "placeholder": "Số 2, đường Y, Hà Nội"
+    },
+    {
+      "key": "dai_dien_benb",
+      "label": "Người đại diện bên B?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Họ tên và chức vụ người ký bên B.",
+      "placeholder": "Trần Văn B: Giám đốc"
+    },
+    {
+      "key": "vi_tri_mặt_bằng",
+      "label": "Vị trí và diện tích văn phòng cho thuê?",
+      "section": "Đối tượng thuê",
+      "tier": "required",
+      "type": "text",
+      "help": "Số phòng, tầng, tòa nhà và tổng diện tích sử dụng.",
+      "placeholder": "Phòng 501, Tầng 5, Tòa nhà A, 859 Mỹ Phong, Đồng Tháp, diện tích 100m2"
+    },
+    {
+      "key": "gia_thue",
+      "label": "Giá thuê văn phòng hàng tháng (VND, chưa bao gồm VAT)?",
+      "section": "Giá thuê và Thanh toán",
+      "tier": "required",
+      "type": "number",
+      "help": "Số tiền thuê thanh toán hàng tháng.",
+      "placeholder": "20000000"
+    },
+    {
+      "key": "tien_dat_coc",
+      "label": "Số tiền đặt cọc (VND)?",
+      "section": "Đặt cọc bảo đảm",
+      "tier": "required",
+      "type": "number",
+      "help": "Số tiền cọc bảo đảm thực hiện hợp đồng (thông thường bằng 2 đến 3 tháng tiền thuê).",
+      "placeholder": "60000000"
+    }
+  ],
+  "clauses": [
+    {
+      "heading": "ĐIỀU 1: ĐỐI TƯỢNG VÀ DIỆN TÍCH THUÊ",
+      "text": "Bên A đồng ý cho thuê và Bên B đồng ý thuê vị trí mặt bằng văn phòng kinh doanh sau: {{vi_tri_mặt_bằng}} nhằm mục đích làm văn phòng làm việc hợp pháp của doanh nghiệp."
+    },
+    {
+      "heading": "ĐIỀU 2: GIÁ THUÊ VÀ PHƯƠNG THỨC THANH TOÁN",
+      "text": "2.1. Giá thuê mặt bằng văn phòng là: {{gia_thue}} VND/tháng (chưa bao gồm thuế VAT và các chi phí điện nước dịch vụ sinh hoạt phát sinh thực tế).\n2.2. Phương thức thanh toán: Chuyển khoản định kỳ trước ngày 05 hàng tháng."
+    },
+    {
+      "heading": "ĐIỀU 3: ĐẶT CỌC BẢO ĐẢM HỢP ĐỒNG",
+      "text": "Bên B chuyển cho bên A số tiền cọc bảo đảm là: {{tien_dat_coc}} VND. Số tiền cọc này dùng để bảo đảm thực hiện nghĩa vụ thanh toán và giữ gìn cơ sở vật chất của Bên B, bên A sẽ hoàn trả cho bên B sau khi thanh lý hợp đồng trừ đi các nghĩa vụ bồi thường nếu có."
+    },
+    {
+      "heading": "ĐIỀU 4: SỬ DỤNG VÀ SỬA CHỮA MẶT BẰNG",
+      "text": "Bên B có quyền cải tạo, lắp đặt thiết bị văn phòng phù hợp với công năng sử dụng nhưng phải được sự đồng ý bằng văn bản của bên A và không làm ảnh hưởng đến kết cấu chịu lực của công trình."
+    },
+    {
+      "heading": "ĐIỀU 5: ĐƠN PHƯƠNG CHẤM DỨT HỢP ĐỒNG",
+      "text": "Bên muốn đơn phương chấm dứt hợp đồng trước hạn phải thông báo bằng văn bản cho bên kia trước ít nhất 30 ngày. Nếu bên thuê tự ý chấm dứt mà không có lỗi của bên cho thuê thì mất toàn bộ tiền đặt cọc."
+    }
+  ],
+  "closing": "Hợp đồng này được lập thành 02 (hai) bản có giá trị pháp lý như nhau, mỗi bên giữ 01 (một) bản, có hiệu lực từ ngày ký.\n\nĐẠI DIỆN BÊN A (ký, ghi rõ họ tên, đóng dấu)        ĐẠI DIỆN BÊN B (ký, ghi rõ họ tên, đóng dấu)",
+  "lint": [
+    {
+      "field": "tien_dat_coc",
+      "op": "min",
+      "value": 1,
+      "message": "Hợp đồng thuê văn phòng thương mại nên quy định khoản đặt cọc bảo đảm để phòng ngừa rủi ro hư hỏng tài sản hoặc chấm dứt trước hạn.",
+      "legalRef": "Điều 328 Bộ luật Dân sự 2015",
+      "severity": "warn"
+    }
+  ],
+  "verifyNotes": [
+    "Hợp đồng thuê văn phòng kinh doanh không bắt buộc phải công chứng theo Luật Kinh doanh bất động sản 2023 nhưng hai bên nên thực hiện công chứng để gia tăng giá trị pháp lý phòng ngừa tranh chấp."
+  ]
+}

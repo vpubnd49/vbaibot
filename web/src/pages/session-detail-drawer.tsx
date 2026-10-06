@@ -4,6 +4,7 @@ import { api } from "../dashboard-api-client";
 import { useChotNen } from "../shared/backdrop-close-guard";
 import { useConfirmDialog } from "../shared/confirm-dialog";
 import { formatTime } from "../shared/ui-bits";
+import { IconClose } from "../shared/dashboard-icons";
 import { SessionTraceView } from "./session-trace-view";
 
 /**
@@ -130,35 +131,36 @@ export function SessionDetailDrawer({
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-ink/25 backdrop-blur-[2px]" {...nen}>
       <div className="flex h-full w-full max-w-lg flex-col border-l border-line bg-surface">
-        <div className="flex items-center justify-between border-b border-line px-5 py-4">
-          <div>
-            <div className="font-semibold text-ink">{thread.displayName || thread.threadId}</div>
-            <div className="text-[12px] text-ink-soft">
-              {thread.messageCount} tin - {thread.usage.totalTokens.toLocaleString("vi-VN")} token
+        <div className="flex items-center justify-between border-b border-line px-5 py-4 bg-surface/90 backdrop-blur-md">
+          <div className="min-w-0">
+            <div className="font-bold text-ink text-base truncate font-heading">{thread.displayName || thread.threadId}</div>
+            <div className="text-[12px] font-medium text-ink-soft mt-0.5">
+              {thread.messageCount} tin nhắn • <span className="font-mono">{thread.usage.totalTokens.toLocaleString("vi-VN")}</span> tokens
             </div>
           </div>
           <button
             onClick={onClose}
-            className="rounded-lg border border-line px-3 py-1 text-[13px] text-ink-soft hover:bg-tile"
+            className="rounded-xl border border-line bg-tile/60 p-2 text-ink-soft hover:bg-tile hover:text-ink transition-all shadow-2xs"
+            title="Đóng"
           >
-            Đóng
+            <IconClose size={16} />
           </button>
         </div>
 
-        <div className="flex gap-1 border-b border-line px-5 pt-2">
+        <div className="flex gap-2 border-b border-line px-5 pt-3 bg-surface/40">
           {(
             [
-              ["chat", "Hội thoại"],
-              ["trace", "Trace agent"],
+              ["chat", "💬 Hội thoại"],
+              ["trace", "⚡ Trace Agent"],
             ] as const
           ).map(([key, nhan]) => (
             <button
               key={key}
               type="button"
               onClick={() => setTab(key)}
-              className={`rounded-t-lg px-3 py-2 text-[13px] font-medium transition-colors ${
+              className={`rounded-t-xl px-4 py-2 text-xs font-semibold transition-all ${
                 tab === key
-                  ? "border-b-2 border-zalo-500 text-zalo-700"
+                  ? "border-b-2 border-blue-500 text-blue-600 dark:text-blue-400 bg-tile/40"
                   : "text-ink-soft hover:text-ink"
               }`}
             >
@@ -173,24 +175,17 @@ export function SessionDetailDrawer({
           </div>
         )}
 
-        {/*
-          Khối này là ANH EM cùng cấp với danh sách tin trong flex column, nên
-          chiều cao của nó ăn thẳng vào chỗ của danh sách. Bản đầu không có trần
-          lẫn `overflow`: một bản tóm tắt 300 từ nở ra ~460px, đẩy phần hội thoại
-          xuống còn một mẩu và chính nó cũng không cuộn được. Vì vậy mặc định thu
-          gọn 2 dòng, mở ra thì có trần chiều cao và tự cuộn bên trong.
-        */}
         {tab === "chat" && tomTat && (
-          <div className="border-b border-line bg-zalo-50/70 px-5 py-3">
-            <div className="mb-1 flex items-start justify-between gap-3">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-zalo-700">
-                Tóm tắt phần hội thoại cũ
+          <div className="border-b border-blue-500/20 bg-blue-500/5 px-5 py-3 backdrop-blur-sm">
+            <div className="mb-1.5 flex items-start justify-between gap-3">
+              <div className="text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 flex items-center gap-1.5">
+                <span>📝</span> Tóm tắt ngữ cảnh cũ
               </div>
-              <div className="flex shrink-0 items-center gap-1">
+              <div className="flex shrink-0 items-center gap-1.5">
                 <button
                   type="button"
                   onClick={() => setMoTomTat((v) => !v)}
-                  className="rounded px-1.5 py-0.5 text-[11px] text-zalo-700 hover:bg-zalo-100"
+                  className="rounded-lg border border-blue-500/20 bg-surface px-2 py-0.5 text-[11px] font-medium text-blue-600 dark:text-blue-400 hover:bg-tile"
                 >
                   {moTomTat ? "Thu gọn" : "Xem đủ"}
                 </button>
@@ -198,14 +193,14 @@ export function SessionDetailDrawer({
                   type="button"
                   onClick={xoaTomTat}
                   disabled={dangXoa}
-                  className="rounded px-1.5 py-0.5 text-[11px] text-rose-600 hover:bg-rose-50 disabled:opacity-50"
+                  className="rounded-lg border border-rose-500/20 bg-surface px-2 py-0.5 text-[11px] font-medium text-rose-600 dark:text-rose-400 hover:bg-rose-500/10 disabled:opacity-50"
                 >
                   {dangXoa ? "Đang xóa..." : "Xóa"}
                 </button>
               </div>
             </div>
             <p
-              className={`text-[12px] leading-relaxed text-ink-soft ${
+              className={`text-[12px] leading-relaxed text-ink-soft font-normal ${
                 moTomTat ? "max-h-40 overflow-y-auto pr-1" : "line-clamp-2"
               }`}
             >
@@ -216,31 +211,31 @@ export function SessionDetailDrawer({
 
         <div
           ref={khungCuon}
-          className={`flex-1 space-y-3 overflow-y-auto bg-canvas px-5 py-4 ${tab === "chat" ? "" : "hidden"}`}
+          className={`flex-1 space-y-3.5 overflow-y-auto bg-canvas px-5 py-4 ${tab === "chat" ? "" : "hidden"}`}
         >
           {hasOlder && (
             <button
               onClick={loadOlder}
-              className="mx-auto block rounded-full border border-line bg-surface px-4 py-1 text-[12px] text-ink-soft hover:bg-tile"
+              className="mx-auto block rounded-full border border-line bg-surface/90 px-4 py-1.5 text-xs font-semibold text-ink-soft hover:bg-tile hover:text-ink transition-all shadow-2xs"
             >
-              Tải tin cũ hơn
+              ↑ Tải tin nhắn cũ hơn
             </button>
           )}
           {messages.map((m) => (
             <div key={m.id} className={m.role === "assistant" ? "flex justify-end" : "flex"}>
               <div
-                className={`max-w-[80%] rounded-2xl px-4 py-2 text-[14px] ${
+                className={`max-w-[85%] rounded-2xl px-4 py-3 text-[13.5px] leading-relaxed shadow-sm ${
                   m.role === "assistant"
-                    ? "rounded-br-md bg-zalo-500 text-white"
-                    : "rounded-bl-md border border-line bg-surface text-ink"
+                    ? "rounded-tr-xs bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-blue-500/15"
+                    : "rounded-tl-xs border border-line/80 bg-surface text-ink"
                 }`}
               >
                 {m.role === "user" && m.senderName && (
-                  <div className="mb-0.5 text-[12px] font-medium text-zalo-600">{m.senderName}</div>
+                  <div className="mb-1 text-[11.5px] font-bold text-blue-500">{m.senderName}</div>
                 )}
                 <div className="whitespace-pre-wrap break-words">{m.content}</div>
                 <div
-                  className={`mt-1 text-right text-[10px] ${
+                  className={`mt-1.5 text-right text-[10px] font-medium ${
                     m.role === "assistant" ? "text-white/70" : "text-ink-soft/60"
                   }`}
                 >
@@ -250,7 +245,7 @@ export function SessionDetailDrawer({
             </div>
           ))}
           {messages.length === 0 && (
-            <p className="py-10 text-center text-[14px] text-ink-soft/60">Chưa có tin nhắn</p>
+            <p className="py-12 text-center text-xs text-ink-soft">Chưa có tin nhắn trong phiên này</p>
           )}
         </div>
 

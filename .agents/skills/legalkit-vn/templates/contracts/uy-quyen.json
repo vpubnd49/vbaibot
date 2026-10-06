@@ -1,0 +1,318 @@
+{
+  "id": "uy_quyen",
+  "name": "Hợp đồng ủy quyền",
+  "group": "Cá nhân ↔ Cá nhân",
+  "icon": "✍️",
+  "title": "HỢP ĐỒNG ỦY QUYỀN",
+  "summary": "Hợp đồng theo đó Bên ủy quyền giao cho Bên được ủy quyền nhân danh mình thực hiện một hoặc một số công việc nhất định trong phạm vi và thời hạn thỏa thuận. Theo BLDS 2015: mặc định không có thù lao trừ khi có thỏa thuận; thời hạn 01 năm nếu không thỏa thuận và không xác định được; mỗi bên có quyền đơn phương chấm dứt theo Điều 569.",
+  "preamble": "Căn cứ Bộ luật Dân sự số 91/2015/QH13 ngày 24/11/2015;\nCăn cứ nhu cầu và sự thỏa thuận của các bên,\nHôm nay, ngày {{ngay_ky}}, tại {{dia_diem_ky}}, chúng tôi gồm:",
+  "parties": {
+    "a": "Bên ủy quyền",
+    "b": "Bên được ủy quyền"
+  },
+  "legalBasis": [
+    "Bộ luật Dân sự 2015 (Luật số 91/2015/QH13) - Điều 134-143 (Đại diện; trong đó Điều 138 đại diện theo ủy quyền, Điều 140 thời hạn đại diện và chấm dứt đại diện theo ủy quyền, Điều 141 phạm vi đại diện)",
+    "Bộ luật Dân sự 2015 - Điều 422 (Các trường hợp chấm dứt hợp đồng)",
+    "Bộ luật Dân sự 2015 - Điều 562 (Hợp đồng ủy quyền)",
+    "Bộ luật Dân sự 2015 - Điều 563 (Thời hạn ủy quyền)",
+    "Bộ luật Dân sự 2015 - Điều 564 (Ủy quyền lại)",
+    "Bộ luật Dân sự 2015 - Điều 565, 566 (Nghĩa vụ, quyền của bên được ủy quyền; thù lao)",
+    "Bộ luật Dân sự 2015 - Điều 567, 568 (Nghĩa vụ, quyền của bên ủy quyền)",
+    "Bộ luật Dân sự 2015 - Điều 569 (Đơn phương chấm dứt thực hiện hợp đồng ủy quyền)",
+    "Luật Công chứng 2024 (Luật số 46/2024/QH15, hiệu lực 01/7/2025) - Điều 57 (Công chứng hợp đồng ủy quyền trong trường hợp các bên không thể cùng đến một tổ chức hành nghề công chứng)"
+  ],
+  "fields": [
+    {
+      "key": "dia_diem_ky",
+      "label": "Nơi ký hợp đồng (tỉnh/thành phố)",
+      "section": "Thông tin chung",
+      "tier": "optional",
+      "type": "text",
+      "help": "Địa điểm hai bên ký hợp đồng, ghi ở phần đầu hợp đồng.",
+      "placeholder": "TP. Hồ Chí Minh"
+    },
+    {
+      "key": "ngay_ky",
+      "label": "Ngày ký hợp đồng",
+      "section": "Thông tin chung",
+      "tier": "required",
+      "type": "date",
+      "help": "Ngày hai bên cùng ký. Đây cũng thường là ngày xác lập việc ủy quyền.",
+      "placeholder": "15/06/2026"
+    },
+    {
+      "key": "ben_uy_quyen_ten",
+      "label": "Họ tên Bên ủy quyền",
+      "section": "Bên ủy quyền",
+      "tier": "required",
+      "type": "text",
+      "help": "Người giao công việc cho người khác làm thay, nhân danh mình.",
+      "placeholder": "Nguyễn Văn A"
+    },
+    {
+      "key": "ben_uy_quyen_cccd",
+      "label": "Số CCCD/Hộ chiếu Bên ủy quyền",
+      "section": "Bên ủy quyền",
+      "tier": "required",
+      "type": "text",
+      "help": "Số căn cước công dân, kèm ngày cấp và nơi cấp để xác định danh tính.",
+      "placeholder": "079xxxxxxxxx, cấp ngày .../.../... tại ..."
+    },
+    {
+      "key": "ben_uy_quyen_diachi",
+      "label": "Địa chỉ Bên ủy quyền",
+      "section": "Bên ủy quyền",
+      "tier": "required",
+      "type": "text",
+      "help": "Địa chỉ thường trú hoặc nơi ở hiện tại.",
+      "placeholder": "Số ..., đường ..., phường ..., quận ..., TP ..."
+    },
+    {
+      "key": "ben_duoc_uy_quyen_ten",
+      "label": "Họ tên Bên được ủy quyền",
+      "section": "Bên được ủy quyền",
+      "tier": "required",
+      "type": "text",
+      "help": "Người nhận làm thay công việc, nhân danh Bên ủy quyền.",
+      "placeholder": "Trần Thị B"
+    },
+    {
+      "key": "ben_duoc_uy_quyen_cccd",
+      "label": "Số CCCD/Hộ chiếu Bên được ủy quyền",
+      "section": "Bên được ủy quyền",
+      "tier": "required",
+      "type": "text",
+      "help": "Số căn cước công dân, kèm ngày cấp và nơi cấp.",
+      "placeholder": "079xxxxxxxxx, cấp ngày .../.../... tại ..."
+    },
+    {
+      "key": "ben_duoc_uy_quyen_diachi",
+      "label": "Địa chỉ Bên được ủy quyền",
+      "section": "Bên được ủy quyền",
+      "tier": "required",
+      "type": "text",
+      "help": "Địa chỉ thường trú hoặc nơi ở hiện tại.",
+      "placeholder": "Số ..., đường ..., phường ..., quận ..., TP ..."
+    },
+    {
+      "key": "noi_dung_uy_quyen",
+      "label": "Nội dung công việc ủy quyền",
+      "section": "Nội dung ủy quyền",
+      "tier": "required",
+      "type": "textarea",
+      "help": "Mô tả rõ công việc giao cho người được ủy quyền làm. Đây là điều khoản cốt lõi, phải ghi cụ thể để tránh tranh chấp.",
+      "placeholder": "VD: Thay mặt làm thủ tục đăng ký sang tên xe ô tô biển số ... tại cơ quan nhà nước có thẩm quyền."
+    },
+    {
+      "key": "pham_vi_uy_quyen",
+      "label": "Phạm vi và giới hạn ủy quyền",
+      "section": "Nội dung ủy quyền",
+      "tier": "required",
+      "type": "textarea",
+      "help": "Giới hạn quyền của người được ủy quyền: được ký giấy tờ gì, được/không được nhận tiền, không được ủy quyền lại... Ghi rõ để tránh vượt quyền.",
+      "placeholder": "VD: Được ký các giấy tờ, nộp và nhận hồ sơ; không được chuyển nhượng, cầm cố tài sản."
+    },
+    {
+      "key": "ngay_bat_dau",
+      "label": "Ngày bắt đầu ủy quyền",
+      "section": "Thời hạn",
+      "tier": "required",
+      "type": "date",
+      "help": "Ngày việc ủy quyền bắt đầu có hiệu lực (thường trùng ngày ký).",
+      "placeholder": "15/06/2026"
+    },
+    {
+      "key": "thoi_han_uy_quyen",
+      "label": "Thời hạn ủy quyền",
+      "section": "Thời hạn",
+      "tier": "default",
+      "type": "text",
+      "help": "Khoảng thời gian ủy quyền có hiệu lực. Nếu không thỏa thuận và không xác định được, luật áp dụng 01 năm.",
+      "placeholder": "VD: 06 tháng, hoặc đến khi hoàn thành công việc",
+      "defaultText": "Nếu các bên không thỏa thuận và pháp luật không quy định thì hợp đồng ủy quyền có hiệu lực 01 (một) năm kể từ ngày xác lập việc ủy quyền.",
+      "legalRef": "Điều 563 BLDS 2015"
+    },
+    {
+      "key": "co_thu_lao",
+      "label": "Ủy quyền có thù lao không?",
+      "section": "Thù lao",
+      "tier": "default",
+      "type": "select",
+      "options": [
+        "Không có thù lao",
+        "Có thù lao"
+      ],
+      "help": "Mặc định ủy quyền KHÔNG có thù lao; chỉ phải trả thù lao nếu hai bên có thỏa thuận hoặc pháp luật quy định.",
+      "placeholder": "Không có thù lao",
+      "defaultText": "Bên ủy quyền chỉ phải trả thù lao nếu có thỏa thuận hoặc pháp luật có quy định; nếu không thỏa thuận thì việc ủy quyền được coi là không có thù lao.",
+      "legalRef": "Điều 562, Điều 566 BLDS 2015"
+    },
+    {
+      "key": "muc_thu_lao",
+      "label": "Mức thù lao",
+      "section": "Thù lao",
+      "tier": "optional",
+      "type": "money",
+      "help": "Số tiền thù lao trả cho người được ủy quyền (nếu có thỏa thuận trả thù lao).",
+      "placeholder": "5.000.000 VNĐ",
+      "condition": {
+        "key": "co_thu_lao",
+        "equals": "Có thù lao"
+      }
+    },
+    {
+      "key": "phuong_thuc_thanh_toan",
+      "label": "Phương thức và thời điểm thanh toán thù lao",
+      "section": "Thù lao",
+      "tier": "optional",
+      "type": "text",
+      "help": "Cách trả (tiền mặt/chuyển khoản) và khi nào trả.",
+      "placeholder": "VD: Chuyển khoản một lần sau khi hoàn thành công việc",
+      "condition": {
+        "key": "co_thu_lao",
+        "equals": "Có thù lao"
+      }
+    },
+    {
+      "key": "uy_quyen_lai",
+      "label": "Thỏa thuận về ủy quyền lại",
+      "section": "Ủy quyền lại",
+      "tier": "default",
+      "type": "select",
+      "options": [
+        "Không được ủy quyền lại",
+        "Được ủy quyền lại nếu Bên ủy quyền đồng ý bằng văn bản"
+      ],
+      "help": "Bên được ủy quyền chỉ được ủy quyền lại cho người khác nếu có sự đồng ý của Bên ủy quyền (hoặc do bất khả kháng), và không vượt quá phạm vi ủy quyền ban đầu.",
+      "placeholder": "Không được ủy quyền lại",
+      "defaultText": "Việc ủy quyền lại chỉ được thực hiện khi có sự đồng ý của Bên ủy quyền hoặc do sự kiện bất khả kháng; phạm vi ủy quyền lại không vượt quá phạm vi ủy quyền ban đầu và phải cùng hình thức với ủy quyền ban đầu.",
+      "legalRef": "Điều 564 BLDS 2015"
+    },
+    {
+      "key": "thoi_gian_bao_truoc",
+      "label": "Thời gian báo trước khi đơn phương chấm dứt",
+      "section": "Chấm dứt hợp đồng",
+      "tier": "default",
+      "type": "text",
+      "help": "Đối với ủy quyền không có thù lao, bên muốn chấm dứt phải báo trước cho bên kia một thời gian hợp lý. Hai bên có thể ấn định cụ thể.",
+      "placeholder": "VD: 15 ngày",
+      "defaultText": "Trường hợp ủy quyền không có thù lao, bên đơn phương chấm dứt phải báo trước cho bên kia một thời gian hợp lý; trường hợp có thù lao thì phải trả thù lao tương ứng phần đã thực hiện và/hoặc bồi thường thiệt hại theo Điều 569.",
+      "legalRef": "Điều 569 BLDS 2015"
+    },
+    {
+      "key": "so_ban",
+      "label": "Số bản hợp đồng",
+      "section": "Điều khoản chung",
+      "tier": "default",
+      "type": "number",
+      "help": "Số bản gốc được lập, mỗi bên giữ số bản bằng nhau.",
+      "placeholder": "02",
+      "defaultText": "Nếu không ghi, hợp đồng thường được lập thành 02 bản có giá trị như nhau, mỗi bên giữ 01 bản.",
+      "legalRef": "Thông lệ giao kết hợp đồng dân sự"
+    }
+  ],
+  "body": [
+    {
+      "heading": "ĐIỀU 1: NỘI DUNG VÀ PHẠM VI ỦY QUYỀN",
+      "text": "Bên ủy quyền ủy quyền cho Bên được ủy quyền nhân danh và thay mặt Bên ủy quyền thực hiện công việc sau đây: {{noi_dung_uy_quyen}}.\nPhạm vi ủy quyền: {{pham_vi_uy_quyen}}.\nBên được ủy quyền chỉ được thực hiện công việc trong phạm vi ủy quyền nêu trên và phải nhân danh Bên ủy quyền khi xác lập, thực hiện các giao dịch liên quan."
+    },
+    {
+      "heading": "ĐIỀU 2: THỜI HẠN ỦY QUYỀN",
+      "text": "Thời hạn ủy quyền là {{thoi_han_uy_quyen}}, kể từ ngày {{ngay_bat_dau}}.\nTrường hợp các bên không thỏa thuận và pháp luật không có quy định thì hợp đồng ủy quyền có hiệu lực 01 (một) năm kể từ ngày xác lập việc ủy quyền (Điều 563 BLDS 2015)."
+    },
+    {
+      "heading": "ĐIỀU 3: THÙ LAO ỦY QUYỀN",
+      "text": "Việc ủy quyền này không có thù lao. Bên được ủy quyền chỉ được thanh toán các chi phí hợp lý đã bỏ ra để thực hiện công việc ủy quyền.",
+      "condition": {
+        "key": "co_thu_lao",
+        "equals": "Không có thù lao"
+      }
+    },
+    {
+      "heading": "ĐIỀU 3: THÙ LAO ỦY QUYỀN",
+      "text": "Bên ủy quyền trả cho Bên được ủy quyền khoản thù lao là {{muc_thu_lao}}.\nPhương thức và thời điểm thanh toán: {{phuong_thuc_thanh_toan}}.\nNgoài thù lao, Bên ủy quyền thanh toán cho Bên được ủy quyền các chi phí hợp lý đã bỏ ra để thực hiện công việc ủy quyền.",
+      "condition": {
+        "key": "co_thu_lao",
+        "equals": "Có thù lao"
+      }
+    },
+    {
+      "heading": "ĐIỀU 4: ỦY QUYỀN LẠI",
+      "text": "Bên được ủy quyền chỉ được ủy quyền lại cho người thứ ba nếu có sự đồng ý của Bên ủy quyền hoặc do sự kiện bất khả kháng nếu không áp dụng ủy quyền lại thì mục đích xác lập, thực hiện giao dịch dân sự vì lợi ích của Bên ủy quyền không thể thực hiện được. Việc ủy quyền lại không được vượt quá phạm vi ủy quyền ban đầu và phải bằng hình thức phù hợp với hình thức ủy quyền ban đầu (Điều 564 BLDS 2015).\nThỏa thuận về ủy quyền lại: {{uy_quyen_lai}}."
+    },
+    {
+      "heading": "ĐIỀU 5: QUYỀN VÀ NGHĨA VỤ CỦA BÊN ĐƯỢC ỦY QUYỀN",
+      "text": "1. Nghĩa vụ: Thực hiện công việc theo ủy quyền và báo cho Bên ủy quyền về việc thực hiện công việc đó; báo cho người thứ ba trong quan hệ thực hiện ủy quyền về thời hạn, phạm vi ủy quyền và việc sửa đổi, bổ sung phạm vi ủy quyền; bảo quản, giữ gìn tài liệu và phương tiện được giao; giữ bí mật thông tin mà mình biết được trong khi thực hiện việc ủy quyền; giao lại cho Bên ủy quyền tài sản đã nhận và những lợi ích thu được trong khi thực hiện việc ủy quyền theo thỏa thuận hoặc theo quy định của pháp luật; bồi thường thiệt hại do vi phạm các nghĩa vụ nêu trên (Điều 565 BLDS 2015).\n2. Quyền: Yêu cầu Bên ủy quyền cung cấp thông tin, tài liệu và phương tiện cần thiết để thực hiện công việc ủy quyền; được thanh toán chi phí hợp lý đã bỏ ra để thực hiện công việc ủy quyền và hưởng thù lao nếu có thỏa thuận (Điều 566 BLDS 2015)."
+    },
+    {
+      "heading": "ĐIỀU 6: QUYỀN VÀ NGHĨA VỤ CỦA BÊN ỦY QUYỀN",
+      "text": "1. Nghĩa vụ: Cung cấp thông tin, tài liệu và phương tiện cần thiết để Bên được ủy quyền thực hiện công việc; chịu trách nhiệm về cam kết do Bên được ủy quyền thực hiện trong phạm vi ủy quyền; thanh toán chi phí hợp lý mà Bên được ủy quyền đã bỏ ra để thực hiện công việc được ủy quyền và trả thù lao cho Bên được ủy quyền nếu có thỏa thuận (Điều 567 BLDS 2015).\n2. Quyền: Yêu cầu Bên được ủy quyền thông báo đầy đủ về việc thực hiện công việc ủy quyền; yêu cầu Bên được ủy quyền giao lại tài sản, lợi ích thu được từ việc thực hiện công việc ủy quyền, trừ trường hợp có thỏa thuận khác; được bồi thường thiệt hại nếu Bên được ủy quyền vi phạm nghĩa vụ (Điều 568 BLDS 2015)."
+    },
+    {
+      "heading": "ĐIỀU 7: ĐƠN PHƯƠNG CHẤM DỨT THỰC HIỆN HỢP ĐỒNG ỦY QUYỀN",
+      "text": "Việc đơn phương chấm dứt thực hiện hợp đồng ủy quyền được thực hiện theo Điều 569 BLDS 2015:\n1. Trường hợp ủy quyền có thù lao, Bên ủy quyền có quyền đơn phương chấm dứt thực hiện hợp đồng bất cứ lúc nào nhưng phải trả thù lao cho Bên được ủy quyền tương ứng với công việc mà Bên được ủy quyền đã thực hiện và bồi thường thiệt hại; nếu ủy quyền không có thù lao thì Bên ủy quyền có thể chấm dứt thực hiện hợp đồng bất cứ lúc nào nhưng phải báo trước cho Bên được ủy quyền một thời gian hợp lý. Bên ủy quyền phải báo bằng văn bản cho người thứ ba biết về việc Bên ủy quyền chấm dứt thực hiện hợp đồng; nếu không báo thì hợp đồng với người thứ ba vẫn có hiệu lực, trừ trường hợp người thứ ba biết hoặc phải biết về việc hợp đồng ủy quyền đã bị chấm dứt.\n2. Trường hợp ủy quyền không có thù lao, Bên được ủy quyền có quyền đơn phương chấm dứt thực hiện hợp đồng bất cứ lúc nào nhưng phải báo trước cho Bên ủy quyền biết một thời gian hợp lý; nếu ủy quyền có thù lao thì Bên được ủy quyền có quyền đơn phương chấm dứt thực hiện hợp đồng bất cứ lúc nào và phải bồi thường thiệt hại cho Bên ủy quyền, nếu có.\nThời gian báo trước do các bên thỏa thuận: {{thoi_gian_bao_truoc}}."
+    },
+    {
+      "heading": "ĐIỀU 8: CHẤM DỨT HỢP ĐỒNG",
+      "text": "Hợp đồng ủy quyền chấm dứt trong các trường hợp sau đây: hết thời hạn ủy quyền; công việc ủy quyền đã hoàn thành; Bên ủy quyền hủy bỏ việc ủy quyền hoặc Bên được ủy quyền từ chối việc ủy quyền; một bên đơn phương chấm dứt thực hiện hợp đồng theo Điều 7 Hợp đồng này; Bên ủy quyền hoặc Bên được ủy quyền là cá nhân chết, được Tòa án tuyên bố mất năng lực hành vi dân sự, có khó khăn trong nhận thức, làm chủ hành vi, hạn chế năng lực hành vi dân sự, mất tích hoặc đã chết; hoặc các trường hợp khác theo quy định của pháp luật (Điều 140, Điều 422 BLDS 2015)."
+    },
+    {
+      "heading": "ĐIỀU 9: GIẢI QUYẾT TRANH CHẤP",
+      "text": "Mọi tranh chấp phát sinh từ hoặc liên quan đến Hợp đồng này trước hết được giải quyết thông qua thương lượng, hòa giải. Trường hợp không thương lượng được, một trong các bên có quyền yêu cầu Tòa án có thẩm quyền giải quyết theo quy định của pháp luật."
+    }
+  ],
+  "closing": "Hợp đồng này có hiệu lực kể từ ngày ký. Hợp đồng được lập thành {{so_ban}} bản có giá trị pháp lý như nhau, mỗi bên giữ một số bản bằng nhau để thực hiện.\nHai bên đã đọc, hiểu rõ và đồng ý với toàn bộ nội dung Hợp đồng và cùng ký tên dưới đây.\n\nBÊN ỦY QUYỀN                                     BÊN ĐƯỢC ỦY QUYỀN\n(Ký, ghi rõ họ tên)                               (Ký, ghi rõ họ tên)",
+  "verifyNotes": [
+    "Đã tra cứu và xác nhận các Điều 562, 563, 564, 565, 566, 567, 568, 569 BLDS 2015 đều được dẫn chiếu ĐÚNG tên và đúng nội dung trong template.",
+    "SỬA Điều 8 (Chấm dứt hợp đồng): bổ sung trường hợp 'Bên ủy quyền hủy bỏ việc ủy quyền hoặc Bên được ủy quyền từ chối việc ủy quyền' và 'có khó khăn trong nhận thức, làm chủ hành vi' theo đúng Điều 140 BLDS 2015; sửa lỗi lặp 'chết ... đã chết' trong bản gốc; chuẩn hóa 'được Tòa án tuyên bố' cho các tình trạng năng lực hành vi; bổ sung dẫn chiếu Điều 140 và Điều 422 BLDS 2015.",
+    "BỔ SUNG legalBasis: thêm Điều 140 BLDS 2015 (thời hạn/chấm dứt đại diện theo ủy quyền) và Điều 422 BLDS 2015 (các trường hợp chấm dứt hợp đồng) - đây là căn cứ thực sự cho Điều 8; làm rõ nội dung nhóm Điều 134-143 (đại diện).",
+    "XÁC NHẬN dẫn chiếu Luật Công chứng 2024: 'Công chứng hợp đồng ủy quyền' đúng là Điều 57 (không phải Điều 58 - Điều 58 là công chứng di chúc). Đã ghi rõ Luật số 46/2024/QH15, hiệu lực 01/7/2025.",
+    "CẢNH BÁO công chứng: Pháp luật KHÔNG bắt buộc công chứng/chứng thực mọi hợp đồng ủy quyền; nhưng nhiều giao dịch trên thực tế (ủy quyền liên quan bất động sản, thủ tục với cơ quan nhà nước, ngân hàng...) thường yêu cầu công chứng/chứng thực. Cần kiểm tra theo từng giao dịch cụ thể.",
+    "CẢNH BÁO phạm vi: Một số việc gắn với nhân thân KHÔNG được ủy quyền (đăng ký kết hôn, ly hôn, lập di chúc của chính mình, nhận nuôi con nuôi cho bản thân...). Cần loại trừ khi soạn nội dung công việc tại {{noi_dung_uy_quyen}}.",
+    "CẢNH BÁO: Đây là hợp đồng ủy quyền giữa CÁ NHÂN với CÁ NHÂN. Nếu một bên là tổ chức/pháp nhân, cần điều chỉnh thông tin chủ thể (tên, mã số doanh nghiệp, người đại diện theo pháp luật) cho phù hợp."
+  ],
+  "lint": [
+    {
+      "field": "thoi_han_uy_quyen",
+      "op": "note",
+      "message": "Nếu không thỏa thuận thời hạn và pháp luật không quy định, hợp đồng ủy quyền mặc nhiên có hiệu lực 01 năm kể từ ngày xác lập.",
+      "legalRef": "Điều 563 BLDS 2015",
+      "severity": "warn"
+    },
+    {
+      "field": "co_thu_lao",
+      "op": "note",
+      "message": "Mặc định ủy quyền KHÔNG có thù lao. Chỉ phát sinh nghĩa vụ trả thù lao khi có thỏa thuận hoặc pháp luật quy định.",
+      "legalRef": "Điều 562, 566 BLDS 2015",
+      "severity": "warn"
+    },
+    {
+      "field": "uy_quyen_lai",
+      "op": "note",
+      "message": "Ủy quyền lại phải được Bên ủy quyền đồng ý (trừ bất khả kháng) và không vượt quá phạm vi ủy quyền ban đầu.",
+      "legalRef": "Điều 564 BLDS 2015",
+      "severity": "warn"
+    },
+    {
+      "field": "thoi_gian_bao_truoc",
+      "op": "note",
+      "message": "Khi đơn phương chấm dứt: ủy quyền không thù lao phải báo trước một thời gian hợp lý; ủy quyền có thù lao phải trả thù lao phần đã thực hiện và/hoặc bồi thường thiệt hại. Bên ủy quyền phải báo bằng văn bản cho người thứ ba.",
+      "legalRef": "Điều 569 BLDS 2015",
+      "severity": "warn"
+    },
+    {
+      "field": "noi_dung_uy_quyen",
+      "op": "note",
+      "message": "Một số việc gắn liền với nhân thân không được ủy quyền (đăng ký kết hôn, ly hôn, lập di chúc của chính mình, nhận nuôi con nuôi cho bản thân...). Cần loại trừ các công việc này.",
+      "legalRef": "BLDS 2015; pháp luật chuyên ngành",
+      "severity": "warn"
+    },
+    {
+      "field": "noi_dung_uy_quyen",
+      "op": "note",
+      "message": "Nếu nội dung ủy quyền liên quan đến bất động sản hoặc giao dịch bắt buộc công chứng/chứng thực, nên công chứng/chứng thực hợp đồng ủy quyền để bảo đảm hiệu lực và an toàn pháp lý.",
+      "legalRef": "Luật Công chứng 2024 - Điều 57",
+      "severity": "warn"
+    }
+  ]
+}

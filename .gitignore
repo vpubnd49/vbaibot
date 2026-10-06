@@ -24,3 +24,13 @@ qr*.png
 
 # Editor scratch / metadata
 .kilo/
+
+# Android build & binaries
+*.apk
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+
+# Extracted source archive
+legalkit-vn-master/

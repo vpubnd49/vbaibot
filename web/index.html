@@ -2,34 +2,68 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Zalo Agent</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>VBAIBot - Quản trị Bot & VPS</title>
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#090d16" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="VBAIBot" />
     <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      // Đăng ký Service Worker và dọn dẹp cache cũ nếu có
+      if ('serviceWorker' in navigator && window.location.protocol === 'https:') {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('/sw.js').then(function(reg) {
+            reg.update();
+          }).catch(function() {});
+        });
+      }
+      // Tự động xoá cache cũ của bản trước (nếu người dùng bị lưu cache v1)
+      if ('caches' in window) {
+        caches.keys().then(function(keys) {
+          var removed = false;
+          var promises = keys.map(function(k) {
+            if (k === 'vbaibot-pwa-v1') {
+              removed = true;
+              return caches.delete(k);
+            }
+          });
+          Promise.all(promises).then(function() {
+            if (removed) {
+              window.location.reload();
+            }
+          });
+        });
+      }
+    </script>
     <!--
-      Gắn class .dark TRƯỚC khi React render. Để việc này cho useEffect thì
-      trang vẽ xong một khung sáng rồi mới tối lại - mắt thấy rõ cú nháy trắng
-      mỗi lần tải. Script inline, chạy đồng bộ, cố ý đặt trước bundle.
+      Gắn class .dark TRƯỚC khi React render.
+      Mặc định luôn là giao diện Hiện đại (Dark Mode Cosmic).
     -->
     <script>
       (function () {
         try {
-          var luu = localStorage.getItem("zalo-agent-theme");
-          var toi = luu
-            ? luu === "dark"
-            : window.matchMedia("(prefers-color-scheme: dark)").matches;
-          if (toi) document.documentElement.classList.add("dark");
+          var luu = localStorage.getItem("zalo-agent-theme-v2");
+          var toi = luu ? luu === "dark" : true;
+          if (toi) {
+            document.documentElement.classList.add("dark");
+          } else {
+            document.documentElement.classList.remove("dark");
+          }
         } catch (e) {
-          /* localStorage bị chặn (chế độ riêng tư): cứ để giao diện sáng */
+          document.documentElement.classList.add("dark");
         }
       })();
     </script>

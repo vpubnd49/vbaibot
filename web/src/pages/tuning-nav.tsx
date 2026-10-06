@@ -22,15 +22,12 @@ export function TuningNav({
 }) {
   return (
     <nav aria-label="Danh mục cấu hình" className="w-full shrink-0 lg:w-[20rem]">
-      <div className="rounded-2xl border border-line bg-surface/95 p-2">
+      <div className="gc-card p-2">
         {groups.map((g, i) => {
           const active = dangChon === g.id;
-          // Đường kẻ ngăn cách vẽ ở mục TRÊN, và bỏ đi khi mục này hoặc mục
-          // ngay trước nó đang được chọn - kẻ chạm vào viền của khối nền xanh
-          // trông như một nét thừa cắt ngang.
           const keNgan = i > 0 && !active && dangChon !== groups[i - 1]?.id;
           return (
-            <div key={g.id} className={keNgan ? "border-t border-line/70" : undefined}>
+            <div key={g.id} className={keNgan ? "border-t border-line/50" : undefined}>
               <NavItem
                 active={active}
                 icon={<GroupIconBox groupId={g.id} size={20} />}
@@ -64,20 +61,20 @@ function NavItem({
       type="button"
       onClick={onClick}
       aria-current={active ? "true" : undefined}
-      className={`flex w-full items-center gap-3.5 rounded-xl px-4 py-3 text-left transition-colors ${
-        active ? "bg-zalo-50" : "hover:bg-tile/50"
+      className={`flex w-full items-center gap-3.5 rounded-xl px-4 py-3 text-left transition-all ${
+        active
+          ? "bg-gradient-to-r from-blue-500/15 via-indigo-500/10 to-transparent border border-blue-500/25 shadow-xs"
+          : "hover:bg-tile/60 border border-transparent"
       }`}
     >
-      {/* Icon TRẦN, không có ô vuông bo góc bọc ngoài - ảnh mẫu chỉ có mỗi hình
-          icon, thêm khung nền là quay lại kiểu "khối lồng khối" */}
-      <span className={`shrink-0 ${active ? "text-zalo-500" : "text-ink-soft"}`}>{icon}</span>
+      <span className={`shrink-0 ${active ? "text-blue-600 dark:text-blue-400" : "text-ink-soft"}`}>{icon}</span>
       <span className="min-w-0 flex-1">
-        <span className={`block text-[14px] font-semibold ${active ? "text-zalo-700" : "text-ink"}`}>
+        <span className={`block text-[13.5px] font-bold ${active ? "text-blue-600 dark:text-blue-400" : "text-ink"}`}>
           {title}
         </span>
-        <span className="mt-0.5 block truncate text-[12px] text-ink-soft">{hint}</span>
+        <span className="mt-0.5 block truncate text-[11.5px] text-ink-soft">{hint}</span>
       </span>
-      <IconChevronRight size={16} className={active ? "text-zalo-500" : "text-ink-soft/40"} />
+      <IconChevronRight size={16} className={active ? "text-blue-600 dark:text-blue-400" : "text-ink-soft/40"} />
     </button>
   );
 }

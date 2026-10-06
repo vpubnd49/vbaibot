@@ -1,0 +1,150 @@
+{
+  "id": "chuyen_nhuong_dat_dai",
+  "name": "Hợp đồng chuyển nhượng quyền sử dụng đất",
+  "group": "Cá nhân ↔ Cá nhân / Doanh nghiệp",
+  "icon": "🏡",
+  "title": "HỢP ĐỒNG CHUYỂN NHƯỢNG QUYỀN SỬ DỤNG ĐẤT",
+  "summary": "Hợp đồng chuyển nhượng quyền sử dụng đất và tài sản gắn liền với đất tuân thủ Luật Đất đai 2024 và Bộ luật Dân sự 2015, có quy định về giá chuyển nhượng, phương thức thanh toán, nghĩa vụ nộp thuế phí và bàn giao giấy tờ.",
+  "parties": {
+    "a": "Bên chuyển nhượng (Bên bán)",
+    "b": "Bên nhận chuyển nhượng (Bên mua)"
+  },
+  "preamble": "Căn cứ Bộ luật Dân sự số 91/2015/QH13;\nCăn cứ Luật Đất đai số 31/2024/QH15;\nCăn cứ nhu cầu và sự tự nguyện của hai bên;\nHôm nay, ngày {{ngay_ky}}, tại {{dia_diem_ky}}, chúng tôi gồm:\n- BÊN A (Bên chuyển nhượng): {{ten_bena}}, địa chỉ: {{dia_chi_bena}}, CCCD số: {{cccd_bena}}.\n- BÊN B (Bên nhận chuyển nhượng): {{ten_benb}}, địa chỉ: {{dia_chi_benb}}, CCCD số: {{cccd_benb}}.\nHai bên thống nhất ký kết hợp đồng chuyển nhượng quyền sử dụng đất với các điều khoản sau:",
+  "legalBasis": [
+    "Bộ luật Dân sự 2015 (Luật số 91/2015/QH13): các quy định chung về hợp đồng và chuyển nhượng tài sản.",
+    "Luật Đất đai 2024 (Luật số 31/2024/QH15): Điều 45 (Điều kiện thực hiện các quyền của người sử dụng đất), Điều 27 (Công chứng, chứng thực hợp đồng đất đai)."
+  ],
+  "fields": [
+    {
+      "key": "ten_bena",
+      "label": "Họ và tên bên bán (Bên A)?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Họ tên đầy đủ của bên bán (nếu là tài sản chung của vợ chồng thì nên ghi cả hai người).",
+      "placeholder": "Nguyễn Văn A"
+    },
+    {
+      "key": "dia_chi_bena",
+      "label": "Địa chỉ bên bán?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Địa chỉ thường trú của bên bán.",
+      "placeholder": "Số 1, đường X, TP HCM"
+    },
+    {
+      "key": "cccd_bena",
+      "label": "Số CCCD bên bán?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Số căn cước công dân bên bán.",
+      "placeholder": "079095000123"
+    },
+    {
+      "key": "ten_benb",
+      "label": "Họ và tên bên mua (Bên B)?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Họ tên đầy đủ của bên mua.",
+      "placeholder": "Trần Thị B"
+    },
+    {
+      "key": "dia_chi_benb",
+      "label": "Địa chỉ bên mua?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Địa chỉ thường trú của bên mua.",
+      "placeholder": "Số 2, đường Y, Hà Nội"
+    },
+    {
+      "key": "cccd_benb",
+      "label": "Số CCCD bên mua?",
+      "section": "Thông tin các bên",
+      "tier": "required",
+      "type": "text",
+      "help": "Số căn cước công dân bên mua.",
+      "placeholder": "030095000456"
+    },
+    {
+      "key": "so_do_thong_tin",
+      "label": "Thông tin Giấy chứng nhận quyền sử dụng đất (Số sổ, Số thửa, Số tờ bản đồ, Địa chỉ đất)?",
+      "section": "Đối tượng hợp đồng",
+      "tier": "required",
+      "type": "text",
+      "help": "Ghi chính xác thông tin trên trang 1 và trang 2 của sổ hồng/sổ đỏ.",
+      "placeholder": "GCN số BD 369452, Thửa đất số 98, Tờ bản đồ số 72, xã X, TP Đà Lạt"
+    },
+    {
+      "key": "dien_tich",
+      "label": "Diện tích đất chuyển nhượng (m2)?",
+      "section": "Đối tượng hợp đồng",
+      "tier": "required",
+      "type": "text",
+      "help": "Diện tích được công nhận chuyển nhượng.",
+      "placeholder": "150 m2"
+    },
+    {
+      "key": "gia_chuyen_nhuong",
+      "label": "Giá chuyển nhượng (VND)?",
+      "section": "Giá và Thanh toán",
+      "tier": "required",
+      "type": "number",
+      "help": "Mức giá thỏa thuận chuyển nhượng.",
+      "placeholder": "2000000000"
+    },
+    {
+      "key": "nghia_vu_thue",
+      "label": "Bên chịu nghĩa vụ thuế thu nhập cá nhân và lệ phí trước bạ?",
+      "section": "Thuế và Lệ phí",
+      "tier": "default",
+      "type": "select",
+      "help": "Mặc định: Bên bán chịu thuế TNCN, Bên mua chịu lệ phí trước bạ.",
+      "options": [
+        "Bên bán chịu thuế TNCN, Bên mua chịu lệ phí trước bạ",
+        "Bên mua chịu toàn bộ các khoản thuế và lệ phí",
+        "Bên bán chịu toàn bộ các khoản thuế và lệ phí"
+      ],
+      "defaultText": "Bên bán chịu thuế TNCN, Bên mua chịu lệ phí trước bạ"
+    }
+  ],
+  "clauses": [
+    {
+      "heading": "ĐIỀU 1: ĐỐI TƯỢNG CHUYỂN NHƯỢNG",
+      "text": "Bên A đồng ý chuyển nhượng và Bên B đồng ý nhận chuyển nhượng quyền sử dụng đất đối với thửa đất theo thông tin sau: {{so_do_thong_tin}}, diện tích chuyển nhượng là: {{dien_tich}}."
+    },
+    {
+      "heading": "ĐIỀU 2: GIÁ CHUYỂN NHƯỢNG VÀ PHƯƠNG THỨC THANH TOÁN",
+      "text": "2.1. Giá chuyển nhượng quyền sử dụng đất hai bên tự nguyện thỏa thuận là: {{gia_chuyen_nhuong}} VND.\n2.2. Phương thức thanh toán: Chuyển khoản qua tài khoản ngân hàng của bên bán. Bên mua thanh toán đúng hạn quy định."
+    },
+    {
+      "heading": "ĐIỀU 3: CÔNG CHỨNG VÀ ĐĂNG KÝ BIẾN ĐỘNG",
+      "text": "Hợp đồng này phải được công chứng tại cơ quan công chứng có thẩm quyền theo quy định tại Điều 27 Luật Đất đai 2024. Hai bên có nghĩa vụ phối hợp thực hiện thủ tục đăng ký biến động đất đai tại Văn phòng đăng ký đất đai trong thời hạn quy định."
+    },
+    {
+      "heading": "ĐIỀU 4: NGHĨA VỤ THUẾ VÀ PHÍ",
+      "text": "Nghĩa vụ nộp thuế thu nhập cá nhân, lệ phí trước bạ và phí công chứng được phân định như sau: {{nghia_vu_thue}}. Các lệ phí địa chính khác thực hiện theo quy định của pháp luật địa phương."
+    },
+    {
+      "heading": "ĐIỀU 5: CAM KẾT CỦA CÁC BÊN",
+      "text": "Bên A cam kết thửa đất không bị tranh chấp, không bị kê biên để đảm bảo thi hành án, không bị thế chấp bảo đảm nghĩa vụ dân sự khác ngoài các thông tin đã cung cấp công khai cho bên mua. Hai bên đã tự kiểm tra hiện trạng thực tế thửa đất trước khi ký."
+    }
+  ],
+  "closing": "Hợp đồng này được lập thành 04 (bốn) bản có giá trị pháp lý như nhau, được công chứng theo quy định của pháp luật.\n\nBÊN CHUYỂN NHƯỢNG (ký, ghi rõ họ tên)        BÊN NHẬN CHUYỂN NHƯỢNG (ký, ghi rõ họ tên)",
+  "lint": [
+    {
+      "field": "gia_chuyen_nhuong",
+      "op": "min",
+      "value": 10000000,
+      "message": "Giá chuyển nhượng bất động sản không được quá thấp so với giá trị thị trường để tránh rủi ro bị cơ quan thuế ấn định thuế do nghi ngờ trốn thuế.",
+      "legalRef": "Điều 45 Luật Đất đai 2024 và Luật Thuế thu nhập cá nhân",
+      "severity": "warn"
+    }
+  ],
+  "verifyNotes": [
+    "Hợp đồng chuyển nhượng quyền sử dụng đất bắt buộc phải công chứng hoặc chứng thực để có hiệu lực pháp luật theo Điều 27 Luật Đất đai 2024. Hai bên cần tiến hành đo đạc thực tế trước khi hoàn tất giao dịch để tránh tranh chấp diện tích."
+  ]
+}
