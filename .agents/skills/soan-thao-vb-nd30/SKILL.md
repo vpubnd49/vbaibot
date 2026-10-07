@@ -20,7 +20,7 @@ Skill chuyên sâu sinh file `.docx` và bảng biểu phụ lục `.xlsx` đún
 | **Căn cứ pháp lý** | Cỡ **14pt**, kiểu chữ **IN NGHIÊNG** (`italics: true`), thụt đầu dòng 1cm, căn đều 2 bên. Kết thúc mỗi căn cứ bằng dấu `;`, căn cứ cuối bằng dấu `,`. | Cấm in đứng, cấm căn giữa căn cứ. |
 | **Nề mục (Điều, Khoản)** | `Điều 1. Tên điều:` In đậm chữ Điều và tên điều trước dấu `:` hoặc `.`; nội dung sau in thường. Thụt đầu dòng 1cm, căn đều 2 bên. | Cấm in đậm toàn bộ cả điều, cấm thụt lề lộn xộn. |
 | **Khối Chữ ký & Nơi nhận** | Cột trái: `Nơi nhận:` (đậm + nghiêng, cỡ 12), danh sách cỡ 11 đứng. Dòng đầu tiên gửi đối tượng tại "Kính gửi:" BẮT BUỘC là `- Như trên;` (TUYỆT ĐỐI CẤM dùng `- Như kính gửi`). Mỗi dòng kết thúc bằng `;`, dòng `- Lưu: VT, NC...` kết thúc bằng dấu chấm `.`<br>Cột phải: Quyền hạn, chức vụ IN HOA ĐẬM (cỡ 13-14), **4 dòng trống**, Họ tên in đậm (cỡ 14). | Cấm dùng `spacing: { before: 600 }` thay cho 4 dòng trống chữ ký. **TUYỆT ĐỐI CẤM** dùng `- Như kính gửi`. |
-| **Mẫu biểu đóng khung (Phiếu trình, Mẫu 2C)** | **BẮT BUỘC BẢO TOÀN 100% KHUNG VIỀN VÀ BẢNG BIỂU (ZERO STRUCTURE MUTATION)**.<br>Khi người dùng gửi file mẫu hoặc yêu cầu điền mẫu (ví dụ: `bosung/Phiếu trình.docx`):<br>1. **CẤM TUYỆT ĐỐI** bóc tách text rồi generate lại document bằng engine văn bản trôi (`cong_van`).<br>2. **BẮT BUỘC** dùng cơ chế **Edit In-Place (Sửa tại chỗ)** trên file mẫu (`scripts/fill_phieu_trinh.py` hoặc `scripts/edit_docx_in_place.py`).<br>3. Giữ nguyên 100% hệ thống table borders, cell dimensions, ô vuông checkbox `☐`/`☑`, khối ký 3 bên và ô phê duyệt của Lãnh đạo UBND tỉnh. | **CẤM XÓA KHUNG**, cấm phá vỡ bảng biểu, cấm biến Phiếu trình thành văn bản trôi, cấm đổi ô vuông checkbox `☐` thành chữ `[X]`. |
+| **Mẫu biểu đóng khung (Phiếu trình, Mẫu 2C, Biểu mẫu người dùng tải lên)** | **BẮT BUỘC BẢO TOÀN NGUYÊN BẢN 100% VỀ CẤU TRÚC DÒNG, KHUNG VIỀN VÀ FONT CHỮ (ZERO MUTATION ENGINE)**.<br>Khi người dùng gửi bất kỳ file mẫu nào hoặc yêu cầu điền/chỉnh sửa biểu mẫu (ví dụ: `Phiếu trình.docx`, hợp đồng, biểu mẫu có khung):<br>1. **CẤM TUYỆT ĐỐI** bóc tách text rồi tạo lại docx mới từ đầu (docx-js/pandoc/markdown) làm biến mất khung viền, lệch lề và vỡ cột.<br>2. **CẤM TUYỆT ĐỐI** gán thô `paragraph.text = ...` hoặc `cell.text = ...` trong python-docx vì sẽ xóa sạch thẻ `<w:r>`, làm mất trắng font Times New Roman, cỡ chữ, in đậm/nghiêng của nhãn tiền tố.<br>3. **BẮT BUỘC SỬ DỤNG** engine chỉnh sửa tại chỗ Run-Level (`scripts/edit_docx_template_in_place.py` hoặc `scripts/edit_phieu_trinh_template.py`) để thay thế text ở cấp độ Run bên trong thẻ `<w:t>`, giữ nguyên vẹn 100% khung viền, bảng lồng, thuộc tính đoạn `<w:pPr>`, ô vuông checkbox `☐`, dấu chấm dòng `.....` và khối chữ ký/phê duyệt. | **CẤM XÓA KHUNG**, cấm phá vỡ bảng biểu, cấm biến Phiếu trình thành văn bản trôi, cấm đổi ô vuông checkbox `☐` thành chữ `[X]`. |
 | **Phụ lục Excel** | Font **Times New Roman** toàn sheet, Tiêu đề bảng IN HOA ĐẬM căn giữa (Merge), dòng căn cứ in nghiêng, tiêu đề cột in đậm wrap-text có đánh số cột `(1)`, `(2)`, thin borders toàn bộ. | Cấm dùng font Arial/Calibri, cấm thiếu dòng số cột `(1), (2)`. |
 
 ---
@@ -51,12 +51,17 @@ Skill chuyên sâu sinh file `.docx` và bảng biểu phụ lục `.xlsx` đún
 ### Nhóm 3: Biên bản → `engine/generate_bien_ban_nd30.js`
 - 2 chữ ký ngang hàng: THƯ KÝ (trái) và CHỦ TRÌ (phải).
 
-### Nhóm 4: Mẫu biểu đóng khung cố định (Form-based / Bordered Template) → `scripts/fill_phieu_trinh.py` & `scripts/edit_docx_in_place.py`
-- Dùng cho: **PHIẾU TRÌNH** (chuẩn Văn phòng UBND tỉnh), Phiếu chuyển, Giấy mời có khung chương trình, Mẫu 2C-TCTW/98, Biểu mẫu rà soát...
+### Nhóm 4: Mẫu biểu đóng khung cố định & Mọi file mẫu người dùng tải lên (Form-based / Bordered Template) → `scripts/edit_docx_template_in_place.py` & `scripts/edit_phieu_trinh_template.py`
+- Dùng cho: **MỌI FILE MẪU NGƯỜI DÙNG TẢI LÊN YÊU CẦU CHỈNH SỬA**, **PHIẾU TRÌNH** (chuẩn Văn phòng UBND tỉnh), Phiếu chuyển, Giấy mời có khung chương trình, Mẫu 2C-TCTW/98, Biểu mẫu rà soát...
 - **Quy tắc vàng:**
-  1. Nếu người dùng gửi file mẫu DOCX: Sử dụng trực tiếp file đó, dùng `scripts/edit_docx_in_place.py` để thay thế text tại các Table Cells tương ứng.
-  2. Nếu người dùng yêu cầu tạo/điền Phiếu trình: Sử dụng file mẫu gốc `bosung/Phiếu trình.docx` (hoặc `templates/phieu_trinh_ubnd_mau.docx`), gọi `scripts/fill_phieu_trinh.py`.
-  3. **Đặc tả cấu trúc Phiếu trình chuẩn:**
+  1. Khi người dùng gửi file mẫu DOCX hoặc yêu cầu sửa mẫu: Giữ nguyên file đó làm gốc, dùng `scripts/edit_docx_template_in_place.py` để cập nhật trực tiếp tại chỗ (in-place).
+  2. Khi người dùng yêu cầu tạo/điền Phiếu trình: Sử dụng file mẫu chuẩn `bosung/Phiếu trình.docx`, chạy `scripts/edit_phieu_trinh_template.py`.
+  3. **Nguyên tắc bảo toàn 100% nguyên bản:**
+     - Giữ nguyên 100% viền bảng (`<w:tblBorders>`, `<w:tcBorders>`), chiều rộng cột (`<w:gridCol>`), chiều cao hàng (`<w:trHeight>`).
+     - Giữ nguyên 100% font chữ (Times New Roman), cỡ chữ (11, 12, 13, 14pt), in đậm prefix, khoảng cách đoạn và giãn dòng.
+     - Giữ nguyên toàn bộ ô vuông checkbox `☐`/`☑`, dấu chấm chấm dòng `.....` và chữ ký 3 bên.
+     - Khử trùng lặp (de-duplicate) các ô gộp (merged cells) tránh ghi đè lặp lại.
+  4. **Đặc tả cấu trúc Phiếu trình chuẩn:**
      - Header: 2 hàng x 2 cột ẩn viền (UBND TỈNH LÂM ĐỒNG - VĂN PHÒNG / QUỐC HIỆU - TIÊU NGỮ / Số ký hiệu).
      - Tiêu đề: `PHIẾU TRÌNH` (in hoa đậm, căn giữa) + `Kính gửi: Lãnh đạo UBND tỉnh; Lãnh đạo Văn phòng UBND tỉnh`.
      - **Khung lớn cố định bao quanh toàn bộ nội dung (Full Outer Bordered Table)**:

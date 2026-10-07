@@ -50,9 +50,10 @@ Không chỉ sửa chính tả. Phải phát hiện cả lỗi có thể làm v�
 - Không dùng từ `định kỳ` nếu chưa có kỳ báo cáo hoặc căn cứ giao báo cáo định kỳ.
 - Không kết luận “đúng thể thức” chỉ từ text extraction; với DOCX/PDF phải kiểm tra trang thực tế nếu công cụ cho phép.
 - Ưu tiên sửa tối thiểu tại đúng vị trí, không viết lại toàn văn nếu không cần.
-- **Bảo toàn nguyên trạng khung và bảng biểu (Zero Structure Mutation):** Khi người dùng yêu cầu chỉnh sửa nội dung trên một file mẫu có sẵn (đặc biệt là Phiếu trình, Phiếu chuyển, Mẫu 2C, Biểu mẫu rà soát):
-  - **CẤM TUYỆT ĐỐI** bóc tách nội dung ra để tạo lại file DOCX mới từ đầu (re-generate from scratch) vì sẽ làm phá hủy toàn bộ viền khung, bảng biểu, cột, lề và ô vuông checkbox `☐`.
-  - **BẮT BUỘC** áp dụng cơ chế **Edit In-Place (Sửa tại chỗ)** bằng `scripts/edit_docx_in_place.py`: mở file DOCX gốc, chỉ thay thế text tại các Paragraph/Cell tương ứng, giữ nguyên 100% thuộc tính khung viền, bảng biểu của file gốc.
+- **Bảo toàn nguyên bản 100% về cấu trúc dòng, khung viền và font chữ (Zero Structure Mutation Engine):** Khi người dùng yêu cầu chỉnh sửa, cập nhật nội dung trên một file mẫu có sẵn hoặc file người dùng gửi lên (đặc biệt là Phiếu trình, Phiếu chuyển, Mẫu 2C, Biểu mẫu rà soát, hợp đồng):
+  - **CẤM TUYỆT ĐỐI** bóc tách nội dung ra để tạo lại file DOCX mới từ đầu (re-generate from scratch bằng markdown/pandoc/docx-js) vì sẽ phá hủy toàn bộ viền khung, bảng biểu, cột, lề và ô vuông checkbox `☐`.
+  - **CẤM TUYỆT ĐỐI** gán thô `paragraph.text = ...` hoặc `cell.text = ...` trong python-docx vì sẽ xóa sạch thẻ `<w:r>`, làm mất định dạng font, cỡ chữ, và in đậm/nghiêng của từng đoạn.
+  - **BẮT BUỘC** áp dụng cơ chế **Edit In-Place (Sửa tại chỗ ở cấp độ Run)** bằng `scripts/edit_docx_template_in_place.py` hoặc `scripts/edit_phieu_trinh_template.py`: giữ nguyên file DOCX gốc, chỉ thay thế text bên trong các Run (`<w:t>`), bảo toàn 100% thuộc tính khung viền, bảng biểu, ô gộp, khoảng cách dòng và font chữ của file gốc.
 - Không coi mọi góp ý là bắt buộc tiếp thu.
 - Khi hồ sơ có góp ý và bảng tiếp thu, phải đối chiếu 3 chiều:
   `ý kiến gốc ↔ tiếp thu/giải trình ↔ dự thảo sau tiếp thu`.
