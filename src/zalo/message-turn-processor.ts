@@ -226,9 +226,14 @@ async function xuLyLuot(
   const turnStartMs = Date.now();
 
   try {
-    // 0. Bắt lệnh Antigravity điều khiển từ xa (/cmd hoặc /agy)
+    // 0. Bắt lệnh Antigravity điều khiển từ xa (/cmd, /agy, /vbai, /target)
     const textTrim = latest.text.trim();
-    if (textTrim.startsWith("/cmd") || textTrim.startsWith("/agy")) {
+    if (
+      textTrim.startsWith("/cmd") ||
+      textTrim.startsWith("/agy") ||
+      textTrim.startsWith("/vbai") ||
+      textTrim.startsWith("/target")
+    ) {
       const cmdRes = await handleAntigravityCommand({
         api,
         config,

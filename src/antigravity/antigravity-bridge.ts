@@ -1,5 +1,7 @@
 import { exec } from "node:child_process";
 import { promisify } from "node:util";
+import fs from "node:fs";
+import path from "node:path";
 import { env } from "../config/env.js";
 import { createLogger } from "../shared/logger.js";
 
@@ -7,12 +9,15 @@ const log = createLogger("antigravity-bridge");
 const execAsync = promisify(exec);
 
 export type AntigravityTaskType = "cmd" | "agy";
+export type WorkspaceTarget = "bot" | "vbai";
 
 export interface AntigravityTask {
   id: string;
   type: AntigravityTaskType;
   command?: string;
   prompt?: string;
+  target?: WorkspaceTarget;
+  subDir?: string;
   createdAt: number;
   timeoutMs: number;
 }
@@ -20,6 +25,8 @@ export interface AntigravityTask {
 export interface AntigravityResult {
   id: string;
   source: "pc" | "vps";
+  target?: WorkspaceTarget;
+  executedCwd?: string;
   success: boolean;
   output: string;
   exitCode?: number;
@@ -48,6 +55,7 @@ class AntigravityBridge {
   private taskQueue: AntigravityTask[] = [];
   private pendingTasks = new Map<string, PendingTask>();
   private waitingPollResolvers: Array<(task: AntigravityTask | null) => void> = [];
+  private activeTargets = new Map<string, WorkspaceTarget>(); // threadId -> target
 
   /**
    * Kiểm tra máy tính cá nhân (Local PC Windows) có đang kết nối và online không.
@@ -63,6 +71,35 @@ class AntigravityBridge {
 
   public getLastSeen(): number {
     return this.lastSeenLocalPcMs;
+  }
+
+  public getActiveTarget(threadId?: string): WorkspaceTarget {
+    if (threadId && this.activeTargets.has(threadId)) {
+      return this.activeTargets.get(threadId)!;
+    }
+    return "bot";
+  }
+
+  public setActiveTarget(threadId: string, target: WorkspaceTarget): void {
+    this.activeTargets.set(threadId, target);
+  }
+
+  public resolveVpsCwd(target?: WorkspaceTarget, subDir?: string): string {
+    let base = process.cwd();
+    if (target === "vbai") {
+      const vbaiPath = "/var/www/vbai";
+      if (fs.existsSync(vbaiPath)) {
+        base = vbaiPath;
+      } else {
+        const sibling = path.resolve(process.cwd(), "..", "vbai");
+        if (fs.existsSync(sibling)) base = sibling;
+      }
+    }
+    if (subDir) {
+      const resolved = path.resolve(base, subDir);
+      if (fs.existsSync(resolved)) return resolved;
+    }
+    return base;
   }
 
   /**
@@ -95,7 +132,7 @@ class AntigravityBridge {
     // Nếu đã có task đang đợi sẵn trong hàng đợi
     if (this.taskQueue.length > 0) {
       const task = this.taskQueue.shift()!;
-      log.info({ taskId: task.id, type: task.type }, "Giao task ngay cho Local PC");
+      log.info({ taskId: task.id, type: task.type, target: task.target }, "Giao task ngay cho Local PC");
       return task;
     }
 
@@ -126,6 +163,8 @@ class AntigravityBridge {
   public handleClientResult(
     result: {
       taskId: string;
+      target?: WorkspaceTarget;
+      executedCwd?: string;
       success: boolean;
       output: string;
       exitCode?: number;
@@ -151,6 +190,8 @@ class AntigravityBridge {
     pending.resolve({
       id: result.taskId,
       source: "pc",
+      target: result.target || pending.task.target,
+      executedCwd: result.executedCwd,
       success: result.success,
       output: result.output,
       exitCode: result.exitCode,
@@ -168,6 +209,8 @@ class AntigravityBridge {
       type: AntigravityTaskType;
       command?: string;
       prompt?: string;
+      target?: WorkspaceTarget;
+      subDir?: string;
       forceVps?: boolean;
     },
   ): Promise<AntigravityResult> {
@@ -177,6 +220,8 @@ class AntigravityBridge {
       type: params.type,
       command: params.command,
       prompt: params.prompt,
+      target: params.target || "bot",
+      subDir: params.subDir,
       createdAt: Date.now(),
       timeoutMs: env.ANTIGRAVITY_PC_TIMEOUT_MS,
     };
@@ -184,7 +229,7 @@ class AntigravityBridge {
     // 1. Nếu PC đang online và không bị ép chạy trên VPS -> thử gửi cho PC
     if (!params.forceVps && this.isLocalPcOnline()) {
       try {
-        log.info({ taskId, type: task.type }, "PC đang online -> Gửi task cho Local PC thực thi");
+        log.info({ taskId, type: task.type, target: task.target }, "PC đang online -> Gửi task cho Local PC thực thi");
         const pcResult = await this.dispatchToPcWithTimeout(task);
         return pcResult;
       } catch (err) {
@@ -193,9 +238,10 @@ class AntigravityBridge {
     }
 
     // 2. Chạy trên VPS (Fallback hoặc khi PC offline)
-    log.info({ taskId, type: task.type }, "Thực thi trực tiếp trên VPS Server");
+    log.info({ taskId, type: task.type, target: task.target }, "Thực thi trực tiếp trên VPS Server");
     return this.executeOnVps(task);
   }
+
 
   private dispatchToPcWithTimeout(task: AntigravityTask): Promise<AntigravityResult> {
     return new Promise<AntigravityResult>((resolve, reject) => {
@@ -224,11 +270,11 @@ class AntigravityBridge {
   }
 
   /**
-   * Thực thi trực tiếp trên VPS Server (trong thư mục /var/www/vbaibot)
+   * Thực thi trực tiếp trên VPS Server (trong thư mục /var/www/vbaibot hoặc /var/www/vbai)
    */
   public async executeOnVps(task: AntigravityTask): Promise<AntigravityResult> {
     const start = Date.now();
-    const cwd = process.cwd();
+    const cwd = this.resolveVpsCwd(task.target, task.subDir);
 
     if (task.type === "cmd") {
       const cmd = task.command ?? "";
@@ -236,6 +282,8 @@ class AntigravityBridge {
         return {
           id: task.id,
           source: "vps",
+          target: task.target,
+          executedCwd: cwd,
           success: false,
           output: "Lỗi: Lệnh rỗng",
           durationMs: 0,
@@ -256,6 +304,8 @@ class AntigravityBridge {
         return {
           id: task.id,
           source: "vps",
+          target: task.target,
+          executedCwd: cwd,
           success: true,
           output: output.slice(0, 10_000), // giới hạn cho tin nhắn
           exitCode: 0,
@@ -267,6 +317,8 @@ class AntigravityBridge {
         return {
           id: task.id,
           source: "vps",
+          target: task.target,
+          executedCwd: cwd,
           success: false,
           output: errOutput.trim().slice(0, 10_000),
           exitCode: err.code ?? 1,
@@ -280,8 +332,10 @@ class AntigravityBridge {
     return {
       id: task.id,
       source: "vps",
+      target: task.target,
+      executedCwd: cwd,
       success: true,
-      output: `[VPS Antigravity Runner]\nĐã nhận yêu cầu: "${task.prompt}"\nMôi trường: ${cwd}\n(Để chạy lệnh trực tiếp, hãy dùng cú pháp: /cmd <lệnh>)`,
+      output: `[VPS Antigravity Runner]\nWorkspace: ${task.target === "vbai" ? "VBAI (Legal Pro - https://vbai.tracuu.lamdong.vn)" : "VBAIBot (https://vbaibot.chauphienbanso.com)"}\nThư mục: ${cwd}\nĐã nhận yêu cầu: "${task.prompt}"\n(Để chạy lệnh trực tiếp, hãy dùng cú pháp: /cmd <lệnh> hoặc /vbai <lệnh>)`,
       durationMs: Date.now() - start,
     };
   }

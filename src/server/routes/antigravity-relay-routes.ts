@@ -79,7 +79,8 @@ antigravityRelayRoutes.get("/status", (c) => {
   return c.json({
     vps: {
       online: true,
-      cwd: process.cwd(),
+      botCwd: process.cwd(),
+      vbaiCwd: antigravityBridge.resolveVpsCwd("vbai"),
       uptimeSeconds: Math.floor(process.uptime()),
     },
     localPc: {
@@ -87,7 +88,7 @@ antigravityRelayRoutes.get("/status", (c) => {
       lastSeenMsAgo: lastSeen > 0 ? Date.now() - lastSeen : null,
       info: pcInfo,
     },
-    hybridMode: "Local PC First -> Fallback VPS",
+    hybridMode: "Local PC First -> Fallback VPS (Multi-workspace: VBAIBot + VBAI)",
   });
 });
 
@@ -107,12 +108,14 @@ antigravityRelayRoutes.post("/dispatch", async (c) => {
     return c.json({ error: "Yêu cầu body JSON" }, 400);
   }
 
-  const { type = "cmd", command, prompt, forceVps } = body;
+  const { type = "cmd", command, prompt, target, subDir, forceVps } = body;
   try {
     const result = await antigravityBridge.dispatch({
       type: type === "agy" ? "agy" : "cmd",
       command,
       prompt,
+      target: target === "vbai" ? "vbai" : "bot",
+      subDir,
       forceVps: Boolean(forceVps),
     });
     return c.json(result);
@@ -120,4 +123,5 @@ antigravityRelayRoutes.post("/dispatch", async (c) => {
     return c.json({ error: err.message || "Lỗi thực thi" }, 500);
   }
 });
+
 

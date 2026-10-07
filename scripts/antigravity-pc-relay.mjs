@@ -13,6 +13,7 @@
  */
 
 import { exec } from "node:child_process";
+import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import process from "node:process";
@@ -21,12 +22,14 @@ import process from "node:process";
 const VPS_BASE_URL = process.env.VBAI_RELAY_URL || "https://vbaibot.chauphienbanso.com";
 const RELAY_KEY = process.env.ANTIGRAVITY_RELAY_KEY || "vbai-antigravity-relay-2026-secret";
 const CWD = process.cwd();
+const VBAI_DIR = process.env.VBAI_DIR || path.resolve(CWD, "..", "VBAI");
 
 console.log("=============================================================");
-console.log("🚀 ANTIGRAVITY LOCAL PC RELAY CLIENT");
+console.log("🚀 ANTIGRAVITY LOCAL PC RELAY CLIENT (HYBRID MULTI-WORKSPACE)");
 console.log("=============================================================");
 console.log(`🖥️  Thiết bị:   ${os.hostname()} (${os.platform()} ${os.arch()})`);
-console.log(`📂  Thư mục:   ${CWD}`);
+console.log(`📂  Bot CWD:   ${CWD}`);
+console.log(`📂  VBAI CWD:  ${VBAI_DIR} ${fs.existsSync(VBAI_DIR) ? "(Sẵn sàng)" : "(Chưa thấy)"}`);
 console.log(`🌐  Kết nối:   ${VPS_BASE_URL}`);
 console.log("=============================================================\n");
 
@@ -34,6 +37,7 @@ const clientInfo = {
   os: `${os.platform()} ${os.release()}`,
   hostname: os.hostname(),
   cwd: CWD,
+  vbaiCwd: VBAI_DIR,
   nodeVersion: process.version,
 };
 
@@ -44,14 +48,24 @@ process.on("SIGINT", () => {
   process.exit(0);
 });
 
-async function runCommand(cmd) {
+function resolvePcCwd(target, subDir) {
+  let base = target === "vbai" ? VBAI_DIR : CWD;
+  if (subDir) {
+    const resolved = path.resolve(base, subDir);
+    if (fs.existsSync(resolved)) return resolved;
+  }
+  return base;
+}
+
+async function runCommand(cmd, target = "bot", subDir) {
+  const targetCwd = resolvePcCwd(target, subDir);
   const start = Date.now();
-  console.log(`\n💻 [EXEC] ${cmd}`);
+  console.log(`\n💻 [EXEC][${(target || "bot").toUpperCase()}] ${cmd} (trong: ${targetCwd})`);
   return new Promise((resolve) => {
     exec(
       cmd,
       {
-        cwd: CWD,
+        cwd: targetCwd,
         timeout: 120_000,
         maxBuffer: 1024 * 1024 * 10, // 10MB
         shell: os.platform() === "win32" ? "powershell.exe" : "/bin/bash",
@@ -63,6 +77,8 @@ async function runCommand(cmd) {
         const exitCode = error ? (error.code ?? 1) : 0;
         console.log(`⏱️  Hoàn tất sau ${durationMs}ms | Exit: ${exitCode}`);
         resolve({
+          target,
+          executedCwd: targetCwd,
           success,
           output: out || (success ? "(Lệnh thực thi thành công không có output)" : "(Lỗi thực thi)"),
           exitCode,
@@ -128,15 +144,19 @@ async function pollLoop() {
       }
 
       const task = data.task;
-      console.log(`\n📥 Nhận task mới [${task.id}] (loại: ${task.type})`);
+      console.log(`\n📥 Nhận task mới [${task.id}] (loại: ${task.type}, target: ${task.target || "bot"})`);
 
       if (task.type === "cmd") {
-        const result = await runCommand(task.command);
+        const result = await runCommand(task.command, task.target, task.subDir);
         await sendResult(task.id, result);
       } else {
         // Task prompt
-        const promptOut = `[Local PC Antigravity Runner]\nĐã nhận: "${task.prompt}" trên ${CWD}`;
+        const targetCwd = resolvePcCwd(task.target, task.subDir);
+        console.log(`\n🤖 [AGENT][${(task.target || "bot").toUpperCase()}] Yêu cầu: "${task.prompt}" trong ${targetCwd}`);
+        const promptOut = `[Local PC Antigravity Runner]\nWorkspace: ${task.target === "vbai" ? "VBAI (Legal Pro - https://vbai.tracuu.lamdong.vn)" : "VBAIBot (https://vbaibot.chauphienbanso.com)"}\nThư mục: ${targetCwd}\nĐã nhận yêu cầu: "${task.prompt}"`;
         await sendResult(task.id, {
+          target: task.target,
+          executedCwd: targetCwd,
           success: true,
           output: promptOut,
           durationMs: 50,
