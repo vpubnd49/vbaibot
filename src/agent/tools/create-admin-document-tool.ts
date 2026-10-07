@@ -97,8 +97,10 @@ export function createAdminDocumentTool(ctx: Ctx) {
     description:
       "Tạo và xuất file Word (.docx) chuẩn thể thức và kỹ thuật trình bày theo Nghị định 30/2020/NĐ-CP của Chính phủ " +
       "(hoặc Hướng dẫn 05-HD/VPTW của Ban Chấp hành Trung ương Đảng) rồi gửi luôn cho người dùng.\n" +
-      "Hỗ trợ 24 loại văn bản: Tờ trình (to_trinh), Quyết định (quyet_dinh), Công văn (cong_van), Giấy mời (giay_moi), " +
+      "Hỗ trợ 25 loại văn bản: Phiếu trình (phieu_trinh), Tờ trình (to_trinh), Quyết định (quyet_dinh), Công văn (cong_van), Giấy mời (giay_moi), " +
       "Kế hoạch (ke_hoach), Báo cáo (bao_cao), Thông báo (thong_bao), Biên bản (bien_ban), Quy chế (quy_che), Quy định (quy_dinh), v.v.\n" +
+      "⚠️ QUY TẮC SOẠN PHIẾU TRÌNH: Khi người dùng yêu cầu soạn hoặc sửa Phiếu trình, BẮT BUỘC đặt 'loaiVanBan: \"phieu_trinh\"'. " +
+      "Hệ thống sẽ tự động đóng khung viền lớn bao bọc toàn bộ nội dung (Full Outer Bordered Table), tạo bảng checkbox 2 cột, bảng chữ ký 3 bên và ô phê duyệt của Lãnh đạo UBND tỉnh chuẩn 100%, tuyệt đối không làm mất khung viền!\n" +
       "⚠️ QUY TẮC CĂN CỨ PHÁP LÝ & PLACEHOLDER: Tuyệt đối KHÔNG để lại placeholder chưa điền như '[tên đầy đủ của thông tư]', '[căn cứ...]', '[điền...]', '[...]'. Mọi căn cứ pháp lý phải ghi rõ ràng, chính xác tên đầy đủ của văn bản.\n" +
       "⚠️ QUY TẮC NỘI DUNG BẮT BUỘC: Mỗi section trong 'document.sections' PHẢI chứa NỘI DUNG THỰC CHẤT đầy đủ. " +
       "CẤM chỉ viết câu dẫn mở đầu (ví dụ 'có ý kiến chỉ đạo như sau:') rồi bỏ trống. " +

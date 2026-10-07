@@ -28,6 +28,7 @@ export const LOAI_VAN_BAN_HC = [
   "cong_dien",
   "ban_ghi_nho",
   "cong_van",
+  "phieu_trinh",
 ] as const;
 
 export type LoaiVanBanHC = (typeof LOAI_VAN_BAN_HC)[number];
@@ -57,6 +58,7 @@ export const TEN_LOAI_TIENG_VIET: Record<LoaiVanBanHC, string> = {
   cong_dien: "CÔNG ĐIỆN",
   ban_ghi_nho: "BẢN GHI NHỚ",
   cong_van: "", // Công văn không có tiêu đề tên loại
+  phieu_trinh: "PHIẾU TRÌNH",
 };
 
 export const adminSectionSchema = z.object({

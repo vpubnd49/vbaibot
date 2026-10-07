@@ -22,6 +22,7 @@ import {
   type AdminSection,
 } from "./admin-document-schema.js";
 import { parseTextRuns } from "./docx-text-runs.js";
+import { isPhieuTrinh, renderPhieuTrinhDocx } from "./render-phieu-trinh.js";
 
 // ====== THÔNG SỐ THỂ THỨC CHUẨN NGHỊ ĐỊNH 30/2020/NĐ-CP ======
 const LAYOUT = {
@@ -805,6 +806,11 @@ function buildAdminSignature(doc: AdminDocument): Table {
  * Hàm Render chính sinh Buffer file .docx chuẩn Nghị định 30/2020/NĐ-CP
  */
 export async function renderAdminDocx(doc: AdminDocument): Promise<Buffer> {
+  // Nếu là Phiếu trình: Sử dụng engine Phiếu trình chuyên biệt với Full Outer Bordered Table
+  if (isPhieuTrinh(doc)) {
+    return renderPhieuTrinhDocx(doc);
+  }
+
   const children: (Paragraph | Table)[] = [];
 
   // 1. Phần Đầu: Header cơ quan & quốc hiệu
