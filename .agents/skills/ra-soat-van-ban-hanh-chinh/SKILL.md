@@ -50,9 +50,13 @@ Không chỉ sửa chính tả. Phải phát hiện cả lỗi có thể làm v�
 - Không dùng từ `định kỳ` nếu chưa có kỳ báo cáo hoặc căn cứ giao báo cáo định kỳ.
 - Không kết luận “đúng thể thức” chỉ từ text extraction; với DOCX/PDF phải kiểm tra trang thực tế nếu công cụ cho phép.
 - Ưu tiên sửa tối thiểu tại đúng vị trí, không viết lại toàn văn nếu không cần.
+- **Bảo toàn nguyên trạng khung và bảng biểu (Zero Structure Mutation):** Khi người dùng yêu cầu chỉnh sửa nội dung trên một file mẫu có sẵn (đặc biệt là Phiếu trình, Phiếu chuyển, Mẫu 2C, Biểu mẫu rà soát):
+  - **CẤM TUYỆT ĐỐI** bóc tách nội dung ra để tạo lại file DOCX mới từ đầu (re-generate from scratch) vì sẽ làm phá hủy toàn bộ viền khung, bảng biểu, cột, lề và ô vuông checkbox `☐`.
+  - **BẮT BUỘC** áp dụng cơ chế **Edit In-Place (Sửa tại chỗ)** bằng `scripts/edit_docx_in_place.py`: mở file DOCX gốc, chỉ thay thế text tại các Paragraph/Cell tương ứng, giữ nguyên 100% thuộc tính khung viền, bảng biểu của file gốc.
 - Không coi mọi góp ý là bắt buộc tiếp thu.
 - Khi hồ sơ có góp ý và bảng tiếp thu, phải đối chiếu 3 chiều:
   `ý kiến gốc ↔ tiếp thu/giải trình ↔ dự thảo sau tiếp thu`.
+
 - Nếu thiếu văn bản gốc hoặc nguồn có thẩm quyền, ghi `verify`; không đoán.
 
 ## Bản đồ hồ sơ
