@@ -22,6 +22,7 @@ import { deliverChatReply } from "./deliver-chat-reply.js";
 import { notifyTechnicalError, type ReplyTarget } from "./send-reply-in-parts.js";
 import { startTypingIndicator } from "./typing-indicator.js";
 import { describeForHistory, type ParsedMessage } from "./zalo-message-parser.js";
+import { handleAntigravityCommand } from "../antigravity/antigravity-command-handler.js";
 
 const log = createLogger("message-turn");
 
@@ -225,6 +226,24 @@ async function xuLyLuot(
   const turnStartMs = Date.now();
 
   try {
+    // 0. Bắt lệnh Antigravity điều khiển từ xa (/cmd hoặc /agy)
+    const textTrim = latest.text.trim();
+    if (textTrim.startsWith("/cmd") || textTrim.startsWith("/agy")) {
+      const cmdRes = await handleAntigravityCommand({
+        api,
+        config,
+        latest,
+        text: textTrim,
+        replyTarget,
+        turnId,
+        turnStartMs,
+        writeBatchToHistory,
+      });
+      if (cmdRes.handled) {
+        return;
+      }
+    }
+
     // Chạy agent TRƯỚC khi ghi history: runAgentTurn tự đọc history cũ và tự
     // ghép batch hiện tại vào input - ghi trước sẽ khiến tin mới lặp 2 lần.
     const result = await runAgentTurn({

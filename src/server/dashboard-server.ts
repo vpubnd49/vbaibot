@@ -48,6 +48,7 @@ import { ticketRoutes } from "./routes/ticket-routes.js";
 import { disasterAlertPublicRoutes } from "./routes/disaster-alert-public-routes.js";
 import { ttsSettingsRoutes } from "./routes/tts-settings-routes.js";
 import { vpsRoutes } from "./routes/vps-routes.js";
+import { antigravityRelayRoutes } from "./routes/antigravity-relay-routes.js";
 
 const log = createLogger("dashboard-server");
 const SESSION_COOKIE = "dashboard_session";
@@ -251,6 +252,7 @@ export function buildDashboardApp(): Hono {
   app.route("/api/insights", insightRoutes);
   app.route("/api/tickets", ticketRoutes);
   app.route("/api/settings/tts", ttsSettingsRoutes);
+  app.route("/api/antigravity", antigravityRelayRoutes);
 
   // API không khớp route nào phải trả JSON 404, không được rơi xuống SPA
   // fallback bên dưới (client fetch JSON mà nhận HTML thì lỗi rất khó đọc)

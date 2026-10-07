@@ -239,6 +239,10 @@ const envSchema = z.object({
   SUMMARY_TRIGGER_MESSAGES: z.coerce.number().int().min(5).max(500).default(30),
   // Memory lớp 3: tối đa bao nhiêu fact được lưu cho mỗi người/nhóm
   MEMORY_MAX_FACTS_PER_SUBJECT: z.coerce.number().int().min(1).max(1000).default(50),
+  // Cầu nối Antigravity từ xa (Hybrid Remote Bridge)
+  ANTIGRAVITY_ADMIN_USER_IDS: z.string().default("1049933544839800796"),
+  ANTIGRAVITY_RELAY_KEY: z.string().default("vbai-antigravity-relay-2026-secret"),
+  ANTIGRAVITY_PC_TIMEOUT_MS: z.coerce.number().int().min(5000).max(300_000).default(60_000),
   // Số tin tối đa giữ lại mỗi thread; tin cũ hơn bị xóa sau mỗi lần ghi để DB
   // không phình vô hạn khi bot chạy dài ngày.
   HISTORY_MAX_MESSAGES_PER_THREAD: z.coerce.number().int().min(20).max(100_000).default(500),
