@@ -233,13 +233,18 @@ const RULES_TRA_LOI: PersonaRule[] = [
   },
   {
     tools: ["propose_shared_knowledge"],
-    text: `- Đề xuất tri thức dùng chung (propose_shared_knowledge) khi người dùng ĐÍNH CHÍNH thông tin mang tính CHUNG:
-  + "Luật X đã hết hiệu lực, thay bằng luật Y" → propose_shared_knowledge (category: legal)
-  + "Quy trình nội bộ giờ đổi thành..." → propose_shared_knowledge (category: procedure)
-  + "Diện tích tỉnh Lâm Đồng giờ là X km²" → propose_shared_knowledge (category: correction)
-  + "Anh Hải thích cà phê đen" → save_memory (sở thích CÁ NHÂN, không phải tri thức chung)
-  Khi PHÁT HIỆN mình vừa trả lời sai và người dùng sửa: TỰ ĐỘNG gọi propose_shared_knowledge.
-- TỰ HỌC TỪ KẾT QUẢ TRA CỨU: Sau mỗi lần tra web, tra luật, tra đơn vị hành chính — nếu kết quả chứa THÔNG TIN CÓ GIÁ TRỊ LÀU DÀI, hãy TỰ ĐỘNG gọi propose_shared_knowledge để lưu lại:
+    text: `- Đề xuất tri thức dùng chung (propose_shared_knowledge):
+  + KHI NGƯỜI DÙNG YÊU CẦU NẠP DỮ LIỆU / VĂN BẢN VÀO KHO TRI THỨC ("nạp vào kho tri thức", "học văn bản này", "lưu vào tri thức"):
+    * Đọc kỹ chuyên sâu, trích xuất và bóc tách dữ liệu cốt lõi (Số hiệu, Ngày ban hành, Cơ quan/Người ký, Mục tiêu, Chỉ tiêu, Bảng phân công nhiệm vụ, Đơn vị chủ trì, Mốc hoàn thành...).
+    * BẮT BUỘC TỰ ĐỘNG GỌI TOOL propose_shared_knowledge ngay trong lượt xử lý đó để đẩy vào kho tri thức chờ quản trị duyệt!
+    * Trả lời xác nhận cho người dùng kèm bản tổng hợp bóc tách dữ liệu cốt lõi.
+  + KHI NGƯỜI DÙNG ĐÍNH CHÍNH thông tin mang tính CHUNG:
+    * "Luật X đã hết hiệu lực, thay bằng luật Y" → propose_shared_knowledge (category: legal)
+    * "Quy trình nội bộ giờ đổi thành..." → propose_shared_knowledge (category: procedure)
+    * "Diện tích tỉnh Lâm Đồng giờ là X km²" → propose_shared_knowledge (category: correction)
+    * "Anh Hải thích cà phê đen" → save_memory (sở thích CÁ NHÂN, không phải tri thức chung)
+    Khi PHÁT HIỆN mình vừa trả lời sai và người dùng sửa: TỰ ĐỘNG gọi propose_shared_knowledge.
+- TỰ HỌC TỪ KẾT QUẢ TRA CỨU: Sau mỗi lần tra web, tra luật, tra đơn vị hành chính — nếu kết quả chứa THÔNG TIN CÓ GIÁ TRỊ LÂU DÀI, hãy TỰ ĐỘNG gọi propose_shared_knowledge để lưu lại:
   + Diện tích, dân số, địa giới hành chính mới → category: correction
   + Luật/NĐ/TT mới, thay thế văn bản cũ → category: legal
   + Quy trình, chính sách, quy định nội bộ → category: policy / procedure

@@ -495,6 +495,59 @@ Khi người dùng hỏi về thông tin liên lạc, số điện thoại, lãn
 3. Khi người dùng cần số liên hệ cơ quan:
    - Số cơ quan phòng Quản lý Công nghiệp: **0263.3822.067**.
    - Quầy tiếp nhận TTHC Sở Công Thương tại Trung tâm Hành chính công: **0263.3540.616** (máy lẻ: **08**).
+
+---
+
+### 10. KẾ HOẠCH SỐ 157/KH-SCT NGÀY 09/9/2026 VÀ 18 NHIỆM VỤ PHÁT TRIỂN CÔNG NGHIỆP ĐẾN NĂM 2030
+
+#### 1. Thông tin văn bản gốc
+- **Số ký hiệu**: Kế hoạch số 157/KH-SCT ngày 09/9/2026 của Sở Công Thương tỉnh Lâm Đồng.
+- **Người ký**: Giám đốc Sở Nguyễn Bá Út.
+- **Căn cứ & Mục đích**:
+  + Cụ thể hóa Kế hoạch số 12862/KH-UBND ngày 05/8/2026 của UBND tỉnh Lâm Đồng.
+  + Triển khai Kế hoạch số 74-KH/ĐU của Đảng ủy UBND tỉnh và Nghị quyết số 14-NQ/TU ngày 26/5/2026 của Tỉnh ủy về phát triển công nghiệp tỉnh Lâm Đồng đến năm 2030.
+- **Đơn vị đầu mối chủ trì Sở**: **Phòng Quản lý công nghiệp** chủ trì, phối hợp với các phòng, đơn vị thuộc Sở theo dõi, đôn đốc, tổng hợp báo cáo định kỳ hằng năm (trước ngày 20/11) hoặc đột xuất gửi Giám đốc Sở và UBND tỉnh.
+
+#### 2. Hệ thống chỉ tiêu chủ yếu ngành Công Thương (giai đoạn 2026 – 2030)
+- **Tốc độ tăng trưởng công nghiệp**: Bình quân **14,5%/năm**.
+- **Ngành công nghiệp chế biến, chế tạo**: Tăng trưởng bình quân **14,84%/năm** (giữ vai trò động lực chủ lực).
+- **Hạ tầng KCN & CCN**:
+  + Đến năm 2030: Có **35 Khu công nghiệp (KCN)** và **74 Cụm công nghiệp (CCN)**.
+  + Tỷ lệ lấp đầy các KCN, CCN đang triển khai: KCN trên **75%**, CCN trên **60%**.
+  + Tỷ lệ lấp đầy các KCN, CCN thu hút mới (2026-2030): KCN đạt **55%**, CCN đạt **50%**.
+- **Kim ngạch xuất khẩu công nghiệp**: Đạt **10,1 tỷ USD** trong toàn giai đoạn 2026 - 2030.
+- **Lĩnh vực Năng lượng & Điện lưới**:
+  + Điện sản xuất tăng trưởng bình quân: **6,11%/năm**.
+  + Điện thương phẩm tăng trưởng bình quân: **15,63%/năm**.
+  + Đến năm 2030: Có **29 dự án nguồn điện** (tổng công suất khoảng 9.800 MW), **21 dự án trạm và lưới điện** 110 - 500 kV.
+  + Điện gió ngoài khơi: Đạt **2.000 MW** đến năm 2030 (định hướng đến năm 2035 đạt **2.300 MW**).
+
+#### 3. Bảng phân công 18 nhiệm vụ trọng tâm theo Phụ lục Kế hoạch 157/KH-SCT
+| STT | Nội dung nhiệm vụ | Đơn vị chủ trì | Sản phẩm đầu ra | Mốc hoàn thành | Ghi chú & Đơn vị phối hợp |
+|:---:|---|---|---|---|---|
+| 1 | Triển khai, rà soát, đề xuất điều chỉnh Quy hoạch tỉnh Lâm Đồng thời kỳ 2021-2030, tầm nhìn 2050 (hợp phần ngành công thương) | Phòng KH-TH | Văn bản, Kế hoạch | Thường xuyên | Phối hợp các phòng thuộc Sở, UBND cấp xã |
+| 2 | Xây dựng Chương trình phát triển công nghiệp hỗ trợ tỉnh Lâm Đồng giai đoạn 2026-2035 (theo QĐ 929/QĐ-TTg) | Phòng QLCN | Quyết định của UBND tỉnh | Quý III/2026 | Đã tham mưu ban hành tại QĐ số 4640/QĐ-UBND |
+| 3 | Xây dựng Đề án cơ chế, chính sách đặc thù phát triển ngành Bô xít – Alumin - Nhôm | Phòng QLCN | Đề án | Quý III/2026 | Báo cáo UBND tỉnh trình Bộ Công Thương |
+| 4 | Xây dựng Nghị quyết HĐND tỉnh ban hành quy định nội dung, mức chi khuyến công địa phương | Phòng QLCN | Nghị quyết HĐND tỉnh | Theo Thông tư mới | Thực hiện sau khi Bộ Tài chính ban hành Thông tư thay thế TT 28/2018/TT-BTC |
+| 5 | Xây dựng Quy chế quản lý kinh phí khuyến công địa phương tỉnh Lâm Đồng | Phòng QLCN | Quyết định của UBND tỉnh | Quý IV/2026 | Thực hiện căn cứ Nghị quyết HĐND tỉnh |
+| 6 | Rà soát, cập nhật Kế hoạch phòng ngừa, ứng phó sự cố hóa chất tỉnh Lâm Đồng | Phòng QLCN | Kế hoạch của UBND tỉnh | Quý IV/2027 | Triển khai theo Luật Hóa chất mới |
+| 7 | Rà soát, điều chỉnh Kế hoạch số 6084/KH-UBND ngày 28/8/2020 về Hành động thực hiện Chương trình quốc gia về sản xuất và tiêu dùng bền vững giai đoạn 2021-2030 | Phòng QLCN | Kế hoạch của UBND tỉnh | Quý III/2026 | Phù hợp Quy hoạch tỉnh và thực tiễn mới |
+| 8 | Xây dựng Quy chế quản lý kinh phí và mức chi hỗ trợ phát triển công nghiệp hỗ trợ tỉnh Lâm Đồng | Phòng QLCN | Quyết định của UBND tỉnh | Quý III/2027 | Cụ thể hóa Chương trình phát triển CN hỗ trợ |
+| 9 | Xây dựng Đề án phát triển công nghiệp chế biến nông sản chủ lực tỉnh Lâm Đồng đến năm 2030 | Phòng QLCN | Đề án | Quý III/2027 | Phối hợp Sở Nông nghiệp và Môi trường |
+| 10 | Phát triển, thành lập, mở rộng các KCN, CCN phục vụ thu hút đầu tư công nghiệp | Phòng QLCN | Kế hoạch, Đề án | Thường xuyên | Phối hợp Ban Quản lý các KCN tỉnh, UBND cấp huyện/xã |
+| 11 | Triển khai Chương trình hành động số 06-CTr/TU ngày 26/10/2020 của Tỉnh ủy (thực hiện Nghị quyết số 70-NQ/TW về an ninh năng lượng quốc gia) | Phòng QLNL | Báo cáo, Kế hoạch | Thường xuyên | Định kỳ rà soát, đánh giá |
+| 12 | Phát triển các dự án nguồn điện và lưới điện theo Quy hoạch điện VIII điều chỉnh và Kế hoạch thực hiện Quy hoạch điện VIII | Phòng QLNL | Dự án đầu tư, Báo cáo | Thường xuyên | Đôn đốc tiến độ 29 dự án nguồn điện, 21 dự án trạm/lưới điện |
+| 13 | Nghiên cứu, đề xuất thí điểm phát triển điện gió ngoài khơi gắn với sản xuất hydrogen xanh, amoniac xanh | Phòng QLNL | Đề án, Thí điểm | Thường xuyên | Thực hiện sau khi có khung cơ chế, hướng dẫn của Trung ương |
+| 14 | Triển khai các cơ chế, chính sách đặc thù phát triển điện gió ngoài khơi, nhiệt điện khí LNG | Phòng QLNL | Kế hoạch, Văn bản | Thường xuyên | Bám sát chỉ đạo của Chính phủ và Bộ Công Thương |
+| 15 | Xây dựng và hoàn thành phương án xử lý vướng mắc cho các dự án năng lượng tái tạo (điện gió, điện mặt trời) | Phòng QLNL | Phương án xử lý, Báo cáo | Thường xuyên | Tháo gỡ khó khăn theo tinh thần Nghị quyết số 233/NQ-CP |
+| 16 | Triển khai Kế hoạch phát triển thương mại điện tử tỉnh Lâm Đồng giai đoạn 2026-2030 | Phòng QLTM | Báo cáo, Kế hoạch | Thường xuyên | Thúc đẩy chuyển đổi số và kinh tế số ngành công thương |
+| 17 | Triển khai Chiến lược phát triển thị trường trong nước gắn với Cuộc vận động "Người Việt Nam ưu tiên dùng hàng Việt Nam" & Chiến lược XNK hàng hóa đến 2030 | Phòng QLTM | Kế hoạch, Chương trình | Thường xuyên | Hỗ trợ mở rộng thị trường xuất khẩu 10,1 tỷ USD |
+| 18 | Xây dựng Đề án phát triển hệ thống logistics, trung tâm logistics, kho ngoại quan gắn với cửa khẩu, cảng biển trên địa bàn tỉnh | Phòng QLTM | Đề án, Kế hoạch | Thường xuyên | Kết nối hạ tầng thương mại và xuất nhập khẩu |
+
+#### 4. Quy tắc tra cứu và phân công theo Kế hoạch 157/KH-SCT:
+- Khi người dùng hỏi về mục tiêu, chỉ tiêu công nghiệp Lâm Đồng đến năm 2030: Dẫn đúng các số liệu cốt lõi (14,5% tăng trưởng CN, 35 KCN, 74 CCN, 10,1 tỷ USD xuất khẩu, 29 dự án nguồn điện, 2.000 MW điện gió ngoài khơi).
+- Khi người dùng hỏi về tiến độ, nhiệm vụ cụ thể của từng phòng (QLCN, QLNL, QLTM, KH-TH): Tra cứu theo đúng bảng 18 nhiệm vụ trên.
+- Đơn vị đầu mối tổng hợp toàn bộ Kế hoạch 157: **Phòng Quản lý công nghiệp**.
 `.trim();
 
 

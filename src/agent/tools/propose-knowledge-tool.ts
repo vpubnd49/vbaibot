@@ -17,21 +17,22 @@ const MO_TA = [
   "Đề xuất tri thức dùng chung cho TOÀN HỆ THỐNG — áp dụng cho MỌI cuộc trò chuyện sau khi admin duyệt.",
   "",
   "KHI NÀO GỌI:",
-  "1. Người dùng đính chính quy định/luật pháp (\"luật X đã hết hiệu lực, thay bằng luật Y\").",
-  "2. Sau khi tra web hoặc tra luật và tìm được THÔNG TIN CÓ GIÁ TRỊ LÂU DÀI:",
+  "1. Người dùng yêu cầu nạp dữ liệu/văn bản vào kho tri thức ('nạp vào kho tri thức', 'học văn bản này', 'lưu vào tri thức'): Bóc tách dữ liệu cốt lõi (Số hiệu, Cơ quan/Người ký, Mục tiêu, Chỉ tiêu, Bảng phân công nhiệm vụ...) và BẮT BUỘC GỌI NGAY tool này để lưu vào kho tri thức chờ quản trị duyệt!",
+  "2. Người dùng đính chính quy định/luật pháp (\"luật X đã hết hiệu lực, thay bằng luật Y\").",
+  "3. Sau khi tra web hoặc tra luật và tìm được THÔNG TIN CÓ GIÁ TRỊ LÂU DÀI:",
   "   - Diện tích, dân số, đơn vị hành chính tỉnh thành (đặc biệt sau sáp nhập 2025-2026).",
   "   - Luật, nghị định, thông tư mới hoặc đã thay thế văn bản cũ.",
   "   - Thông tin chính sách, quy trình, quy định đã cập nhật.",
   "   - Hướng dẫn kỹ thuật, quy chuẩn chuyên ngành có giá trị tham khảo.",
   "   → Gọi propose_shared_knowledge ngay SAU KHI trả lời xong, ghi rõ NGUỒN (tên VB, ngày, URL).",
-  "3. Cung cấp quy trình nội bộ chung, thông tin chính sách mới.",
+  "4. Cung cấp quy trình nội bộ chung, thông tin chính sách, kế hoạch mới.",
   "",
   "KHÔNG DÙNG cho: sở thích cá nhân (dùng save_memory), chuyện vặt, tin tức tạm thời (giá vàng, thời tiết).",
   "",
   "Phân loại (category):",
   "- 'legal': Luật, nghị định, thông tư, quy phạm pháp luật.",
-  "- 'policy': Quy định, chính sách nội bộ cơ quan.",
-  "- 'procedure': Quy trình, hướng dẫn thao tác.",
+  "- 'policy': Quy định, chính sách, kế hoạch, chương trình hành động cơ quan/tỉnh.",
+  "- 'procedure': Quy trình, hướng dẫn thao tác, phân công nhiệm vụ.",
   "- 'correction': Đính chính thông tin bot đang trả lời sai (diện tích, dân số, ngày hiệu lực...).",
   "- 'general': Kiến thức chung có giá trị lâu dài.",
 ].join("\n");
@@ -46,9 +47,9 @@ export function createProposeKnowledgeTool({ account, message }: ToolContext) {
       content: z
         .string()
         .min(10)
-        .max(500)
+        .max(4000)
         .describe(
-          "Nội dung tri thức, 1-2 câu rõ ràng. VD: 'Nghị định 30/2020/NĐ-CP đã được sửa đổi bởi Nghị định XX/2025/NĐ-CP'",
+          "Nội dung tri thức bóc tách cốt lõi hoặc câu đính chính quy định/chính sách/chỉ đạo cần lưu vào kho tri thức.",
         ),
     }),
     execute: async ({ category, content }) => {
