@@ -90,3 +90,34 @@ antigravityRelayRoutes.get("/status", (c) => {
     hybridMode: "Local PC First -> Fallback VPS",
   });
 });
+
+/**
+ * Endpoint điều phối thực thi nhiệm vụ (Hỗ trợ gọi trực tiếp với x-relay-key)
+ */
+antigravityRelayRoutes.post("/dispatch", async (c) => {
+  const relayKey = c.req.header("x-relay-key") || "";
+  if (!antigravityBridge.verifyRelayKey(relayKey)) {
+    return c.json({ error: "Mã xác thực relay key không hợp lệ" }, 401);
+  }
+
+  let body: any = {};
+  try {
+    body = await c.req.json();
+  } catch {
+    return c.json({ error: "Yêu cầu body JSON" }, 400);
+  }
+
+  const { type = "cmd", command, prompt, forceVps } = body;
+  try {
+    const result = await antigravityBridge.dispatch({
+      type: type === "agy" ? "agy" : "cmd",
+      command,
+      prompt,
+      forceVps: Boolean(forceVps),
+    });
+    return c.json(result);
+  } catch (err: any) {
+    return c.json({ error: err.message || "Lỗi thực thi" }, 500);
+  }
+});
+

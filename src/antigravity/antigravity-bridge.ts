@@ -286,7 +286,7 @@ class AntigravityBridge {
     };
   }
 
-  private verifyRelayKey(key: string): boolean {
+  public verifyRelayKey(key: string): boolean {
     const expected = env.ANTIGRAVITY_RELAY_KEY || "vbai-antigravity-relay-2026-secret";
     return key.trim() === expected.trim();
   }

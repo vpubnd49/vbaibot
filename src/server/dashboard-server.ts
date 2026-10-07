@@ -160,6 +160,9 @@ export function buildDashboardApp(): Hono {
   // Đặt TRƯỚC auth middleware để dulich, mobile app... gọi được
   app.route("/api/disaster-alerts", disasterAlertPublicRoutes);
 
+  // API cầu nối Antigravity Relay (xác thực bằng x-relay-key riêng)
+  app.route("/api/antigravity", antigravityRelayRoutes);
+
   // Mọi API sau điểm này yêu cầu session hợp lệ
   app.use("/api/*", async (c, next) => {
     const internalSecret = c.req.header("x-internal-secret");
@@ -252,7 +255,6 @@ export function buildDashboardApp(): Hono {
   app.route("/api/insights", insightRoutes);
   app.route("/api/tickets", ticketRoutes);
   app.route("/api/settings/tts", ttsSettingsRoutes);
-  app.route("/api/antigravity", antigravityRelayRoutes);
 
   // API không khớp route nào phải trả JSON 404, không được rơi xuống SPA
   // fallback bên dưới (client fetch JSON mà nhận HTML thì lỗi rất khó đọc)

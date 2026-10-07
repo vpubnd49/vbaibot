@@ -18,7 +18,7 @@ import path from "node:path";
 import process from "node:process";
 
 // Cấu hình kết nối
-const VPS_BASE_URL = process.env.VBAI_RELAY_URL || "http://103.142.25.252:3900";
+const VPS_BASE_URL = process.env.VBAI_RELAY_URL || "https://vbaibot.chauphienbanso.com";
 const RELAY_KEY = process.env.ANTIGRAVITY_RELAY_KEY || "vbai-antigravity-relay-2026-secret";
 const CWD = process.cwd();
 
