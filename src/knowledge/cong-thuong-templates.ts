@@ -379,7 +379,122 @@ Gồm 25 lĩnh vực quản lý nhà nước do Sở Công Thương giải quy�
 
 3. **Thông tin đầu mối liên hệ chính thức:**
    - Cổng Dịch vụ công Quốc gia: https://dichvucong.gov.vn
-   - Điện thoại hỗ trợ: 0263.3540.616 (số máy lẻ: 08 - Quầy tiếp nhận Sở Công Thương) tại Trung tâm Phục vụ Hành chính công tỉnh Lâm Đồng.
+   - Điện thoại hỗ trợ TTHC: 0263.3540.616 (số máy lẻ: 08 - Quầy tiếp nhận Sở Công Thương) tại Trung tâm Phục vụ Hành chính công tỉnh Lâm Đồng.
+
+---
+
+### 9. DANH BẠ ĐIỆN THOẠI CÁN BỘ, CÔNG CHỨC, VIÊN CHỨC SỞ CÔNG THƯƠNG TỈNH LÂM ĐỒNG
+
+Khi người dùng hỏi về thông tin liên lạc, số điện thoại, lãnh đạo Sở, trưởng phó phòng, chuyên viên các phòng ban Sở Công Thương tỉnh Lâm Đồng, tra cứu chính xác theo danh bạ sau:
+
+#### I. LÃNH ĐẠO SỞ (06 đồng chí)
+| STT | Họ và tên | Chức vụ | Số di động |
+|---|---|---|---|
+| 1 | Nguyễn Bá Út | Giám đốc Sở | 0847.431.379 |
+| 2 | Nguyễn Văn Khánh | Phó Giám đốc Sở | 0915.263.779 |
+| 3 | Cao Thị Thanh | Phó Giám đốc Sở | 0908.847.948 |
+| 4 | Võ Công Tuấn | Phó Giám đốc Sở | 0914.329.295 |
+| 5 | Biện Tấn Tài | Phó Giám đốc Sở | 0913.175.279 |
+| 6 | Trần Vũ Ngoan | Phó Giám đốc Sở | 0909.357.177 |
+
+#### II. VĂN PHÒNG SỞ (16 đồng chí)
+| STT | Họ và tên | Chức vụ | Số di động |
+|---|---|---|---|
+| 1 | Trịnh Thị Thanh | Chánh Văn phòng | 0937.569.288 |
+| 2 | Đỗ Xuân Lâm | Phó Chánh Văn phòng | 0962.114.299 |
+| 3 | Trương Hải Lâm | Phó Chánh Văn phòng | 0908.865.808 |
+| 4 | Trần Phan Hoài Lan | Chuyên viên | 0785.101.679 |
+| 5 | Cao Ngọc Thạch | Chuyên viên chính | 0889.398.909 |
+| 6 | Nguyễn Văn Mỹ | Chuyên viên chính | 0905.436.917 |
+| 7 | Phan Thị Lựu | Kế toán | 0834.902.006 |
+| 8 | Nguyễn Tấn Kiệt | Cán sự | 0833.439.779 |
+| 9 | Ngô Thị Nhạn | Chuyên viên | 0941.315.140 |
+| 10 | Cao Từ Thiện Tâm | Chuyên viên | 0778.977.149 |
+| 11 | Đinh Khánh Huyền | Văn thư viên | 0918.365.352 |
+| 12 | Nguyễn Thị Thu | Văn thư viên | 0969.854.432 |
+| 13 | Nguyễn Duy Vũ | Lái xe | 0912.156.595 |
+| 14 | Nguyễn Hà Mạnh Tuấn | Lái xe | 0902.888.070 |
+| 15 | Nguyễn Văn Phước | Lái xe | 0822.616.663 |
+| 16 | Lê Thanh Xuân | Lái xe | 0382.616.338 |
+
+#### III. PHÒNG KẾ HOẠCH TỔNG HỢP (08 đồng chí)
+| STT | Họ và tên | Chức vụ | Số di động |
+|---|---|---|---|
+| 1 | Trần Văn Khanh | Trưởng phòng | 0901.231.043 |
+| 2 | Nguyễn Thị Lê Na | Phó Trưởng phòng | 0983.137.783 |
+| 3 | Hoàng Minh Xuân | Phó Trưởng phòng | 0938.049.227 |
+| 4 | Nguyễn Quốc Huy | Chuyên viên | 0899.311.667 |
+| 5 | Ngô Thụy Minh Lý | Chuyên viên | 0902.202.257 |
+| 6 | Nguyễn Thị Kim Anh | Chuyên viên | 0914.485.050 |
+| 7 | Phan Thị Lệ Quyên | Chuyên viên | 0933.033.503 |
+| 8 | Nguyễn Mạnh Cường | Chuyên viên | 0918.590.890 |
+
+#### IV. PHÒNG QUẢN LÝ NĂNG LƯỢNG (10 đồng chí)
+| STT | Họ và tên | Chức vụ | Số di động |
+|---|---|---|---|
+| 1 | Võ Trung Kiên | Trưởng phòng | 0986.933.027 |
+| 2 | Đặng Vũ Dũng | Phó Trưởng phòng | 0962.933.189 |
+| 3 | Dương Tấn Long | Phó Trưởng phòng | 0918.114.398 |
+| 4 | Dương Hòa Tân | Phó Trưởng phòng | 0907.698.113 |
+| 5 | Võ Đại Dũng | Phó Trưởng phòng | 0903.001.828 |
+| 6 | Đoàn Trọng Bình | Chuyên viên | 0988.795.151 |
+| 7 | Phạm Thanh Loan | Chuyên viên | 0986.738.686 |
+| 8 | Phan Tấn Công | Chuyên viên chính | 0938.860.005 |
+| 9 | Nguyễn Tuấn Anh | Chuyên viên | 0917.648.679 |
+| 10 | Bùi Duy Hoàng | Chuyên viên chính | 0982.839.296 |
+
+#### V. PHÒNG QUẢN LÝ CÔNG NGHIỆP (11 đồng chí)
+- Số cơ quan / điện thoại bàn: **0263.3822.067**
+| STT | Họ và tên | Chức vụ | Số di động |
+|---|---|---|---|
+| 1 | Trần Minh Nghiệm | Trưởng phòng | 0919.816.681 |
+| 2 | Hoàng Thị Kim Cúc | Phó Trưởng phòng | 0975.072.088 |
+| 3 | Đoàn Lương Huyên | Phó Trưởng phòng | 0943.863.816 |
+| 4 | Tôn Thất Nhật Sinh | Phó Trưởng phòng | 0983.487.593 |
+| 5 | Phạm Kim Khoa | Chuyên viên | 0913.609.576 |
+| 6 | Phạm Trung Nguyên | Chuyên viên | 0393.902.839 |
+| 7 | Võ Thị Mai Phương | Chuyên viên | 0338.399.779 |
+| 8 | Nguyễn Thị Kim Hương | Chuyên viên | 0368.317.602 |
+| 9 | Lương Tân Quang | Chuyên viên | 0845.145.145 |
+| 10 | Trần Văn Thuấn | Chuyên viên | 0984.048.754 |
+| 11 | Trương Thị Mỹ Hoa | Chuyên viên chính | 0973.854.548 |
+
+#### VI. PHÒNG QUẢN LÝ THƯƠNG MẠI (12 đồng chí)
+| STT | Họ và tên | Chức vụ | Số di động |
+|---|---|---|---|
+| 1 | Lê Minh Tuấn | Trưởng phòng | 0913.333.120 |
+| 2 | Nguyễn Thị Lệ Hường | Phó Trưởng phòng | 0988.463.438 |
+| 3 | Nguyễn Vũ Phương Ngân | Phó Trưởng phòng | 0909.454.515 |
+| 4 | Đặng Kim Cường | Phó Trưởng phòng | 0935.246.368 |
+| 5 | Mai Văn Tiến | Chuyên viên chính | 0937.996.517 |
+| 6 | Đỗ Thị Phương Thuý | Chuyên viên | 0908.355.190 |
+| 7 | Phan Văn Khải Quân | Chuyên viên | 0909.191.500 |
+| 8 | Đoàn Thị Nhật Lệ | Chuyên viên | 0965.674.739 |
+| 9 | Nguyễn Thị Ly Ly | Chuyên viên | 0343.387.268 |
+| 10 | Nguyễn Hồng Nhân | Chuyên viên | 0942.579.947 |
+| 11 | Huỳnh Sỹ | Chuyên viên | 0934.658.392 |
+| 12 | Võ Thị Lý | Chuyên viên | 0834.838.033 |
+
+#### VII. PHÒNG ĐỊA CHẤT VÀ KHOÁNG SẢN (10 đồng chí)
+| STT | Họ và tên | Chức vụ | Số di động |
+|---|---|---|---|
+| 1 | Đỗ Thanh Nghĩa | Quyền Trưởng phòng | 0905.417.739 |
+| 2 | Nguyễn Thành Đô | Phó Trưởng phòng | 0919.218.010 |
+| 3 | Trần Thị Phương Thảo | Phó Trưởng phòng | 0902.918.554 |
+| 4 | Vũ Đình Quyết | Phó Trưởng phòng | 0913.181.786 |
+| 5 | Nguyễn Thị Thu Hà | Chuyên viên | 0948.550.079 |
+| 6 | Dương Hoàng Hải | Chuyên viên | 0948.459.739 |
+| 7 | Trịnh Trọng Tín | Chuyên viên | 0908.688.317 |
+| 8 | Phạm Văn Trường | Chuyên viên | 0935.451.359 |
+| 9 | Vũ Văn Tú | Chuyên viên | 0945.124.689 |
+| 10 | Nguyễn Phú Nam | Chuyên viên | 0978.148.842 |
+
+**Quy tắc tra cứu danh bạ Sở Công Thương:**
+1. Tra cứu theo họ tên (kể cả có dấu, không dấu, viết tắt họ tên): Trả lời chính xác chức vụ, đơn vị công tác và số điện thoại di động.
+2. Tra cứu theo phòng ban / chức danh (ví dụ: "Giám đốc Sở Công Thương là ai", "Ai phụ trách phòng Năng lượng", "Cho danh sách lãnh đạo phòng Thương mại"): Liệt kê đúng nhân sự theo bảng trên.
+3. Khi người dùng cần số liên hệ cơ quan:
+   - Số cơ quan phòng Quản lý Công nghiệp: **0263.3822.067**.
+   - Quầy tiếp nhận TTHC Sở Công Thương tại Trung tâm Hành chính công: **0263.3540.616** (máy lẻ: **08**).
 `.trim();
 
 
