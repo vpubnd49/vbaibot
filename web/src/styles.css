@@ -4,44 +4,70 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /*
- * Modern Design System Tokens - Sleek, futuristic, high-contrast, and aesthetic.
- * Font: Plus Jakarta Sans / Inter với typography sạch sẽ, hiện đại.
+ * Design tokens - phong cách "sổ tay ấm": nền kem, chữ tiêu đề có chân, điểm nhấn
+ * xanh rêu (theo mẫu dashboard anh duyệt 09/10/2026).
+ * Thang `blue`/`indigo` của Tailwind được ÁNH XẠ sang xanh rêu/xanh lá đậm: các
+ * trang cũ dùng thẳng `text-blue-600`, `from-indigo-600`... tự đồng bộ màu mà
+ * không phải sửa từng file.
  */
 @theme {
   --font-sans: "Plus Jakarta Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-heading: "Playfair Display", Georgia, "Times New Roman", serif;
 
-  --color-zalo-50: #eef5ff;
-  --color-zalo-100: #d8e8ff;
-  --color-zalo-200: #b5d5ff;
-  --color-zalo-500: #2563eb;
-  --color-zalo-600: #1d4ed8;
-  --color-zalo-700: #1e40af;
+  --color-zalo-50: #edf5ef;
+  --color-zalo-100: #d5e9dc;
+  --color-zalo-200: #aed3ba;
+  --color-zalo-500: #2f6b4f;
+  --color-zalo-600: #24573f;
+  --color-zalo-700: #1b4331;
 
-  --color-canvas: #f8fafc;      /* Nền trang sáng */
-  --color-surface: #ffffff;     /* Nền card sáng */
-  --color-ink: #0f172a;         /* Chữ chính */
-  --color-ink-soft: #64748b;    /* Chữ phụ */
-  --color-line: #e2e8f0;        /* Đường viền */
-  --color-tile: #f1f5f9;        /* Nền tile */
+  --color-blue-50: #eef6f0;
+  --color-blue-100: #d7ebdd;
+  --color-blue-200: #b1d6bd;
+  --color-blue-300: #86bd98;
+  --color-blue-400: #5ea37a;
+  --color-blue-500: #3a7f5c;
+  --color-blue-600: #2f6b4f;
+  --color-blue-700: #255a42;
+  --color-blue-800: #1d4835;
+  --color-blue-900: #163a2b;
+  --color-indigo-50: #f0f5ee;
+  --color-indigo-100: #dbe8d6;
+  --color-indigo-200: #bcd5b4;
+  --color-indigo-300: #98bf8d;
+  --color-indigo-400: #77a86b;
+  --color-indigo-500: #5b8f50;
+  --color-indigo-600: #2a5e46;
+  --color-indigo-700: #214c39;
+  --color-indigo-800: #1a3d2e;
+  --color-indigo-900: #143024;
+
+  --color-gold-500: #b8862f;
+  --color-gold-600: #9a6d1f;
+
+  --color-canvas: #f4efe4;      /* Nền kem */
+  --color-surface: #fffcf6;     /* Thẻ */
+  --color-ink: #1d2a22;         /* Chữ chính */
+  --color-ink-soft: #6f6a5c;    /* Chữ phụ */
+  --color-line: #e6dccb;        /* Viền */
+  --color-tile: #efe8d8;        /* Nền ô nhỏ */
 }
 
-/*
- * Chế độ tối (Dark Mode): Tông màu Deep Cosmic Slate pha ánh Indigo, tạo chiều sâu kính mờ
- */
+/* Chế độ tối: than chì ánh xanh rêu, giữ độ tương phản cao */
 .dark {
-  --color-zalo-50: #111e38;
-  --color-zalo-100: #1e335e;
-  --color-zalo-200: #2b4985;
-  --color-zalo-500: #3b82f6;
-  --color-zalo-600: #60a5fa;
-  --color-zalo-700: #93c5fd;
+  --color-zalo-50: #14231b;
+  --color-zalo-100: #1c3326;
+  --color-zalo-200: #2a4a38;
+  --color-zalo-500: #4f9a74;
+  --color-zalo-600: #6fb48f;
+  --color-zalo-700: #9ccfb2;
 
-  --color-canvas: #090d16;     /* Deep Cosmic Dark */
-  --color-surface: #0f172a;    /* Sleek Slate Surface */
-  --color-ink: #f1f5f9;        /* Chữ trắng ngà sắc nét */
-  --color-ink-soft: #94a3b8;   /* Chữ phụ xám xanh */
-  --color-line: #1e293b;       /* Border tinh tế */
-  --color-tile: #131d33;       /* Tile mờ */
+  --color-canvas: #0f1512;
+  --color-surface: #161e1a;
+  --color-ink: #eef2ec;
+  --color-ink-soft: #9aa79e;
+  --color-line: #26322b;
+  --color-tile: #1b2520;
 }
 
 /* Safe Area Inset cho điện thoại màn hình gập (Samsung Z Fold / Flip, iPhone, Pixel) */
@@ -136,6 +162,15 @@ summary,
   /* Hiệu ứng chấm online phát sáng */
   .pulse-online {
     box-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
+  }
+
+  /* Thẻ lớn bo tròn kiểu mẫu (Trang chủ / Báo cáo / Nhật ký) */
+  .warm-card {
+    @apply rounded-3xl border border-line bg-surface shadow-[0_1px_2px_rgba(60,45,20,0.06),0_8px_24px_-12px_rgba(60,45,20,0.18)];
+  }
+
+  .warm-title {
+    @apply font-heading font-bold tracking-tight text-ink;
   }
 }
 

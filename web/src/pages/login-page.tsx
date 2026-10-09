@@ -30,7 +30,7 @@ export function LoginPage() {
   return (
     <div
       className="relative flex min-h-[100dvh] items-center justify-center bg-canvas bg-cover bg-center px-4 py-8 overflow-hidden"
-      style={{ backgroundImage: `url(${anhNen(theme)})` }}
+      style={{ backgroundImage: anhNen(theme) ? `url(${anhNen(theme)})` : undefined }}
     >
       {/* Nút chuyển đổi giao diện Sáng / Tối góc trên */}
       <div className="absolute top-5 right-5 z-20">

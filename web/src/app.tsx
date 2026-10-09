@@ -1,9 +1,15 @@
 import { useCallback, useEffect, useState } from "react";
-import { BrowserRouter, Link, NavLink, Navigate, Route, Routes, useNavigate } from "react-router-dom";
+import { BrowserRouter, Link, Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import type { AccountInfo } from "./dashboard-api-client";
 import { api } from "./dashboard-api-client";
 import { coCanHoiTruocKhiRoi, xinPhepRoiTrang } from "./shared/unsaved-changes-guard";
 import { SidebarNav } from "./layout/sidebar-nav";
+import { BottomNav } from "./layout/bottom-nav";
+import { NotificationBell } from "./layout/notification-bell";
+import { HomePage } from "./pages/home-page";
+import { ReportsPage } from "./pages/reports-page";
+import { JournalPage } from "./pages/journal-page";
+import { MePage } from "./pages/me-page";
 import { AccountsPage } from "./pages/accounts-page";
 import { AgentCreatePage } from "./pages/agent-create-page";
 import { AgentDetailPage } from "./pages/agent-detail-page";
@@ -23,7 +29,7 @@ import { TuningPage } from "./pages/tuning-page";
 import { ToolsPage } from "./pages/tools-page";
 import { VpsMonitorPage } from "./pages/vps-monitor-page";
 import { anhNen } from "./shared/background-image";
-import { IconBot, IconChat, IconCpu, IconGear, IconGrid, IconMenu } from "./shared/dashboard-icons";
+import { IconMenu } from "./shared/dashboard-icons";
 import { useTheme } from "./shared/use-theme";
 
 /**
@@ -101,6 +107,7 @@ function DashboardShell() {
           </div>
 
           <div className="flex items-center gap-2">
+            <NotificationBell />
             <Link
               to="/vps"
               className="flex items-center gap-1.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400"
@@ -120,10 +127,14 @@ function DashboardShell() {
         */}
         <main
           className="min-w-0 flex-1 h-full w-full max-w-full overflow-y-auto overflow-x-hidden overscroll-contain bg-canvas bg-cover bg-fixed bg-center px-2.5 py-3.5 sm:px-5 sm:py-5 lg:px-8 lg:py-7"
-          style={{ backgroundImage: `url(${anhNen(theme)})` }}
+          style={nenStyle(anhNen(theme))}
         >
           <Routes>
-            <Route path="/" element={<OverviewPage />} />
+            <Route path="/" element={<HomePage />} />
+            <Route path="/usage" element={<OverviewPage />} />
+            <Route path="/reports" element={<ReportsPage />} />
+            <Route path="/journal" element={<JournalPage />} />
+            <Route path="/me" element={<MePage onLogout={logout} />} />
             <Route path="/vps" element={<VpsMonitorPage />} />
             <Route path="/sessions" element={<SessionsPage accounts={accounts} />} />
             <Route path="/broadcast" element={<BroadcastPage accounts={accounts} />} />
@@ -150,70 +161,15 @@ function DashboardShell() {
         </main>
 
         {/* ── Mobile Bottom Navigation Bar (Cố định khóa cứng dưới đáy, không trôi) ── */}
-        <nav className="flex-shrink-0 z-30 flex items-center justify-around border-t border-line bg-surface/95 px-2 py-1.5 pb-[max(0.6rem,env(safe-area-inset-bottom))] backdrop-blur-md lg:hidden select-none">
-          <NavLink
-            to="/"
-            end
-            className={({ isActive }) =>
-              `flex flex-col items-center gap-0.5 rounded-xl px-3 py-1 transition-all active:scale-95 ${
-                isActive ? "text-blue-600 dark:text-blue-400 font-semibold" : "text-ink-soft hover:text-ink"
-              }`
-            }
-          >
-            <IconGrid size={19} />
-            <span className="text-[10px]">Tổng quan</span>
-          </NavLink>
-          <NavLink
-            to="/vps"
-            className={({ isActive }) =>
-              `flex flex-col items-center gap-0.5 rounded-xl px-3 py-1 transition-all active:scale-95 ${
-                isActive ? "text-emerald-600 dark:text-emerald-400 font-semibold" : "text-ink-soft hover:text-ink"
-              }`
-            }
-          >
-            <div className="relative">
-              <IconCpu size={19} />
-              <span className="absolute -top-0.5 -right-1 h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-            </div>
-            <span className="text-[10px]">VPS Live</span>
-          </NavLink>
-          <NavLink
-            to="/sessions"
-            className={({ isActive }) =>
-              `flex flex-col items-center gap-0.5 rounded-xl px-3 py-1 transition-all active:scale-95 ${
-                isActive ? "text-blue-600 dark:text-blue-400 font-semibold" : "text-ink-soft hover:text-ink"
-              }`
-            }
-          >
-            <IconChat size={19} />
-            <span className="text-[10px]">Phiên chat</span>
-          </NavLink>
-          <NavLink
-            to="/agents"
-            className={({ isActive }) =>
-              `flex flex-col items-center gap-0.5 rounded-xl px-3 py-1 transition-all active:scale-95 ${
-                isActive ? "text-blue-600 dark:text-blue-400 font-semibold" : "text-ink-soft hover:text-ink"
-              }`
-            }
-          >
-            <IconBot size={19} />
-            <span className="text-[10px]">Agents</span>
-          </NavLink>
-          <NavLink
-            to="/tuning"
-            className={({ isActive }) =>
-              `flex flex-col items-center gap-0.5 rounded-xl px-3 py-1 transition-all active:scale-95 ${
-                isActive ? "text-blue-600 dark:text-blue-400 font-semibold" : "text-ink-soft hover:text-ink"
-              }`
-            }
-          >
-            <IconGear size={19} />
-            <span className="text-[10px]">Cài đặt</span>
-          </NavLink>
-        </nav>
+        <BottomNav />
       </div>
     </div>
   );
+}
+
+/** Nền sáng mới không dùng ảnh (null) - chỉ chế độ tối còn ảnh nền. */
+function nenStyle(url: string | null): React.CSSProperties | undefined {
+  return url ? { backgroundImage: `url(${url})` } : undefined;
 }
 
 

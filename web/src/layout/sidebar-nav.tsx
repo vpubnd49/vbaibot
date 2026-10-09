@@ -20,6 +20,7 @@ import {
 } from "../shared/dashboard-icons";
 import { coCanHoiTruocKhiRoi, xinPhepRoiTrang } from "../shared/unsaved-changes-guard";
 import { useTheme } from "../shared/use-theme";
+import { IconCalendar, IconChart } from "../shared/warm-icons";
 
 /**
  * Sidebar theo mẫu GoClaw. Từ lg trở lên: cột cố định trong layout.
@@ -32,8 +33,11 @@ const SECTIONS: { title: string; items: { to: string; label: string; icon: IconF
   {
     title: "Hạ tầng & Hệ thống",
     items: [
-      { to: "/", label: "Tổng quan", icon: IconGrid },
+      { to: "/", label: "Trang chủ", icon: IconGrid },
+      { to: "/reports", label: "Báo cáo", icon: IconChart },
+      { to: "/journal", label: "Nhật ký hoạt động", icon: IconCalendar },
       { to: "/vps", label: "Giám sát VPS", icon: IconCpu, badge: "Live" },
+      { to: "/usage", label: "Mức sử dụng token", icon: IconBolt },
     ],
   },
   {

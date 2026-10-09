@@ -6,7 +6,10 @@ import type { Theme } from "./use-theme";
  * invert()` chỉ cho ra một tấm xám bẩn.
  *
  * Cả hai đều là WebP ~7-13 KB (gốc PNG hơn 1 MB) - xem `web/public/`.
+ *
+ * Từ giao diện "nền kem" (09/10/2026), chế độ sáng KHÔNG dùng ảnh nền (ảnh cũ
+ * tông xanh lệch màu với nền kem) - trả `null` để caller bỏ backgroundImage.
  */
-export function anhNen(theme: Theme): string {
-  return theme === "dark" ? "/dashboard-background-dark.webp" : "/dashboard-background.webp";
+export function anhNen(theme: Theme): string | null {
+  return theme === "dark" ? "/dashboard-background-dark.webp" : null;
 }
