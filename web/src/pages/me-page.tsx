@@ -62,25 +62,27 @@ const NHOM: { title: string; items: Muc[] }[] = [
 export function MePage({ onLogout }: { onLogout: () => void }) {
   const { theme, toggle } = useTheme();
   return (
-    <div className="mx-auto w-full max-w-3xl pb-6">
+    <div className="w-full pb-6 space-y-4">
       <WarmPageTitle eyebrow="Tài khoản quản trị" title="Tôi" />
-      {NHOM.map((g) => (
-        <section key={g.title} className="mb-5">
-          <h2 className="mb-2 px-1 text-[13px] font-semibold uppercase tracking-wide text-ink-soft">{g.title}</h2>
-          <div className="warm-card divide-y divide-line overflow-hidden">
-            {g.items.map((m) => (
-              <Link key={m.to} to={m.to} className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-tile/60">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-zalo-50 text-zalo-600">{m.icon}</span>
-                <span className="min-w-0 flex-1">
-                  <b className="block text-[15px] text-ink">{m.label}</b>
-                  <span className="block truncate text-[12.5px] text-ink-soft">{m.hint}</span>
-                </span>
-                <span className="text-ink-soft">›</span>
-              </Link>
-            ))}
-          </div>
-        </section>
-      ))}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {NHOM.map((g) => (
+          <section key={g.title}>
+            <h2 className="mb-2 px-1 text-[13px] font-semibold uppercase tracking-wide text-ink-soft">{g.title}</h2>
+            <div className="warm-card divide-y divide-line overflow-hidden">
+              {g.items.map((m) => (
+                <Link key={m.to} to={m.to} className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-tile/60">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-zalo-50 text-zalo-600">{m.icon}</span>
+                  <span className="min-w-0 flex-1">
+                    <b className="block text-[15px] text-ink">{m.label}</b>
+                    <span className="block truncate text-[12.5px] text-ink-soft">{m.hint}</span>
+                  </span>
+                  <span className="text-ink-soft">›</span>
+                </Link>
+              ))}
+            </div>
+          </section>
+        ))}
+      </div>
       <div className="warm-card divide-y divide-line overflow-hidden">
         <button type="button" onClick={toggle} className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-tile/60">
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-tile text-ink">{theme === "dark" ? <IconSun size={19} /> : <IconMoon size={19} />}</span>

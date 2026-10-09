@@ -40,9 +40,11 @@ export function HomePage() {
 
   const now = new Date();
   return (
-    <div className="mx-auto w-full max-w-3xl pb-6">
-      <h1 className="warm-title text-[32px] leading-tight sm:text-[38px]">{loiChao(now)}</h1>
-      <p className="mb-4 text-[14px] text-ink-soft">{ngayDayDu(now)}</p>
+    <div className="w-full pb-6 space-y-4">
+      <div>
+        <h1 className="warm-title text-[32px] leading-tight sm:text-[38px]">{loiChao(now)}</h1>
+        <p className="mt-1 text-[14px] text-ink-soft">{ngayDayDu(now)}</p>
+      </div>
 
       {loi && <p className="mb-3 rounded-2xl bg-rose-100 px-4 py-2.5 text-[13.5px] text-rose-700">{loi}</p>}
       {!data ? (
@@ -51,7 +53,7 @@ export function HomePage() {
         <>
           <HomeHealthCard health={data.health} generatedAt={data.generatedAt} />
 
-          <div className="mt-3 grid grid-cols-4 gap-2 sm:gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
             <StatTile icon={<IconPlug size={20} />} tone="sky" value={`${data.accounts.online}/${data.accounts.enabled}`} label="Tài khoản" to="/accounts" />
             <StatTile icon={<IconChat size={20} />} tone="emerald" value={soGon(data.messagesToday)} label="Tin hôm nay" to="/sessions" />
             <StatTile icon={<IconAlert size={20} />} tone={data.errors24h ? "rose" : "amber"} value={data.errors24h} label="Lỗi 24 giờ" to="/journal?loc=canh-bao" />

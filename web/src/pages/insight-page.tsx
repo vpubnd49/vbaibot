@@ -32,7 +32,7 @@ export function InsightPage({ accounts }: { accounts: AccountInfo[] }) {
   }, [selectedAcc, days]);
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6 pb-8">
+    <div className="w-full space-y-6 pb-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <WarmPageTitle
           eyebrow="Chiều sâu"

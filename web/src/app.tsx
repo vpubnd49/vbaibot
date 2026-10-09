@@ -130,36 +130,38 @@ function DashboardShell() {
           className="min-w-0 flex-1 h-full w-full max-w-full overflow-y-auto overflow-x-hidden overscroll-contain bg-canvas bg-cover bg-fixed bg-center px-2.5 py-3.5 sm:px-5 sm:py-5 lg:px-8 lg:py-7"
           style={nenStyle(anhNen(theme))}
         >
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/usage" element={<OverviewPage />} />
-            <Route path="/reports" element={<ReportsPage />} />
-            <Route path="/insights" element={<InsightPage accounts={accounts} />} />
-            <Route path="/journal" element={<JournalPage />} />
-            <Route path="/me" element={<MePage onLogout={logout} />} />
-            <Route path="/vps" element={<VpsMonitorPage />} />
-            <Route path="/sessions" element={<SessionsPage accounts={accounts} />} />
-            <Route path="/broadcast" element={<BroadcastPage accounts={accounts} />} />
-            <Route path="/schedule" element={<SchedulePage accounts={accounts} />} />
-            <Route path="/contacts" element={<ContactsPage accounts={accounts} />} />
-            <Route path="/memory" element={<MemoryPage accounts={accounts} />} />
-            <Route path="/knowledge" element={<KnowledgePage accounts={accounts} />} />
-            <Route path="/accounts" element={<AccountsPage />} />
-            <Route path="/agents" element={<AgentsPage />} />
-            {/* Phải đứng TRƯỚC "/agents/:id" - và đường dẫn mở đầu bằng gạch
-                dưới nên không id agent hợp lệ nào che được nó, xem `agent-draft.ts` */}
-            <Route path={DUONG_DAN_TAO} element={<AgentCreatePage />} />
-            <Route path="/agents/:id" element={<AgentDetailPage />} />
-            <Route path="/tools" element={<ToolsPage />} />
-            <Route path="/trace" element={<TracePage />} />
-            {/* Nhóm nằm trên URL để link thẳng vào được (banner "Chưa cấu hình
-                LLM" ở Overview trỏ tới /tuning/providers). Không có :nhom thì
-                TuningPage tự đưa về nhóm đầu tiên. */}
-            <Route path="/tuning" element={<TuningPage />} />
-            <Route path="/tuning/:nhom" element={<TuningPage />} />
-            <Route path="/logs" element={<LogsPage />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
+          <div className="mx-auto w-full max-w-7xl">
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/usage" element={<OverviewPage />} />
+              <Route path="/reports" element={<ReportsPage />} />
+              <Route path="/insights" element={<InsightPage accounts={accounts} />} />
+              <Route path="/journal" element={<JournalPage />} />
+              <Route path="/me" element={<MePage onLogout={logout} />} />
+              <Route path="/vps" element={<VpsMonitorPage />} />
+              <Route path="/sessions" element={<SessionsPage accounts={accounts} />} />
+              <Route path="/broadcast" element={<BroadcastPage accounts={accounts} />} />
+              <Route path="/schedule" element={<SchedulePage accounts={accounts} />} />
+              <Route path="/contacts" element={<ContactsPage accounts={accounts} />} />
+              <Route path="/memory" element={<MemoryPage accounts={accounts} />} />
+              <Route path="/knowledge" element={<KnowledgePage accounts={accounts} />} />
+              <Route path="/accounts" element={<AccountsPage />} />
+              <Route path="/agents" element={<AgentsPage />} />
+              {/* Phải đứng TRƯỚC "/agents/:id" - và đường dẫn mở đầu bằng gạch
+                  dưới nên không id agent hợp lệ nào che được nó, xem `agent-draft.ts` */}
+              <Route path={DUONG_DAN_TAO} element={<AgentCreatePage />} />
+              <Route path="/agents/:id" element={<AgentDetailPage />} />
+              <Route path="/tools" element={<ToolsPage />} />
+              <Route path="/trace" element={<TracePage />} />
+              {/* Nhóm nằm trên URL để link thẳng vào được (banner "Chưa cấu hình
+                  LLM" ở Overview trỏ tới /tuning/providers). Không có :nhom thì
+                  TuningPage tự đưa về nhóm đầu tiên. */}
+              <Route path="/tuning" element={<TuningPage />} />
+              <Route path="/tuning/:nhom" element={<TuningPage />} />
+              <Route path="/logs" element={<LogsPage />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </div>
         </main>
 
         {/* ── Mobile Bottom Navigation Bar (Cố định khóa cứng dưới đáy, không trôi) ── */}

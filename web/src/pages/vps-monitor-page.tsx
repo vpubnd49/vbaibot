@@ -141,7 +141,7 @@ export function VpsMonitorPage() {
   };
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6 pb-12">
+    <div className="w-full space-y-6 pb-12">
       {/* ── Top Header & Action Controls ── */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>

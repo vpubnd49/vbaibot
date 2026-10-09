@@ -72,7 +72,7 @@ export function JournalPage() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-3xl pb-6">
+    <div className="w-full pb-6 space-y-4">
       <WarmPageTitle eyebrow="Lịch sử" title="Nhật ký" />
       <SegmentedTabs
         options={[{ value: "thang", label: "Tháng" }, { value: "tuan", label: "Tuần" }, { value: "ngay", label: "Ngày" }]}

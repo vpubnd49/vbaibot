@@ -44,7 +44,7 @@ export function ReportsPage() {
 
   const t = data?.totals;
   return (
-    <div className="mx-auto w-full max-w-3xl pb-6">
+    <div className="w-full pb-6 space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-2">
         <WarmPageTitle eyebrow="Tổng hợp" title="Báo cáo" />
         <div className="flex flex-wrap items-center gap-2">
@@ -78,7 +78,7 @@ export function ReportsPage() {
         <LoadingCard />
       ) : (
         <>
-          <div className="grid grid-cols-4 gap-2 sm:gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 sm:gap-3">
             <StatTile icon={<IconChat size={20} />} tone="emerald" value={soGon(t.user)} label="Tin khách" />
             <StatTile icon={<IconBot size={20} />} tone="stone" value={soGon(t.bot)} label="Bot trả lời" />
             <StatTile icon={<IconBolt size={20} />} tone="emerald" value={soGon(t.turns)} label="Lượt AI" />
