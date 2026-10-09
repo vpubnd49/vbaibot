@@ -16,6 +16,8 @@
  * đỏ ngay, không âm thầm mất luật.
  */
 
+import { BANG_DINH_TUYEN, khoiDinhTuyen } from "./persona-tool-routing.js";
+
 export type PersonaRule = {
   /**
    * Luật hiện khi CÓ ÍT NHẤT MỘT tool trong danh sách đang bật. Mảng rỗng =
@@ -180,10 +182,27 @@ const RULES_TRA_LOI: PersonaRule[] = [
   + Khi trong context có thông báo "[File ZIP ... đã được lưu thành công]" HOẶC người dùng nhắc "đọc file zip", "đọc thư mục", "bóc điểm từ ảnh", "xuất danh sách từ file nén":
     BẮT BUỘC gọi NGAY ocr_folder_to_file(source="recent_files", outputFormat="excel", sortBy="score_desc").
   + TUYỆT ĐỐI KHÔNG đọc 1-2 ảnh lẻ trong context rồi BỊA ra danh sách điểm đầy đủ — đó là ảo giác nguy hiểm, có thể còn hàng chục ảnh chưa được đọc.
-  + TUYỆT ĐỐI KHÔNG nói "không đọc được ZIP", "không có công cụ giải nén", "file zip không hỗ trợ" — tool xử lý hoàn toàn.
+  + TUYỆT ĐỐI KHÔNG nói "không đọc được ZIP/RAR", "không có công cụ giải nén", "file zip/rar không hỗ trợ" — tool xử lý hoàn toàn (ZIP, RAR, TAR, TGZ, GZ). RAR có mật khẩu: hỏi người dùng mật khẩu.
   + File ZIP đã được hệ thống lưu tự động. Tool tự giải nén, OCR từng ảnh, ghép kết quả và xuất Excel.
   + Nếu người dùng chỉ nói "đọc file zip vừa gửi" mà không nói xuất định dạng nào → mặc định outputFormat="excel".
   + Sau khi ocr_folder_to_file trả kết quả: Báo cáo tóm tắt (đọc được bao nhiêu trang, bao nhiêu dòng dữ liệu, có lỗi trang nào không), rồi nói rõ file đã gửi thành công.`,
+  },
+  {
+    tools: ["read_document"],
+    text: `- LÀM THEO FILE MẪU CỦA NGƯỜI DÙNG (read_document):
+  + Khi người dùng nói "theo mẫu", "như mẫu", "mẫu này", "theo file đính kèm", "giống file trước" hoặc đã gửi một file làm khuôn: PHẢI đọc đúng file mẫu đó TRƯỚC KHI trả lời — gọi read_document với fileName là một phần tên file (vd "mẫu") thay vì mặc định fileIndex=0 (ảnh và tài liệu xếp lẫn nhau nên fileIndex=0 có thể là ảnh khác, không phải file mẫu).
+  + Kết quả đọc có danh sách "Các file khác đang có" — nếu file vừa đọc không phải mẫu, đọc tiếp file đúng bằng fileName/fileIndex trong danh sách đó; không được tự đoán cấu trúc mẫu.
+  + Giữ NGUYÊN khung của mẫu: thứ tự mục, tiêu đề mục, cột bảng, cách đánh số, văn phong, định dạng ngày/số; chỉ thay nội dung. Không tự thêm/bớt/đổi tên mục, không đổi thứ tự cột. Thiếu dữ liệu cho mục nào thì ghi rõ "chưa có dữ liệu" ở mục đó, không bịa.
+  + Nếu không đọc được file mẫu (lỗi/trống): nói rõ và hỏi lại người dùng, KHÔNG tự chế mẫu khác rồi nói là đã làm theo mẫu.
+  + Dữ liệu tra cứu (văn bản pháp luật, số liệu) đưa vào ĐÚNG vị trí mục tương ứng của mẫu, không viết thành bài tổng hợp tự do.
+  + MẪU CÓ BỐ CỤC RIÊNG (biểu mẫu/danh sách có tiêu đề hai cột, bảng nhiều cột, khối ký): dựng lại bằng khối Word đúng bố cục — hai cột đầu (cơ quan | quốc hiệu, địa danh ngày tháng), tiêu đề, BẢNG THẬT đúng số cột và tên cột của mẫu (dòng trống để "" , dòng "..." giữ nguyên nếu mẫu có), khối ký cuối. TUYỆT ĐỐI KHÔNG dựng bảng bằng gạch đầu dòng "1 | | | |", không gõ chữ \\n (xuống dòng bằng mục/đoạn riêng), không tự bịa dòng dữ liệu mẫu không có.
+  + Ảnh chụp màn hình/ảnh chụp tài liệu làm mẫu: đọc ảnh bằng công cụ đọc ảnh, chép ĐÚNG từng chữ, số cột, tên cột; thấy gì làm vậy, không suy diễn thêm nội dung.`,
+  },
+  {
+    tools: ["convert_file"],
+    text: `- CHUYỂN ĐỔI ĐỊNH DẠNG FILE (convert_file): Khi người dùng nói "chuyển file này sang PDF/Word/Excel/ảnh/MP3/MP4...", "đổi đuôi", "convert", "RAR sang ZIP", "nén thành ZIP" → GỌI convert_file NGAY với targetFormat đúng; KHÔNG tự viết lại nội dung bằng create_*.
+  + Tool tự gửi file kết quả. Không có LibreOffice thì Word/Excel → PDF chỉ giữ chữ và bảng (có thể mất bố cục/hình): nếu tool trả lưu ý thì nói rõ cho người dùng.
+  + Chưa hỗ trợ: 7z, chỉnh sửa/ghép PDF, OCR ảnh → Word (cần đọc nội dung ảnh rồi soạn tài liệu mới). Nếu tool báo lỗi thì báo đúng lý do, KHÔNG nói đã gửi file.`,
   },
   {
     tools: ["create_powerpoint"],
@@ -497,7 +516,7 @@ const RULES_TRA_CUU: PersonaRule[] = [
 
 /** Mọi key tool xuất hiện trong luật - test đối chiếu với registry để bắt đổi tên */
 export const TOOL_KEYS_IN_RULES = [
-  ...new Set([...RULES_TRA_LOI, ...RULES_TRA_CUU].flatMap((r) => r.tools)),
+  ...new Set([...RULES_TRA_LOI, ...RULES_TRA_CUU].flatMap((r) => r.tools).concat(BANG_DINH_TUYEN.map((d) => d.tool))),
 ];
 
 const hopLe = (rule: PersonaRule, available: Set<string>): boolean =>
@@ -510,6 +529,9 @@ const hopLe = (rule: PersonaRule, available: Set<string>): boolean =>
 export function toolPersonaSections(availableToolKeys: string[]): string[] {
   const available = new Set(availableToolKeys);
   const sections: string[] = [];
+
+  const dinhTuyen = khoiDinhTuyen(available);
+  if (dinhTuyen) sections.push(dinhTuyen);
 
   const traLoi = RULES_TRA_LOI.filter((r) => hopLe(r, available)).map((r) => r.text);
   if (traLoi.length > 0) sections.push(`Quy tắc dùng công cụ:\n${traLoi.join("\n")}`);

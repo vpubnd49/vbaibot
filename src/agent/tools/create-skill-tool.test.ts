@@ -18,7 +18,7 @@ test("createOrUpdateSkillTool tạo mới thành công và listSkillsTool hiển
       triggers: ["soan-test-vb", "kiem-thu-skill"],
       content: "## Quy tắc kiểm thử\n1. Luôn kiểm tra kỹ lưỡng\n2. Báo cáo kết quả đầy đủ.",
     },
-    { toolCallId: "test-call-1", messages: [] },
+    { toolCallId: "test-call-1", messages: [], context: {} as never },
   );
 
   assert.ok(typeof result === "string");
@@ -27,7 +27,7 @@ test("createOrUpdateSkillTool tạo mới thành công và listSkillsTool hiển
   // Kiểm tra bằng listSkillsTool
   const listResult = await listTool.execute!(
     { filter: "Skill Soạn Văn Bản Test" },
-    { toolCallId: "test-call-2", messages: [] },
+    { toolCallId: "test-call-2", messages: [], context: {} as never },
   );
   assert.ok(typeof listResult === "string");
   assert.ok(listResult.includes(testId));

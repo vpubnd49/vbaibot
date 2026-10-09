@@ -15,4 +15,4 @@ export {
 export {
   createAdminDivisionLookupTool,
   createAdminDivisionTool,
-} from "./admin_division_lookup.js";
+} from "./admin-division-tool.js";

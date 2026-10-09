@@ -202,6 +202,7 @@ describe("tool-registry", () => {
   // (send_file, create_word_document, create_excel_file, create_image, tag_member).
   const TOOL_LOAI_KHOI_LICH = [
     "add_reaction",
+    "convert_file",
     "create_admin_document",
     "create_excel_file",
     "create_image",

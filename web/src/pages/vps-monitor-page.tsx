@@ -1,9 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import type { VpsMetrics, VpsServiceItem } from "../dashboard-api-client";
+import { useCallback, useEffect, useState } from "react";
+import type { VpsMetrics } from "../dashboard-api-client";
 import { api } from "../dashboard-api-client";
 import {
   IconBolt,
-  IconCheck,
   IconClock,
   IconCpu,
   IconDatabase,
@@ -26,8 +25,6 @@ export function VpsMonitorPage() {
   const [rebooting, setRebooting] = useState(false);
   const [rebootCountdown, setRebootCountdown] = useState(45);
   const [rebootStatusText, setRebootStatusText] = useState("");
-
-  const pollTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const fetchMetrics = useCallback(async (isManual = false) => {
     if (isManual) setLoading(true);

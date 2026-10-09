@@ -2,6 +2,7 @@ import type { Tool } from "ai";
 import type { AccountConfig } from "../../config/account-store.js";
 import type { AgentProfile } from "../../config/agent-store.js";
 import { TOOL_DEFINITIONS, type ToolContext, type ToolDefinition } from "./tool-catalog.js";
+import { bocToolAnToan } from "./safe-tool-wrapper.js";
 
 /**
  * Logic lọc + dựng tool cho 1 lượt agent. Hình dạng dữ liệu (type + catalog
@@ -45,7 +46,7 @@ export function buildAgentTools(ctx: ToolContext): Record<string, Tool> {
     { agent: ctx.agent, account: ctx.account },
     { isolated: ctx.isolated },
   )) {
-    tools[def.key] = def.build(ctx);
+    tools[def.key] = bocToolAnToan(def.key, def.build(ctx));
   }
   return tools;
 }

@@ -101,14 +101,26 @@ export function createTranscribeAudioTool(ctx: ToolContext) {
         return ketQuaLoi("Không tìm thấy file âm thanh nào trong cuộc trò chuyện này. Vui lòng gửi lại file ghi âm.");
       }
 
-      let selected = audios[fileIndex] || audios[0]!;
-      if (fileName) {
-        const found = audios.find((a) => a.name.toLowerCase().includes(fileName.toLowerCase()));
-        if (found) selected = found;
+      const fold = (s: string) =>
+        s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/gi, "d").toLowerCase();
+      const dsFile = audios.slice(0, 10).map((a, i) => `${i}: ${a.name}`).join("\n");
+      let selected: { relPath: string; name: string } | undefined;
+      if (fileName?.trim()) {
+        // Khớp không dấu: người dùng hay gõ "ban ghi moi" cho "Bản ghi mới 11.m4a"
+        selected = audios.find((a) => fold(a.name).includes(fold(fileName.trim())));
+        if (!selected) return ketQuaLoi(`Không có file âm thanh nào tên chứa "${fileName}". Các file hiện có:\n${dsFile}`);
+      } else {
+        selected = audios[fileIndex];
+        if (!selected) return ketQuaLoi(`Vị trí file ${fileIndex} không tồn tại. Các file hiện có:\n${dsFile}`);
       }
 
       const fullPath = path.resolve(dataDir, selected.relPath);
-      assertSafePathInside(dataDir, fullPath);
+      // (target, thư mục cho phép) - bản cũ đảo ngược 2 tham số nên MỌI file đều bị coi là "ngoài vùng"
+      try {
+        assertSafePathInside(fullPath, dataDir);
+      } catch {
+        return ketQuaLoi(`Đường dẫn file âm thanh không hợp lệ: ${selected.name}`);
+      }
 
       if (!fs.existsSync(fullPath)) {
         return ketQuaLoi(`Không tìm thấy file âm thanh trên đĩa: ${selected.name}`);

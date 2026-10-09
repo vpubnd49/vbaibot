@@ -8,6 +8,7 @@ import { syncThanhtraDocuments } from "../../thanhtra/thanhtra-service.js";
 import { guiFileKemCaption } from "./send-attachment-with-caption.js";
 import { ghiChuDaGuiFile } from "./sent-by-tool-note.js";
 import type { ToolContext } from "./tool-catalog-types.js";
+import { ketQuaLoi } from "./tool-failure-result.js";
 
 export function createThanhtraLamdongTool({ api, account, message, ghiNhanDaGui }: ToolContext) {
   return tool({
@@ -36,15 +37,19 @@ export function createThanhtraLamdongTool({ api, account, message, ghiNhanDaGui 
     execute: async ({ action, keyword, docId, sendFileToChat }) => {
       // 1. Nhánh đồng bộ cưỡng bức từ mạng
       if (action === "sync") {
-        const syncRes = await syncThanhtraDocuments(20);
-        return `Đã đồng bộ xong dữ liệu Thanh tra tỉnh Lâm Đồng: Quét ${syncRes.totalScanned} mục, tải mới ${syncRes.newDownloaded} file PDF. Hiện có tổng cộng ${countThanhtraDocs()} văn bản trong kho dữ liệu.`;
+        try {
+          const syncRes = await syncThanhtraDocuments(20);
+          return `Đã đồng bộ xong dữ liệu Thanh tra tỉnh Lâm Đồng: Quét ${syncRes.totalScanned} mục, tải mới ${syncRes.newDownloaded} file PDF. Hiện có tổng cộng ${countThanhtraDocs()} văn bản trong kho dữ liệu.`;
+        } catch {
+          return ketQuaLoi("Đồng bộ từ lamdong.gov.vn thất bại (trang nguồn lỗi hoặc chặn). Dữ liệu cũ trong kho vẫn dùng được.");
+        }
       }
 
       // 2. Nhánh xem chi tiết hoặc gửi 1 file cụ thể
       if (action === "get" && docId) {
         const doc = getThanhtraDocById(docId);
         if (!doc) {
-          return `Không tìm thấy Kết luận thanh tra có ID #${docId}.`;
+          return ketQuaLoi(`Không tìm thấy Kết luận thanh tra có ID #${docId}. Dùng action=search để lấy ID đúng.`);
         }
 
         let sendNote = "";
@@ -52,14 +57,18 @@ export function createThanhtraLamdongTool({ api, account, message, ghiNhanDaGui 
           const absPath = path.resolve(dataDir, doc.localPath);
           if (fs.existsSync(absPath)) {
             const caption = `Văn bản Kết luận thanh tra: ${doc.title}`;
-            await guiFileKemCaption(
-              api,
-              `${account.id}:${message.threadId}`,
-              message.threadId,
-              message.threadType,
-              absPath,
-              caption,
-            );
+            try {
+              await guiFileKemCaption(
+                api,
+                `${account.id}:${message.threadId}`,
+                message.threadId,
+                message.threadType,
+                absPath,
+                caption,
+              );
+            } catch {
+              return ketQuaLoi(`Gửi file PDF kết luận #${doc.id} vào chat thất bại. Không được báo là đã gửi; có thể đưa link: ${doc.pdfUrl || "(không có)"}`);
+            }
             ghiNhanDaGui?.(ghiChuDaGuiFile(path.basename(absPath), caption));
             sendNote = "\n\n✅ ĐÃ GỬI FILE PDF TRỰC TIẾP VÀO CHAT CHO NGƯỜI DÙNG. Model KHÔNG cần gọi thêm send_file.";
           }
@@ -80,7 +89,11 @@ export function createThanhtraLamdongTool({ api, account, message, ghiNhanDaGui 
 
       // Nếu kho rỗng (lần đầu chạy chưa kịp sync), tự động sync nhanh 10 mục rồi tìm lại
       if (docs.length === 0 && countThanhtraDocs() === 0) {
-        await syncThanhtraDocuments(10);
+        try {
+          await syncThanhtraDocuments(10);
+        } catch {
+          return ketQuaLoi("Kho kết luận thanh tra còn trống và đồng bộ từ lamdong.gov.vn thất bại. Thử lại sau.");
+        }
         docs = searchThanhtraDocs(keyword, 20);
       }
 
@@ -94,24 +107,33 @@ export function createThanhtraLamdongTool({ api, account, message, ghiNhanDaGui 
       let sendStatusNote = "";
       if (sendFileToChat && docs.length > 0) {
         const sentFiles: string[] = [];
+        const failed: string[] = [];
         for (const targetDoc of docs) {
           if (!targetDoc.localPath) continue;
           const absPath = path.resolve(dataDir, targetDoc.localPath);
           if (!fs.existsSync(absPath)) continue;
           const caption = `Văn bản Kết luận thanh tra: ${targetDoc.title}`;
-          await guiFileKemCaption(
-            api,
-            `${account.id}:${message.threadId}`,
-            message.threadId,
-            message.threadType,
-            absPath,
-            caption,
-          );
+          try {
+            await guiFileKemCaption(
+              api,
+              `${account.id}:${message.threadId}`,
+              message.threadId,
+              message.threadType,
+              absPath,
+              caption,
+            );
+          } catch {
+            failed.push(`#${targetDoc.id}`);
+            continue;
+          }
           ghiNhanDaGui?.(ghiChuDaGuiFile(path.basename(absPath), caption));
           sentFiles.push(`#${targetDoc.id}: ${path.basename(absPath)}`);
         }
         if (sentFiles.length > 0) {
           sendStatusNote = `\n\n✅ ĐÃ GỬI ${sentFiles.length} FILE PDF VÀO CHAT CHO NGƯỜI DÙNG:\n${sentFiles.map((f) => `- ${f}`).join("\n")}\nModel KHÔNG cần gọi thêm send_file hay gọi tool lần nữa.`;
+        }
+        if (failed.length > 0) {
+          sendStatusNote += `\n⚠️ Gửi thất bại: ${failed.join(", ")} — không được báo là đã gửi các file này.`;
         }
       }
 

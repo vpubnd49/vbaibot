@@ -4,7 +4,7 @@ import {
   getAdminDivisionData,
   searchAdminDivisions,
   createAdminDivisionLookupTool,
-} from "./admin_division_lookup.js";
+} from "./admin-division-tool.js";
 
 describe("admin_division_lookup tool", () => {
   it("nạp dữ liệu 34 tỉnh vào RAM Cache thành công", () => {

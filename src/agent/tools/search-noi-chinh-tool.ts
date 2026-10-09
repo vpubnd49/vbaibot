@@ -66,7 +66,7 @@ export function createSearchNoiChinhTool() {
 
       parts.push(
         "\n💡 Sử dụng nội dung trên làm mẫu tham khảo để soạn thảo văn bản mới " +
-        "bằng tool create_admin_document. Giữ đúng cấu trúc, thay thế thông tin cụ thể.",
+        "bằng công cụ soạn văn bản phù hợp. Giữ đúng cấu trúc, thay thế thông tin cụ thể.",
       );
 
       return parts.join("\n");

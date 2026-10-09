@@ -8,6 +8,7 @@ import { createNewsTool } from "./news-tool.js";
 import { createReadImageTool } from "./read-image-tool.js";
 import { createTaxAccountingTool } from "./tax-accounting-tool.js";
 import type { ToolDefinition } from "./tool-catalog-types.js";
+import { READ_LEGAL_TOOL_DEFINITIONS } from "./tool-catalog-read-legal.js";
 import { createWeatherTool } from "./weather-tool.js";
 import { createWebFetchTool } from "./web-fetch-tool.js";
 import { createWebSearchTool } from "./web-search-tool.js";
@@ -16,13 +17,9 @@ import { createAdminDivisionTool } from "./admin-division-tool.js";
 
 import { createKnowledgeResearchTool } from "./knowledge-research-tool.js";
 import { createDeveloperResearchTool } from "./developer-research-tool.js";
-import { createThanhtraLamdongTool } from "./thanhtra-lamdong-tool.js";
-import { createQpplLamdongTool } from "./qppl-lamdong-tool.js";
-import { createNationalLegalTool } from "./national-legal-tool.js";
 import { createTranscribeAudioTool } from "./transcribe-audio-tool.js";
 import { createSearchNoiChinhTool } from "./search-noi-chinh-tool.js";
 import { createDisasterAlertTool } from "./disaster-alert-tool.js";
-import { createListSkillsTool } from "./create-skill-tool.js";
 
 /**
  * Nhóm "read" của catalog tool - tra cứu, không tác động ra ngoài. Tách khỏi
@@ -30,39 +27,7 @@ import { createListSkillsTool } from "./create-skill-tool.js";
  * catalog nào vượt ngưỡng 200 dòng khi thêm tool mới.
  */
 export const READ_TOOL_DEFINITIONS: ToolDefinition[] = [
-  {
-    key: "list_skills",
-    label: "Danh sách kỹ năng",
-    description: "Xem danh sách các kỹ năng (Skills) hiện có trong hệ thống và các từ khóa kích hoạt tương ứng",
-    group: "read",
-    keTrongKhaNang: true,
-    build: () => createListSkillsTool(),
-  },
-  {
-    key: "thanhtra_lamdong",
-    label: "Kết luận Thanh tra Lâm Đồng",
-    description:
-      "Tra cứu danh sách, tóm tắt và tải file PDF Kết luận thanh tra, Thông báo kết luận của Thanh tra tỉnh Lâm Đồng (nguồn: lamdong.gov.vn)",
-    group: "read",
-    build: (ctx) => createThanhtraLamdongTool(ctx),
-  },
-  {
-    key: "qppl_lamdong",
-    label: "VB Chỉ đạo & QPPL tỉnh Lâm Đồng",
-    description:
-      "Tra cứu và tải file văn bản chỉ đạo điều hành, báo cáo, quyết định, công văn của UBND tỉnh, HĐND tỉnh, các Sở ban ngành (Tư pháp, Tài chính, GD&ĐT, Nội vụ...) và các địa phương cấp huyện (Đức Trọng, Di Linh...)",
-    group: "read",
-    build: (ctx) => createQpplLamdongTool(ctx),
-  },
-  {
-    key: "national_legal",
-    label: "VB Pháp luật cấp TW",
-    description:
-      "Tra cứu và tải file VB pháp luật cấp Trung ương: Luật, Nghị định, Thông tư, QĐ Thủ tướng, Nghị quyết QH/CP " +
-       "(nguồn: Cổng Pháp luật quốc gia + CSDL quốc gia vbpl.vn + Công báo ĐT CP + Thư viện Pháp luật). Hỗ trợ tải PDF, DOC, DOCX.",
-    group: "read",
-    build: (ctx) => createNationalLegalTool(ctx),
-  },
+  ...READ_LEGAL_TOOL_DEFINITIONS,
   {
     key: "get_datetime",
     label: "Ngày giờ hiện tại",
