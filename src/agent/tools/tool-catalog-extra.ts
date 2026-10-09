@@ -6,6 +6,7 @@ import { createTicketTool } from "./ticket-tool.js";
 import { createVideoWorkshopTool } from "./video-workshop-tool.js";
 import { createNotionSyncTool } from "./notion-sync-tool.js";
 import { createMcpClientTool } from "./mcp-client-tool.js";
+import { hasAnyMcpServer, hasAnyNotionConfig } from "./integration-availability.js";
 import type { ToolDefinition } from "./tool-catalog-types.js";
 
 /**
@@ -76,6 +77,8 @@ export const EXTRA_TOOL_DEFINITIONS: ToolDefinition[] = [
     hasSettings: true,
     keTrongKhaNang: true,
     runsInScheduledTurn: false,
+    available: () => hasAnyNotionConfig(),
+    unavailableHint: "Cần nhập Notion API key (integration token) trong phần cài đặt Notion để dùng tool này",
     build: (ctx) => createNotionSyncTool(ctx),
   },
   {
@@ -86,6 +89,8 @@ export const EXTRA_TOOL_DEFINITIONS: ToolDefinition[] = [
     hasSettings: true,
     keTrongKhaNang: false,
     runsInScheduledTurn: false,
+    available: () => hasAnyMcpServer(),
+    unavailableHint: "Cần thêm ít nhất một MCP server (đang bật) trong phần cài đặt MCP để dùng tool này",
     build: (ctx) => createMcpClientTool(ctx),
   },
 ];

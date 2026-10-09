@@ -72,7 +72,7 @@ function configureSidecar(): void {
 }
 
 /** Các tool chỉ vào schema khi hạ tầng riêng của chúng đã sẵn sàng */
-const GATED_TOOLS = ["read_image", "create_image", "ocr_folder_to_file"];
+const GATED_TOOLS = ["read_image", "create_image", "ocr_folder_to_file", "notion_sync", "mcp_client"];
 
 function configureImageGen(): void {
   imageStore.updateImageSettings({
@@ -80,6 +80,18 @@ function configureImageGen(): void {
     model: "cx/gpt-5.5-image",
     apiKey: "sk-x",
   });
+}
+
+/** Notion/MCP chỉ hiện khi DB có ít nhất một cấu hình đang bật */
+async function configureIntegrations(on: boolean): Promise<void> {
+  const { db } = await import("../../conversation/database.js");
+  if (on) {
+    db.prepare("INSERT OR REPLACE INTO notion_config (account_id, api_key, enabled) VALUES ('t', 'secret_x', 1)").run();
+    db.prepare("INSERT OR REPLACE INTO mcp_servers (id, account_id, name, base_url) VALUES ('m', 't', 'n', 'https://mcp.test')").run();
+  } else {
+    db.prepare("DELETE FROM notion_config WHERE account_id = 't'").run();
+    db.prepare("DELETE FROM mcp_servers WHERE id = 'm'").run();
+  }
 }
 
 describe("tool-registry", () => {
@@ -256,9 +268,10 @@ describe("tool-registry", () => {
     imageStore.clearImageSettings();
   });
 
-  it("isolated không truyền (mặc định) hoặc false thì đủ cả tool - hành vi lượt tin nhắn không đổi", () => {
+  it("isolated không truyền (mặc định) hoặc false thì đủ cả tool - hành vi lượt tin nhắn không đổi", async () => {
     configureSidecar();
     configureImageGen();
+    await configureIntegrations(true);
     const macDinh = registry.buildAgentTools(makeContext([]));
     const roFalse = registry.buildAgentTools({ ...makeContext([]), isolated: false });
     for (const tools of [macDinh, roFalse]) {
@@ -266,8 +279,21 @@ describe("tool-registry", () => {
         assert.ok(tools[key], `${key} phải còn khi không cô lập (đã cấu hình đủ hạ tầng)`);
       }
     }
+    await configureIntegrations(false);
     unconfigureSidecar();
     imageStore.clearImageSettings();
+  });
+
+  it("notion_sync/mcp_client chỉ vào schema khi đã có cấu hình (kiểm mỗi lượt)", async () => {
+    let tools = registry.buildAgentTools(makeContext([]));
+    assert.equal(tools.notion_sync, undefined);
+    assert.equal(tools.mcp_client, undefined);
+    await configureIntegrations(true);
+    tools = registry.buildAgentTools(makeContext([]));
+    assert.ok(tools.notion_sync, "có Notion key phải có tool");
+    assert.ok(tools.mcp_client, "có MCP server phải có tool");
+    await configureIntegrations(false);
+    assert.equal(registry.buildAgentTools(makeContext([])).notion_sync, undefined);
   });
 
   it("runsInScheduledTurn khai đúng false cho đúng các tool bị loại, còn lại mặc định undefined (coi như true)", () => {
