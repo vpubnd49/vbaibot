@@ -43,6 +43,14 @@ export function pickIndex(
     const q = fold(fileName.trim());
     const hit = paths.findIndex((p) => fold(labelOf(p, names)).includes(q));
     if (hit >= 0) return { index: hit };
+    // File tới GIỮA lượt (chưa vào batch lẫn history) không có tên gốc, chỉ còn tên trên
+    // đĩa đã bị media-store làm sạch: mọi ký tự ngoài [a-zA-Z0-9_-] thành "_"
+    // ("Kiểm tra" → "Ki_m_tra"). Làm sạch từ khóa theo đúng luật đó rồi so lại.
+    const s = fileName.trim().replace(/[^a-zA-Z0-9_-]/g, "_").toLowerCase();
+    if ((s.match(/[a-z0-9]/g) ?? []).length >= 4) {
+      const hit2 = paths.findIndex((p) => path.basename(p).toLowerCase().includes(s));
+      if (hit2 >= 0) return { index: hit2 };
+    }
     return { error: `Không có file nào tên chứa "${fileName}". Các file hiện có:\n${listChoices(paths, names)}` };
   }
   if (fileIndex >= paths.length) {
