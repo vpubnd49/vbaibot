@@ -1,3 +1,4 @@
+import { unescapeNewlinesDeep, coBangGia, THONG_BAO_BANG_GIA } from "../../documents/normalize-newlines.js";
 import { tool } from "ai";
 import { z } from "zod";
 import { adminDocumentSchema, type AdminDocument } from "../../documents/admin-document-schema.js";
@@ -95,6 +96,8 @@ function cleanDocumentPlaceholders(doc: AdminDocument): AdminDocument {
 export function createAdminDocumentTool(ctx: Ctx) {
   return tool({
     description:
+      "KHÔNG dùng cho biểu mẫu/danh sách/bảng có bố cục riêng do người dùng gửi mẫu (vd 'DANH SÁCH' + bảng nhiều cột + chữ ký) — " +
+      "tool này ép khung công văn (số, loại VB, trích yếu); các mẫu đó dùng create_word_document với block two_columns/heading/table/paragraph.\n" +
       "Tạo và xuất file Word (.docx) chuẩn thể thức và kỹ thuật trình bày theo Nghị định 30/2020/NĐ-CP của Chính phủ " +
       "(hoặc Hướng dẫn 05-HD/VPTW của Ban Chấp hành Trung ương Đảng) rồi gửi luôn cho người dùng.\n" +
       "Hỗ trợ 25 loại văn bản: Phiếu trình (phieu_trinh), Tờ trình (to_trinh), Quyết định (quyet_dinh), Công văn (cong_van), Giấy mời (giay_moi), " +
@@ -122,9 +125,12 @@ export function createAdminDocumentTool(ctx: Ctx) {
         const rate = checkDocumentRateLimit(`${ctx.account.id}:${ctx.message.threadId}`);
         if (!rate.ok) return ketQuaLoi(rate.reason);
 
-        const sanitizedDoc = cleanDocumentPlaceholders(
-          replaceOutdatedOrgNames(docData) as AdminDocument,
+        const sanitizedDoc = unescapeNewlinesDeep(
+          cleanDocumentPlaceholders(replaceOutdatedOrgNames(docData) as AdminDocument),
         );
+        if (sanitizedDoc.sections.some((s) => coBangGia(s.items) || coBangGia(s.paragraphs))) {
+          return ketQuaLoi(THONG_BAO_BANG_GIA);
+        }
 
         // ── Validation: phát hiện công văn giao/chuyển bỏ trống nội dung ──
         // Bot hay viết phần dẫn "có ý kiến chỉ đạo như sau:" rồi TRỐNG nội

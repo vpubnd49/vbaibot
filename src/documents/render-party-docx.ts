@@ -12,6 +12,7 @@ import {
   TableRow,
   TextRun,
   UnderlineType,
+  ShadingType,
   VerticalAlign,
   WidthType,
   type ISectionOptions,
@@ -317,8 +318,48 @@ function buildPartyCanCu(canCu?: string[]): Paragraph[] {
   return elements;
 }
 
-function buildPartyBody(sections: AdminSection[]): Paragraph[] {
-  const elements: Paragraph[] = [];
+const THIN = { style: BorderStyle.SINGLE, size: 4, color: "000000" };
+const BORDERS_THIN = { top: THIN, bottom: THIN, left: THIN, right: THIN, insideHorizontal: THIN, insideVertical: THIN };
+
+/**
+ * Bảng có viền trong thân văn bản Đảng. Trước đây renderer này BỎ QUA `section.table` nên biểu mẫu
+ * dạng danh sách (mẫu 04 TTHC...) ra file chỉ có tiêu đề, mất sạch bảng.
+ */
+function buildPartyTable(headers: string[], rows: string[][]): Table {
+  const colWidth = Math.floor(LAYOUT.CONTENT_WIDTH / headers.length);
+  const cell = (text: string, opts: { header?: boolean; center?: boolean }) =>
+    new TableCell({
+      borders: BORDERS_THIN,
+      width: { size: colWidth, type: WidthType.DXA },
+      verticalAlign: VerticalAlign.CENTER,
+      shading: opts.header ? { fill: "F2F2F2", type: ShadingType.CLEAR } : undefined,
+      children: [
+        new Paragraph({
+          alignment: opts.center ? AlignmentType.CENTER : AlignmentType.LEFT,
+          spacing: { before: 40, after: 40 },
+          children: parseTextRuns(text.trim(), { font: LAYOUT.FONT, size: 26, bold: opts.header }),
+        }),
+      ],
+    });
+  return new Table({
+    width: { size: LAYOUT.CONTENT_WIDTH, type: WidthType.DXA },
+    borders: BORDERS_THIN,
+    columnWidths: headers.map(() => colWidth),
+    rows: [
+      new TableRow({ tableHeader: true, children: headers.map((h) => cell(h, { header: true, center: true })) }),
+      ...rows.map(
+        (r) =>
+          new TableRow({
+            // Pad đủ số cột để dòng thiếu ô không làm vỡ lưới bảng
+            children: headers.map((_, i) => cell(r[i] ?? "", { center: i === 0 })),
+          }),
+      ),
+    ],
+  });
+}
+
+function buildPartyBody(sections: AdminSection[]): (Paragraph | Table)[] {
+  const elements: (Paragraph | Table)[] = [];
 
   for (const sec of sections) {
     if (sec.heading?.trim()) {
@@ -362,6 +403,11 @@ function buildPartyBody(sections: AdminSection[]): Paragraph[] {
           }),
         );
       }
+    }
+
+    if (sec.table && sec.table.headers.length > 0) {
+      elements.push(buildPartyTable(sec.table.headers, sec.table.rows));
+      elements.push(new Paragraph({ text: "" }));
     }
   }
 
