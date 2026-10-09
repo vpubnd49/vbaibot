@@ -17,6 +17,7 @@
  *      và capture buffer từ network stream.
  */
 import { createLogger } from "../../shared/logger.js";
+import { env } from "../../config/env.js";
 import { mkdirSync, existsSync, writeFileSync } from "fs";
 import { join } from "path";
 
@@ -25,7 +26,14 @@ const log = createLogger("vbpl-crawler");
 const BASE_URL = "https://vbpl.vn";
 const MOJ_GATEWAY_URL = "https://vbpl-bientap-gateway.moj.gov.vn/api";
 const DOWNLOAD_DIR = join(process.cwd(), "data", "vbpl");
-const CHROMIUM_PATH = "/usr/bin/chromium-browser";
+// Thứ tự dò: env CHROMIUM_PATH -> các bản cài hệ thống phổ biến -> chrome-headless-shell
+// (Ubuntu 24.04 chỉ có chromium dạng snap nên VPS dùng bản headless-shell tại /opt).
+const CHROMIUM_CANDIDATES = [
+  "/usr/bin/chromium-browser",
+  "/usr/bin/chromium",
+  "/usr/bin/google-chrome",
+  "/opt/chrome-headless-shell/chrome-headless-shell",
+];
 
 // Next.js Server Action ID for document search on vbpl.vn
 const SEARCH_ACTION_ID = "c529d164f28418e5898a834422629e64c6816af1";
@@ -471,9 +479,7 @@ async function launchBrowser(): Promise<any> {
   const pptr = await getPuppeteer();
   if (!pptr) throw new Error("puppeteer-core chưa được cài đặt");
 
-  const execPath = [CHROMIUM_PATH, "/usr/bin/chromium", "/usr/bin/google-chrome"].find((p) =>
-    existsSync(p),
-  );
+  const execPath = [env.CHROMIUM_PATH, ...CHROMIUM_CANDIDATES].find((p) => p && existsSync(p));
 
   if (!execPath) throw new Error("Không tìm thấy Chromium trên server");
 

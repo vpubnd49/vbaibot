@@ -125,6 +125,9 @@ const envSchema = z.object({
   // vnexpress. Đánh đổi: chậm hơn nhiều và URL đi qua bên thứ ba, tắt được ở đây.
   WEB_FETCH_FALLBACK_ENABLED: z.preprocess(emptyToUndefined, z.stringbool().default(true)),
   JINA_API_KEY: z.string().default(""),
+  // Trình duyệt headless cho fallback Puppeteer của vbpl-crawler (khi API/Server
+  // Action vbpl.vn đổi). Rỗng = tự dò các đường dẫn chromium/chrome phổ biến.
+  CHROMIUM_PATH: z.string().default(""),
 
   // ===== Cấu hình tra cứu tri thức & nghiên cứu (knowledge_research / developer_research) =====
   RESEARCH_MAX_RESULTS: z.coerce.number().int().min(1).max(10).default(5),
