@@ -87,7 +87,7 @@ export function planDocumentBudget(
     // ZIP vẫn được xử lý bình thường khi là file của lượt hiện tại hoặc khi
     // người dùng chủ động gọi tool đọc/OCR.
     const validFiles = message.files.filter(
-      (f) => Boolean(f.localPath) && f.extension.toLowerCase() !== ".zip" && !/\.zip$/i.test(f.localPath!),
+      (f) => Boolean(f.localPath) && !/\.(zip|rar|tar|tgz|gz)$/i.test(f.extension) && !/\.(zip|rar|tar|tgz|gz)$/i.test(f.localPath!),
     );
     if (validFiles.length > 0) {
       docBudgetByIndex.set(i, validFiles);

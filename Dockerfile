@@ -35,8 +35,11 @@ RUN pnpm prune --prod
 # Stage 2: Production Runtime
 FROM node:22-alpine AS runner
 
-# pdftoppm dùng cho OCR PDF scan; cài ở runtime vì builder không chạy OCR.
-RUN apk add --no-cache poppler-utils
+# pdftoppm: OCR PDF scan + PDF→ảnh. ffmpeg: convert_file (ảnh/âm thanh/video).
+# LibreOffice (writer+calc) + font: convert_file Word/Excel↔PDF giữ nguyên bố cục
+# (không có thì bot tự dùng đường dự phòng chỉ giữ chữ/bảng).
+RUN apk add --no-cache poppler-utils ffmpeg libreoffice-writer libreoffice-calc \
+    font-noto font-liberation ttf-dejavu
 
 # Thiết lập môi trường Production
 ENV NODE_ENV=production

@@ -75,7 +75,7 @@ export function describeForHistory(msg: ParsedMessage): string {
 const SUPPORTED_DOC_EXTS = [
   ".pdf", ".docx", ".xlsx", ".csv", ".txt", ".md", ".doc", ".xls",
   ".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".tif", ".heic", ".webp",
-  ".zip", ".ods", ".tsv", // ZIP giải nén bởi batch-ocr, ODS/TSV đọc bởi document-reader
+  ".zip", ".rar", ".tar", ".tgz", ".gz", ".ods", ".tsv", // File nén giải nén bởi batch-ocr/document-reader, ODS/TSV đọc bởi document-reader
 ];
 
 const SUPPORTED_AUDIO_EXTS = [".m4a", ".mp3", ".wav", ".aac", ".ogg", ".opus", ".flac", ".amr", ".webm"];

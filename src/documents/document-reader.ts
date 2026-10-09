@@ -65,6 +65,8 @@ export type DocumentReadOptions = {
   /** Phạm vi trang 1-based, dùng cho PDF scan để chia lượt OCR thành các chunk nhỏ. */
   pageStart?: number;
   pageEnd?: number;
+  /** Mật khẩu giải nén (RAR có mật khẩu). */
+  password?: string;
 };
 
 export type DocumentContent = {
@@ -81,7 +83,7 @@ const SUPPORTED_EXTENSIONS = [
   '.pdf', '.docx', '.doc', '.xlsx', '.xls', '.ods', '.csv', '.tsv', '.txt', '.md',
   '.json', '.xml', '.html', '.htm', '.rtf',
   '.jpg', '.jpeg', '.png', '.bmp', '.tiff', '.tif', '.heic', '.webp',
-  '.zip',  // ZIP chứa nhiều file — batch-ocr-engine tự giải nén
+  '.zip', '.rar', '.tar', '.tgz', '.gz',  // file nén chứa nhiều file — tự giải nén
 ] as const;
 export type SupportedExtension = typeof SUPPORTED_EXTENSIONS[number];
 
@@ -299,11 +301,16 @@ export async function readDocument(filePath: string, options: DocumentReadOption
         }
         break;
       }
-      case '.zip': {
-        const { extractZipFile, cleanupZipTemp } = await import('./zip-extractor.js');
+      case '.zip':
+      case '.rar':
+      case '.tar':
+      case '.tgz':
+      case '.gz': {
+        const { cleanupZipTemp } = await import('./zip-extractor.js');
+        const { extractArchiveFile, isArchivePath } = await import('./archive-extractor.js');
         let tempDir: string | undefined;
         try {
-          const zipResult = extractZipFile(filePath);
+          const zipResult = await extractArchiveFile(filePath, options.password);
           tempDir = zipResult.tempDir;
           const files = zipResult.filePaths;
           if (files.length === 0) {
@@ -322,7 +329,7 @@ export async function readDocument(filePath: string, options: DocumentReadOption
             const baseName = path.basename(f);
             try {
               // Bỏ qua file zip lồng nhau để tránh đệ quy không mong muốn
-              if (path.extname(f).toLowerCase() === '.zip') continue;
+              if (isArchivePath(f)) continue;
 
               const subDoc = await readDocument(f);
               const cleanText = (subDoc.text || '').trim();

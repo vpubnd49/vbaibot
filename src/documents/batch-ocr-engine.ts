@@ -12,7 +12,8 @@ import path from "node:path";
 import os from "node:os";
 import { execFile } from "node:child_process";
 import { createLogger } from "../shared/logger.js";
-import { extractZipFile, isZipFile, cleanupZipTemp } from "./zip-extractor.js";
+import { cleanupZipTemp } from "./zip-extractor.js";
+import { extractArchiveFile, detectArchiveKind, ARCHIVE_EXTS } from "./archive-extractor.js";
 
 const log = createLogger("batch-ocr-engine");
 
@@ -73,12 +74,16 @@ const DOC_EXTS   = new Set([
   ".pdf", ".docx", ".doc", ".xlsx", ".xls", ".ods", ".csv", ".tsv", ".txt", ".md",
   ".json", ".xml", ".html", ".htm", ".rtf",
 ]);
-const ALL_EXTS   = new Set([...IMAGE_EXTS, ...DOC_EXTS, ".zip"]);
+const ALL_EXTS   = new Set([...IMAGE_EXTS, ...DOC_EXTS, ...ARCHIVE_EXTS]);
+
+function isArchive(filePath: string): boolean {
+  return detectArchiveKind(filePath) !== null;
+}
 
 function isSupported(filePath: string, extensions?: string[]): boolean {
   const ext = path.extname(filePath).toLowerCase();
-  // ZIP duoc chap nhan nhu la container — chi kiem tra khi ext la .zip hoac khong co ext
-  if (ext === ".zip" || (ext === "" && isZipFile(filePath))) return true;
+  // File nen duoc chap nhan nhu container
+  if (isArchive(filePath)) return true;
   if (extensions?.length) {
     const allowed = extensions.map((value) => {
       const normalized = value.trim().toLowerCase();
@@ -325,8 +330,7 @@ async function processFile(fp: string, cfg: OcrConfig): Promise<OcrPageResult[]>
   const ext = path.extname(fp).toLowerCase();
   if (IMAGE_EXTS.has(ext)) return processImageFile(fp, cfg);
   if (ext === ".pdf")       return processPdfFile(fp, cfg);
-  // ZIP: chi giai nen neu dung la container zip va KHONG phai file van ban (docx, xlsx...)
-  if (ext === ".zip" || (ext === "" && isZipFile(fp))) {
+  if (isArchive(fp)) {
     return processZipFile(fp, cfg);
   }
   return processDocFile(fp);
@@ -340,7 +344,7 @@ async function processFile(fp: string, cfg: OcrConfig): Promise<OcrPageResult[]>
 async function processZipFile(fp: string, cfg: OcrConfig): Promise<OcrPageResult[]> {
   let tempDir: string | undefined;
   try {
-    const { filePaths, tempDir: td, skippedCount } = extractZipFile(fp);
+    const { filePaths, tempDir: td, skippedCount } = await extractArchiveFile(fp);
     tempDir = td;
     if (filePaths.length === 0) {
       log.warn({ fp, skippedCount }, "ZIP khong co file hop le nao");
@@ -488,7 +492,7 @@ export async function batchOcr(
   // Một PDF scan tạo nhiều page result nhưng vẫn chỉ là một file.
   // Với ZIP, filePath của page là file con trong tempDir; stats phản ánh số file đầu vào.
   const fileStatuses = filePaths.map((fp) => {
-    const isZip = path.extname(fp).toLowerCase() === ".zip" || (path.extname(fp) === "" && isZipFile(fp));
+    const isZip = isArchive(fp);
     if (isZip) {
       return allPages.length > 0 && allPages.some((page) => !page.error);
     }

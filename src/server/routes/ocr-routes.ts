@@ -41,7 +41,7 @@ const MAX_FILES_PER_SESSION = 10_000;
 const ALLOWED_EXTS = new Set([
   ".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".tif", ".heic", ".webp",
   ".pdf", ".docx", ".doc", ".xlsx", ".xls", ".ods", ".csv", ".txt", ".md",
-  ".zip",  // Thư mục nén — batch-ocr-engine tự giải nén khi OCR
+  ".zip", ".rar", ".tar", ".tgz", ".gz",  // Thư mục nén — batch-ocr-engine tự giải nén khi OCR
 ]);
 
 function sanitizeName(name: string): string {

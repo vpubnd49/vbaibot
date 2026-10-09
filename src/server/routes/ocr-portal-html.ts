@@ -277,7 +277,7 @@ export function getOcrPortalHtml(): string {
       </div>
       <input type="file" id="folderInput" webkitdirectory multiple style="display:none">
       <input type="file" id="filesInput" multiple style="display:none"
-        accept=".jpg,.jpeg,.png,.bmp,.tiff,.tif,.heic,.webp,.pdf,.docx,.doc,.xlsx,.xls,.ods,.csv,.txt,.md,.zip">
+        accept=".jpg,.jpeg,.png,.bmp,.tiff,.tif,.heic,.webp,.pdf,.docx,.doc,.xlsx,.xls,.ods,.csv,.txt,.md,.zip,.rar,.tar,.tgz,.gz">
     </div>
 
     <div class="supported-info">
@@ -285,7 +285,7 @@ export function getOcrPortalHtml(): string {
       <span class="tag tag-img">🖼 JPG PNG TIFF HEIC WEBP</span>
       <span class="tag tag-doc">📄 PDF DOCX DOC</span>
       <span class="tag tag-xl">📊 XLSX XLS ODS CSV</span>
-      <span class="tag tag-zip">📦 ZIP (giải nén tự động)</span>
+      <span class="tag tag-zip">📦 ZIP/RAR/TAR/GZ (giải nén tự động)</span>
       <span class="tag tag-other">📝 TXT MD</span>
     </div>
 
@@ -435,7 +435,7 @@ export function getOcrPortalHtml(): string {
       if (ext === 'pdf') return '📕';
       if (['docx','doc'].includes(ext)) return '📘';
       if (['xlsx','xls','ods','csv','tsv'].includes(ext)) return '📗';
-      if (ext === 'zip') return '📦';
+      if (['zip','rar','tar','tgz','gz'].includes(ext)) return '📦';
       if (['txt','md'].includes(ext)) return '📝';
       return '📄';
     }
@@ -457,7 +457,7 @@ export function getOcrPortalHtml(): string {
       const newFiles = Array.from(fileList).filter(f => {
         const ext = '.' + f.name.split('.').pop().toLowerCase();
         const allowed = ['.jpg','.jpeg','.png','.bmp','.tiff','.tif','.heic','.webp',
-          '.pdf','.docx','.doc','.xlsx','.xls','.ods','.csv','.tsv','.txt','.md','.zip'];
+          '.pdf','.docx','.doc','.xlsx','.xls','.ods','.csv','.tsv','.txt','.md','.zip','.rar','.tar','.tgz','.gz'];
         return allowed.includes(ext) && f.size > 0;
       });
 

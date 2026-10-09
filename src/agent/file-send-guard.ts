@@ -25,6 +25,7 @@ export const FILE_SEND_TOOLS = new Set([
   "create_word_document",
   "create_admin_document",
   "create_text_document",
+  "convert_file",
   "create_powerpoint",
   "send_file",
   "create_image",

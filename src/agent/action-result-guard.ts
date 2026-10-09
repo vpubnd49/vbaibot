@@ -10,6 +10,7 @@ export const ACTION_TOOLS = new Set([
   "create_excel_file",
   "create_powerpoint",
   "create_text_document",
+  "convert_file",
   "create_image",
   "create_music",
   "create_video",

@@ -251,14 +251,14 @@ export async function buildCurrentTurnContent(
         const ext = path.extname(file.localPath).toLowerCase();
 
         // ZIP: KHONG doc noi dung truc tiep — bao LLM goi tool ocr_folder_to_file
-        if (ext === ".zip") {
+        if ([".zip", ".rar", ".tar", ".tgz", ".gz"].includes(ext)) {
           parts.push({
             type: "text",
             text:
-              `[File ZIP "${file.fileName}" đã được lưu thành công trên hệ thống. ` +
+              `[File nén ${ext.slice(1).toUpperCase()} "${file.fileName}" đã được lưu thành công trên hệ thống. ` +
               `File này chứa nhiều ảnh/tài liệu bên trong (chưa giải nén). ` +
               `BẠN PHẢI GỌI NGAY tool ocr_folder_to_file với source="recent_files" để giải nén và đọc nội dung. ` +
-              `TUYỆT ĐỐI KHÔNG nói "không đọc được ZIP" hay "không có công cụ giải nén" — tool đã xử lý được hoàn toàn. ` +
+              `TUYỆT ĐỐI KHÔNG nói "không đọc được file nén" hay "không có công cụ giải nén" — tool đã xử lý được ZIP/RAR/TAR/GZ. ` +
               `Nếu người dùng muốn xuất Excel: gọi ocr_folder_to_file(source="recent_files", outputFormat="excel", sortBy="score_desc").]`,
           });
         } else {
