@@ -58,7 +58,7 @@ const ACTION_DAU: ToolDefinition[] = [
   {
     key: "send_file",
     label: "Gửi file",
-    description: "Gửi file từ kho shared-files hoặc tải từ URL công khai rồi gửi",
+    description: "Gửi file từ kho shared-files hoặc tải từ URL công khai rồi gửi (chặn IP nội bộ; không gửi file Word dự thảo)",
     group: "action",
     // Gọi thẳng `enqueueSend` (rate-limiter THEO THREAD, không phải trần ngày)
     // để gửi - vào lượt theo lịch sẽ né hoàn toàn `SCHEDULER_MAX_PROACTIVE_PER_DAY`,

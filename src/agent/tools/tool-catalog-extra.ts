@@ -62,7 +62,7 @@ export const EXTRA_TOOL_DEFINITIONS: ToolDefinition[] = [
   {
     key: "video_workshop",
     label: "Xưởng Video",
-    description: "Xử lý video/audio bằng FFmpeg: tách nhạc, nén, cắt, tạo GIF, thêm chữ",
+    description: "Xử lý video/âm thanh người dùng đã gửi trong hội thoại bằng FFmpeg: tách nhạc, nén, cắt, tạo GIF, thêm chữ, xem thông tin",
     group: "action",
     keTrongKhaNang: true,
     runsInScheduledTurn: false,

@@ -137,7 +137,7 @@ export function createTranscribeAudioTool(ctx: ToolContext) {
           `--- NỘI DUNG VĂN BẢN CHÉP TỪ FILE GHI ÂM ---\n` +
           `${result.text}\n` +
           `--- HẾT NỘI DUNG ---\n\n` +
-          `Hãy dùng nội dung trên để trả lời người dùng, biên tập hoặc gọi tool tạo văn bản Word (create_admin_document/create_word_document) nếu được yêu cầu.`
+          `Hãy dùng nội dung trên để trả lời người dùng, biên tập, hoặc tạo file văn bản nếu được yêu cầu.`
         );
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);

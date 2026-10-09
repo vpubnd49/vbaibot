@@ -16,11 +16,11 @@ const log = createLogger("ocr-folder-to-file");
 export function createOcrFolderToFileTool(ctx: ToolContext) {
   return tool({
     description:
-      "[GỌI NGAY khi user gửi ZIP, nhiều ảnh, hoặc yêu cầu đọc/xuất từ file/thư mục] " +
-      "Tool này ĐỌC ĐƯỢC: ảnh JPG/PNG/TIFF/HEIC, PDF (text + scan), DOCX, XLSX, CSV, TXT, và ĐẶC BIỆT là file ZIP (tự giải nén, đọc tất cả bên trong). " +
-      "TUYỆT ĐỐI KHÔNG tự nói 'không đọc được ZIP' hoặc 'không có công cụ giải nén' — GỌI TOOL NÀY với source=recent_files là xong. " +
+      "[GỌI NGAY khi user gửi file nén (ZIP/RAR/TAR/GZ), nhiều ảnh, hoặc yêu cầu đọc/xuất từ file/thư mục] " +
+      "Tool này ĐỌC ĐƯỢC: ảnh JPG/PNG/TIFF/HEIC, PDF (text + scan), DOCX, XLSX, CSV, TXT, và ĐẶC BIỆT là file nén ZIP/RAR/TAR/GZ (tự giải nén, đọc tất cả bên trong). " +
+      "TUYỆT ĐỐI KHÔNG tự nói 'không đọc được file nén' hoặc 'không có công cụ giải nén' — GỌI TOOL NÀY với source=recent_files là xong. " +
       "Sau khi đọc xong, tự động xuất file Excel/Word/CSV/PDF/TXT và gửi cho người dùng. " +
-      "Khi user gửi FILE ZIP → source='recent_files' (tool tự giải nén). " +
+      "Khi user gửi FILE NÉN → source='recent_files' (tool tự giải nén). " +
       "Khi user gửi ẢNH qua Zalo → source='recent_images'. " +
       "Khi biết đường dẫn thư mục trên server → source='folder'.",
     inputSchema: z.object({

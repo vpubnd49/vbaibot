@@ -149,7 +149,8 @@ export const READ_TOOL_DEFINITIONS: ToolDefinition[] = [
   {
     key: "read_document",
     label: "Đọc tài liệu",
-    description: "Đọc nội dung file PDF, Word, Excel, CSV, TXT do người dùng gửi",
+    description:
+      "Đọc nội dung file PDF (kể cả bản scan, tự OCR), Word, Excel, CSV, TXT, ảnh chụp tài liệu và file nén ZIP/RAR/TAR/GZ do người dùng gửi; chọn đúng file theo tên",
     group: "read",
     runsInScheduledTurn: false,
     build: (ctx) => createReadDocumentTool(ctx),
