@@ -94,7 +94,24 @@ export function SessionsPage({ accounts }: { accounts: AccountInfo[] }) {
               <div className="flex items-center gap-3">
                 <InitialAvatar name={t.displayName || t.threadId} />
                 <div className="min-w-0">
-                  <div className="truncate font-semibold text-ink text-[13.5px]">{t.displayName || t.threadId}</div>
+                  <div className="flex items-center gap-2">
+                    <span className="truncate font-semibold text-ink text-[13.5px]">
+                      {t.displayName || t.threadId}
+                    </span>
+                    {t.isVip && (
+                      <span className="shrink-0 rounded bg-amber-500/15 border border-amber-500/30 px-1.5 py-0.5 text-[10px] font-bold text-amber-600 dark:text-amber-400">
+                        VIP
+                      </span>
+                    )}
+                    {t.customModel && (
+                      <span
+                        className="shrink-0 rounded bg-purple-500/10 border border-purple-500/20 px-1.5 py-0.5 text-[10px] font-mono text-purple-600 dark:text-purple-400"
+                        title={`Model riêng: ${t.customModel}`}
+                      >
+                        {t.customModel.split("/").pop()}
+                      </span>
+                    )}
+                  </div>
                   <div className="truncate font-mono text-[11px] text-ink-soft/70">{t.threadId}</div>
                 </div>
               </div>

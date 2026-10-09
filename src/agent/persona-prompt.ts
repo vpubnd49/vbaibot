@@ -199,24 +199,14 @@ export function buildSystemPrompt(
   memory?: PromptMemory,
   account?: Pick<AccountConfig, "id" | "disabledTools">,
   isolated?: boolean,
+  thread?: { disabledTools?: string[] },
 ): string {
   // Chỉ ngày + thứ, không có giờ - giờ đổi mỗi phút sẽ vỡ prompt cache mỗi phút.
   // Không có dòng này model đoán ngày từ training data và trả lời sai.
   const sections = [BASE_PERSONA, currentDateLine(botTimeZone())];
 
   if (account) {
-    // Một lần lọc dùng cho CẢ mục "Khả năng" lẫn các khối luật: hai nơi tự lọc
-    // riêng là sớm muộn cũng lệch, mà lệch nghĩa là prompt kể một tool rồi lại
-    // dạy luật của tool khác. `isolated` PHẢI truyền xuống đây - thiếu nó thì
-    // lượt theo lịch (agent-loop.ts truyền isolated:true) vẫn được liệt kê cả
-    // 9 tool bị runsInScheduledTurn:false, trong khi buildAgentTools ĐÃ lọc
-    // chúng khỏi schema thật - model tự nhận "mình vừa ghi nhớ" mà chẳng lưu
-    // gì (đúng bug persona-prompt.test.ts đã dựng bất biến để canh).
-    //
-    // `agent` truyền cả vào đây chứ không chỉ vào buildAgentTools: từ khi agent
-    // có lớp tắt tool riêng, thiếu nó thì mục "Khả năng" kể luôn tool mà chính
-    // agent này đã tắt - đúng lớp bug bất biến kia sinh ra để chặn.
-    const available = listAvailableTools({ agent, account }, { isolated });
+    const available = listAvailableTools({ agent, account, thread }, { isolated });
     sections.push(toolCapabilitySection(available));
     sections.push(...toolPersonaSections(available.map((t) => t.key)));
 

@@ -32,18 +32,19 @@ export {
 export type ToolScope = {
   agent: Pick<AgentProfile, "disabledTools">;
   account: Pick<AccountConfig, "disabledTools">;
+  thread?: { disabledTools?: string[] };
 };
 
 /**
  * Bộ tool đưa vào lượt agent, đã bỏ tool agent tắt, tool account tắt trên
- * dashboard, và (với lượt theo lịch) tool có `runsInScheduledTurn: false`.
+ * dashboard, tool thread tắt riêng, và (với lượt theo lịch) tool có `runsInScheduledTurn: false`.
  * Tool bị tắt không xuất hiện trong schema -> model không biết nó tồn tại,
  * không tốn token mô tả, không thể bị prompt injection dụ gọi.
  */
 export function buildAgentTools(ctx: ToolContext): Record<string, Tool> {
   const tools: Record<string, Tool> = {};
   for (const def of listAvailableTools(
-    { agent: ctx.agent, account: ctx.account },
+    { agent: ctx.agent, account: ctx.account, thread: ctx.thread },
     { isolated: ctx.isolated },
   )) {
     tools[def.key] = bocToolAnToan(def.key, def.build(ctx));
@@ -56,26 +57,18 @@ export function buildAgentTools(ctx: ToolContext): Record<string, Tool> {
  * `buildAgentTools` (chính nó gọi hàm này) vì system prompt cũng cần danh sách
  * để trả lời câu "bạn làm được gì" - hai nơi tự lọc riêng là sớm muộn cũng
  * lệch, và lệch nghĩa là bot hứa một tool mà model không hề nhận được.
- *
- * Nhận nguyên cụm `scope` thay vì hai tham số rời: thêm lớp lọc mới sau này chỉ
- * phải sửa type, không phải sờ lại từng call site. Và để cụm là BẮT BUỘC (không
- * optional) nên quên truyền `agent` là lỗi biên dịch, không phải lỗi âm thầm
- * cấp thừa tool.
- *
- * `context.isolated` mặc định false: CẢ `buildAgentTools` LẪN `buildSystemPrompt`
- * (persona-prompt.ts) đều truyền `isolated` THẬT xuống đây - lượt theo lịch
- * (isolated:true) phải thấy ĐÚNG danh sách tool đã lọc ở CẢ 2 nơi, không chỉ
- * ở schema gửi model. Lệch nhau nghĩa là persona hứa 1 tool mà model không hề
- * nhận được (đúng lỗi persona-prompt.test.ts đang canh bằng bất biến riêng).
  */
 export function listAvailableTools(
   scope: ToolScope,
   context: { isolated?: boolean } = {},
 ): ToolDefinition[] {
-  // Gộp hai danh sách TẮT thành một tập: tool nằm trong tập là bị loại, bất kể
-  // bên nào tắt nó. Đây chính là phép giao của hai tập BẬT, viết theo chiều
-  // danh sách tắt cho khớp cách lưu ở DB.
-  const disabled = new Set([...scope.agent.disabledTools, ...scope.account.disabledTools]);
+  // Gộp ba danh sách TẮT thành một tập: tool nằm trong tập là bị loại, bất kể
+  // bên nào tắt nó (agent, account, thread).
+  const disabled = new Set([
+    ...scope.agent.disabledTools,
+    ...scope.account.disabledTools,
+    ...(scope.thread?.disabledTools ?? []),
+  ]);
   return TOOL_DEFINITIONS.filter((def) => {
     if (disabled.has(def.key)) return false;
     if (context.isolated && def.runsInScheduledTurn === false) return false;
@@ -83,3 +76,4 @@ export function listAvailableTools(
     return !def.available || def.available();
   });
 }
+

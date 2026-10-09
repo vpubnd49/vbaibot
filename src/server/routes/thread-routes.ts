@@ -7,11 +7,15 @@ import {
   setBotEnabled,
   setThreadSummary,
 } from "../../conversation/thread-store.js";
+import {
+  getThreadSettings,
+  updateThreadSettings,
+} from "../../conversation/thread-settings-store.js";
 import { getThreadUsageTotals } from "../../conversation/usage-store.js";
 import { xoaNguCanhThread } from "../../conversation/wipe-thread-context.js";
 import { huyBatchCuaThread } from "../../middleware/message-batcher.js";
 
-/** /api/threads - màn Sessions: list, xem hội thoại, bật/tắt bot per thread */
+/** /api/threads - màn Sessions: list, xem hội thoại, cấu hình per thread */
 export const threadRoutes = new Hono()
 
   .get("/", (c) => {
@@ -27,11 +31,16 @@ export const threadRoutes = new Hono()
       offset: page * pageSize,
     });
 
-    const items = rows.slice(0, pageSize).map((t) => ({
-      ...t,
-      usage: getThreadUsageTotals(t.accountId, t.threadId),
-      summary: getThreadSummary(t.accountId, t.threadId).summary,
-    }));
+    const items = rows.slice(0, pageSize).map((t) => {
+      const s = getThreadSettings(t.accountId, t.threadId);
+      return {
+        ...t,
+        isVip: s.isVip,
+        customModel: s.customModel,
+        usage: getThreadUsageTotals(t.accountId, t.threadId),
+        summary: getThreadSummary(t.accountId, t.threadId).summary,
+      };
+    });
     return c.json({ items, hasMore: rows.length > pageSize });
   })
 
@@ -45,6 +54,30 @@ export const threadRoutes = new Hono()
       beforeId: beforeIdRaw ? Number(beforeIdRaw) : undefined,
     });
     return c.json({ items });
+  })
+
+  .get("/:threadId/settings", (c) => {
+    const accountId = c.req.query("accountId") ?? "";
+    if (!accountId) return c.json({ error: "Thiếu accountId" }, 400);
+    const settings = getThreadSettings(accountId, c.req.param("threadId"));
+    return c.json(settings);
+  })
+
+  .patch("/:threadId/settings", async (c) => {
+    const bodySchema = z.object({
+      accountId: z.string().min(1),
+      botEnabled: z.boolean().optional(),
+      disabledTools: z.array(z.string()).optional(),
+      customModel: z.string().nullable().optional(),
+      isVip: z.boolean().optional(),
+      notes: z.string().optional(),
+    });
+    const parsed = bodySchema.safeParse(await c.req.json().catch(() => null));
+    if (!parsed.success) return c.json({ error: "Tham số không hợp lệ" }, 400);
+
+    const { accountId, ...patch } = parsed.data;
+    const settings = updateThreadSettings(accountId, c.req.param("threadId"), patch);
+    return c.json(settings);
   })
 
   .patch("/:threadId", async (c) => {

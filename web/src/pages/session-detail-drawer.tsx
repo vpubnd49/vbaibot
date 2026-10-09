@@ -6,6 +6,7 @@ import { useConfirmDialog } from "../shared/confirm-dialog";
 import { formatTime } from "../shared/ui-bits";
 import { IconClose } from "../shared/dashboard-icons";
 import { SessionTraceView } from "./session-trace-view";
+import { SessionSettingsTab } from "./session-settings-tab";
 
 /**
  * Drawer trượt từ phải: xem hội thoại của 1 thread, nút tải thêm tin cũ hơn.
@@ -24,7 +25,7 @@ export function SessionDetailDrawer({
 }) {
   const [messages, setMessages] = useState<MessageItem[]>([]);
   const [hasOlder, setHasOlder] = useState(false);
-  const [tab, setTab] = useState<"chat" | "trace">("chat");
+  const [tab, setTab] = useState<"chat" | "trace" | "settings">("chat");
   // Giữ bản sao cục bộ để xóa xong khối biến mất ngay, không phải tải lại cả trang
   const [tomTat, setTomTat] = useState(thread.summary);
   const [moTomTat, setMoTomTat] = useState(false);
@@ -152,6 +153,7 @@ export function SessionDetailDrawer({
             [
               ["chat", "💬 Hội thoại"],
               ["trace", "⚡ Trace Agent"],
+              ["settings", "⚙️ Cài đặt"],
             ] as const
           ).map(([key, nhan]) => (
             <button
@@ -172,6 +174,12 @@ export function SessionDetailDrawer({
         {tab === "trace" && (
           <div className="flex-1 overflow-y-auto bg-canvas px-5 py-4">
             <SessionTraceView accountId={thread.accountId} threadId={thread.threadId} />
+          </div>
+        )}
+
+        {tab === "settings" && (
+          <div className="flex-1 overflow-y-auto bg-canvas">
+            <SessionSettingsTab thread={thread} onSaved={onDoiDuLieu} />
           </div>
         )}
 

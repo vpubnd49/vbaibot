@@ -7,6 +7,7 @@ import { getRecentMessages } from "../conversation/history-store.js";
 import { getMemoriesForContext } from "../conversation/memory-store.js";
 import { getApprovedKnowledge } from "../conversation/shared-knowledge-store.js";
 import { getThreadContextEpoch, getThreadSummary } from "../conversation/thread-store.js";
+import { getThreadSettings } from "../conversation/thread-settings-store.js";
 import { autoCaptureKnowledge } from "./auto-capture-knowledge.js";
 import { guardOutdatedContent } from "./outdated-content-guard.js";
 import { getBackupModel } from "./backup-provider.js";
@@ -175,9 +176,11 @@ export async function runAgentTurn({
   // kể cả lượt chốt. Đọc lại giữa lượt là tự đổi phiên giữa chừng nếu có ai xóa
   // ngữ cảnh đúng lúc đó - vừa mất cache vừa khó truy nguyên nhân.
   const contextEpoch = getThreadContextEpoch(account.id, latest.threadId);
-
-  // Não của account: persona + model/maxSteps override (fallback cấu hình chung)
-  const agent = getAgentForAccount(account.agentId);
+  const threadSettings = getThreadSettings(account.id, latest.threadId);
+  const effectiveAgent = threadSettings.customModel
+    ? { ...getAgentForAccount(account.agentId), modelName: threadSettings.customModel }
+    : getAgentForAccount(account.agentId);
+  const agent = effectiveAgent;
 
   // Phiên cô lập: KHÔNG gọi getRecentMessages/getMemoriesForContext/getThreadSummary
   // (không chỉ bỏ qua kết quả) - job lịch hẹn không được đọc hội thoại đang có
@@ -358,13 +361,13 @@ export async function runAgentTurn({
             threadId: latest.threadId,
             contextEpoch,
           }),
-          system: buildSystemPrompt(agent, latest, memory, account, isolated),
+          system: buildSystemPrompt(agent, latest, memory, account, isolated, { disabledTools: threadSettings.disabledTools }),
           messages: nguCanh,
-          // Hai lớp lọc tool giao nhau: agent khai năng lực, account áp chính sách.
+          // Ba lớp lọc tool giao nhau: agent khai năng lực, account áp chính sách, thread tinh chỉnh riêng.
           // Thêm `isolated` lọc bớt tool không hợp với lượt theo lịch (add_reaction
           // không có msgId thật, read_image không có ảnh, save_memory chặn injection
           // từ job) - xem runsInScheduledTurn ở tool-registry.ts
-          tools: buildAgentTools({ api, account, agent, message: latest, batch, isolated, ghiNhanDaGui, fileDaGuiTrongLuot }),
+          tools: buildAgentTools({ api, account, agent, message: latest, batch, isolated, ghiNhanDaGui, fileDaGuiTrongLuot, thread: { disabledTools: threadSettings.disabledTools } }),
           // Hai điều kiện dừng. `stepCountIs` chặn số VÒNG; điều kiện token chặn
           // KÍCH THƯỚC - kết quả tool cộng dồn qua từng step (web_fetch một mình đã
           // tới WEB_FETCH_MAX_CHARS ký tự), nên một lượt ít step vẫn phình được.
@@ -483,7 +486,7 @@ export async function runAgentTurn({
             threadId: latest.threadId,
             contextEpoch,
           }),
-          system: buildSystemPrompt(agent, latest, memory, account, isolated),
+          system: buildSystemPrompt(agent, latest, memory, account, isolated, { disabledTools: threadSettings.disabledTools }),
           messages: tinChot,
           maxOutputTokens: getTuning("LLM_MAX_OUTPUT_TOKENS"),
           maxRetries: 1,

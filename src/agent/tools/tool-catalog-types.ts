@@ -25,6 +25,8 @@ export type ToolContext = {
   agent: AgentProfile;
   /** Tin cuối của lượt - tools tác động (reaction, quote) nhắm vào tin này */
   message: ParsedMessage;
+  /** Cấu hình riêng của cuộc trò chuyện (nếu có) */
+  thread?: { disabledTools?: string[] };
   /**
    * Cả batch của lượt (ảnh và caption Zalo gửi tách tin). read_image cần vì
    * ảnh của lượt hiện tại CHƯA vào DB khi tool chạy - đọc history là hụt.

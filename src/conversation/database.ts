@@ -523,6 +523,19 @@ function runMigrations(): void {
     CREATE INDEX IF NOT EXISTS idx_fb_posts_created ON facebook_posts (created_at DESC);
     CREATE INDEX IF NOT EXISTS idx_fb_posts_page ON facebook_posts (page_id, created_at DESC);
     CREATE INDEX IF NOT EXISTS idx_fb_posts_category ON facebook_posts (category, created_at DESC);
+
+    -- Phase 3: Cấu hình theo từng cuộc chat (thread settings)
+    CREATE TABLE IF NOT EXISTS thread_settings (
+      account_id TEXT NOT NULL,
+      thread_id TEXT NOT NULL,
+      bot_enabled INTEGER NOT NULL DEFAULT 1,
+      disabled_tools TEXT NOT NULL DEFAULT '[]',
+      custom_model TEXT,
+      is_vip INTEGER NOT NULL DEFAULT 0,
+      notes TEXT NOT NULL DEFAULT '',
+      updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
+      PRIMARY KEY (account_id, thread_id)
+    );
   `);
 }
 

@@ -106,6 +106,19 @@ export type ThreadItem = {
   lastSenderName: string | null;
   usage: { turns: number; totalTokens: number };
   summary: string;
+  isVip?: boolean;
+  customModel?: string | null;
+};
+
+export type ThreadSettings = {
+  accountId: string;
+  threadId: string;
+  botEnabled: boolean;
+  disabledTools: string[];
+  customModel: string | null;
+  isVip: boolean;
+  notes: string;
+  updatedAt: string;
 };
 
 export type MessageItem = {
@@ -163,6 +176,19 @@ export const api = {
     request<{ ok: true }>(`/api/threads/${encodeURIComponent(threadId)}`, {
       method: "PATCH",
       body: JSON.stringify({ accountId, botEnabled }),
+    }),
+  getThreadSettings: (accountId: string, threadId: string) =>
+    request<ThreadSettings>(
+      `/api/threads/${encodeURIComponent(threadId)}/settings?accountId=${encodeURIComponent(accountId)}`,
+    ),
+  updateThreadSettings: (
+    accountId: string,
+    threadId: string,
+    patch: Partial<Omit<ThreadSettings, "accountId" | "threadId" | "updatedAt">>,
+  ) =>
+    request<ThreadSettings>(`/api/threads/${encodeURIComponent(threadId)}/settings`, {
+      method: "PATCH",
+      body: JSON.stringify({ accountId, ...patch }),
     }),
   xoaTomTatThread: (accountId: string, threadId: string) =>
     request<{ ok: true }>(
