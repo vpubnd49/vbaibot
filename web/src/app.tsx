@@ -8,6 +8,7 @@ import { BottomNav } from "./layout/bottom-nav";
 import { NotificationBell } from "./layout/notification-bell";
 import { HomePage } from "./pages/home-page";
 import { ReportsPage } from "./pages/reports-page";
+import { InsightPage } from "./pages/insight-page";
 import { JournalPage } from "./pages/journal-page";
 import { MePage } from "./pages/me-page";
 import { AccountsPage } from "./pages/accounts-page";
@@ -133,6 +134,7 @@ function DashboardShell() {
             <Route path="/" element={<HomePage />} />
             <Route path="/usage" element={<OverviewPage />} />
             <Route path="/reports" element={<ReportsPage />} />
+            <Route path="/insights" element={<InsightPage accounts={accounts} />} />
             <Route path="/journal" element={<JournalPage />} />
             <Route path="/me" element={<MePage onLogout={logout} />} />
             <Route path="/vps" element={<VpsMonitorPage />} />

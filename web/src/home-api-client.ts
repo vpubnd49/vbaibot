@@ -73,10 +73,39 @@ export type JournalEvent = {
   accountLabel?: string;
 };
 
+export type ThreadInsight = {
+  threadId: string;
+  threadName: string;
+  threadType: number;
+  totalTurns: number;
+  totalTokens: number;
+  avgTokensPerTurn: number;
+  firstActivity: string;
+  lastActivity: string;
+  activeDays: number;
+};
+
+export type OverallInsight = {
+  totalThreads: number;
+  totalTurns: number;
+  totalTokens: number;
+  averageResponseTimeMs: number;
+  topThreads: ThreadInsight[];
+  turnsByDay: { day: string; count: number }[];
+};
+
 export const homeApi = {
   home: () => request<HomeSummary>("/api/home"),
   reports: (days: 7 | 30) => request<ReportSummary>(`/api/reports?days=${days}`),
+  sendVpsReport: () => request<{ ok: boolean; message: string }>("/api/reports/send-vps-report", { method: "POST" }),
+  insights: (accountId?: string, days = 30) => {
+    const q = new URLSearchParams();
+    if (accountId && accountId !== "all") q.set("accountId", accountId);
+    q.set("days", String(days));
+    return request<OverallInsight>(`/api/insights?${q.toString()}`);
+  },
   journalDays: (from: string, to: string) =>
     request<{ days: JournalDay[]; logDays: string[]; timezone: string }>(`/api/journal?from=${from}&to=${to}`),
   journalEvents: (date: string) => request<{ date: string; events: JournalEvent[] }>(`/api/journal/events?date=${date}`),
 };
+

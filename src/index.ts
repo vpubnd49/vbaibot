@@ -11,6 +11,7 @@ import { startQpplSyncTask } from "./qppl/qppl-service.js";
 import { seedDefaultFacebookPages } from "./realtime/facebook/facebook-service.js";
 import { startFacebookCrawler, stopFacebookCrawler } from "./realtime/facebook/facebook-page-crawler.js";
 import { startDisasterCrawler, stopDisasterCrawler } from "./realtime/disaster/disaster-alert-crawler.js";
+import { startDailyVpsReportLoop, stopDailyVpsReportLoop } from "./server/vps-daily-reporter.js";
 import { startAllAccounts, stopAllAccounts } from "./zalo/account-manager.js";
 import { flushSentMessageTracker, initSentMessageTracker } from "./zalo/sent-message-tracker.js";
 import { dataDir } from "./config/env.js";
@@ -42,6 +43,7 @@ function shutdown(signal: string): void {
   if (shuttingDown) return;
   shuttingDown = true;
   logger.info({ signal }, "Đang tắt zalo-agent...");
+  stopDailyVpsReportLoop();
   stopDisasterCrawler();
   stopFacebookCrawler();
   stopScheduler();
@@ -89,6 +91,8 @@ seedDefaultFacebookPages();
 startFacebookCrawler();
 // Cào cảnh báo thiên tai (sạt lở, ngập, xả lũ) mỗi 15 phút từ FB + RSS
 startDisasterCrawler();
+// Tự động gửi báo cáo VPS định kỳ lúc 08:00 sáng cho Admin Zalo
+startDailyVpsReportLoop();
 
 startDashboardServer();
 startAllAccounts()

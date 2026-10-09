@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { homeApi, type ReportSummary } from "../home-api-client";
 import { IconBolt, IconBot, IconChat, IconClock, IconUsers } from "../shared/dashboard-icons";
-import { IconAlert } from "../shared/warm-icons";
+import { IconAlert, IconChart } from "../shared/warm-icons";
 import { LoadingCard, SectionHeading, SegmentedTabs, StatTile, WarmPageTitle } from "../shared/warm-ui";
 import { soGon } from "../shared/vn-format";
 import { ReportStackedChart } from "./report-stacked-chart";
@@ -18,6 +18,8 @@ export function ReportsPage() {
   const [days, setDays] = useState<7 | 30>(30);
   const [data, setData] = useState<ReportSummary | null>(null);
   const [loi, setLoi] = useState("");
+  const [sendingVps, setSendingVps] = useState(false);
+  const [vpsNotice, setVpsNotice] = useState("");
 
   useEffect(() => {
     setData(null);
@@ -27,10 +29,48 @@ export function ReportsPage() {
       .catch((e: unknown) => setLoi(e instanceof Error ? e.message : "Không tải được báo cáo"));
   }, [days]);
 
+  const handleSendVpsReport = async () => {
+    setSendingVps(true);
+    setVpsNotice("");
+    try {
+      const res = await homeApi.sendVpsReport();
+      setVpsNotice(res.message || "Đã gửi báo cáo VPS đến Zalo Admin");
+    } catch (err) {
+      setVpsNotice(err instanceof Error ? err.message : "Lỗi khi gửi báo cáo");
+    } finally {
+      setSendingVps(false);
+    }
+  };
+
   const t = data?.totals;
   return (
     <div className="mx-auto w-full max-w-3xl pb-6">
-      <WarmPageTitle eyebrow="Tổng hợp" title="Báo cáo" />
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-2">
+        <WarmPageTitle eyebrow="Tổng hợp" title="Báo cáo" />
+        <div className="flex flex-wrap items-center gap-2">
+          <Link
+            to="/insights"
+            className="flex items-center gap-1.5 rounded-xl border border-line bg-surface px-3 py-1.5 text-xs font-semibold text-ink shadow-xs hover:border-zalo-500 transition-colors"
+          >
+            <IconChart size={15} />
+            <span>Phân tích Insight</span>
+          </Link>
+          <button
+            onClick={handleSendVpsReport}
+            disabled={sendingVps}
+            className="flex items-center gap-1.5 rounded-xl bg-zalo-600 px-3 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-zalo-700 disabled:opacity-50 transition-colors"
+          >
+            <span>{sendingVps ? "Đang gửi..." : "Gửi báo cáo VPS vào Zalo"}</span>
+          </button>
+        </div>
+      </div>
+
+      {vpsNotice && (
+        <p className="mb-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 px-4 py-2 text-xs font-medium text-emerald-700 dark:text-emerald-300">
+          {vpsNotice}
+        </p>
+      )}
+
       <SegmentedTabs options={[{ value: 7, label: "7 ngày" }, { value: 30, label: "30 ngày" }]} value={days} onChange={setDays} />
 
       {loi && <p className="mb-3 rounded-2xl bg-rose-100 px-4 py-2.5 text-[13.5px] text-rose-700">{loi}</p>}

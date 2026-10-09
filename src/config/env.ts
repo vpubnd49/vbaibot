@@ -210,7 +210,7 @@ const envSchema = z.object({
   LOG_FILE_ENABLED: z.preprocess(emptyToUndefined, z.stringbool().default(true)),
   // Giữ lại bao nhiêu file (xoay vòng mỗi ngày 1 file). File ghi MỌI mức kể cả
   // debug, độc lập với LOG_LEVEL của terminal - terminal cần gọn, file cần đủ.
-  LOG_FILE_KEEP_DAYS: z.coerce.number().int().min(1).max(90).default(7),
+  LOG_FILE_KEEP_DAYS: z.coerce.number().int().min(1).max(90).default(90),
 
   // Trace từng step của lượt agent (model nói gì, gọi tool nào với tham số gì,
   // provider cảnh báo gì). Tắt thì bot vẫn chạy, chỉ mất đường chẩn đoán.

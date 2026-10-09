@@ -41,6 +41,7 @@ const NHOM: { title: string; items: Muc[] }[] = [
     title: "Thống kê",
     items: [
       { to: "/reports", label: "Báo cáo", hint: "Tổng hợp 7 / 30 ngày", icon: <IconChart size={19} /> },
+      { to: "/insights", label: "Phân tích Insight", hint: "Thống kê chiều sâu các cuộc hội thoại", icon: <IconBrain size={19} /> },
       { to: "/usage", label: "Mức sử dụng token", hint: "Token theo ngày, tuần, tháng, năm", icon: <IconBolt size={19} /> },
       { to: "/trace", label: "Trace Agent", hint: "Xem từng bước bot suy nghĩ", icon: <IconCpu size={19} /> },
       { to: "/logs", label: "Log hệ thống", hint: "Log kỹ thuật thời gian thực", icon: <IconDatabase size={19} /> },

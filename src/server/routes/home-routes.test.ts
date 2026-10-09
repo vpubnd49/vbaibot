@@ -93,4 +93,16 @@ describe("home-routes", () => {
     assert.ok(titles.includes("2 tin khách · 1 bot trả lời"), titles.join(" | "));
     assert.ok(titles.includes("1 liên hệ mới"));
   });
+
+  it("POST /api/reports/send-vps-report: gọi được lệnh gửi báo cáo", async () => {
+    const r = await app.request("/api/reports/send-vps-report", {
+      method: "POST",
+      headers: { cookie },
+    });
+    // Trong môi trường test không có account online nên trả về 400 kèm message, chứng minh route hoạt động an toàn
+    assert.ok(r.status === 200 || r.status === 400);
+    const body = (await r.json()) as { ok: boolean; message: string };
+    assert.ok("ok" in body);
+  });
 });
+

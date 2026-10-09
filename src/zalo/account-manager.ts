@@ -9,6 +9,7 @@ import { runStartupBackfill } from "../conversation/startup-backfill.js";
 import { clearPendingBatches } from "../middleware/message-batcher.js";
 import { createLogger } from "../shared/logger.js";
 import { routeIncomingMessage } from "./incoming-message-router.js";
+import { notifyAccountDisconnect } from "./owner-notifier.js";
 import { loginWithStoredCredentials } from "./zalo-client.js";
 import { startListener } from "./zalo-listener.js";
 
@@ -93,6 +94,7 @@ export async function startAllAccounts(): Promise<void> {
       await startAccount(config.id);
     } catch (err) {
       log.error({ accountId: config.id, err }, "Không khởi động được account - bỏ qua");
+      notifyAccountDisconnect(config.id, "Không khởi động được tài khoản khi khởi chạy hệ thống").catch(() => undefined);
     }
   }
 

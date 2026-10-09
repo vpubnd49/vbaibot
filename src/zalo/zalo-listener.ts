@@ -1,5 +1,6 @@
 import type { API } from "zca-js";
 import { createLogger } from "../shared/logger.js";
+import { notifyAccountDisconnect, notifyAccountRecovered } from "./owner-notifier.js";
 
 export type RawMessageHandler = (rawMessage: unknown) => Promise<void> | void;
 
@@ -31,6 +32,7 @@ export function startListener(
   api.listener.onConnected(() => {
     reconnectAttempts = 0;
     log.info("Listener đã kết nối");
+    notifyAccountRecovered(accountId).catch(() => undefined);
   });
 
   api.listener.onError((error: unknown) => {
@@ -44,6 +46,10 @@ export function startListener(
     const delay = backoff + Math.floor(Math.random() * 1000);
     reconnectAttempts += 1;
     log.warn({ attempt: reconnectAttempts, delayMs: delay }, "Listener bị đóng - sẽ kết nối lại");
+
+    if (reconnectAttempts === 3) {
+      notifyAccountDisconnect(accountId, `Mất kết nối liên tiếp ${reconnectAttempts} lần`).catch(() => undefined);
+    }
 
     reconnectTimer = setTimeout(() => {
       reconnectTimer = undefined;

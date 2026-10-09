@@ -35,6 +35,7 @@ const SECTIONS: { title: string; items: { to: string; label: string; icon: IconF
     items: [
       { to: "/", label: "Trang chủ", icon: IconGrid },
       { to: "/reports", label: "Báo cáo", icon: IconChart },
+      { to: "/insights", label: "Phân tích Insight", icon: IconBrain },
       { to: "/journal", label: "Nhật ký hoạt động", icon: IconCalendar },
       { to: "/vps", label: "Giám sát VPS", icon: IconCpu, badge: "Live" },
       { to: "/usage", label: "Mức sử dụng token", icon: IconBolt },
