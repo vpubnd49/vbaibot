@@ -23,7 +23,10 @@ function createZaloInstance(): Zalo {
   return new Zalo({
     checkUpdate: false,
     logging: false,
-    selfListen: false,
+    // Bật để nhận lại tin do CHÍNH nick này gửi (kèm cliMsgId) - tool
+    // recall_message cần nó để thu hồi mọi loại tin của bot. Tin này bị
+    // `shouldRespond` bỏ qua (isSelf) nên không kích hoạt lượt agent nào.
+    selfListen: true,
     imageMetadataGetter,
   });
 }

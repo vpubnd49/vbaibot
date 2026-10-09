@@ -2,6 +2,7 @@ import type { API, Style, ThreadType } from "zca-js";
 import { batDauGuiChuoi, enqueueSend, ketThucGuiChuoi } from "../middleware/rate-limiter.js";
 import { createLogger } from "../shared/logger.js";
 import { chiaTheoNganSachByte, demDoanBoDinhDang } from "./split-styled-message.js";
+import { recordSentMessage } from "./sent-message-tracker.js";
 import { getTuning } from "../config/runtime-tuning-settings.js";
 
 /**
@@ -97,7 +98,11 @@ function sendOne(target: ReplyTarget, text: string, styles?: Style[]): Promise<u
   const msg = styles && styles.length > 0 ? { msg: text, styles } : { msg: text };
   return enqueueSend(target.threadKey, () =>
     target.api.sendMessage(msg, target.threadId, target.threadType),
-  );
+  ).then((response) => {
+    // Nhớ id tin vừa gửi để tool recall_message thu hồi đúng tin của bot
+    recordSentMessage(target.threadKey, response);
+    return response;
+  });
 }
 
 /**

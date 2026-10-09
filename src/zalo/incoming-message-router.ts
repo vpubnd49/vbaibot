@@ -21,6 +21,7 @@ import { maybeNotifyBusyWait } from "./busy-wait-notice.js";
 import { sendDeliveredReceipt } from "./message-receipts.js";
 import { processBatch } from "./message-turn-processor.js";
 import { reportPayloadAnomalies } from "./payload-anomaly-watch.js";
+import { recordSelfMessage } from "./sent-message-tracker.js";
 import { describeForHistory, parseIncomingMessage, type ParsedMessage } from "./zalo-message-parser.js";
 
 const log = createLogger("message-router");
@@ -46,6 +47,16 @@ export function routeIncomingMessage(
   // Chạy TRƯỚC mọi nhánh return bên dưới: tin thiếu threadId bị bỏ qua lặng lẽ
   // ở ngay dòng dưới, không cảnh báo ở đây thì không còn chỗ nào biết
   reportPayloadAnomalies(config.id, msg);
+
+  // Tin do CHÍNH nick này gửi (selfListen): chỉ ghi id để thu hồi được về sau,
+  // rồi dừng - không ghi history (bot tự ghi tin của mình ở chỗ khác) và không
+  // chạy bất kỳ nhánh trả lời nào.
+  if (msg.isSelf) {
+    if (msg.threadId) {
+      recordSelfMessage(`${config.id}:${msg.threadId}`, msg.msgId, msg.cliMsgId);
+    }
+    return;
+  }
 
   if (!msg.isSelf && msg.threadId) {
     // "Đã nhận" cho MỌI tin về tới listener, kể cả tin sắp bị lọc - client Zalo

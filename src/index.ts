@@ -12,6 +12,9 @@ import { seedDefaultFacebookPages } from "./realtime/facebook/facebook-service.j
 import { startFacebookCrawler, stopFacebookCrawler } from "./realtime/facebook/facebook-page-crawler.js";
 import { startDisasterCrawler, stopDisasterCrawler } from "./realtime/disaster/disaster-alert-crawler.js";
 import { startAllAccounts, stopAllAccounts } from "./zalo/account-manager.js";
+import { flushSentMessageTracker, initSentMessageTracker } from "./zalo/sent-message-tracker.js";
+import { dataDir } from "./config/env.js";
+import path from "node:path";
 
 // Vòng đời tiến trình cũng cần scope: không có thì badge scope trên trang Logs
 // trống trơn và KHÔNG LỌC ĐƯỢC - đúng lúc cần nhất là khi có uncaughtException
@@ -44,6 +47,7 @@ function shutdown(signal: string): void {
   stopScheduler();
   stopDashboardServer();
   stopAllAccounts();
+  flushSentMessageTracker();
   closeHistoryStore();
   process.exit(0);
 }
@@ -71,6 +75,8 @@ setInterval(() => heartbeatLog.debug("còn sống"), 15 * 60_000).unref();
 
 // Dọn ảnh nhận được đã quá MEDIA_RETENTION_DAYS (chạy ngay + mỗi 24h)
 startMediaCleanupSchedule();
+// Nhớ id tin bot đã gửi qua restart để recall_message vẫn thu hồi được trong 1 giờ
+initSentMessageTracker(path.join(dataDir, "sent-messages.json"));
 // Dọn file tạm mồ côi của tool send_file (process bị kill giữa lượt gửi)
 startTempFileCleanupSchedule();
 // Tự động quét và đồng bộ Kết luận thanh tra tỉnh Lâm Đồng (ngay + mỗi 6h)
