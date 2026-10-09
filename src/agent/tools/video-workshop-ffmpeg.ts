@@ -1,8 +1,9 @@
 /**
- * Chạy ffmpeg/ffprobe cho video_workshop. Đối số CỐ ĐỊNH qua execFile (không
- * shell). Tách khỏi video-workshop-tool.ts để file tool dưới 200 dòng.
+ * Chạy ffmpeg/ffprobe cho video_workshop. Đối số CỐ ĐỊNH qua `runBinary` (execFile,
+ * không shell) dùng chung với convert_file. Tách khỏi video-workshop-tool.ts để file
+ * tool dưới 200 dòng.
  */
-import { execFile } from "node:child_process";
+import { runBinary } from "../../documents/converter-binaries.js";
 
 export function actionLabel(a: string): string {
   const labels: Record<string, string> = {
@@ -16,27 +17,15 @@ export function actionLabel(a: string): string {
   return labels[a] ?? a;
 }
 
-function chay(bin: string, args: string[], timeout: number): Promise<string> {
-  return new Promise((resolve, reject) => {
-    execFile(bin, args, { timeout, maxBuffer: 16 * 1024 * 1024, windowsHide: true }, (err, stdout, stderr) => {
-      if (!err) return resolve(stdout);
-      if ((err as NodeJS.ErrnoException).code === "ENOENT") {
-        return reject(new Error(`Máy chủ chưa cài ${bin}`));
-      }
-      // Chỉ giữ đuôi stderr: phần đầu là banner dài, phần cuối mới là lý do lỗi
-      reject(new Error(String(stderr || err.message).slice(-300)));
-    });
-  });
-}
-
 export function runFfmpeg(args: string[]): Promise<string> {
-  return chay("ffmpeg", args, 300_000);
+  return runBinary("ffmpeg", args, "xử lý video", 300_000);
 }
 
 export async function runFfprobe(filePath: string): Promise<string> {
-  const stdout = await chay(
+  const stdout = await runBinary(
     "ffprobe",
     ["-v", "quiet", "-print_format", "json", "-show_format", "-show_streams", filePath],
+    "đọc thông tin file",
     15_000,
   );
   try {

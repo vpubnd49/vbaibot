@@ -14,17 +14,24 @@ export class ConvertError extends Error {}
 
 const TIMEOUT_MS = 120_000;
 
-function run(bin: string, args: string[], hint: string): Promise<void> {
+/**
+ * Chạy 1 công cụ ngoài với đối số cố định, trả stdout. Dùng chung cho convert_file và
+ * video_workshop. Lỗi luôn là `ConvertError` với câu tiếng Việt đọc được (thiếu công cụ /
+ * đuôi stderr - phần đầu là banner dài, phần cuối mới là lý do).
+ */
+export function runBinary(bin: string, args: string[], hint: string, timeoutMs = TIMEOUT_MS): Promise<string> {
   return new Promise((resolve, reject) => {
-    execFile(bin, args, { timeout: TIMEOUT_MS, maxBuffer: 8 * 1024 * 1024, windowsHide: true }, (err, _o, stderr) => {
-      if (!err) return resolve();
+    execFile(bin, args, { timeout: timeoutMs, maxBuffer: 16 * 1024 * 1024, windowsHide: true }, (err, stdout, stderr) => {
+      if (!err) return resolve(String(stdout));
       if ((err as NodeJS.ErrnoException).code === "ENOENT") {
-        return reject(new ConvertError(`Máy chủ chưa cài ${bin} nên chưa chuyển được ${hint}`));
+        return reject(new ConvertError(`Máy chủ chưa cài ${bin} nên chưa ${hint} được`));
       }
-      reject(new ConvertError(`${bin} lỗi khi chuyển ${hint}: ${String(stderr || err.message).slice(-300)}`));
+      reject(new ConvertError(`${bin} lỗi khi ${hint}: ${String(stderr || err.message).slice(-300)}`));
     });
   });
 }
+
+const run = (bin: string, args: string[], hint: string) => runBinary(bin, args, `chuyển ${hint}`);
 
 /** Chạy `work(thưMụcTạm)` rồi dọn thư mục. */
 export async function withWorkDir<T>(work: (dir: string) => Promise<T>): Promise<T> {
