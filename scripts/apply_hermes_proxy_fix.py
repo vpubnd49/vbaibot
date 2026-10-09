@@ -4,7 +4,9 @@ import io
 
 HOST = "103.142.25.252"
 USER = "root"
-PASS = "Chau@2026#LD"
+# Không ghi mật khẩu vào repo: mặc định đăng nhập bằng SSH key (~/.ssh/id_ed25519);
+# cần mật khẩu thì đặt biến môi trường VPS_PASSWORD.
+PASS = __import__("os").environ.get("VPS_PASSWORD")
 
 sys.stdout.reconfigure(encoding='utf-8')
 ssh = paramiko.SSHClient()

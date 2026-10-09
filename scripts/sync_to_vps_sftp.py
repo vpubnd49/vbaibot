@@ -4,7 +4,9 @@ import sys
 
 HOST = "103.142.25.252"
 USER = "root"
-PASS = "Chau@2026#LD"
+# Không ghi mật khẩu vào repo: mặc định đăng nhập bằng SSH key (~/.ssh/id_ed25519);
+# cần mật khẩu thì đặt biến môi trường VPS_PASSWORD.
+PASS = __import__("os").environ.get("VPS_PASSWORD")
 
 FILES_TO_UPLOAD = [
     ("src/knowledge/noi-chinh-templates.ts", "/var/www/vbaibot/src/knowledge/noi-chinh-templates.ts"),
