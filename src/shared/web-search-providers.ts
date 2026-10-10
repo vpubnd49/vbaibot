@@ -142,9 +142,13 @@ export async function searchWeb(query: string, opts: SearchOptions): Promise<Sea
     try {
       const results = await searchBrave(query, opts);
       if (results.length > 0) return prioritizeSearchResults(results, opts.preferredDomains);
-      log.debug({ query }, "Brave không có kết quả - thử DuckDuckGo");
     } catch (err) {
-      log.warn({ err }, "Brave search lỗi - rơi về DuckDuckGo");
+      const errMsg = String(err);
+      if (errMsg.includes("401") || errMsg.includes("403") || errMsg.includes("422") || errMsg.includes("SUBSCRIPTION_TOKEN_INVALID")) {
+        log.debug({ err }, "Brave API key không hợp lệ hoặc hết hạn - chuyển sang DuckDuckGo");
+      } else {
+        log.warn({ err }, "Brave search lỗi - rơi về DuckDuckGo");
+      }
     }
   }
 

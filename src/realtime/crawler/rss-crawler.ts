@@ -16,6 +16,7 @@ const USER_AGENT =
 
 const failedFeedUntil = new Map<string, number>();
 const FEED_FAILURE_COOLDOWN_MS = 10 * 60 * 1000;
+const FEED_NOT_FOUND_COOLDOWN_MS = 24 * 60 * 60 * 1000; // 24 giờ cho 404/410
 
 function feedKey(url: string): string {
   return url.trim().toLowerCase();
@@ -78,6 +79,12 @@ export async function crawlRssFeed(
       signal: AbortSignal.timeout(6000),
     });
 
+    if (res.status === 404 || res.status === 410) {
+      failedFeedUntil.set(key, Date.now() + FEED_NOT_FOUND_COOLDOWN_MS);
+      log.debug({ sourceName, url, status: res.status }, "RSS feed không tồn tại; tạm ngưng 24 giờ");
+      return [];
+    }
+
     if (!res.ok) {
       throw new Error(`RSS feed trả HTTP ${res.status}`);
     }
@@ -91,8 +98,14 @@ export async function crawlRssFeed(
     }
     return items;
   } catch (err) {
-    failedFeedUntil.set(key, Date.now() + FEED_FAILURE_COOLDOWN_MS);
-    log.warn({ err, sourceName }, "Lỗi khi cào RSS Feed; tạm ngưng endpoint 10 phút");
+    const errMsg = String(err);
+    if (errMsg.includes("404") || errMsg.includes("410")) {
+      failedFeedUntil.set(key, Date.now() + FEED_NOT_FOUND_COOLDOWN_MS);
+      log.debug({ sourceName, url }, "RSS feed không tồn tại; tạm ngưng 24 giờ");
+    } else {
+      failedFeedUntil.set(key, Date.now() + FEED_FAILURE_COOLDOWN_MS);
+      log.warn({ err, sourceName }, "Lỗi khi cào RSS Feed; tạm ngưng endpoint 10 phút");
+    }
     return [];
   }
 }

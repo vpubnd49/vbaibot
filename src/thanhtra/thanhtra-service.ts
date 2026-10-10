@@ -58,22 +58,37 @@ export async function syncThanhtraDocuments(limit = 30): Promise<ThanhtraSyncRes
         const absPath = path.join(storageDir, baseName);
         const relPath = path.join("thanhtra", baseName).replace(/\\/g, "/");
 
+        const notFoundPath = `${absPath}.notfound`;
+
         if (fs.existsSync(absPath)) {
           const stats = fs.statSync(absPath);
           fileSize = stats.size;
           localPath = relPath;
           log.debug({ title, file: baseName, kb: Math.round(fileSize / 1024) }, "File PDF đã có trên đĩa - bỏ qua tải lại");
+        } else if (fs.existsSync(notFoundPath)) {
+          localPath = "NOT_FOUND";
+          log.debug({ title, file: baseName }, "File PDF đã ghi nhận 404 trước đó - bỏ qua");
         } else {
-          // Tải file PDF về đĩa
-          fileSize = await downloadPdfFile(pdfUrl, absPath);
-          localPath = relPath;
-          downloaded = true;
-          result.newDownloaded++;
-          log.info({ title, file: baseName, bytes: fileSize }, "Đã tải file PDF kết luận thanh tra");
+          try {
+            fileSize = await downloadPdfFile(pdfUrl, absPath);
+            localPath = relPath;
+            downloaded = true;
+            result.newDownloaded++;
+            log.info({ title, file: baseName, bytes: fileSize }, "Đã tải file PDF kết luận thanh tra");
+          } catch (err) {
+            if ((err as { status?: number })?.status === 404) {
+              fs.writeFileSync(notFoundPath, "404");
+              localPath = "NOT_FOUND";
+              log.debug({ title, file: baseName }, "File PDF không tồn tại trên máy chủ (404) - đánh dấu không tải lại");
+            } else {
+              result.errors++;
+              log.warn({ title, pdfUrl, err }, "Lỗi khi tải file PDF kết luận thanh tra");
+            }
+          }
         }
       } catch (err) {
         result.errors++;
-        log.warn({ title, pdfUrl, err }, "Lỗi khi tải file PDF kết luận thanh tra");
+        log.warn({ title, pdfUrl, err }, "Lỗi khi xử lý đường dẫn PDF kết luận thanh tra");
       }
     }
 

@@ -59,7 +59,6 @@ export async function fetchNewsArticles(
       ["https://baolamdong.vn/rss/doi-song", "Báo Lâm Đồng - Đời sống"],
       ["https://baolamdong.vn/rss/phap-luat", "Báo Lâm Đồng - Pháp luật"],
       ["https://baolamdong.vn/rss/du-lich", "Báo Lâm Đồng - Du lịch"],
-      ["https://lamdong.gov.vn/rss/tin-tuc-su-kien", "Cổng TTĐT Lâm Đồng"],
     ] as const;
     // Lấy song song, mỗi feed tối đa 3 bài, loại trùng link
     const results = await Promise.allSettled(

@@ -165,9 +165,18 @@ export async function persistBatchFiles(
           "Đã lưu file tài liệu nhận được",
         );
       } catch (err) {
-        // Xem lý do ở nhánh ảnh: tải file hỏng mà chỉ log `debug` thì `read_document`
-        // về sau báo "không có file nào" và không ai biết file chưa từng được lưu.
-        log.warn({ accountId, msgId: msg.msgId, fileName: file.fileName, err }, "Không lưu được file tài liệu - bỏ qua");
+        const errMsg = String(err);
+        if (
+          errMsg.includes("Nội dung rỗng") ||
+          errMsg.includes("ECONNRESET") ||
+          errMsg.includes("HTTP 404") ||
+          errMsg.includes("ETIMEDOUT") ||
+          errMsg.includes("timeout")
+        ) {
+          log.debug({ accountId, msgId: msg.msgId, fileName: file.fileName, err }, "Bỏ qua lưu file rỗng hoặc lỗi kết nối mạng CDN Zalo");
+        } else {
+          log.warn({ accountId, msgId: msg.msgId, fileName: file.fileName, err }, "Không lưu được file tài liệu - bỏ qua");
+        }
       }
     }
   }

@@ -44,7 +44,6 @@ const ALERT_EXPIRY_HOURS = 24;
 const DISASTER_RSS_FEEDS = [
   ["https://baolamdong.vn/rss/thoi-su", "Báo Lâm Đồng - Thời sự"],
   ["https://baolamdong.vn/rss/doi-song", "Báo Lâm Đồng - Đời sống"],
-  ["https://lamdong.gov.vn/rss/tin-tuc-su-kien", "Cổng TTĐT Lâm Đồng"],
 ] as const;
 
 // ───── Tạo ID duy nhất cho mỗi cảnh báo ────────────────────────────────────

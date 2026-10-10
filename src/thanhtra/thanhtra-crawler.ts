@@ -106,6 +106,11 @@ export async function downloadPdfFile(pdfUrl: string, destPath: string): Promise
     });
 
     if (!res.ok) {
+      if (res.status === 404) {
+        const notFoundErr = new Error("HTTP 404 Not Found");
+        (notFoundErr as unknown as { status: number }).status = 404;
+        throw notFoundErr;
+      }
       throw new Error(`HTTP ${res.status}: ${res.statusText}`);
     }
 
@@ -121,7 +126,11 @@ export async function downloadPdfFile(pdfUrl: string, destPath: string): Promise
     fs.writeFileSync(destPath, buffer);
     return buffer.length;
   } catch (err) {
-    log.warn({ pdfUrl, destPath, err }, "Không tải được file PDF kết luận thanh tra");
+    if ((err as { status?: number })?.status === 404) {
+      log.debug({ pdfUrl, destPath }, "File PDF không tồn tại trên máy chủ (HTTP 404)");
+    } else {
+      log.warn({ pdfUrl, destPath, err }, "Không tải được file PDF kết luận thanh tra");
+    }
     throw err;
   }
 }

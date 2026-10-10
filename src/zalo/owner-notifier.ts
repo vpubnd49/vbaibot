@@ -5,6 +5,8 @@ import { getRunningAccountApi, getRunningAccounts } from "./account-manager.js";
 
 const log = createLogger("owner-notifier");
 
+import { db } from "../conversation/database.js";
+
 /** Cooldown chống dội bom tin nhắn (15 phút cho disconnect, 30 phút cho error surge) */
 const COOLDOWN_DISCONNECT_MS = 15 * 60_000;
 const COOLDOWN_ERROR_SURGE_MS = 30 * 60_000;
@@ -38,13 +40,16 @@ export function getAdminUserIds(preferredAccountId?: string): string[] {
   return [...ids];
 }
 
-/** Tìm API của 1 account đang online để gửi tin (ưu tiên account khác nếu target bị ngắt) */
-function pickSendingApi(excludeAccountId?: string) {
-  const running = getRunningAccounts();
-  const candidate = running.find((a) => a.id !== excludeAccountId) ?? running[0];
-  if (!candidate) return null;
-  const api = getRunningAccountApi(candidate.id);
-  return api ? { api, accountId: candidate.id, label: candidate.label } : null;
+/** Tìm tài khoản Zalo đã có sẵn hội thoại với user ID này để ưu tiên gửi */
+function findAccountWithThread(threadId: string): string | null {
+  try {
+    const row = db
+      .prepare("SELECT account_id FROM threads WHERE thread_id = ? ORDER BY last_message_at DESC LIMIT 1")
+      .get(threadId) as { account_id: string } | undefined;
+    return row?.account_id ?? null;
+  } catch {
+    return null;
+  }
 }
 
 /** Gửi tin nhắn trực tiếp đến Admin Zalo */
@@ -58,27 +63,47 @@ export async function sendToAdmin(
     return false;
   }
 
-  const sender = pickSendingApi(options?.excludeAccountId);
-  if (!sender) {
+  const running = getRunningAccounts().filter((a) => a.id !== options?.excludeAccountId);
+  if (running.length === 0) {
     log.warn("Không thể gửi tin cho Admin: Không có tài khoản Zalo nào đang online");
     return false;
   }
 
   let sentCount = 0;
   for (const adminId of adminIds) {
-    try {
-      await sender.api.sendMessage({ msg: text, quote: undefined }, adminId, 0); // 0 = ThreadType.User
-      sentCount++;
-    } catch (err) {
-      log.error({ adminId, senderAccount: sender.accountId, err }, "Lỗi khi gửi tin cho Admin");
+    // Sắp xếp: Ưu tiên account đã có hội thoại với adminId -> preferredAccountId -> còn lại
+    const threadAccId = findAccountWithThread(adminId);
+    const sorted = [...running].sort((a, b) => {
+      if (a.id === threadAccId) return -1;
+      if (b.id === threadAccId) return 1;
+      if (a.id === options?.preferredAccountId) return -1;
+      if (b.id === options?.preferredAccountId) return 1;
+      return 0;
+    });
+
+    let sent = false;
+    let lastErr: unknown = null;
+    for (const sender of sorted) {
+      const api = getRunningAccountApi(sender.id);
+      if (!api) continue;
+      try {
+        await api.sendMessage({ msg: text, quote: undefined }, adminId, 0); // 0 = ThreadType.User
+        sent = true;
+        sentCount++;
+        log.info({ adminId, viaAccount: sender.id }, "Đã gửi thông báo cho Admin Zalo");
+        break;
+      } catch (err) {
+        lastErr = err;
+        log.debug({ adminId, senderAccount: sender.id, err }, "Gửi qua account này không thành công, thử tài khoản tiếp theo");
+      }
+    }
+
+    if (!sent) {
+      log.error({ adminId, err: lastErr }, "Lỗi khi gửi tin cho Admin (đã thử qua mọi tài khoản online)");
     }
   }
 
-  if (sentCount > 0) {
-    log.info({ sentCount, viaAccount: sender.accountId }, "Đã gửi thông báo cho Admin Zalo");
-    return true;
-  }
-  return false;
+  return sentCount > 0;
 }
 
 /** Cảnh báo khi tài khoản Zalo bị ngắt kết nối (có cooldown chống spam) */

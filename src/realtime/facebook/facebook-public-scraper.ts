@@ -23,9 +23,9 @@ export type ScrapedPost = {
   createdAt: string;
 };
 
-/** Cooldown khi bị block hoặc lỗi liên tục */
+/** Cooldown khi bị block hoặc lỗi liên tục (2 giờ để tránh spam) */
 const failedPageUntil = new Map<string, number>();
-const FAILURE_COOLDOWN_MS = 30 * 60 * 1000; // 30 phút
+const FAILURE_COOLDOWN_MS = 2 * 60 * 60 * 1000; // 2 giờ
 
 /**
  * Cào bài viết công khai từ 1 Facebook Page.
@@ -73,7 +73,7 @@ export async function scrapePublicPagePosts(
 
     // Kiểm tra xem có bị redirect sang trang login không
     if (html.includes('id="login_form"') || (html.includes("/login/") && html.length < 10_000)) {
-      log.warn({ pageSlug }, "Facebook yêu cầu đăng nhập — page có thể không công khai");
+      log.debug({ pageSlug }, "Facebook yêu cầu đăng nhập — page có thể không công khai");
       failedPageUntil.set(key, Date.now() + FAILURE_COOLDOWN_MS);
       return [];
     }
@@ -92,7 +92,7 @@ export async function scrapePublicPagePosts(
     return posts;
   } catch (err) {
     failedPageUntil.set(key, Date.now() + FAILURE_COOLDOWN_MS);
-    log.warn({ err, pageSlug }, "Lỗi khi cào Facebook page công khai");
+    log.debug({ err, pageSlug }, "Lỗi khi cào Facebook page công khai");
     return [];
   }
 }
