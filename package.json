@@ -71,6 +71,7 @@
     "image-size": "^2.0.2",
     "luxon": "^3.7.2",
     "mammoth": "^1.12.1",
+    "minisearch": "^7.2.0",
     "msedge-tts": "^2.0.7",
     "node-unrar-js": "^2.0.2",
     "pdf-parse": "^2.4.5",

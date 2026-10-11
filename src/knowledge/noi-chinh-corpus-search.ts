@@ -1,128 +1,82 @@
 /**
+ * noi-chinh-corpus-search.ts
+ *
  * Tra cứu kho văn bản NỘI CHÍNH — 3.327 mẫu thật.
  *
- * Corpus nạp 1 lần khi khởi động, lưu trong RAM (~16MB). Agent gọi
- * `searchCorpus(keywords)` để tìm mẫu VB giống nhất, trả về nội dung
- * đầy đủ để tham khảo khi soạn thảo.
+ * NÂNG CẤP: BM25 (MiniSearch) + LLM reranking thay thế keyword counting cũ.
+ *
+ * Luồng:
+ *   1. BM25 → top-12 ứng viên (< 1ms, pure JS)
+ *   2. Gemini (ag/gemini-3.8-flash-low, có sẵn qua 9router) → chọn top-N phù hợp nhất
+ *   3. Fallback: nếu reranker lỗi → dùng BM25 top-N (không bao giờ crash)
+ *
+ * API ngoài (searchCorpus, corpusStats, listByCategory, getByPath) GIỮ NGUYÊN
+ * để các tool hiện tại không cần sửa.
  */
-import fs from "node:fs";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-import { createLogger } from "../shared/logger.js";
+import { bm25Search, bm25Stats } from "./corpus-bm25.js";
+import { rerankResults } from "./corpus-reranker.js";
+import { loadCorpusEntries } from "./corpus-loader.js";
 
-const log = createLogger("noi-chinh-corpus");
+// ─── Re-export types ─────────────────────────────────────────────────────────
 
-interface CorpusEntry {
+export type SearchResult = {
   path: string;
   category: string;
   filename: string;
   text: string;
-}
+  score: number;
+};
 
-let corpus: CorpusEntry[] | null = null;
-
-function getCorpusPath(): string {
-  const __dirname = path.dirname(fileURLToPath(import.meta.url));
-  // Thứ tự ưu tiên: cùng thư mục → src/knowledge/ → data/
-  const candidates = [
-    path.join(__dirname, "noi-chinh-corpus.json"),
-    path.resolve(__dirname, "../../src/knowledge/noi-chinh-corpus.json"),
-    path.resolve(__dirname, "../src/knowledge/noi-chinh-corpus.json"),
-    path.resolve(process.cwd(), "src/knowledge/noi-chinh-corpus.json"),
-    path.resolve(process.cwd(), "data/noi-chinh-corpus.json"),
-  ];
-  for (const p of candidates) {
-    if (fs.existsSync(p)) return p;
-  }
-  return candidates[0]!; // fallback, sẽ fail khi load
-}
-
-/** Nạp corpus 1 lần (lazy load khi gọi search đầu tiên) */
-function loadCorpus(): CorpusEntry[] {
-  if (corpus) return corpus;
-
-  const corpusPath = getCorpusPath();
-  try {
-    const raw = fs.readFileSync(corpusPath, "utf-8");
-    corpus = JSON.parse(raw) as CorpusEntry[];
-    log.info({ count: corpus.length, path: corpusPath }, "Nạp corpus NỘI CHÍNH");
-    return corpus;
-  } catch (err) {
-    log.warn({ err, path: corpusPath }, "Không đọc được corpus NỘI CHÍNH");
-  }
-
-  corpus = [];
-  return corpus;
-}
+// ─── Public API ───────────────────────────────────────────────────────────────
 
 /**
- * Tìm văn bản mẫu theo từ khóa.
+ * Tìm văn bản mẫu theo từ khóa / câu hỏi tự nhiên.
  *
- * Thuật toán: đếm số từ khóa xuất hiện trong filename + text,
- * xếp theo score giảm dần, trả về top N.
+ * Sử dụng BM25 + LLM reranking:
+ *   - BM25 lọc nhanh top-(maxResults*4) ứng viên
+ *   - Gemini chọn maxResults phù hợp nhất theo ngữ nghĩa
+ *
+ * @param keywords   Từ khóa hoặc câu hỏi ngắn ("ủy quyền vụ án hành chính")
+ * @param options.category    Lọc theo thư mục (tùy chọn)
+ * @param options.maxResults  Số kết quả cuối cùng (mặc định 5)
+ * @param options.rerank      Bật/tắt LLM reranking (mặc định true)
  */
-export function searchCorpus(
+export async function searchCorpus(
   keywords: string,
-  options?: { category?: string; maxResults?: number },
-): { path: string; category: string; filename: string; text: string; score: number }[] {
-  const entries = loadCorpus();
+  options?: { category?: string; maxResults?: number; rerank?: boolean },
+): Promise<SearchResult[]> {
   const max = options?.maxResults ?? 5;
-  const filterCat = options?.category?.toLowerCase();
+  const doRerank = options?.rerank !== false;
 
-  // Tách từ khóa, chuẩn hóa
-  const terms = keywords
-    .toLowerCase()
-    .replace(/[,;.!?()]/g, " ")
-    .split(/\s+/)
-    .filter((t) => t.length > 1);
+  // BM25: lấy nhiều hơn để reranker có đủ ứng viên
+  const bm25Candidates = bm25Search(keywords, {
+    category: options?.category,
+    maxResults: doRerank ? Math.min(max * 4, 16) : max,
+  });
 
-  if (terms.length === 0) return [];
+  if (bm25Candidates.length === 0) return [];
+  if (!doRerank || bm25Candidates.length <= max) {
+    return bm25Candidates.map((r) => ({ ...r }));
+  }
 
-  const scored = entries
-    .filter((e) => !filterCat || e.category.toLowerCase().includes(filterCat))
-    .map((entry) => {
-      const haystack = (entry.filename + " " + entry.text).toLowerCase();
-      let score = 0;
-      for (const term of terms) {
-        if (haystack.includes(term)) score++;
-        // Bonus nếu xuất hiện trong filename (quan trọng hơn)
-        if (entry.filename.toLowerCase().includes(term)) score += 2;
-      }
-      return { ...entry, score };
-    })
-    .filter((e) => e.score > 0)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, max);
-
-  return scored;
-}
-
-/**
- * Tìm theo category (thư mục cấp 1), trả về tất cả file trong đó.
- */
-export function listByCategory(category: string): { path: string; filename: string }[] {
-  const entries = loadCorpus();
-  return entries
-    .filter((e) => e.category === category)
-    .map((e) => ({ path: e.path, filename: e.filename }));
-}
-
-/**
- * Lấy nội dung 1 file theo đường dẫn tương đối.
- */
-export function getByPath(relPath: string): CorpusEntry | undefined {
-  const entries = loadCorpus();
-  return entries.find((e) => e.path === relPath);
+  // LLM reranking
+  const reranked = await rerankResults(keywords, bm25Candidates, max);
+  return reranked.map((r) => ({ ...r }));
 }
 
 /** Danh sách tất cả category và số file */
 export function corpusStats(): { category: string; count: number }[] {
-  const entries = loadCorpus();
-  const map = new Map<string, number>();
-  for (const e of entries) {
-    map.set(e.category, (map.get(e.category) || 0) + 1);
-  }
-  return [...map.entries()]
-    .map(([category, count]) => ({ category, count }))
-    .sort((a, b) => b.count - a.count);
+  return bm25Stats();
+}
+
+/** Lấy tất cả file trong một category */
+export function listByCategory(category: string): { path: string; filename: string }[] {
+  return loadCorpusEntries()
+    .filter((e) => e.category === category)
+    .map((e) => ({ path: e.path, filename: e.filename }));
+}
+
+/** Lấy nội dung 1 file theo đường dẫn tương đối */
+export function getByPath(relPath: string): { path: string; category: string; filename: string; text: string } | undefined {
+  return loadCorpusEntries().find((e) => e.path === relPath);
 }

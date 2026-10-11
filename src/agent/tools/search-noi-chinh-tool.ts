@@ -38,7 +38,7 @@ export function createSearchNoiChinhTool() {
         .describe("Số kết quả tối đa (1-10, mặc định 3)"),
     }),
     execute: async ({ keywords, category, maxResults }) => {
-      const results = searchCorpus(keywords, {
+      const results = await searchCorpus(keywords, {
         category,
         maxResults: maxResults ?? 3,
       });
