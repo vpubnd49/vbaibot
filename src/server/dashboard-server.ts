@@ -51,6 +51,8 @@ import { ttsSettingsRoutes } from "./routes/tts-settings-routes.js";
 import { vpsRoutes } from "./routes/vps-routes.js";
 import { antigravityRelayRoutes } from "./routes/antigravity-relay-routes.js";
 import { notebooklmRoutes } from "./routes/notebooklm-routes.js";
+import { facebookRoutes } from "./routes/facebook-routes.js";
+import { legalDocsRoutes } from "./routes/legal-docs-routes.js";
 import { attachNovncUpgrade, novncHttpRoutes } from "./novnc-proxy.js";
 
 const log = createLogger("dashboard-server");
@@ -261,6 +263,8 @@ export function buildDashboardApp(): Hono {
   app.route("/api/tickets", ticketRoutes);
   app.route("/api/settings/tts", ttsSettingsRoutes);
   app.route("/api/notebooklm", notebooklmRoutes);
+  app.route("/api/facebook", facebookRoutes);
+  app.route("/api/legal-docs", legalDocsRoutes);
 
   // API không khớp route nào phải trả JSON 404, không được rơi xuống SPA
   // fallback bên dưới (client fetch JSON mà nhận HTML thì lỗi rất khó đọc)

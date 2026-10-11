@@ -10,6 +10,7 @@ import { getThreadContextEpoch, getThreadSummary } from "../conversation/thread-
 import { getThreadSettings } from "../conversation/thread-settings-store.js";
 import { autoCaptureKnowledge } from "./auto-capture-knowledge.js";
 import { guardOutdatedContent } from "./outdated-content-guard.js";
+import { scrubPassClaims } from "../realtime/disaster/pass-claim-scrubber.js";
 import { getBackupModel } from "./backup-provider.js";
 import { createLogger } from "../shared/logger.js";
 import { TECHNICAL_ERROR_REPLY } from "../zalo/send-reply-in-parts.js";
@@ -915,7 +916,9 @@ export async function runAgentTurn({
 
   // Lớp phòng thủ cuối: scan text tìm cụm từ lỗi thời (3 cấp, Sở cũ)
   // và append cảnh báo ⚠️ nếu phát hiện.
-  const textCuoi = guardOutdatedContent(textSauGuard);
+  const textCuoi0 = guardOutdatedContent(textSauGuard);
+  // Lượt có tra tình trạng đèo: gỡ các khẳng định "an toàn/thông suốt" không có căn cứ
+  const textCuoi = finalToolCalls.includes("disaster_alert_lookup") ? scrubPassClaims(textCuoi0) : textCuoi0;
 
   return {
     text: textCuoi,

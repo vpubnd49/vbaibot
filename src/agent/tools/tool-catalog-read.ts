@@ -75,6 +75,8 @@ export const READ_TOOL_DEFINITIONS: ToolDefinition[] = [
     description:
       "Điểm tin thời sự kinh tế, xã hội, quốc phòng, an ninh, CNTT cả nước và cập nhật nhanh nhất từ Cổng TTĐT tỉnh Lâm Đồng",
     group: "read",
+    // Settings = phiên đăng nhập Facebook cho crawler fanpage
+    hasSettings: true,
     build: () => createNewsTool(),
   },
   {

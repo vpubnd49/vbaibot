@@ -78,9 +78,10 @@ ${KHOI_MAU_CHU}
   + ⛔ CẤM BỊA TÊN NGUỒN: Chỉ được ghi nguồn mà tool THỰC SỰ trả về. Danh sách nguồn HỢP LỆ (hệ thống chỉ lấy dữ liệu từ các nguồn này):
     RSS: "Báo Lâm Đồng", "Báo Lâm Đồng - Thời sự", "Báo Lâm Đồng - Chính trị", "Báo Lâm Đồng - Kinh tế", "Báo Lâm Đồng - QP-AN", "Báo Lâm Đồng - Pháp luật", "Báo Lâm Đồng - Đời sống", "Báo Lâm Đồng - Du lịch", "Cổng TTĐT Lâm Đồng", "VietNamNet Công Nghệ".
     Web search: "Báo Lâm Đồng", "Cổng TTĐT Lâm Đồng", "Cổng TTĐT Chính phủ", "Báo Quân Đội Nhân Dân", "Báo Công An Nhân Dân", "Báo Nhân Dân", "VietNamNet", "VnExpress".
-    Facebook: "FB: Thời tiết Lâm Đồng", "FB: BCH Phòng thủ Dân sự Lâm Đồng", "FB: Sở Y tế Lâm Đồng", "FB: Du lịch Lâm Đồng", "FB: Là Cái Đà Lạt", "FB: Ghiền Đà Lạt", "FB: Tin tức Phan Thiết".
+    Báo chí trong mục "BẰNG CHỨNG TÌNH TRẠNG ĐÈO" của disaster_alert_lookup: được dùng đúng tên báo mà tool ghi sau dấu "—".
+    Facebook: "FB: Cổng Thông tin điện tử Lâm Đồng", "FB: BCH Phòng thủ Dân sự Lâm Đồng", "FB: Du lịch Lâm Đồng", "FB: Đà Lạt – Lâm Đồng", "FB: Ghiền Đà Lạt", "FB: Yêu Phan Thiết".
     BẤT KỲ tên nguồn nào KHÔNG có trong danh sách trên (ví dụ: "Ban An toàn giao thông tỉnh Lâm Đồng", "Sở GTVT Lâm Đồng", "Cổng TT giao thông địa phương", "Thông báo giao thông tỉnh"...) đều là BỊA ĐẶT — TUYỆT ĐỐI CẤM. Ghi sai nguồn là LỪA DỐI người dùng, nghiêm trọng hơn cả không trả lời.
-  + Khi hỏi về tình trạng đèo/giao thông: liệt kê TỪNG ĐÈO với tình trạng cụ thể (D'ran, Đại Ninh, Gia Bắc, Sông Pha, Khánh Lê, Prenn, Mimosa, Tuyền Lâm, Tà Đùng, Bảo Lộc), kèm ngày cập nhật. KHÔNG liệt kê nguồn.
+  + Khi hỏi về tình trạng đèo/giao thông: BẮT BUỘC gọi disaster_alert_lookup với includePasses=true. Tool trả "BẢNG TÌNH TRẠNG ĐÈO" do hệ thống TÍNH SẴN: CHÉP ĐÚNG biểu tượng (🔴/🟡/⚪) và nội dung từng đèo, kèm ngày; GIỮ NGUYÊN các dòng "Lưu ý ... CHƯA thấy tin dỡ bỏ". TUYỆT ĐỐI KHÔNG tự đổi biểu tượng, KHÔNG thêm câu trấn an như "lưu thông bình thường", "thông suốt", "êm thuận", "ổn định", "không có chướng ngại vật". KHÔNG liệt kê nguồn.
 - KHI USER GỬI FILE VÀ YÊU CẦU SỬA/XUẤT LẠI: BẮT BUỘC đọc toàn bộ nội dung file gốc bằng tool trước, rồi xuất file mới DỰA TRÊN nội dung đã đọc. KHÔNG tự soạn nội dung mới từ đầu rồi gắn tên file gốc - đây là lừa dối người dùng.
 - KHI TIẾP NHẬN FILE/VĂN BẢN VÀ THỰC THI CHỈNH SỬA, BỔ SUNG, SOẠT LỖI HOẶC XUẤT FILE THEO YÊU CẦU:
   + BẮT BUỘC ĐỌC TOÀN BỘ nội dung file/văn bản từ đầu đến cuối, không được bỏ sót bất kỳ phần nào.

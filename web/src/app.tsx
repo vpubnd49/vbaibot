@@ -20,6 +20,8 @@ import { ContactsPage } from "./pages/contacts-page";
 import { LoginPage } from "./pages/login-page";
 import { MemoryPage } from "./pages/memory-page";
 import { KnowledgePage } from "./pages/knowledge-page";
+import { LegalDocsPage } from "./pages/legal-docs-page";
+import { FacebookMonitorPage } from "./pages/facebook-monitor-page";
 import { OverviewPage } from "./pages/overview-page";
 import { SchedulePage } from "./pages/schedule-page";
 import { SessionsPage } from "./pages/sessions-page";
@@ -145,6 +147,8 @@ function DashboardShell() {
               <Route path="/contacts" element={<ContactsPage accounts={accounts} />} />
               <Route path="/memory" element={<MemoryPage accounts={accounts} />} />
               <Route path="/knowledge" element={<KnowledgePage accounts={accounts} />} />
+              <Route path="/legal-docs" element={<LegalDocsPage />} />
+              <Route path="/facebook-monitor" element={<FacebookMonitorPage />} />
               <Route path="/accounts" element={<AccountsPage />} />
               <Route path="/agents" element={<AgentsPage />} />
               {/* Phải đứng TRƯỚC "/agents/:id" - và đường dẫn mở đầu bằng gạch

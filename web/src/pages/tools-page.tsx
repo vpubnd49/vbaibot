@@ -21,6 +21,7 @@ import { ToolChainSettingsModal } from "./tool-chain-settings-modal";
 import { VisionSettingsModal } from "./vision-settings-modal";
 import { NotebooklmSettingsModal } from "./notebooklm-settings-modal";
 import { notebooklmApi, type NotebooklmStatus } from "../notebooklm-api-client";
+import { FacebookSessionModal } from "./facebook-session-modal";
 
 /**
  * Trang Tools theo mẫu Built-in Tools của GoClaw: tool nhóm theo mức rủi ro,
@@ -313,10 +314,14 @@ export function ToolsPage() {
         />
       )}
 
+      {settingsFor?.key === "news_lookup" && (
+        <FacebookSessionModal onClose={() => setSettingsFor(null)} />
+      )}
+
       {/* Danh sách tường minh, KHÔNG dùng "mọi key còn lại": thêm tool có
           settings riêng mà quên loại trừ ở đây là nó mở nhầm modal chuỗi web */}
       {settingsFor &&
-        !["read_image", "create_image", "notebooklm"].includes(settingsFor.key) &&
+        !["read_image", "create_image", "notebooklm", "news_lookup"].includes(settingsFor.key) &&
         search &&
         fetchSettings && (
           <ToolChainSettingsModal

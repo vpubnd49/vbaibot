@@ -283,8 +283,8 @@ const LAMDONG_MARKERS = [
  */
 const LAMDONG_SOURCES = [
   "báo lâm đồng", "baolamdong", "cổng ttđt lâm đồng", "lamdong.gov",
-  "thời tiết lâm đồng", "bch phòng thủ dân sự lâm đồng",
-  "fb: thời tiết lâm đồng", "fb: bch phòng thủ dân sự",
+  "bch phòng thủ dân sự lâm đồng",
+  "fb: bch phòng thủ dân sự", "fb: cổng thông tin điện tử lâm đồng",
 ] as const;
 
 /**

@@ -24,48 +24,42 @@ const log = createLogger("facebook-service");
 
 const DEFAULT_PAGES = [
   {
+    // 218K followers — đăng cảnh báo đèo/sạt lở tuyến Phan Thiết–Đà Lạt real-time
     pageId: "tintucphanthiet",
-    pageName: "Tin tức Phan Thiết",
+    pageName: "Yêu Phan Thiết",
     pageUrl: "https://www.facebook.com/tintucphanthiet",
-    category: "xa_hoi",
+    category: "lam_dong",
   },
   {
+    // 239K followers — "Tin tức đô đáy cập nhật từng giây" tại Đà Lạt – Lâm Đồng
+    pageId: "lacaidalat",
+    pageName: "Đà Lạt – Lâm Đồng",
+    pageUrl: "https://www.facebook.com/lacaidalat",
+    category: "lam_dong",
+  },
+  {
+    // 1.3 triệu followers — du lịch, ẩm thực, thời tiết Đà Lạt
     pageId: "GDL.GhienDalat",
     pageName: "Ghiền Đà Lạt",
     pageUrl: "https://www.facebook.com/GDL.GhienDalat",
     category: "lam_dong",
   },
   {
-    pageId: "lacaidalat",
-    pageName: "Lá Cải Đà Lạt",
-    pageUrl: "https://www.facebook.com/lacaidalat",
-    category: "lam_dong",
-  },
-  {
+    // 25K followers — Cổng TTĐT chính thống tỉnh Lâm Đồng (bbt@lamdong.gov.vn)
     pageId: "100076386510860",
-    pageName: "Trang Facebook 100076386510860",
+    pageName: "Cổng Thông tin điện tử Lâm Đồng",
     pageUrl: "https://www.facebook.com/profile.php?id=100076386510860",
-    category: "tong_hop",
-  },
-  {
-    pageId: "thoitietlamdong",
-    pageName: "Thời tiết Lâm Đồng",
-    pageUrl: "https://www.facebook.com/thoitietlamdong",
     category: "lam_dong",
   },
   {
-    pageId: "soyteLamDong",
-    pageName: "Sở Y tế Lâm Đồng",
-    pageUrl: "https://www.facebook.com/soyteLamDong",
-    category: "xa_hoi",
-  },
-  {
+    // Fanpage du lịch chính thức Lâm Đồng
     pageId: "dulichlamdong",
     pageName: "Du lịch Lâm Đồng",
     pageUrl: "https://www.facebook.com/dulichlamdong",
     category: "lam_dong",
   },
 ];
+
 
 /**
  * Seed danh sách pages mặc định nếu chưa có.

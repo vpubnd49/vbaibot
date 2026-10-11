@@ -537,6 +537,34 @@ function runMigrations(): void {
       PRIMARY KEY (account_id, thread_id)
     );
   `);
+
+  // ===== Phase 7: Kho văn bản pháp luật tự cào (vanban.chinhphu.vn, Công báo) =====
+  // Một dòng = một văn bản ở một nguồn. status: pending -> downloaded | failed | no_file | duplicate.
+  // origin: 'crawler' (cào định kỳ) | 'user' (người dùng yêu cầu tải qua bot).
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS legal_docs (
+      id TEXT PRIMARY KEY,
+      source TEXT NOT NULL,
+      so_hieu TEXT NOT NULL DEFAULT '',
+      so_hieu_norm TEXT NOT NULL DEFAULT '',
+      trich_yeu TEXT NOT NULL DEFAULT '',
+      loai_vb TEXT NOT NULL DEFAULT '',
+      ngay_ban_hanh TEXT NOT NULL DEFAULT '',
+      detail_url TEXT NOT NULL DEFAULT '',
+      file_url TEXT NOT NULL DEFAULT '',
+      status TEXT NOT NULL DEFAULT 'pending',
+      origin TEXT NOT NULL DEFAULT 'crawler',
+      file_path TEXT,
+      file_size INTEGER NOT NULL DEFAULT 0,
+      attempts INTEGER NOT NULL DEFAULT 0,
+      last_error TEXT,
+      discovered_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
+      downloaded_at TEXT
+    );
+    CREATE INDEX IF NOT EXISTS idx_legal_docs_discovered ON legal_docs (discovered_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_legal_docs_status ON legal_docs (status, discovered_at);
+    CREATE INDEX IF NOT EXISTS idx_legal_docs_sohieu ON legal_docs (so_hieu_norm);
+  `);
 }
 
 function addColumnIfMissing(table: string, column: string, definition: string): void {

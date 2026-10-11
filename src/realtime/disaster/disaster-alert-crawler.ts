@@ -40,11 +40,17 @@ const DEFAULT_INTERVAL_MS = 15 * 60 * 1000;
 const ALERT_EXPIRY_HOURS = 24;
 
 // ───── RSS Feeds theo dõi thiên tai ─────────────────────────────────────────
+// Lưu ý: Cổng TTĐT Lâm Đồng (lamdong.gov.vn) dùng SharePoint, không có RSS.
+// Bù đắp bằng báo quốc gia — lọc isAboutLamDong() + isDisasterRelated()
+// sẽ giữ lại đúng bài liên quan Lâm Đồng.
 
 const DISASTER_RSS_FEEDS = [
   ["https://baolamdong.vn/rss/thoi-su", "Báo Lâm Đồng - Thời sự"],
   ["https://baolamdong.vn/rss/doi-song", "Báo Lâm Đồng - Đời sống"],
+  ["https://vnexpress.net/rss/thoi-su.rss", "VnExpress - Thời sự"],
+  ["https://thanhnien.vn/rss/home.rss", "Thanh Niên"],
 ] as const;
+
 
 // ───── Tạo ID duy nhất cho mỗi cảnh báo ────────────────────────────────────
 

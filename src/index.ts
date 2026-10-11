@@ -11,6 +11,7 @@ import { startQpplSyncTask } from "./qppl/qppl-service.js";
 import { seedDefaultFacebookPages } from "./realtime/facebook/facebook-service.js";
 import { startFacebookCrawler, stopFacebookCrawler } from "./realtime/facebook/facebook-page-crawler.js";
 import { startDisasterCrawler, stopDisasterCrawler } from "./realtime/disaster/disaster-alert-crawler.js";
+import { startLegalDocsCrawler, stopLegalDocsCrawler } from "./legal/services/legal-docs-crawler.js";
 import { startDailyVpsReportLoop, stopDailyVpsReportLoop } from "./server/vps-daily-reporter.js";
 import { startRouterUpdateWatcher } from "./server/router-update-status.js";
 import { startNotebooklmHealthWatcher } from "./notebooklm/notebooklm-health.js";
@@ -48,6 +49,7 @@ function shutdown(signal: string): void {
   stopDailyVpsReportLoop();
   stopDisasterCrawler();
   stopFacebookCrawler();
+  stopLegalDocsCrawler();
   stopScheduler();
   stopDashboardServer();
   stopAllAccounts();
@@ -93,6 +95,8 @@ seedDefaultFacebookPages();
 startFacebookCrawler();
 // Cào cảnh báo thiên tai (sạt lở, ngập, xả lũ) mỗi 15 phút từ FB + RSS
 startDisasterCrawler();
+// Cào văn bản pháp luật mới (vanban.chinhphu.vn + Công báo) và tải sẵn PDF mỗi 30 phút
+startLegalDocsCrawler();
 // Tự động gửi báo cáo VPS định kỳ lúc 08:00 sáng cho Admin Zalo
 startDailyVpsReportLoop();
 // Báo Zalo cho Admin khi cron tự cập nhật 9router trên VPS đổi phiên bản / thất bại

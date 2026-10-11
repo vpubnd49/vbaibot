@@ -13,6 +13,7 @@ import {
 import { searchVbpl, downloadVbplDocument } from "./vbpl-crawler.js";
 import { searchPhapLuat, downloadPhapLuatDocument } from "./phapluat-crawler.js";
 import { findLegalDocumentByAlias, findLegalDocumentByNumber } from "../repositories/legal-repository.js";
+import { findCachedLegalFile, recordUserDownload, type LegalDocSource } from "./legal-docs-store.js";
 
 const log = createLogger("national-legal-service");
 
@@ -286,17 +287,54 @@ export async function downloadNationalLegal(
 ): Promise<NationalDownloadResult> {
   // Chỉ tải PDF — bản chính thức trên datafiles.chinhphu.vn là .signed.pdf
   const effectiveFormat = "pdf" as const;
+
+  // 1) Cache: văn bản đã được crawler tải sẵn (hoặc người khác đã tải) → trả ngay
+  if (soHieu) {
+    try {
+      const cached = findCachedLegalFile(soHieu);
+      if (cached?.filePath) {
+        const ext = cached.filePath.split(".").pop()?.toLowerCase() || "pdf";
+        log.info({ soHieu, cachedId: cached.id, filePath: cached.filePath }, "Serving legal document from local cache");
+        return {
+          filePath: cached.filePath,
+          format: ext,
+          fileSize: cached.fileSize,
+          source: cached.source === "congbao" ? "congbao" : cached.source === "phapluat" ? "phapluat" : cached.source === "tvpl" ? "tvpl" : "vbpl",
+        };
+      }
+    } catch (err) {
+      log.warn({ err, soHieu }, "Legal cache lookup failed");
+    }
+  }
+
   log.info({ source, soHieu, downloadId, requestedFormat: format, effectiveFormat }, "Starting priority legal download (PDF only)");
+  let result: NationalDownloadResult;
   if (source === "congbao") {
-    return downloadFromCongbao(downloadId, soHieu);
+    result = await downloadFromCongbao(downloadId, soHieu);
+  } else if (source === "vbpl") {
+    result = await downloadFromVbpl(downloadId, effectiveFormat, soHieu);
+  } else if (source === "phapluat") {
+    result = await downloadFromPhapLuat(downloadId, effectiveFormat, soHieu);
+  } else {
+    result = await downloadFromTvpl(downloadId, effectiveFormat, soHieu);
   }
-  if (source === "vbpl") {
-    return downloadFromVbpl(downloadId, effectiveFormat, soHieu);
+
+  // 2) Ghi nhận lượt tải theo yêu cầu → thống kê + cache cho lần sau
+  if (result.filePath && soHieu) {
+    try {
+      const storeSource: LegalDocSource = /vanban\.chinhphu\.vn/i.test(downloadId) ? "chinhphu" : result.source;
+      recordUserDownload({
+        source: storeSource,
+        soHieu,
+        detailUrl: /^https?:/i.test(downloadId) ? downloadId : "",
+        filePath: result.filePath,
+        fileSize: result.fileSize,
+      });
+    } catch (err) {
+      log.warn({ err, soHieu }, "Failed to record user legal download");
+    }
   }
-  if (source === "phapluat") {
-    return downloadFromPhapLuat(downloadId, effectiveFormat, soHieu);
-  }
-  return downloadFromTvpl(downloadId, effectiveFormat, soHieu);
+  return result;
 }
 
 async function downloadFromCongbao(

@@ -11,6 +11,8 @@ import {
   IconClose,
   IconGear,
   IconGrid,
+  IconFileText,
+  IconGlobe,
   IconLogout,
   IconMegaphone,
   IconMoon,
@@ -55,6 +57,8 @@ const SECTIONS: { title: string; items: { to: string; label: string; icon: IconF
     items: [
       { to: "/memory", label: "Trí nhớ bền vững", icon: IconBrain },
       { to: "/knowledge", label: "Kho tri thức", icon: IconDatabase },
+      { to: "/legal-docs", label: "Kho văn bản pháp luật", icon: IconFileText },
+      { to: "/facebook-monitor", label: "Giám sát Facebook", icon: IconGlobe },
     ],
   },
   {

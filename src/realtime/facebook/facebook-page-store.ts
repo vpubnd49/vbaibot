@@ -228,6 +228,35 @@ export function countPosts(): number {
   return row.count;
 }
 
+/** Số bài + bài mới nhất + lần lấy gần nhất theo từng page (trang Giám sát Facebook) */
+export function getPostStatsByPage(): Array<{ pageId: string; total: number; latestPostAt: string | null; lastFetchedAt: string | null }> {
+  return db
+    .prepare(
+      "SELECT page_id AS pageId, COUNT(*) AS total, MAX(created_at) AS latestPostAt, MAX(fetched_at) AS lastFetchedAt FROM facebook_posts GROUP BY page_id",
+    )
+    .all() as Array<{ pageId: string; total: number; latestPostAt: string | null; lastFetchedAt: string | null }>;
+}
+
+/** Danh sách bài để xem/giám sát: lọc theo page + từ khoá, phân trang */
+export function searchFacebookPosts(opts: { pageId?: string; q?: string; limit?: number; offset?: number }): { items: FacebookPostRow[]; total: number } {
+  const where: string[] = [];
+  const params: Record<string, string> = {};
+  if (opts.pageId) {
+    where.push("page_id = @pageId");
+    params.pageId = opts.pageId;
+  }
+  if (opts.q?.trim()) {
+    where.push("message LIKE @q");
+    params.q = `%${opts.q.trim()}%`;
+  }
+  const w = where.length ? `WHERE ${where.join(" AND ")}` : "";
+  const limit = Math.min(Math.max(opts.limit ?? 30, 1), 100);
+  const offset = Math.max(opts.offset ?? 0, 0);
+  const items = (db.prepare(`SELECT * FROM facebook_posts ${w} ORDER BY created_at DESC LIMIT ${limit} OFFSET ${offset}`).all(params) as RawPostRow[]).map(toPostRow);
+  const total = Number((db.prepare(`SELECT COUNT(*) v FROM facebook_posts ${w}`).get(params) as { v: number }).v);
+  return { items, total };
+}
+
 export function cleanupOldPosts(): number {
   const result = cleanupOldPostsStmt.run();
   const deleted = Number(result.changes);

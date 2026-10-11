@@ -13,7 +13,9 @@
  */
 import { createLogger } from "../../shared/logger.js";
 import { fetchPagePosts } from "./facebook-client.js";
-import { scrapePublicPagePosts } from "./facebook-public-scraper.js";
+import { scrapePublicPagePosts, type ScrapedPost } from "./facebook-public-scraper.js";
+import { FacebookSessionExpiredError, withFacebookBrowser } from "./facebook-browser-scraper.js";
+import { hasFacebookSession } from "./facebook-session.js";
 import {
   listEnabledFacebookPages,
   upsertFacebookPost,
@@ -30,6 +32,32 @@ let isCrawling = false;
 
 /** Khoảng cách mặc định giữa các lần cào (ms) */
 const DEFAULT_INTERVAL_MS = 30 * 60 * 1000; // 30 phút
+
+// ───── Báo cáo lượt cào (cho trang Giám sát Facebook trên dashboard) ─────
+
+export type FacebookPageCrawlReport = {
+  at: string;
+  /** graph-api | browser-session | public-scraper */
+  via: string;
+  saved: number;
+  error?: string;
+};
+
+const pageReports = new Map<string, FacebookPageCrawlReport>();
+let lastRun: { startedAt: string; finishedAt: string | null; totalNew: number; pagesProcessed: number } | null = null;
+
+function report(pageId: string, via: string, saved: number, error?: unknown): void {
+  pageReports.set(pageId, {
+    at: new Date().toISOString(),
+    via,
+    saved,
+    ...(error ? { error: (error instanceof Error ? error.message : String(error)).slice(0, 300) } : {}),
+  });
+}
+
+export function getFacebookCrawlReport() {
+  return { running: isCrawling, lastRun, pages: Object.fromEntries(pageReports) };
+}
 
 /**
  * Cào bài mới từ 1 page.
@@ -79,11 +107,13 @@ async function crawlViaGraphApi(page: FacebookPageConfig): Promise<number> {
     }
 
     markPageCrawled(page.pageId);
+    report(page.pageId, "graph-api", newCount);
     if (newCount > 0) {
       log.info({ pageId: page.pageId, pageName: page.pageName, newCount, via: "graph-api" }, "Đã cào bài mới từ Facebook");
     }
     return newCount;
   } catch (err) {
+    report(page.pageId, "graph-api", 0, err);
     log.warn({ err, pageId: page.pageId, pageName: page.pageName }, "Lỗi cào Facebook qua Graph API");
     return 0;
   }
@@ -96,33 +126,39 @@ async function crawlViaPublicScraper(page: FacebookPageConfig): Promise<number> 
 
   try {
     const posts = await scrapePublicPagePosts(slug, 5);
-
-    let newCount = 0;
-    for (const post of posts) {
-      if (!post.message?.trim()) continue;
-
-      upsertFacebookPost({
-        postId: post.postId,
-        pageId: page.pageId,
-        pageName: page.pageName,
-        message: post.message,
-        permalink: post.permalink,
-        imageUrl: post.imageUrl,
-        createdAt: post.createdAt,
-        category: page.category,
-      });
-      newCount++;
-    }
-
-    markPageCrawled(page.pageId);
-    if (newCount > 0) {
-      log.info({ pageId: page.pageId, pageName: page.pageName, newCount, via: "public-scraper" }, "Đã cào bài công khai từ Facebook");
-    }
-    return newCount;
+    return savePosts(page, posts, "public-scraper");
   } catch (err) {
+    report(page.pageId, "public-scraper", 0, err);
     log.warn({ err, pageId: page.pageId, pageName: page.pageName }, "Lỗi cào Facebook page công khai");
     return 0;
   }
+}
+
+/** Lưu bài đã cào (mọi đường trừ Graph API), trả số bài đã lưu */
+function savePosts(page: FacebookPageConfig, posts: ScrapedPost[], via: string): number {
+  let newCount = 0;
+  for (const post of posts) {
+    if (!post.message?.trim()) continue;
+
+    upsertFacebookPost({
+      postId: post.postId,
+      pageId: page.pageId,
+      pageName: page.pageName,
+      message: post.message,
+      permalink: post.permalink,
+      imageUrl: post.imageUrl,
+      createdAt: post.createdAt,
+      category: page.category,
+    });
+    newCount++;
+  }
+
+  markPageCrawled(page.pageId);
+  report(page.pageId, via, newCount, posts.length === 0 ? "Không lấy được bài nào (Facebook chặn hoặc cần đăng nhập)" : undefined);
+  if (newCount > 0) {
+    log.info({ pageId: page.pageId, pageName: page.pageName, newCount, via }, "Đã cào bài từ Facebook");
+  }
+  return newCount;
 }
 
 /**
@@ -157,6 +193,7 @@ export async function runFacebookCrawl(): Promise<{ totalNew: number; pagesProce
   }
 
   isCrawling = true;
+  lastRun = { startedAt: new Date().toISOString(), finishedAt: null, totalNew: 0, pagesProcessed: 0 };
   try {
     const pages = listEnabledFacebookPages();
     if (pages.length === 0) {
@@ -166,13 +203,53 @@ export async function runFacebookCrawl(): Promise<{ totalNew: number; pagesProce
     let totalNew = 0;
     let pagesProcessed = 0;
 
-    for (const page of pages) {
+    const tokenPages = pages.filter((p) => p.encryptedToken);
+    let restPages = pages.filter((p) => !p.encryptedToken);
+
+    // ═══ Đường 1: Graph API ═══
+    for (const page of tokenPages) {
+      try {
+        totalNew += await crawlSinglePage(page);
+        pagesProcessed++;
+        await new Promise((r) => setTimeout(r, 2000));
+      } catch (err) {
+        log.warn({ err, pageId: page.pageId }, "Lỗi khi cào page, tiếp tục page tiếp theo");
+      }
+    }
+
+    // ═══ Đường 2: Chromium + phiên đăng nhập cá nhân (1 trình duyệt cho cả lượt) ═══
+    if (restPages.length > 0 && hasFacebookSession()) {
+      const done = new Set<string>();
+      await withFacebookBrowser(async (scrape) => {
+        for (const page of restPages) {
+          try {
+            const posts = await scrape(extractPageSlug(page), 5);
+            totalNew += savePosts(page, posts, "browser-session");
+            pagesProcessed++;
+            done.add(page.pageId);
+            // Nghỉ ngẫu nhiên 4-8s giữa các page cho giống người dùng thật
+            await new Promise((r) => setTimeout(r, 4000 + Math.random() * 4000));
+          } catch (err) {
+            if (err instanceof FacebookSessionExpiredError) {
+              report(page.pageId, "browser-session", 0, "Phiên đăng nhập Facebook hết hạn");
+              return; // bỏ phần còn lại, rơi về fetch
+            }
+            report(page.pageId, "browser-session", 0, err);
+            log.warn({ err, pageId: page.pageId }, "Lỗi cào page qua trình duyệt");
+          }
+        }
+      }).catch((err) => log.warn({ err }, "Lỗi lượt cào bằng trình duyệt"));
+      restPages = restPages.filter((p) => !done.has(p.pageId));
+    }
+
+    // ═══ Đường 3: fetch công khai (hầu như luôn bị chặn từ IP VPS) ═══
+    for (const page of restPages) {
       try {
         const newCount = await crawlSinglePage(page);
         totalNew += newCount;
         pagesProcessed++;
         // Delay 2s giữa các page để tránh rate limit
-        if (pages.length > 1) {
+        if (restPages.length > 1) {
           await new Promise((r) => setTimeout(r, 2000));
         }
       } catch (err) {
@@ -187,9 +264,11 @@ export async function runFacebookCrawl(): Promise<{ totalNew: number; pagesProce
       log.info({ totalNew, pagesProcessed, totalPages: pages.length }, "Hoàn tất lượt cào Facebook");
     }
 
+    if (lastRun) Object.assign(lastRun, { totalNew, pagesProcessed });
     return { totalNew, pagesProcessed };
   } finally {
     isCrawling = false;
+    if (lastRun) lastRun.finishedAt = new Date().toISOString();
   }
 }
 
