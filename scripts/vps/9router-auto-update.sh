@@ -80,7 +80,8 @@ OLD_IMAGE=$(docker inspect "$NAME" --format '{{.Config.Image}}' 2>/dev/null)
 docker stop "$NAME" >/dev/null
 tar czf "/root/backups/9router-data-pre-$LATEST-$TS.tgz" -C /root .9router
 docker rename "$NAME" "$NAME-old" >/dev/null
-docker run -d --name "$NAME" --restart unless-stopped -p 20128:20128 -v "$DATA:/app/data" \
+# Chỉ mở trên 127.0.0.1 (bot gọi 127.0.0.1; Admin vào dashboard qua `tailscale serve`)
+docker run -d --name "$NAME" --restart unless-stopped -p "${NR_BIND:-127.0.0.1}:20128:20128" -v "$DATA:/app/data" \
   --env-file "$ENVF" --memory 2g "local/9router:$LATEST" >/dev/null
 for i in $(seq 1 45); do curl -sf http://127.0.0.1:20128/api/version >/dev/null && break; sleep 2; done
 
