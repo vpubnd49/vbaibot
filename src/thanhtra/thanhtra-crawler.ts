@@ -54,23 +54,36 @@ export async function fetchThanhtraItems(limit = 200): Promise<ThanhtraRawItem[]
 
   while (nextUrl && allItems.length < limit && page < MAX_PAGES) {
     page++;
-    try {
-      const res = await fetch(API_PROXY_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json;odata=verbose",
-          "User-Agent": "Mozilla/5.0 (compatible; VBAIBot/1.0)",
-        },
-        body: JSON.stringify({ SourceUrl: nextUrl }),
-        signal: AbortSignal.timeout(20000),
-      });
+    let res: Response | null = null;
+    let lastErr: unknown = null;
 
-      if (!res.ok) {
-        log.warn({ status: res.status, page }, "Cổng API Thanh tra Lâm Đồng trả mã lỗi");
-        break;
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      try {
+        res = await fetch(API_PROXY_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json;odata=verbose",
+            "User-Agent": "Mozilla/5.0 (compatible; VBAIBot/1.0)",
+          },
+          body: JSON.stringify({ SourceUrl: nextUrl }),
+          signal: AbortSignal.timeout(35000),
+        });
+        if (res.ok) break;
+      } catch (err) {
+        lastErr = err;
+        if (attempt < 2) {
+          await new Promise((r) => setTimeout(r, 2000));
+        }
       }
+    }
 
+    if (!res || !res.ok) {
+      log.debug({ status: res?.status, page, err: lastErr }, "Cổng API Thanh tra Lâm Đồng phản hồi chậm hoặc lỗi, bỏ qua lượt này");
+      break;
+    }
+
+    try {
       const data = (await res.json()) as { d?: { results?: ThanhtraRawItem[]; __next?: string } };
       const items = data?.d?.results || [];
       allItems.push(...items);
@@ -84,7 +97,7 @@ export async function fetchThanhtraItems(limit = 200): Promise<ThanhtraRawItem[]
 
       log.debug({ page, fetched: items.length, total: allItems.length }, "Đã lấy trang kết luận thanh tra");
     } catch (err) {
-      log.error({ err, page }, "Lỗi khi gọi API danh sách kết luận thanh tra");
+      log.debug({ err, page }, "Lỗi khi đọc JSON danh sách kết luận thanh tra");
       break;
     }
   }

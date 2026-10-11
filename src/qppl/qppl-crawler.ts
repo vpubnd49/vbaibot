@@ -263,23 +263,40 @@ export async function fetchQpplItems(
 
   while (nextUrl && allItems.length < limit && page < MAX_PAGES) {
     page++;
-    try {
-      const res = await fetch(API_PROXY_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json;odata=verbose",
-          "User-Agent": "Mozilla/5.0 (compatible; VBAIBot/1.0)",
-        },
-        body: JSON.stringify({ SourceUrl: nextUrl }),
-        signal: AbortSignal.timeout(20000),
-      });
+    let res: Response | null = null;
+    let lastErr: unknown = null;
 
-      if (!res.ok) {
-        log.warn({ status: res.status, page, nguon }, "API QPPL trả mã lỗi");
-        break;
+    // Thử tối đa 2 lần nếu cổng tỉnh timeout hoặc gián đoạn mạng
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      try {
+        res = await fetch(API_PROXY_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json;odata=verbose",
+            "User-Agent": "Mozilla/5.0 (compatible; VBAIBot/1.0)",
+          },
+          body: JSON.stringify({ SourceUrl: nextUrl }),
+          signal: AbortSignal.timeout(35000),
+        });
+        if (res.ok) break;
+      } catch (err) {
+        lastErr = err;
+        if (attempt < 2) {
+          await new Promise((r) => setTimeout(r, 2000));
+        }
       }
+    }
 
+    if (!res || !res.ok) {
+      log.debug(
+        { page, nguon, status: res?.status, err: lastErr },
+        "Cổng API QPPL tạm thời phản hồi chậm hoặc timeout, bỏ qua lượt này",
+      );
+      break;
+    }
+
+    try {
       const data = (await res.json()) as {
         d?: { results?: QpplRawItem[]; __next?: string };
       };
@@ -298,7 +315,7 @@ export async function fetchQpplItems(
         "Đã lấy trang VB QPPL",
       );
     } catch (err) {
-      log.error({ err, page, nguon }, "Lỗi khi gọi API danh sách VB QPPL");
+      log.debug({ err, page, nguon }, "Không thể phân tích phản hồi JSON từ API QPPL");
       break;
     }
   }
@@ -589,7 +606,7 @@ export async function searchQpplByDateRange(opts: {
             "User-Agent": "Mozilla/5.0 (compatible; VBAIBot/1.0)",
           },
           body: JSON.stringify({ SourceUrl: nextUrl }),
-          signal: AbortSignal.timeout(20000),
+          signal: AbortSignal.timeout(35000),
         });
 
         if (!res.ok) {
@@ -614,7 +631,7 @@ export async function searchQpplByDateRange(opts: {
           "Đã lấy trang VB QPPL theo ngày",
         );
       } catch (err) {
-        log.error({ err, page, nguon, dateFrom, dateTo }, "Lỗi khi gọi API date-range QPPL");
+        log.debug({ err, page, nguon, dateFrom, dateTo }, "Lỗi khi gọi API date-range QPPL (timeout hoặc mạng bận)");
         break;
       }
     }
