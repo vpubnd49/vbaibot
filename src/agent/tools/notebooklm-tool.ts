@@ -19,7 +19,7 @@ import type { ToolContext } from "./index.js";
 
 /**
  * Tool NotebookLM: mỗi cuộc chat có một notebook riêng. Nạp file/link làm
- * nguồn, hỏi đáp có trích dẫn, tạo podcast/video/infographic/báo cáo.
+ * nguồn, hỏi đáp có trích dẫn, tạo podcast/video/infographic/báo cáo/slides/bảng.
  * Mọi chốt chặn (quyền, trần lượt, có notebook chưa) nằm ở MÃ, không nhờ AI.
  */
 
@@ -29,6 +29,8 @@ const LOAI: Record<string, GenerateKind> = {
   video: "video",
   infographic: "infographic",
   bao_cao: "report",
+  slides: "presentation",
+  bang_du_lieu: "data_table",
 };
 
 export function createNotebooklmTool(ctx: ToolContext) {
@@ -45,8 +47,8 @@ export function createNotebooklmTool(ctx: ToolContext) {
     description:
       "Google NotebookLM cho cuộc chat này (mỗi cuộc chat một notebook riêng). " +
       "them_nguon: nạp file vừa gửi / link / đoạn văn làm nguồn. hoi: hỏi đáp dựa trên nguồn, có trích dẫn. " +
-      "tao: tạo podcast âm thanh, video tóm tắt, infographic hoặc báo cáo từ nguồn (chạy nền 3-15 phút, xong tự gửi). " +
-      "lay: gửi lại podcast/video/infographic đã tạo. danh_sach: xem nguồn và nội dung đã tạo. " +
+      "tao: tạo podcast âm thanh, video tóm tắt, infographic, báo cáo, bản trình chiếu Slides (slides), hoặc bảng dữ liệu Excel (bang_du_lieu) từ nguồn (chạy nền 1-15 phút, xong tự gửi). " +
+      "lay: gửi lại podcast/video/infographic/slides đã tạo. danh_sach: xem nguồn và nội dung đã tạo. " +
       "Chỉ dùng khi người dùng nhắc NotebookLM, podcast từ tài liệu, hoặc muốn hỏi đáp/tóm tắt nhiều tài liệu đã nạp.",
     inputSchema: z.object({
       action: z.enum(["them_nguon", "hoi", "tao", "lay", "danh_sach"]),
@@ -55,7 +57,7 @@ export function createNotebooklmTool(ctx: ToolContext) {
       url: z.string().url().optional().describe("them_nguon: link web hoặc YouTube"),
       vanBan: z.string().max(400_000).optional().describe("them_nguon: đoạn văn bản dán trực tiếp"),
       cauHoi: z.string().max(2000).optional().describe("hoi: câu hỏi"),
-      loai: z.enum(["podcast", "video", "infographic", "bao_cao"]).optional().describe("tao/lay: loại nội dung"),
+      loai: z.enum(["podcast", "video", "infographic", "bao_cao", "slides", "bang_du_lieu"]).optional().describe("tao/lay: loại nội dung"),
       yeuCau: z.string().max(1000).optional().describe("tao: yêu cầu thêm (trọng tâm, giọng điệu...)"),
     }),
     execute: async (input) => {
@@ -118,18 +120,18 @@ export function createNotebooklmTool(ctx: ToolContext) {
       }
 
       const kind = input.loai ? LOAI[input.loai] : undefined;
-      if (!kind) return ketQuaLoi("Thiếu loại nội dung (podcast, video, infographic, bao_cao).");
+      if (!kind) return ketQuaLoi("Thiếu loại nội dung (podcast, video, infographic, bao_cao, slides, bang_du_lieu).");
 
       if (input.action === "lay") {
-        if (kind === "report") return ketQuaLoi("Báo cáo là chữ - tạo lại bằng action tao nếu cần.");
-        startResendJob(target, nb.notebookUrl, kind);
+        if (kind === "report" || kind === "data_table") return ketQuaLoi("Loại này không gửi lại được - tạo lại bằng action tao nếu cần.");
+        startResendJob(target, nb.notebookUrl, kind as Exclude<GenerateKind, "report" | "data_table">);
         return `Đang tải lại ${KIND_LABEL[kind]}, gửi trong 1-2 phút. Báo người dùng chờ, KHÔNG gửi file khác.`;
       }
 
       const quota = reserveGeneration(threadKey, settings.maxPerDay, settings.maxPerDayGlobal);
       if (!quota.ok) return ketQuaLoi(quota.reason);
       startGenerationJob(target, nb.notebookUrl, kind, input.yeuCau);
-      const eta = kind === "report" || kind === "infographic" ? "1-3 phút" : "5-15 phút";
+      const eta = kind === "report" || kind === "infographic" || kind === "data_table" || kind === "presentation" ? "1-3 phút" : "5-15 phút";
       return `Đã bắt đầu tạo ${KIND_LABEL[kind]} (khoảng ${eta}). Xong bot tự gửi vào đây. Báo người dùng chờ; KHÔNG gọi lại tool này.`;
     },
   });

@@ -132,7 +132,20 @@ export const nlmGenerate = (notebookUrl: string, type: StudioType, opts: { instr
 export const nlmListContent = (notebookUrl: string) =>
   serial(() => call<NlmContent>("GET", `/content?notebook_url=${encodeURIComponent(notebookUrl)}`, undefined, 2 * MIN));
 
-export function nlmDownload(notebookUrl: string, type: "audio_overview" | "video" | "infographic", outName: string) {
+export function nlmDownload(notebookUrl: string, type: "audio_overview" | "video" | "infographic" | "presentation", outName: string) {
   const q = new URLSearchParams({ content_type: type, notebook_url: notebookUrl, output_path: `${CONTAINER_OUT}/${outName}` });
   return serial(() => call<NlmDownload>("GET", `/content/download?${q}`, undefined, 6 * MIN));
+}
+
+/** Lấy textContent của data_table (máy chủ không cung cấp URL tải) */
+export function nlmGetContentText(notebookUrl: string, contentType: string) {
+  const q = new URLSearchParams({ notebook_url: notebookUrl });
+  return serial(() =>
+    call<NlmContent>("GET", `/content?${q}`, undefined, 2 * MIN).then((r) => {
+      if (!r.ok) return r;
+      const item = r.data.generatedContent.find((g) => g.type === contentType);
+      const text = item?.content ?? "";
+      return { ok: true as const, data: { text, name: item?.name ?? contentType } };
+    }),
+  );
 }

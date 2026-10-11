@@ -8,7 +8,7 @@ import { appendMessage } from "../conversation/history-store.js";
 import { enqueueSend } from "../middleware/rate-limiter.js";
 import { guiFileKemCaption } from "../agent/tools/send-attachment-with-caption.js";
 import { createLogger } from "../shared/logger.js";
-import { nlmDownload, nlmGenerate, type StudioType } from "./notebooklm-client.js";
+import { nlmDownload, nlmGenerate, nlmGetContentText, type StudioType } from "./notebooklm-client.js";
 import { refundGeneration } from "./notebooklm-store.js";
 
 /**
@@ -22,13 +22,15 @@ const log = createLogger("notebooklm-jobs");
 const run = promisify(execFile);
 export const HOST_OUT_DIR = path.join(dataDir, "notebooklm-out");
 
-export type GenerateKind = "audio_overview" | "video" | "infographic" | "report";
+export type GenerateKind = "audio_overview" | "video" | "infographic" | "report" | "presentation" | "data_table";
 
 export const KIND_LABEL: Record<GenerateKind, string> = {
   audio_overview: "podcast âm thanh",
   video: "video tóm tắt",
   infographic: "infographic",
   report: "báo cáo",
+  presentation: "bản trình chiếu (Slides)",
+  data_table: "bảng dữ liệu (Excel/CSV)",
 };
 
 export type JobTarget = {
@@ -69,7 +71,7 @@ async function toMp3(file: string): Promise<string> {
 const RETRYABLE = /no .*artifact|not found|404|50\d|html|media url|timeout|quá lâu/i;
 export const DOWNLOAD_RETRY = { attempts: 6, delayMs: 20_000 };
 
-async function downloadWithRetry(notebookUrl: string, kind: Exclude<GenerateKind, "report">, name: string) {
+async function downloadWithRetry(notebookUrl: string, kind: Exclude<GenerateKind, "report" | "data_table">, name: string) {
   let dl = await nlmDownload(notebookUrl, kind, name);
   for (let i = 1; !dl.ok && i < DOWNLOAD_RETRY.attempts && RETRYABLE.test(dl.error); i++) {
     log.debug({ kind, attempt: i, error: dl.error }, "Tải NotebookLM lỗi - thử lại");
@@ -79,8 +81,9 @@ async function downloadWithRetry(notebookUrl: string, kind: Exclude<GenerateKind
   return dl;
 }
 
-async function deliverMedia(t: JobTarget, notebookUrl: string, kind: Exclude<GenerateKind, "report">): Promise<string | null> {
-  const ext = { audio_overview: "m4a", video: "mp4", infographic: "png" }[kind];
+
+async function deliverMedia(t: JobTarget, notebookUrl: string, kind: Exclude<GenerateKind, "report" | "data_table">): Promise<string | null> {
+  const ext = { audio_overview: "m4a", video: "mp4", infographic: "png", presentation: "pptx" }[kind];
   const name = `nlm-${t.threadId}-${Date.now()}.${ext}`;
   fs.mkdirSync(HOST_OUT_DIR, { recursive: true });
   const dl = await downloadWithRetry(notebookUrl, kind, name);
@@ -97,7 +100,7 @@ async function deliverMedia(t: JobTarget, notebookUrl: string, kind: Exclude<Gen
 }
 
 /** Gửi lại bản đã tạo gần nhất (không tốn lượt) - "gửi lại file audio" */
-export function startResendJob(t: JobTarget, notebookUrl: string, kind: Exclude<GenerateKind, "report">): void {
+export function startResendJob(t: JobTarget, notebookUrl: string, kind: Exclude<GenerateKind, "report" | "data_table">): void {
   void deliverMedia(t, notebookUrl, kind).then(async (error) => {
     if (error) await say(t, `❌ Chưa gửi lại được ${KIND_LABEL[kind]} (${error}).`);
     else appendMessage(t.accountId, t.threadId, { role: "assistant", content: `[Đã gửi lại ${KIND_LABEL[kind]} từ NotebookLM]` });
@@ -131,8 +134,27 @@ export function startGenerationJob(t: JobTarget, notebookUrl: string, kind: Gene
       const text = (gen.ok && (gen.data.textContent || gen.data.content)) || "";
       if (text) await deliverReport(t, text);
       else error = "máy chủ không trả nội dung báo cáo";
+    } else if (!error && kind === "data_table") {
+      // data_table: máy chủ không cấp URL tải - lấy textContent (CSV) rồi gửi file .csv
+      const r = await nlmGetContentText(notebookUrl, "data_table");
+      if (!r.ok) { error = r.error; }
+      else if (!r.data.text) { error = "máy chủ không trả dữ liệu bảng"; }
+      else {
+        fs.mkdirSync(HOST_OUT_DIR, { recursive: true });
+        const csvFile = path.join(HOST_OUT_DIR, `bang-du-lieu-notebooklm-${Date.now()}.csv`);
+        // Ghi UTF-8 với BOM để Excel mở đúng tiếng Việt
+        fs.writeFileSync(csvFile, "\uFEFF" + r.data.text, "utf8");
+        try {
+          await guiFileKemCaption(
+            t.api, t.threadKey, t.threadId, t.threadType, csvFile,
+            `📊 Bảng dữ liệu từ NotebookLM: ${r.data.name}\n(Mở bằng Excel hoặc Google Sheets)`,
+          );
+        } finally {
+          fs.rmSync(csvFile, { force: true });
+        }
+      }
     } else if (!error) {
-      error = await deliverMedia(t, notebookUrl, kind as Exclude<GenerateKind, "report">);
+      error = await deliverMedia(t, notebookUrl, kind as Exclude<GenerateKind, "report" | "data_table">);
     }
 
     const minutes = Math.round((Date.now() - startedAt) / 60_000);
