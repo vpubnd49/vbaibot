@@ -3,6 +3,7 @@ import { botTimeZone } from "../config/runtime-tuning-settings.js";
 import { createLogger } from "../shared/logger.js";
 import { sendToAdmin } from "../zalo/owner-notifier.js";
 import { getHomeSummary } from "./home-summary.js";
+import { readRouterUpdateStatus, routerStatusLine } from "./router-update-status.js";
 
 const log = createLogger("vps-daily-reporter");
 
@@ -47,6 +48,7 @@ export async function buildDailyVpsReportText(): Promise<string> {
     `🖥️ Hạ tầng VPS:`,
     `• CPU: ${vpsCpu} | RAM: ${vpsMem} | Ổ cứng: ${vpsDisk}`,
     `• Sức khỏe: ${summary.health.score}/100 (${healthStatus})`,
+    routerStatusLine(readRouterUpdateStatus()),
     ``,
     `🤖 Trạng thái Zalo Bot:`,
     `• Tài khoản trực tuyến: ${summary.accounts.online}/${summary.accounts.total}`,

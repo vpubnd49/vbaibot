@@ -12,6 +12,7 @@ import { seedDefaultFacebookPages } from "./realtime/facebook/facebook-service.j
 import { startFacebookCrawler, stopFacebookCrawler } from "./realtime/facebook/facebook-page-crawler.js";
 import { startDisasterCrawler, stopDisasterCrawler } from "./realtime/disaster/disaster-alert-crawler.js";
 import { startDailyVpsReportLoop, stopDailyVpsReportLoop } from "./server/vps-daily-reporter.js";
+import { startRouterUpdateWatcher } from "./server/router-update-status.js";
 import { startAllAccounts, stopAllAccounts } from "./zalo/account-manager.js";
 import { flushSentMessageTracker, initSentMessageTracker } from "./zalo/sent-message-tracker.js";
 import { dataDir } from "./config/env.js";
@@ -93,6 +94,8 @@ startFacebookCrawler();
 startDisasterCrawler();
 // Tự động gửi báo cáo VPS định kỳ lúc 08:00 sáng cho Admin Zalo
 startDailyVpsReportLoop();
+// Báo Zalo cho Admin khi cron tự cập nhật 9router trên VPS đổi phiên bản / thất bại
+startRouterUpdateWatcher();
 
 startDashboardServer();
 startAllAccounts()
