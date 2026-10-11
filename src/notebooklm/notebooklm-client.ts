@@ -1,3 +1,4 @@
+import http from "node:http";
 import { getNotebooklmSettings } from "../config/runtime-notebooklm-settings.js";
 
 /**
@@ -34,6 +35,29 @@ function serial<T>(job: () => Promise<T>): Promise<T> {
   return run;
 }
 
+/**
+ * Gửi HTTP bằng node:http thay cho fetch: fetch (undici) tự cắt mọi phản hồi
+ * chờ header quá 300 giây - tạo podcast/video mất 5-15 phút nên luôn hỏng
+ * đúng phút thứ 5 và bị báo nhầm "máy chủ đang tắt" (gặp 11/10/2026).
+ */
+function httpJson(method: string, url: string, body: string | undefined, timeoutMs: number): Promise<{ status: number; text: string }> {
+  return new Promise((resolve, reject) => {
+    const req = http.request(
+      url,
+      { method, headers: body ? { "Content-Type": "application/json", "Content-Length": Buffer.byteLength(body) } : {} },
+      (res) => {
+        const chunks: Buffer[] = [];
+        res.on("data", (c: Buffer) => chunks.push(c));
+        res.on("end", () => resolve({ status: res.statusCode ?? 0, text: Buffer.concat(chunks).toString("utf8") }));
+        res.on("error", reject);
+      },
+    );
+    req.setTimeout(timeoutMs, () => req.destroy(new Error("timeout")));
+    req.on("error", reject);
+    req.end(body);
+  });
+}
+
 async function call<T>(
   method: "GET" | "POST",
   path: string,
@@ -42,24 +66,24 @@ async function call<T>(
 ): Promise<NlmResult<T>> {
   const base = getNotebooklmSettings().apiUrl;
   try {
-    const res = await fetch(`${base}${path}`, {
-      method,
-      headers: body ? { "Content-Type": "application/json" } : undefined,
-      body: body ? JSON.stringify(body) : undefined,
-      signal: AbortSignal.timeout(timeoutMs),
-    });
-    const json = (await res.json().catch(() => null)) as
-      | { success?: boolean; data?: T; error?: string }
-      | null;
+    const res = await httpJson(method, `${base}${path}`, body ? JSON.stringify(body) : undefined, timeoutMs);
+    let json: { success?: boolean; data?: T; error?: string } | null = null;
+    try {
+      json = JSON.parse(res.text);
+    } catch {
+      json = null;
+    }
+    const httpOk = res.status >= 200 && res.status < 300;
     if (!json) return { ok: false, error: `Máy chủ NotebookLM trả HTTP ${res.status} không đọc được` };
-    if (json.success === false || !res.ok) {
+    if (json.success === false || !httpOk) {
       return { ok: false, error: json.error || `HTTP ${res.status}` };
     }
     return { ok: true, data: (json.data ?? json) as T };
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     if (/timeout|aborted/i.test(msg)) return { ok: false, error: "Máy chủ NotebookLM phản hồi quá lâu" };
-    if (/ECONNREFUSED|fetch failed/i.test(msg)) return { ok: false, error: "Máy chủ NotebookLM đang tắt" };
+    if (/ECONNREFUSED/i.test(msg)) return { ok: false, error: "Máy chủ NotebookLM đang tắt" };
+    if (/ECONNRESET|socket hang up/i.test(msg)) return { ok: false, error: "Máy chủ NotebookLM ngắt kết nối giữa chừng" };
     return { ok: false, error: msg };
   }
 }
