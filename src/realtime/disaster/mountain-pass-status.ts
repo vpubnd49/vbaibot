@@ -16,6 +16,7 @@ import { searchFacebookPosts } from "../facebook/facebook-page-store.js";
 import { db } from "../../conversation/database.js";
 import { createLogger } from "../../shared/logger.js";
 import { cleanTitle, computePassStatus, isRestrictText, type PassEvidence } from "./pass-status-rules.js";
+import { ingestArticles, type ArticleInput } from "./dossier-engine.js";
 
 export type { PassEvidence } from "./pass-status-rules.js";
 
@@ -184,6 +185,25 @@ export async function getMountainPassReports(): Promise<PassReport[]> {
     inflight = buildReports()
       .then((reports) => {
         cache = { at: Date.now(), reports };
+
+        // Side-effect: nạp evidence mới vào dossier timeline
+        try {
+          const articles: ArticleInput[] = [];
+          for (const { evidence } of reports) {
+            for (const e of evidence) {
+              if (!e.link || e.link.includes("news.google.com")) continue;
+              articles.push({
+                title: e.title,
+                body: e.snippet || "",
+                sourceUrl: e.link,
+                sourceName: e.source,
+                publishedAt: e.publishedAt.toISOString(),
+              });
+            }
+          }
+          if (articles.length > 0) ingestArticles(articles);
+        } catch { /* dossier lỗi không ảnh hưởng output */ }
+
         return reports;
       })
       .finally(() => {

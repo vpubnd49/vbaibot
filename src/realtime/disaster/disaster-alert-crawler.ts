@@ -11,6 +11,7 @@
  */
 import { createLogger } from "../../shared/logger.js";
 import { crawlRssFeed } from "../crawler/rss-crawler.js";
+import { ingestArticles, type ArticleInput } from "./dossier-engine.js";
 import { listRecentPosts } from "../facebook/facebook-page-store.js";
 import { checkAndBroadcastDisasterAlert } from "../../scheduler/disaster-alert-broadcast.js";
 import {
@@ -270,6 +271,23 @@ export async function runDisasterCrawl(
     // 3. Lưu tất cả vào store
     const allAlerts = [...fbAlerts, ...rssAlerts];
     const totalNew = saveAlerts(allAlerts);
+
+    // 3b. Nạp vào Incident Dossier System (timeline vòng đời sự cố)
+    try {
+      const dossierArticles: ArticleInput[] = allAlerts.map((a) => ({
+        title: a.title,
+        body: a.summary,
+        sourceUrl: a.sourceUrl,
+        sourceName: a.sourceName,
+        publishedAt: a.publishedAt,
+      }));
+      const dossierUpdated = ingestArticles(dossierArticles);
+      if (dossierUpdated > 0) {
+        log.info({ dossierUpdated }, "Cập nhật hồ sơ sự cố từ crawler");
+      }
+    } catch (dossierErr) {
+      log.error({ err: dossierErr }, "Lỗi khi nạp vào dossier engine");
+    }
 
     // 4. Dọn cảnh báo cũ
     cleanupExpiredAlerts();
