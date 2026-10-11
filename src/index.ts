@@ -13,6 +13,7 @@ import { startFacebookCrawler, stopFacebookCrawler } from "./realtime/facebook/f
 import { startDisasterCrawler, stopDisasterCrawler } from "./realtime/disaster/disaster-alert-crawler.js";
 import { startDailyVpsReportLoop, stopDailyVpsReportLoop } from "./server/vps-daily-reporter.js";
 import { startRouterUpdateWatcher } from "./server/router-update-status.js";
+import { startNotebooklmHealthWatcher } from "./notebooklm/notebooklm-health.js";
 import { startAllAccounts, stopAllAccounts } from "./zalo/account-manager.js";
 import { flushSentMessageTracker, initSentMessageTracker } from "./zalo/sent-message-tracker.js";
 import { dataDir } from "./config/env.js";
@@ -96,6 +97,8 @@ startDisasterCrawler();
 startDailyVpsReportLoop();
 // Báo Zalo cho Admin khi cron tự cập nhật 9router trên VPS đổi phiên bản / thất bại
 startRouterUpdateWatcher();
+// Báo Zalo cho Admin khi máy chủ NotebookLM tắt / Google bị đăng xuất (5 phút/lần)
+startNotebooklmHealthWatcher();
 
 startDashboardServer();
 startAllAccounts()

@@ -61,11 +61,29 @@ async function toMp3(file: string): Promise<string> {
   }
 }
 
+/**
+ * Tải có THỬ LẠI: ngay sau khi báo "completed" link media đôi khi chưa sẵn
+ * (404/5xx, chưa thấy artifact, trả HTML) - thử tối đa 6 lần cách nhau 20 giây.
+ * Lỗi khác (máy chủ tắt, sai tham số) báo luôn.
+ */
+const RETRYABLE = /no .*artifact|not found|404|50\d|html|media url|timeout|quá lâu/i;
+export const DOWNLOAD_RETRY = { attempts: 6, delayMs: 20_000 };
+
+async function downloadWithRetry(notebookUrl: string, kind: Exclude<GenerateKind, "report">, name: string) {
+  let dl = await nlmDownload(notebookUrl, kind, name);
+  for (let i = 1; !dl.ok && i < DOWNLOAD_RETRY.attempts && RETRYABLE.test(dl.error); i++) {
+    log.debug({ kind, attempt: i, error: dl.error }, "Tải NotebookLM lỗi - thử lại");
+    await new Promise((r) => setTimeout(r, DOWNLOAD_RETRY.delayMs));
+    dl = await nlmDownload(notebookUrl, kind, name);
+  }
+  return dl;
+}
+
 async function deliverMedia(t: JobTarget, notebookUrl: string, kind: Exclude<GenerateKind, "report">): Promise<string | null> {
   const ext = { audio_overview: "m4a", video: "mp4", infographic: "png" }[kind];
   const name = `nlm-${t.threadId}-${Date.now()}.${ext}`;
   fs.mkdirSync(HOST_OUT_DIR, { recursive: true });
-  const dl = await nlmDownload(notebookUrl, kind, name);
+  const dl = await downloadWithRetry(notebookUrl, kind, name);
   if (!dl.ok) return `tải file về lỗi: ${dl.error}`;
   let file = path.join(HOST_OUT_DIR, name);
   if (!fs.existsSync(file)) return "máy chủ báo tải xong nhưng không thấy file";
@@ -86,6 +104,23 @@ export function startResendJob(t: JobTarget, notebookUrl: string, kind: Exclude<
   });
 }
 
+/** Báo cáo ngắn gửi thẳng tin nhắn; dài thì gửi file .md kèm đoạn đầu - không cắt mất nội dung */
+async function deliverReport(t: JobTarget, text: string): Promise<void> {
+  if (text.length <= 3800) {
+    await say(t, `📄 Báo cáo từ NotebookLM:\n\n${text}`);
+    return;
+  }
+  fs.mkdirSync(HOST_OUT_DIR, { recursive: true });
+  const file = path.join(HOST_OUT_DIR, `bao-cao-notebooklm-${Date.now()}.md`);
+  fs.writeFileSync(file, text, "utf8");
+  try {
+    await guiFileKemCaption(t.api, t.threadKey, t.threadId, t.threadType, file, "📄 Báo cáo đầy đủ từ NotebookLM (file .md).");
+  } finally {
+    fs.rmSync(file, { force: true });
+  }
+  await say(t, `📄 Tóm tắt đầu báo cáo:\n\n${text.slice(0, 1500)}…`);
+}
+
 export function startGenerationJob(t: JobTarget, notebookUrl: string, kind: GenerateKind, instructions?: string): void {
   void (async () => {
     const startedAt = Date.now();
@@ -94,7 +129,7 @@ export function startGenerationJob(t: JobTarget, notebookUrl: string, kind: Gene
 
     if (!error && kind === "report") {
       const text = (gen.ok && (gen.data.textContent || gen.data.content)) || "";
-      if (text) await say(t, `📄 Báo cáo từ NotebookLM:\n\n${text.slice(0, 3800)}`);
+      if (text) await deliverReport(t, text);
       else error = "máy chủ không trả nội dung báo cáo";
     } else if (!error) {
       error = await deliverMedia(t, notebookUrl, kind as Exclude<GenerateKind, "report">);
