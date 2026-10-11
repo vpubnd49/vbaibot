@@ -8,10 +8,11 @@ import { CONTAINER_INBOX, nlmAddSource } from "./notebooklm-client.js";
 /**
  * Đưa file người dùng gửi trong chat thành nguồn NotebookLM.
  *
- * PDF/Word/TXT/MD: NotebookLM tự đọc tốt nên chép nguyên file sang thư mục
- * inbox dùng chung với container (mount chỉ-đọc /inbox). Loại khác (Excel,
- * ảnh, ZIP...) đọc ra chữ bằng bộ đọc sẵn có của bot (có OCR) rồi nạp dạng
- * văn bản - NotebookLM không nhận trực tiếp các loại này.
+ * ƯU TIÊN đọc ra chữ bằng bộ đọc sẵn có của bot (có OCR) rồi nạp dạng văn bản:
+ * đường này đi qua API RPC của NotebookLM nên ổn định. Nạp nguyên file phải bấm
+ * nút "Add source" trên giao diện web - Google đổi giao diện là hỏng (đã gặp
+ * 10/2026). Chỉ khi không đọc được chữ mới thử nạp nguyên file PDF/Word/TXT/MD
+ * qua thư mục inbox dùng chung với container (mount chỉ-đọc /inbox).
  */
 
 export const HOST_INBOX_DIR = path.join(dataDir, "notebooklm-inbox");
@@ -30,32 +31,31 @@ export async function addFileSource(notebookUrl: string, relPath: string, displa
   }
   if (!fs.existsSync(abs)) return { name: displayName, ok: false, error: "file đã bị xóa khỏi bộ nhớ" };
 
-  const ext = path.extname(abs).toLowerCase();
-  if (NATIVE_EXTS.has(ext)) {
-    fs.mkdirSync(HOST_INBOX_DIR, { recursive: true });
-    const inboxName = `${Date.now()}-${path.basename(abs).replace(/[^\w.-]+/g, "_")}`;
-    const hostCopy = path.join(HOST_INBOX_DIR, inboxName);
-    fs.copyFileSync(abs, hostCopy);
-    fs.chmodSync(hostCopy, 0o644);
-    try {
-      const r = await nlmAddSource(notebookUrl, {
-        type: "file",
-        filePath: `${CONTAINER_INBOX}/${inboxName}`,
-        title: displayName,
-      });
-      return r.ok ? { name: displayName, ok: true } : { name: displayName, ok: false, error: r.error };
-    } finally {
-      fs.rmSync(hostCopy, { force: true });
-    }
+  const doc = await readDocument(abs, {}).catch((err: unknown) => ({ text: `Lỗi khi đọc nội dung file: ${String(err)}` }));
+  const readable = doc.text.trim() && !doc.text.startsWith("Lỗi khi đọc nội dung file:");
+  if (readable) {
+    const r = await nlmAddSource(notebookUrl, { type: "text", text: doc.text.slice(0, MAX_TEXT_CHARS), title: displayName });
+    if (r.ok) return { name: displayName, ok: true };
+    if (!NATIVE_EXTS.has(path.extname(abs).toLowerCase())) return { name: displayName, ok: false, error: r.error };
   }
 
-  const doc = await readDocument(abs, {}).catch((err: unknown) => ({ text: `Lỗi khi đọc nội dung file: ${String(err)}` }));
-  if (!doc.text.trim() || doc.text.startsWith("Lỗi khi đọc nội dung file:")) {
-    return { name: displayName, ok: false, error: "không đọc được nội dung file" };
+  const ext = path.extname(abs).toLowerCase();
+  if (!NATIVE_EXTS.has(ext)) return { name: displayName, ok: false, error: "không đọc được nội dung file" };
+  fs.mkdirSync(HOST_INBOX_DIR, { recursive: true });
+  const inboxName = `${Date.now()}-${path.basename(abs).replace(/[^\w.-]+/g, "_")}`;
+  const hostCopy = path.join(HOST_INBOX_DIR, inboxName);
+  fs.copyFileSync(abs, hostCopy);
+  fs.chmodSync(hostCopy, 0o644);
+  try {
+    const r = await nlmAddSource(notebookUrl, {
+      type: "file",
+      filePath: `${CONTAINER_INBOX}/${inboxName}`,
+      title: displayName,
+    });
+    return r.ok ? { name: displayName, ok: true } : { name: displayName, ok: false, error: r.error };
+  } finally {
+    fs.rmSync(hostCopy, { force: true });
   }
-  const text = doc.text.slice(0, MAX_TEXT_CHARS);
-  const r = await nlmAddSource(notebookUrl, { type: "text", text, title: displayName });
-  return r.ok ? { name: displayName, ok: true } : { name: displayName, ok: false, error: r.error };
 }
 
 export async function addUrlSource(notebookUrl: string, url: string): Promise<SourceOutcome> {
