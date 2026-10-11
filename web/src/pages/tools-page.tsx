@@ -19,6 +19,8 @@ import { Badge, ToggleKnob } from "../shared/ui-bits";
 import { ImageSettingsModal } from "./image-settings-modal";
 import { ToolChainSettingsModal } from "./tool-chain-settings-modal";
 import { VisionSettingsModal } from "./vision-settings-modal";
+import { NotebooklmSettingsModal } from "./notebooklm-settings-modal";
+import { notebooklmApi, type NotebooklmStatus } from "../notebooklm-api-client";
 
 /**
  * Trang Tools theo mẫu Built-in Tools của GoClaw: tool nhóm theo mức rủi ro,
@@ -48,6 +50,7 @@ export function ToolsPage() {
   const [fetchSettings, setFetchSettings] = useState<FetchSettings | null>(null);
   const [vision, setVision] = useState<VisionSettings | null>(null);
   const [imageGen, setImageGen] = useState<ImageGenSettings | null>(null);
+  const [notebooklm, setNotebooklm] = useState<NotebooklmStatus | null>(null);
   const [settingsFor, setSettingsFor] = useState<ToolCatalogItem | null>(null);
   const [accounts, setAccounts] = useState<ManagedAccount[]>([]);
   const [agents, setAgents] = useState<ManagedAgent[]>([]);
@@ -86,6 +89,8 @@ export function ToolsPage() {
         if (accountsRes.items[0]) setAccountId(accountsRes.items[0].id);
       })
       .catch((e: Error) => setError(e.message));
+    // Riêng, không chặn trang: máy chủ NotebookLM tắt cũng không được làm hỏng trang Tools
+    notebooklmApi.get().then(setNotebooklm).catch(() => undefined);
   }, []);
 
   const account = useMemo(() => accounts.find((a) => a.id === accountId), [accounts, accountId]);
@@ -212,6 +217,15 @@ export function ToolsPage() {
                             {imageGen.model}
                           </Badge>
                         )}
+                        {tool.key === "notebooklm" && notebooklm && (
+                          <Badge tone={notebooklm.server.authenticated ? "green" : "amber"}>
+                            {!notebooklm.server.online
+                              ? "Máy chủ tắt"
+                              : notebooklm.server.authenticated
+                                ? "Đã đăng nhập Google"
+                                : "Chưa đăng nhập Google"}
+                          </Badge>
+                        )}
                         {/* Bật mà thiếu hạ tầng thì model KHÔNG nhận được tool -
                             phải nói thẳng, không để người dùng tưởng bot có khả năng đó */}
                         {!tool.available && <Badge tone="amber">Chưa dùng được</Badge>}
@@ -288,10 +302,21 @@ export function ToolsPage() {
         />
       )}
 
+      {settingsFor?.key === "notebooklm" && notebooklm && (
+        <NotebooklmSettingsModal
+          status={notebooklm}
+          onClose={() => setSettingsFor(null)}
+          onSaved={(next) => {
+            setNotebooklm(next);
+            void reloadTools();
+          }}
+        />
+      )}
+
       {/* Danh sách tường minh, KHÔNG dùng "mọi key còn lại": thêm tool có
           settings riêng mà quên loại trừ ở đây là nó mở nhầm modal chuỗi web */}
       {settingsFor &&
-        !["read_image", "create_image"].includes(settingsFor.key) &&
+        !["read_image", "create_image", "notebooklm"].includes(settingsFor.key) &&
         search &&
         fetchSettings && (
           <ToolChainSettingsModal

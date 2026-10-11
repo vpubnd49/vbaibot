@@ -72,7 +72,7 @@ function configureSidecar(): void {
 }
 
 /** Các tool chỉ vào schema khi hạ tầng riêng của chúng đã sẵn sàng */
-const GATED_TOOLS = ["read_image", "create_image", "ocr_folder_to_file", "notion_sync", "mcp_client"];
+const GATED_TOOLS = ["read_image", "create_image", "ocr_folder_to_file", "notion_sync", "mcp_client", "notebooklm"];
 
 function configureImageGen(): void {
   imageStore.updateImageSettings({
@@ -82,9 +82,11 @@ function configureImageGen(): void {
   });
 }
 
-/** Notion/MCP chỉ hiện khi DB có ít nhất một cấu hình đang bật */
+/** Notion/MCP chỉ hiện khi DB có ít nhất một cấu hình đang bật; NotebookLM khi Admin bật */
 async function configureIntegrations(on: boolean): Promise<void> {
   const { db } = await import("../../conversation/database.js");
+  const { updateNotebooklmSettings } = await import("../../config/runtime-notebooklm-settings.js");
+  updateNotebooklmSettings({ enabled: on });
   if (on) {
     db.prepare("INSERT OR REPLACE INTO notion_config (account_id, api_key, enabled) VALUES ('t', 'secret_x', 1)").run();
     db.prepare("INSERT OR REPLACE INTO mcp_servers (id, account_id, name, base_url) VALUES ('m', 't', 'n', 'https://mcp.test')").run();
@@ -232,6 +234,7 @@ describe("tool-registry", () => {
     "group_admin",
     "knowledge_research",
     "mcp_client",
+    "notebooklm",
     "notion_sync",
     "ocr_folder_to_file",
     "propose_shared_knowledge",

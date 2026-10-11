@@ -50,6 +50,8 @@ import { disasterAlertPublicRoutes } from "./routes/disaster-alert-public-routes
 import { ttsSettingsRoutes } from "./routes/tts-settings-routes.js";
 import { vpsRoutes } from "./routes/vps-routes.js";
 import { antigravityRelayRoutes } from "./routes/antigravity-relay-routes.js";
+import { notebooklmRoutes } from "./routes/notebooklm-routes.js";
+import { attachNovncUpgrade, novncHttpRoutes } from "./novnc-proxy.js";
 
 const log = createLogger("dashboard-server");
 const SESSION_COOKIE = "dashboard_session";
@@ -258,10 +260,15 @@ export function buildDashboardApp(): Hono {
   app.route("/api/insights", insightRoutes);
   app.route("/api/tickets", ticketRoutes);
   app.route("/api/settings/tts", ttsSettingsRoutes);
+  app.route("/api/notebooklm", notebooklmRoutes);
 
   // API không khớp route nào phải trả JSON 404, không được rơi xuống SPA
   // fallback bên dưới (client fetch JSON mà nhận HTML thì lỗi rất khó đọc)
   app.all("/api/*", (c) => c.json({ error: "Không tìm thấy endpoint" }, 404));
+
+  // Màn hình Chrome của NotebookLM (noVNC) - tự kiểm cookie phiên bên trong vì
+  // nằm ngoài /api/*. Phải đứng TRƯỚC SPA fallback.
+  app.route("/novnc", novncHttpRoutes);
 
   // Production: serve SPA đã build (pnpm build:web). Dev thì dùng Vite (pnpm dev:web).
   // Fallback index.html cho mọi path còn lại để deep link (/sessions, /login)
@@ -316,6 +323,7 @@ export function startDashboardServer(): void {
     { fetch: buildDashboardApp().fetch, port: env.DASHBOARD_PORT, hostname: "127.0.0.1" },
     (info) => log.info({ port: info.port }, "Dashboard sẵn sàng tại http://127.0.0.1:" + info.port),
   );
+  attachNovncUpgrade(server as import("node:http").Server);
 }
 
 export function stopDashboardServer(): void {

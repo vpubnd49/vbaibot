@@ -35,6 +35,7 @@ export const FILE_SEND_TOOLS = new Set([
   "thanhtra_lamdong",
   "national_legal",
   "ocr_folder_to_file",
+  "notebooklm",
 ]);
 
 /** Nhãn giả mạo do model tự gõ nhại theo history */

@@ -1,6 +1,8 @@
 import { isImageGenConfigured } from "../../config/runtime-image-settings.js";
 import { isMusicGenConfigured } from "../../config/runtime-music-settings.js";
 import { isVideoGenConfigured } from "../../config/runtime-video-settings.js";
+import { isNotebooklmConfigured } from "../../config/runtime-notebooklm-settings.js";
+import { createNotebooklmTool } from "./notebooklm-tool.js";
 import { createExcelFileTool, createWordDocumentTool, createPowerpointTool } from "./create-document-tools.js";
 import { createTextDocumentTool } from "./create-text-document-tool.js";
 import { createConvertFileTool } from "./convert-file-tool.js";
@@ -114,5 +116,18 @@ export const CONTENT_TOOL_DEFINITIONS: ToolDefinition[] = [
     unavailableHint: "Cấu hình Gemini API key (hoặc dùng provider Google) để dùng tool tạo video",
     runsInScheduledTurn: false,
     build: (ctx) => createVideoTool(ctx),
+  },
+  {
+    key: "notebooklm",
+    label: "NotebookLM",
+    description:
+      "Nạp file/link làm nguồn vào notebook riêng của cuộc chat, hỏi đáp có trích dẫn, tạo podcast/video/infographic/báo cáo rồi gửi luôn",
+    group: "action",
+    hasSettings: true,
+    available: () => isNotebooklmConfigured(),
+    unavailableHint: "Bấm Settings để bật NotebookLM và đăng nhập tài khoản Google của bot",
+    // Gửi file thẳng qua enqueueSend + chạy nền nhiều phút - không hợp lượt theo lịch
+    runsInScheduledTurn: false,
+    build: (ctx) => createNotebooklmTool(ctx),
   },
 ];
