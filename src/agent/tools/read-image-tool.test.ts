@@ -103,6 +103,38 @@ describe("collectRecentImagePaths", () => {
     const paths = toolModule.collectRecentImagePaths(makeContext(t, batch));
     assert.deepEqual(paths, ["media/acc-ri/t/scan.png", "media/acc-ri/t/photo.jpg"]);
   });
+
+  it("loại bỏ file.jpg nhân đôi khi tin nhắn đã có images và loại bỏ ảnh quote từ caption của chính bot", () => {
+    const t = "t-dedup-bot-quote";
+    historyStore.appendMessage("acc-ri", t, {
+      role: "user",
+      content: "[tài liệu/ảnh/ghi âm]",
+      images: ["media/acc-ri/t/8391409084829-0.jpg"],
+      files: [{ fileName: "file.jpg", localPath: "media/acc-ri/t/8391409084829-file-0-file_jpg.jpg", extension: ".jpg" }],
+    });
+    historyStore.appendMessage("acc-ri", t, {
+      role: "user",
+      content: "[tài liệu/ảnh/ghi âm]",
+      images: ["media/acc-ri/t/8391409090980-0.jpg"],
+      files: [{ fileName: "file.jpg", localPath: "media/acc-ri/t/8391409090980-file-0-file_jpg.jpg", extension: ".jpg" }],
+    });
+    const msg = batchMsg(t, []);
+    msg.files = [
+      {
+        fileName: "Em đã tạo xong poster vinh danh MB Bình Thuận theo đúng mẫu chị yêu cầu ạ!",
+        extension: ".jpg",
+        url: "http://x/bot.jpg",
+        localPath: "media/acc-ri/t/8391420000932-file-0-Em____t_o_xong_poster.jpg",
+      },
+    ];
+    const batch = [msg];
+
+    const paths = toolModule.collectRecentImagePaths(makeContext(t, batch));
+    assert.deepEqual(paths, [
+      "media/acc-ri/t/8391409090980-0.jpg",
+      "media/acc-ri/t/8391409084829-0.jpg",
+    ]);
+  });
 });
 
 describe("read_image tool", () => {

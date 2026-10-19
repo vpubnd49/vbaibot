@@ -50,9 +50,12 @@ const KHI_BI_CHE_XAU =
   "Người dùng chê xấu hoặc nhờ chỉnh lại: viết prompt MỚI theo ĐÚNG hướng họ nêu (sang trọng hơn, tối giản hơn, " +
   "nhiều màu hơn...), giữ nguyên phần chữ. Đừng gửi lại prompt cũ, cũng đừng tự đổi sang hướng họ không nhắc tới.";
 
-/** Hướng dẫn sửa ảnh chuyên sâu (Image-to-Image / Inpainting / Virtual Staging) */
+/** Hướng dẫn sửa ảnh chuyên sâu (Image-to-Image / Inpainting / Virtual Staging / Ghép ảnh người thật vào mẫu) */
 const QUY_TAC_SUA_ANH =
-  "KHI SỬA ẢNH ĐÃ GỬI (mode = 'sua_anh_da_gui'):\n" +
+  "KHI SỬA ẢNH HOẶC GHÉP ẢNH ĐÃ GỬI (mode = 'sua_anh_da_gui'):\n" +
+  "0. GHÉP ẢNH NGƯỜI THẬT VÀO ẢNH MẪU / GIỮ NGUYÊN NGƯỜI THẬT (QUAN TRỌNG NHẤT): Khi người dùng gửi ảnh mẫu (poster/banner/khung vinh danh) kèm ảnh chân dung người thật và yêu cầu 'lấy hình 1 làm mẫu', 'ghép ảnh thật vào mẫu', 'giữ nguyên người/khuôn mặt thật', 'thay ảnh người trong mẫu':\n" +
+  "   - BẮT BUỘC chọn mode = 'sua_anh_da_gui' và truyền imageIndices = [1, 2] (hoặc [1, 2, 3] nếu có 3 ảnh liên quan) để gửi ĐỒNG THỜI cả ảnh mẫu lẫn ảnh người thật cho AI!\n" +
+  "   - Trong prompt phần [BẢO TOÀN], BẮT BUỘC ghi rõ: 'Giữ nguyên 100% hình ảnh người thật từ ảnh chân dung đính kèm (giữ đúng khuôn mặt thật, mắt kính, kiểu tóc, biểu cảm, trang phục và tư thế gốc), cắt tách và ghép nguyên vẹn người thật vào vị trí nhân vật trên poster mẫu; TUYỆT ĐỐI KHÔNG tự suy diễn vẽ lại thành khuôn mặt người khác! Giữ nguyên 100% bố cục, màu sắc và họa tiết của poster mẫu.'\n" +
   "1. ĐỔI NỀN / STUDIO BACKDROP: Giữ nguyên sản phẩm/chủ thể chính (hình dáng, màu sắc, chi tiết, nhãn hiệu). " +
   "Thay toàn bộ bối cảnh bằng phông nền mới (vd: phông studio đen tuyền ngả xám than mờ lì matte chống lóa, phông trắng tối giản, vân đá, bối cảnh sang trọng). " +
   "Ánh sáng studio kiểm soát tập trung vào sản phẩm, chuyển sắc gradient mịn màng ra các góc, vệt bóng mờ nhẹ tự nhiên (soft shadow) ở phần tiếp đất/chân máy.\n" +
@@ -63,15 +66,15 @@ const QUY_TAC_SUA_ANH =
   "4. CẮT BỎ PHẦN THỪA & XÓA VẬT THỂ: Chỉ rõ vật thể thừa/bừa bộn cần loại bỏ (dây điện, đồ đạc ngổn ngang, người qua đường, rác...), " +
   "tái tạo bề mặt phía sau một cách tự nhiên và liền mạch.\n" +
   "5. THÊM CHỮ / TYPOGRAPHY / SLOGAN: Nêu rõ vị trí đặt chữ (góc trên, góc dưới, trung tâm), màu chữ tương phản dễ đọc, font chữ phù hợp và nội dung chữ nguyên văn trong ngoặc kép.\n" +
-  "⭐ CẤU TRÚC PROMPT VÀNG KHI SỬA ẢNH: Phải tách bạch 2 phần: [BẢO TOÀN: nêu rõ đối tượng/không gian gốc cần giữ nguyên] + [BIẾN ĐỔI/THÊM/XÓA: nêu chi tiết nền mới, vật thể lắp thêm, ánh sáng, góc bóng đổ hoặc chữ cần chèn].";
+  "⭐ CẤU TRÚC PROMPT VÀNG KHI SỬA ẢNH: Phải tách bạch 2 phần: [BẢO TOÀN: nêu rõ người thật/đối tượng/bố cục mẫu gốc cần giữ nguyên 100%] + [BIẾN ĐỔI/THÊM/XÓA: nêu chi tiết vị trí ghép người thật, nội dung chữ/con số thay đổi, nền mới, ánh sáng hoặc chữ cần chèn].";
 
 export const CREATE_IMAGE_DESCRIPTION =
-  "Vẽ ảnh mới bằng AI hoặc SỬA / VẼ LẠI / BIẾN ĐỔI ảnh người dùng vừa gửi, rồi gửi thẳng vào cuộc trò chuyện. " +
+  "Vẽ ảnh mới bằng AI hoặc SỬA / GHÉP ẢNH NGƯỜI THẬT VÀO MẪU / BIẾN ĐỔI ảnh người dùng vừa gửi, rồi gửi thẳng vào cuộc trò chuyện. " +
   "⚠️ TUYỆT ĐỐI KHÔNG DÙNG TOOL NÀY ĐỂ LÀM INFOGRAPHIC HOẶC TÓM TẮT TÀI LIỆU VĂN BẢN (mọi yêu cầu làm Infographic từ tài liệu văn bản BẮT BUỘC dùng tool 'notebooklm' với action: 'tao', loai: 'infographic'). " +
   "Dùng khi: " +
   "(1) Vẽ ảnh tranh vẽ, nghệ thuật (poster, banner, cover, e-magazine, ảnh minh họa); " +
-  "(2) SỬA ẢNH ĐÃ GỬI (mode 'sua_anh_da_gui'): đổi nền / đặt vào phông studio, phối cảnh thêm rèm/nội thất vào phòng, làm sáng ảnh/chỉnh ánh sáng, xóa vật thể thừa/dọn dẹp bối cảnh, thêm chữ/slogan vào ảnh. " +
-  "LƯU Ý: Khi người dùng gửi ảnh rồi yêu cầu sửa/đổi nền/thêm rèm/làm sáng/xóa vật thể/thêm chữ -> BẮT BUỘC chọn mode 'sua_anh_da_gui' để AI dùng ảnh gốc làm mẫu tham chiếu.\n" +
+  "(2) SỬA / GHÉP ẢNH ĐÃ GỬI (mode 'sua_anh_da_gui'): ghép ảnh chân dung người thật vào poster/banner mẫu (truyền imageIndices=[1,2]), lấy hình đã gửi làm mẫu đổi nội dung chữ, đổi nền / đặt vào phông studio, phối cảnh thêm rèm/nội thất vào phòng, làm sáng ảnh/chỉnh ánh sáng, xóa vật thể thừa/dọn dẹp bối cảnh, thêm chữ/slogan vào ảnh. " +
+  "LƯU Ý SỐNG CÒN: Khi người dùng gửi ảnh mẫu + ảnh người thật rồi yêu cầu lấy hình làm mẫu / ghép ảnh người thật vào mẫu / giữ nguyên người thật -> BẮT BUỘC chọn mode 'sua_anh_da_gui' và truyền imageIndices=[1, 2] để AI nhận cả 2 ảnh gốc và ghép đúng mặt người thật, TUYỆT ĐỐI KHÔNG chọn 've_moi' khiến AI tự vẽ ra người lạ!\n" +
   "Mất 1-3 phút mỗi ảnh nên chỉ gọi khi người dùng thật sự muốn có ảnh.\n" +
   `${QUY_TAC_SUA_ANH}\n` +
   `${CHU_PHAI_NGUYEN_VAN}\n` +

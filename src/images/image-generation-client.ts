@@ -31,6 +31,8 @@ export type GenerateImageParams = {
   prompt: string;
   /** Ảnh gốc để sửa, lấy từ media-store (loadStoredImage) */
   refImage?: { base64: string; mediaType: string };
+  /** Danh sách nhiều ảnh gốc để ghép/tham chiếu đồng thời (vd: ảnh mẫu + ảnh chân dung người thật) */
+  refImages?: Array<{ base64: string; mediaType: string }>;
   /** Cần nền trong suốt (logo, sticker) - ép sang PNG vì JPEG không có alpha */
   transparentBackground?: boolean;
 };
@@ -110,8 +112,18 @@ export async function generateImage(
     quality: getTuning("IMAGE_GEN_QUALITY"),
   };
   if (params.transparentBackground) body.background = "transparent";
-  if (params.refImage) {
-    body.image = `data:${params.refImage.mediaType};base64,${params.refImage.base64}`;
+  const allRefs =
+    params.refImages && params.refImages.length > 0
+      ? params.refImages
+      : params.refImage
+        ? [params.refImage]
+        : [];
+  if (allRefs.length > 0) {
+    const dataUris = allRefs.map((img) => `data:${img.mediaType};base64,${img.base64}`);
+    body.image = dataUris[0];
+    if (dataUris.length > 1) {
+      body.images = dataUris;
+    }
     // Đọc kỹ ảnh gốc thì mới giữ đúng chi tiết khi sửa
     body.image_detail = "high";
   }

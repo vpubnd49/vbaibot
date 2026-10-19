@@ -24,7 +24,7 @@ const JPEG_BYTES = Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10]);
 type Event =
   | { kind: "text"; msg: string }
   | { kind: "file"; fileName: string; buffer: Buffer; caption: string }
-  | { kind: "generate"; prompt: string; hasRef: boolean; transparent: boolean };
+  | { kind: "generate"; prompt: string; hasRef: boolean; refCount: number; transparent: boolean };
 let events: Event[] = [];
 let generateError: Error | null = null;
 /** Kịch bản nhiều lần gọi liên tiếp, dùng cho ca thử lại. Rỗng = dùng `generateError` */
@@ -61,6 +61,7 @@ const fakeGenerate: typeof import("../../images/image-generation-client.js").gen
     kind: "generate",
     prompt: params.prompt,
     hasRef: Boolean(params.refImage),
+    refCount: params.refImages?.length ?? (params.refImage ? 1 : 0),
     transparent: Boolean(params.transparentBackground),
   });
   if (generateErrorQueue.length > 0) {
@@ -226,6 +227,46 @@ describe("create_image - sửa ảnh có sẵn", () => {
 
     assert.equal(events.filter((e) => e.kind === "generate").length, 0);
     assert.match(loiCuaTool(result), /không đọc được|đã bị dọn/i);
+  });
+
+  it("người dùng yêu cầu lấy hình làm mẫu và ghép ảnh người thật: tự động gom đủ 2 ảnh gốc và khóa nhận diện người thật kể cả khi LLM chọn nhầm ve_moi", async () => {
+    const p1 = writeMediaFile("media/acc-img/t-img/mau-poster-0.png");
+    const p2 = writeMediaFile("media/acc-img/t-img/anh-nguoi-that-0.png");
+    const msg = batchMsg([
+      { url: "u1", localPath: p1 },
+      { url: "u2", localPath: p2 },
+    ]);
+    msg.text = "Lấy hình 1 làm mẫu chuyển nội dung MB Bình Thuận, giữ nguyên hình ảnh thật của chị và ghép vào";
+    const ctx = makeCtx([msg]);
+
+    await run(ctx, { mode: "ve_moi", prompt: "Poster vinh danh MB Bình Thuận" });
+
+    const gen = events.find((e) => e.kind === "generate");
+    assert.ok(gen && gen.kind === "generate");
+    assert.equal(gen.hasRef, true, "phải tự động chuyển sang dùng ảnh gốc");
+    assert.equal(gen.refCount, 2, "phải đính kèm cả ảnh mẫu lẫn ảnh người thật");
+    assert.match(gen.prompt, /STRICT IDENTITY/i, "phải chèn chỉ thị khóa khuôn mặt người thật");
+  });
+
+  it("truyền imageIndices=[1, 2] gửi đồng thời cả 2 ảnh tham chiếu", async () => {
+    const p1 = writeMediaFile("media/acc-img/t-img/idx1-0.png");
+    const p2 = writeMediaFile("media/acc-img/t-img/idx2-0.png");
+    const ctx = makeCtx([
+      batchMsg([
+        { url: "u1", localPath: p1 },
+        { url: "u2", localPath: p2 },
+      ]),
+    ]);
+
+    await run(ctx, {
+      mode: "sua_anh_da_gui",
+      imageIndices: [1, 2],
+      prompt: "[BẢO TOÀN: giữ nguyên người thật ở ảnh 2 và bố cục mẫu ảnh 1] [BIẾN ĐỔI: ghép người thật vào mẫu]",
+    });
+
+    const gen = events.find((e) => e.kind === "generate");
+    assert.ok(gen && gen.kind === "generate");
+    assert.equal(gen.refCount, 2);
   });
 });
 

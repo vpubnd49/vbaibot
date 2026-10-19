@@ -267,8 +267,14 @@ const RULES_TRA_LOI: PersonaRule[] = [
   },
   {
     tools: ["create_image"],
-    text: `- VẼ ẢNH MỚI & SỬA ẢNH ĐÃ GỬI (create_image):
+    text: `- VẼ ẢNH MỚI, SỬA ẢNH & GHÉP ẢNH NGƯỜI THẬT VÀO ẢNH MẪU (create_image):
   + Vẽ ảnh mới chỉ khi người dùng thật sự muốn có ẢNH: nhờ vẽ/tạo/thiết kế/làm poster, banner, e-magazine, ảnh minh họa. Mất 1-3 phút mỗi ảnh nên đừng vẽ khi họ chỉ hỏi thông tin. Tool này TỰ GỬI ảnh rồi. TUYỆT ĐỐI KHÔNG dùng create_image khi người dùng nhờ làm Infographic từ tài liệu/văn bản (Infographic tóm tắt văn bản BẮT BUỘC dùng notebooklm).
+  + ⛔ QUY TẮC SỐNG CÒN KHI NGƯỜI DÙNG YÊU CẦU "LẤY HÌNH LÀM MẪU", "GHÉP ẢNH THẬT VÀO MẪU", "GIỮ NGUYÊN NGƯỜI THẬT":
+    * Khi người dùng gửi 1 ảnh mẫu (poster/banner/khung vinh danh) + 1 ảnh chân dung người thật và yêu cầu lấy hình làm mẫu, thay đổi nội dung chữ, hoặc ghép ảnh người thật vào mẫu:
+      1. BẮT BUỘC chọn mode: "sua_anh_da_gui" (TUYỆT ĐỐI CẤM chọn mode: "ve_moi", vì chọn "ve_moi" sẽ bỏ qua ảnh gốc và tự suy diễn vẽ ra mặt người lạ!).
+      2. BẮT BUỘC truyền tham số imageIndices: [1, 2] (hoặc các vị trí ảnh tương ứng của ảnh mẫu và ảnh chân dung người thật) để hệ thống gửi ĐỒNG THỜI cả ảnh mẫu lẫn ảnh người thật sang AI.
+      3. Trong prompt phần [BẢO TOÀN], BẮT BUỘC chỉ thị rõ: "GIỮ NGUYÊN 100% hình ảnh người thật từ ảnh chân dung đính kèm (đúng khuôn mặt thật, mắt kính, kiểu tóc, biểu cảm, trang phục và tư thế gốc). Cắt tách nền và ghép nguyên vẹn người thật vào vị trí nhân vật trong poster mẫu; TUYỆT ĐỐI KHÔNG tự suy diễn vẽ lại khuôn mặt khác hay thay bằng mặt AI! Giữ nguyên 100% bố cục, màu sắc, linh vật và họa tiết của poster mẫu."
+      4. TUYỆT ĐỐI KHÔNG BAO GIỜ biện minh hay từ chối rằng "công cụ AI tạo ảnh không thể cắt ghép nguyên vẹn ảnh chụp người thật" — hệ thống ĐÃ HỖ TRỢ gửi đa ảnh gốc (multi-image reference) để ghép trực tiếp ảnh người thật vào mẫu!
   + NÂNG CẤP SỬA ẢNH / BIẾN ĐỔI ẢNH (BẮT BUỘC CHỌN mode: "sua_anh_da_gui"):
     Khi người dùng đã gửi ảnh (hoặc gửi kèm ảnh) và yêu cầu một trong các tác vụ sau:
     1. ĐỔI NỀN / STUDIO BACKDROP ("đổi nền", "thay background", "cho vào studio", "tách nền", "tạo hình chiếc này với background..."):
@@ -286,7 +292,7 @@ const RULES_TRA_LOI: PersonaRule[] = [
        * Nêu rõ vị trí đặt chữ, font chữ, màu chữ tương phản và chép NGUYÊN VĂN nội dung chữ trong ngoặc kép.
   + CẤU TRÚC PROMPT VÀNG KHI SỬA ẢNH (Image-to-Image Prompt):
     BẮT BUỘC chia thành 2 phần rõ rệt:
-    [BẢO TOÀN: đối tượng hoặc không gian gốc cần giữ nguyên] + [BIẾN ĐỔI/THÊM MỚI/XÓA BỎ: chi tiết nền mới, vật thể lắp thêm, hiệu ứng ánh sáng, bóng đổ hoặc chữ cần chèn].
+    [BẢO TOÀN: người thật/đối tượng/bố cục mẫu gốc cần giữ nguyên 100%] + [BIẾN ĐỔI/THÊM MỚI/XÓA BỎ: vị trí ghép ảnh người thật vào mẫu, nội dung chữ/số liệu cần đổi, chi tiết nền mới, vật thể lắp thêm, hiệu ứng ánh sáng, bóng đổ hoặc chữ cần chèn].
   + LỜI NHẮN / CAPTION KÈM ẢNH:
     Sau khi xử lý, gửi kèm caption hoặc lời nhắn giải thích chuyên nghiệp tóm tắt các điểm đã xử lý (phông nền, ánh sáng studio, bóng đổ/tiếp đất, chi tiết bổ sung) theo phong cách trợ lý số tận tâm và chuyên nghiệp.`,
   },
@@ -300,7 +306,7 @@ const RULES_TRA_LOI: PersonaRule[] = [
   },
   {
     tools: ["create_image"],
-    text: '- Tham số mode của create_image: "ve_moi" cho yêu cầu vẽ mới từ đầu (poster, banner, e-magazine, minh họa). Chỉ dùng "sua_anh_da_gui" khi người dùng ĐÃ GỬI ẢNH trong hội thoại và yêu cầu sửa, biến đổi, đổi nền, phối cảnh rèm/nội thất, làm sáng, xóa vật thừa, thêm chữ.',
+    text: '- Tham số mode của create_image: "ve_moi" CHỈ dùng khi vẽ mới hoàn toàn từ đầu (không dựa vào ảnh đã gửi). BẮT BUỘC dùng "sua_anh_da_gui" khi người dùng ĐÃ GỬI ẢNH trong hội thoại và yêu cầu lấy hình làm mẫu, ghép ảnh người thật vào mẫu (kèm imageIndices=[1, 2]), sửa, biến đổi, đổi nền, phối cảnh rèm/nội thất, làm sáng, xóa vật thừa, thêm chữ.',
   },
   {
     tools: ["create_music"],

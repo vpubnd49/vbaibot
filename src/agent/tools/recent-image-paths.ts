@@ -23,6 +23,30 @@ function isImageFilePath(path?: string): boolean {
   return IMAGE_FILE_EXTENSIONS.has(ext);
 }
 
+function isSkippedImageFile(
+  file: { fileName?: string; localPath?: string },
+  hasDirectImages: boolean,
+): boolean {
+  const name = (file.fileName ?? "").trim();
+  const lp = file.localPath ?? "";
+  // Tránh nhân đôi: tin nhắn ảnh đã có trong `images` mà còn sinh thêm `file.jpg` trong `files`
+  if (hasDirectImages && (name === "file.jpg" || /-file-\d+-file_jpg\./i.test(lp))) {
+    return true;
+  }
+  // Tránh lấy nhầm ảnh của chính bot khi người dùng quote/reply lại tin nhắn chứa ảnh của bot
+  // (Zalo biến caption dài của bot thành fileName của file quote)
+  if (/^(dạ|vâng|em\s+đã|đã\s+vẽ|đã\s+tạo|đã\s+sửa|đã\s+ghép|gửi\s+anh|gửi\s+chị|đang\s+vẽ|đang\s+sửa)/i.test(name)) {
+    return true;
+  }
+  if (name.split(/\s+/).length >= 8) {
+    return true;
+  }
+  if (/-file-\d+-(Em____|D__em_|___v__|___t_o_|___ch_nh_s_a)/i.test(lp)) {
+    return true;
+  }
+  return false;
+}
+
 /**
  * Gom đường dẫn ảnh MỚI NHẤT TRƯỚC: batch của lượt hiện tại (chưa vào DB)
  * rồi tới history. Hỗ trợ cả ảnh gửi trực tiếp (images) và ảnh gửi dạng file đính kèm/HD (files).
@@ -35,32 +59,37 @@ export function collectRecentImagePaths(ctx: ToolContext): string[] {
   };
 
   for (let i = (ctx.batch?.length ?? 0) - 1; i >= 0; i--) {
-    for (const image of ctx.batch[i]!.images ?? []) {
+    const msg = ctx.batch[i]!;
+    const hasDirect = (msg.images?.length ?? 0) > 0;
+    for (const image of msg.images ?? []) {
       addPath(image.localPath);
     }
-    for (const file of ctx.batch[i]!.files ?? []) {
-      if (isImageFilePath(file.localPath) || isImageFilePath(file.fileName)) {
+    for (const file of msg.files ?? []) {
+      if ((isImageFilePath(file.localPath) || isImageFilePath(file.fileName)) && !isSkippedImageFile(file, hasDirect)) {
         addPath(file.localPath);
       }
     }
   }
   if (ctx.message) {
+    const hasDirect = (ctx.message.images?.length ?? 0) > 0;
     for (const image of ctx.message.images ?? []) {
       addPath(image.localPath);
     }
     for (const file of ctx.message.files ?? []) {
-      if (isImageFilePath(file.localPath) || isImageFilePath(file.fileName)) {
+      if ((isImageFilePath(file.localPath) || isImageFilePath(file.fileName)) && !isSkippedImageFile(file, hasDirect)) {
         addPath(file.localPath);
       }
     }
   }
   const history = getRecentMessages(ctx.account.id, ctx.message.threadId);
   for (let i = history.length - 1; i >= 0; i--) {
-    for (const img of history[i]!.images ?? []) {
+    const msg = history[i]!;
+    const hasDirect = (msg.images?.length ?? 0) > 0;
+    for (const img of msg.images ?? []) {
       addPath(img);
     }
-    for (const file of history[i]!.files ?? []) {
-      if (file.localPath && isImageFilePath(file.localPath)) {
+    for (const file of msg.files ?? []) {
+      if (file.localPath && isImageFilePath(file.localPath) && !isSkippedImageFile(file, hasDirect)) {
         addPath(file.localPath);
       }
     }

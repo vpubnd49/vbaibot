@@ -186,14 +186,17 @@ export function parseIncomingMessage(
     }
   }
 
-  // Bóc tách file đính kèm từ tất cả các vị trí trong payload
-  const candidatesToScan = [
-    content,
-    parsedContent,
+  // Bóc tách file đính kèm từ tất cả các vị trí trong payload.
+  // Nếu tin nhắn chính đã là ảnh (images.length > 0), KHÔNG quét lại content/parsedContent
+  // thành file đính kèm (tránh nhân đôi mỗi ảnh thành 1 bản trong images + 1 bản file.jpg trong files).
+  const directCandidates = [
+    ...(images.length === 0 ? [content, parsedContent] : []),
     data.attach,
     data.attachments,
     data.params,
     data.property,
+  ];
+  const quoteCandidates = [
     data.quote,
     data.quoteMsg,
     data.quote?.attach,
@@ -201,11 +204,33 @@ export function parseIncomingMessage(
     data.quoteMsg?.attach,
     data.quoteMsg?.content,
   ];
+  const quoteOwner = String(
+    data.quote?.ownerId ?? data.quote?.uidFrom ?? data.quoteMsg?.ownerId ?? data.quoteMsg?.uidFrom ?? "",
+  );
+  const isQuoteFromSelf = Boolean(selfId && quoteOwner && quoteOwner === String(selfId));
+  const IMAGE_EXT_SET = new Set([".jpg", ".jpeg", ".png", ".webp", ".gif", ".bmp"]);
+  const isBotCaptionImage = (f: IncomingFile): boolean => {
+    if (!IMAGE_EXT_SET.has(f.extension.toLowerCase())) return false;
+    if (isQuoteFromSelf) return true;
+    const name = f.fileName.trim();
+    if (/^(dạ|vâng|em\s+đã|đã\s+vẽ|đã\s+tạo|đã\s+sửa|đã\s+ghép|gửi\s+anh|gửi\s+chị|đang\s+vẽ|đang\s+sửa)/i.test(name)) {
+      return true;
+    }
+    return name.split(/\s+/).length >= 8;
+  };
 
-  for (const item of candidatesToScan) {
+  for (const item of directCandidates) {
     if (!item) continue;
     const f = extractFileCandidate(item);
-    if (f && !files.some((x) => x.url === f.url)) {
+    if (f && !images.some((img) => img.url === f.url) && !files.some((x) => x.url === f.url)) {
+      files.push(f);
+    }
+  }
+  for (const item of quoteCandidates) {
+    if (!item) continue;
+    const f = extractFileCandidate(item);
+    if (!f || isBotCaptionImage(f)) continue;
+    if (!images.some((img) => img.url === f.url) && !files.some((x) => x.url === f.url)) {
       files.push(f);
     }
   }

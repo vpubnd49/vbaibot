@@ -1,6 +1,7 @@
 import { tool } from "ai";
 import { z } from "zod";
 import { isImageGenConfigured } from "../../config/runtime-image-settings.js";
+import { getImageDescription } from "../../conversation/image-description-store.js";
 import { loadStoredImage } from "../../conversation/media-store.js";
 import { generateImage } from "../../images/image-generation-client.js";
 import { checkImageRateLimit } from "../../images/image-rate-limit.js";
@@ -52,6 +53,32 @@ const TIN_THU_LAI = "Lần vẽ đầu chưa ra ảnh, mình vẽ lại lần n�
  */
 const MAX_PROMPT_CHARS = 4000;
 
+/**
+ * Nhận diện yêu cầu rõ ràng từ tin nhắn người dùng đòi lấy ảnh mẫu / ghép ảnh / giữ nguyên người thật.
+ * Dùng để tự động bật chế độ tham chiếu ảnh gốc kể cả khi LLM chọn nhầm mode="ve_moi".
+ */
+const YEU_CAU_DUNG_ANH_DA_GUI_RE =
+  /(?:lấy\s*(?:hình|ảnh|tấm)\s*\d*\s*làm\s*mẫu|theo\s*(?:hình|ảnh)\s*mẫu|(?:mẫu|hình|ảnh)\s*(?:lúc\s*nãy|vừa\s*gửi|ở\s*trên|trước\s*đó)|ghép\s*(?:đúng\s*)?(?:ảnh|hình|người|mặt|chân\s*dung|vào)|giữ\s*nguyên\s*(?:hình|ảnh|người|mặt|khuôn\s*mặt|chân\s*dung)|thay\s*(?:ảnh|hình)\s*(?:người|nhân\s*vật|chân\s*dung|thật)|đổi\s*nền|thay\s*background|xóa\s*vật\s*thể)/i;
+
+/**
+ * Nhận diện yêu cầu ghép người thật vào mẫu hoặc kết hợp nhiều ảnh (ảnh mẫu + ảnh chân dung thật).
+ */
+const YEU_CAU_GHEP_HOAC_MAU_RE =
+  /(?:ghép|lấy\s*(?:hình|ảnh|tấm)\s*\d*\s*làm\s*mẫu|theo\s*(?:hình|ảnh)?\s*mẫu|nội\s*dung\s*mẫu|mẫu\s*lúc\s*nãy|giữ\s*nguyên\s*(?:hình|ảnh|người|mặt|khuôn\s*mặt|chân\s*dung)|ảnh\s*thật|người\s*thật|hình\s*thật|thay\s*(?:ảnh|hình))/i;
+
+/**
+ * Nhận diện ảnh chụp màn hình giao dịch ngân hàng / biên lai thuần chữ để không lấn chỗ của ảnh mẫu và ảnh chân dung khi gom tự động.
+ */
+const ANH_BIEN_LAI_GIAO_DICH_RE =
+  /(?:đặt\s*mua\s*cctg\s*thành\s*công|giao\s*dịch\s*thành\s*công|chuyển\s*khoản\s*thành\s*công|về\s*trang\s*tiền\s*gửi)/i;
+
+const CHI_THI_GHEP_NGUOI_THAT =
+  "\n\n[CRITICAL INSTRUCTION — REAL PHOTO & TEMPLATE COMPOSITING]:\n" +
+  "- Reference image(s) are attached directly to this request (including the template poster/banner and the real person's portrait photo).\n" +
+  "- STRICT IDENTITY & PHOTO PRESERVATION: You MUST preserve 100% of the EXACT real person from the provided portrait photo (their exact face, facial features, glasses, hair, skin tone, expression, suit/outfit, and arms-crossed/standing pose). DO NOT redraw, re-imagine, beautify, or replace them with a synthetic AI-generated person!\n" +
+  "- Cut out the exact real person from their portrait photo and composite them seamlessly into the character position of the template design, replacing the old person in the template.\n" +
+  "- Preserve the template's graphic layout, background, colors, logos, mascot, and decorative elements, while updating the text and numbers strictly as requested.";
+
 export function createImageTool(ctx: ToolContext, generate = generateImage) {
   return tool({
     description: CREATE_IMAGE_DESCRIPTION,
@@ -61,7 +88,7 @@ export function createImageTool(ctx: ToolContext, generate = generateImage) {
         .describe(
           'BẮT BUỘC chọn. "ve_moi" = vẽ ảnh hoàn toàn mới từ mô tả (khi người dùng KHÔNG gửi ảnh hoặc không yêu cầu ' +
             'dựa vào ảnh đã gửi). "sua_anh_da_gui" = BẮT BUỘC khi người dùng đã gửi ảnh trong hội thoại và yêu cầu ' +
-            'sửa / biến đổi / đổi nền studio / phối cảnh thêm rèm, nội thất / làm sáng ảnh / xóa chi tiết thừa / thêm chữ vào ảnh đã gửi.',
+            'sửa / biến đổi / ghép ảnh người thật vào ảnh mẫu / lấy hình làm mẫu / đổi nền studio / phối cảnh thêm rèm, nội thất / làm sáng ảnh / xóa chi tiết thừa / thêm chữ vào ảnh đã gửi.',
         ),
       prompt: z
         .string()
@@ -69,7 +96,7 @@ export function createImageTool(ctx: ToolContext, generate = generateImage) {
         .max(MAX_PROMPT_CHARS)
         .describe(
           "Mô tả chi tiết ảnh cần vẽ. Nếu mode='sua_anh_da_gui', BẮT BUỘC cấu trúc thành 2 phần rõ rệt: " +
-            "[BẢO TOÀN: đối tượng hoặc không gian gốc cần giữ nguyên] + [BIẾN ĐỔI: chi tiết nền mới/phông studio, vật thể thêm vào như rèm/nội thất, hiệu ứng ánh sáng/làm sáng, chi tiết cần xóa, hoặc chữ cần thêm]",
+            "[BẢO TOÀN: đối tượng/người thật/bố cục mẫu gốc cần giữ nguyên 100%] + [BIẾN ĐỔI: vị trí ghép ảnh người thật vào mẫu, nội dung chữ/số liệu cần thay đổi, chi tiết nền mới/phông studio, vật thể thêm vào hoặc chi tiết cần xóa]",
         ),
       imageIndex: z.coerce
         .number()
@@ -77,7 +104,13 @@ export function createImageTool(ctx: ToolContext, generate = generateImage) {
         .min(1)
         .optional()
         .describe(
-          'Chỉ có tác dụng khi mode = "sua_anh_da_gui": sửa ảnh thứ mấy tính từ mới nhất. Bỏ trống = ảnh mới nhất',
+          'Chỉ có tác dụng khi mode = "sua_anh_da_gui": sửa ảnh thứ mấy tính từ mới nhất (1 = mới nhất). Bỏ trống = ảnh mới nhất',
+        ),
+      imageIndices: z
+        .array(z.coerce.number().int().min(1))
+        .optional()
+        .describe(
+          'Dùng khi mode = "sua_anh_da_gui" và cần GHÉP / KẾT HỢP nhiều ảnh đã gửi (ví dụ: ghép ảnh người thật ở hình 2 vào poster mẫu ở hình 1, truyền [1, 2] hoặc [2, 3]). Khi truyền mảng này, hệ thống sẽ gửi đồng thời tất cả các ảnh tham chiếu cho AI.',
         ),
       transparentBackground: z
         .boolean()
@@ -90,10 +123,11 @@ export function createImageTool(ctx: ToolContext, generate = generateImage) {
           "Lời nhắn gửi kèm ảnh giải thích chuyên nghiệp các điểm đã xử lý (phông nền, ánh sáng, tiếp đất/bóng đổ, chi tiết bổ sung)",
         ),
     }),
-    execute: async ({ mode, prompt, imageIndex, transparentBackground, caption }) => {
+    execute: async ({ mode, prompt, imageIndex, imageIndices, transparentBackground, caption }) => {
       const threadKey = `${ctx.account.id}:${ctx.message.threadId}`;
 
-      const allUserText = [ctx.message.text, ...(ctx.batch?.map((m) => m.text) ?? []), prompt].join(" ");
+      const userTextOnly = [ctx.message.text, ...(ctx.batch?.map((m) => m.text) ?? [])].join(" ");
+      const allUserText = `${userTextOnly} ${prompt}`;
       if (/\binfographic\b|đồ họa thông tin|tóm tắt.*(?:quyết định|nghị định|văn bản|luật|thông tư|kế hoạch|đề án|tài liệu|chính sách)/i.test(allUserText)) {
         log.warn({ prompt, userText: ctx.message.text }, "Từ chối create_image vì yêu cầu infographic/tóm tắt văn bản tài liệu");
         return ketQuaLoi(
@@ -110,37 +144,67 @@ export function createImageTool(ctx: ToolContext, generate = generateImage) {
       // Nạp ảnh gốc TRƯỚC khi tính vào trần: xin sửa ảnh không tồn tại thì
       // không có gì được vẽ, không có lý do gì trừ suất của người dùng
       let refImage: { base64: string; mediaType: string } | undefined;
-      // CHỈ `mode` được quyền quyết định, không phải sự có mặt của imageIndex.
-      // Model có thói quen điền đủ mọi tham số (bắt được trên Zalo thật:
-      // args {imageIndex: 1} cho một yêu cầu vẽ e-magazine MỚI). Để imageIndex
-      // tự quyết thì nó sẽ đi sửa tấm ảnh cũ trong hội thoại và người dùng nhận
-      // về ảnh lạ mà không có gì báo sai.
-      if (mode === "sua_anh_da_gui") {
-        const wantedIndex = imageIndex ?? 1;
+      let refImages: Array<{ base64: string; mediaType: string }> | undefined;
+
+      // Nếu người dùng nói rõ trong tin nhắn là "lấy hình làm mẫu", "ghép ảnh", "giữ nguyên hình ảnh thật"
+      // mà model lỡ chọn mode="ve_moi" thì tự động chuyển sang "sua_anh_da_gui" để không vẽ bịa người khác.
+      const effectiveMode =
+        mode === "ve_moi" && YEU_CAU_DUNG_ANH_DA_GUI_RE.test(userTextOnly)
+          ? "sua_anh_da_gui"
+          : mode;
+
+      if (effectiveMode === "sua_anh_da_gui") {
         const paths = collectRecentImagePaths(ctx);
 
-        // Hội thoại CHƯA TỪNG có ảnh -> "sửa ảnh" là ý định bất khả thi (không
-        // ai bảo sửa ảnh khi chưa gửi ảnh bao giờ), chắc chắn model chọn nhầm
-        // mode. Vẽ mới là việc duy nhất hợp lý. Từ chối thì model loay hoay
-        // viết lại prompt rồi bỏ cuộc - đã dính thật: 5 lần gọi, 68k token,
-        // người dùng không nhận được gì.
-        //
-        // Khác hẳn 2 nhánh dưới: ở đó hội thoại CÓ ảnh nên người dùng thật sự
-        // đang nhắc tới một tấm ảnh - vẽ mới là làm sai ý họ, phải nói thật.
         if (paths.length > 0) {
-          const relPath = paths[wantedIndex - 1];
-          if (!relPath) {
-            return ketQuaLoi(
-              `Hội thoại chỉ còn ${paths.length} ảnh gần đây - imageIndex ${wantedIndex} vượt quá. Dùng imageIndex từ 1 đến ${paths.length}, hoặc đổi mode sang "ve_moi".`,
-            );
+          const requestedIndices =
+            imageIndices && imageIndices.length > 0
+              ? [...new Set(imageIndices)]
+              : [imageIndex ?? 1];
+
+          for (const idx of requestedIndices) {
+            if (!paths[idx - 1]) {
+              return ketQuaLoi(
+                `Hội thoại chỉ còn ${paths.length} ảnh gần đây - imageIndex ${idx} vượt quá. Dùng imageIndex từ 1 đến ${paths.length}, hoặc đổi mode sang "ve_moi".`,
+              );
+            }
           }
-          const loaded = loadStoredImage(relPath);
-          if (!loaded) {
-            return ketQuaLoi(
-              "Ảnh này đã bị dọn khỏi bộ nhớ (quá hạn lưu trữ) nên không đọc được để sửa. Nhờ người dùng gửi lại ảnh.",
-            );
+
+          const selectedPaths = requestedIndices.map((idx) => paths[idx - 1]!);
+
+          // Nếu người dùng yêu cầu ghép ảnh / lấy mẫu + giữ nguyên người thật mà model chỉ truyền 1 ảnh
+          // trong khi hội thoại có >= 2 ảnh người dùng gửi, tự động gom thêm ảnh mẫu và ảnh chân dung
+          // để AI nhìn thấy đồng thời CẢ ảnh mẫu LẪN ảnh người thật.
+          if (selectedPaths.length === 1 && paths.length >= 2 && YEU_CAU_GHEP_HOAC_MAU_RE.test(allUserText)) {
+            for (const candidatePath of paths) {
+              if (selectedPaths.length >= 3) break;
+              if (selectedPaths.includes(candidatePath)) continue;
+              const desc = getImageDescription(candidatePath) ?? "";
+              if (ANH_BIEN_LAI_GIAO_DICH_RE.test(desc)) continue;
+              selectedPaths.push(candidatePath);
+            }
           }
-          refImage = loaded;
+
+          const loadedList: Array<{ base64: string; mediaType: string }> = [];
+          for (const relPath of selectedPaths) {
+            const loaded = loadStoredImage(relPath);
+            if (!loaded) {
+              if (loadedList.length === 0) {
+                return ketQuaLoi(
+                  "Ảnh này đã bị dọn khỏi bộ nhớ (quá hạn lưu trữ) nên không đọc được để sửa. Nhờ người dùng gửi lại ảnh.",
+                );
+              }
+              continue;
+            }
+            loadedList.push(loaded);
+          }
+
+          if (loadedList.length > 0) {
+            refImage = loadedList[0];
+            if (loadedList.length > 1) {
+              refImages = loadedList;
+            }
+          }
         }
       }
 
@@ -153,6 +217,11 @@ export function createImageTool(ctx: ToolContext, generate = generateImage) {
 
       const rate = checkImageRateLimit(threadKey);
       if (!rate.ok) return ketQuaLoi(rate.reason);
+
+      const finalPrompt =
+        refImage && YEU_CAU_GHEP_HOAC_MAU_RE.test(allUserText) && !prompt.includes("STRICT IDENTITY")
+          ? `${prompt}${CHI_THI_GHEP_NGUOI_THAT}`
+          : prompt;
 
       // Chỉ báo sau khi chắc chắn sẽ vẽ thật
       await enqueueSend(threadKey, () =>
@@ -180,7 +249,7 @@ export function createImageTool(ctx: ToolContext, generate = generateImage) {
       try {
         const image = await veVoiMotLanThuLai(
           (p) => generate(p),
-          { prompt, refImage, transparentBackground },
+          { prompt: finalPrompt, refImage, ...(refImages ? { refImages } : {}), transparentBackground },
           async () => {
             // KHÔNG trừ thêm suất: `checkImageRateLimit` đã chạy ở trên và lần
             // hụt vừa rồi đã tiêu mất một suất rồi. Bắt trả giá hai suất cho
