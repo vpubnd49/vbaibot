@@ -345,3 +345,176 @@ export function deleteSkill(id: string): { success: boolean; error?: string } {
     return { success: false, error: err instanceof Error ? err.message : String(err) };
   }
 }
+
+/**
+ * Thư mục sandbox chứa các bản nháp kỹ năng đang chạy thử (.agents/skill-drafts)
+ * trước khi Admin xác nhận đưa vào thư viện chung (.agents/skills).
+ */
+export function getSkillDraftsRootDir(): string {
+  return path.resolve(process.cwd(), ".agents", "skill-drafts");
+}
+
+function sanitizeSkillId(raw: string): string {
+  return raw
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9_-]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+/**
+ * Lưu một bản nháp skill vào thư mục riêng (.agents/skill-drafts/<id>/SKILL.md)
+ * kèm dữ liệu chạy thử (sample-test.md) nếu có.
+ */
+export function saveSkillDraft(params: {
+  id: string;
+  name: string;
+  description: string;
+  triggers: string[];
+  content: string;
+  sampleTestReport?: string;
+}): { success: boolean; id: string; path: string; error?: string } {
+  try {
+    const cleanId = sanitizeSkillId(params.id);
+    if (!cleanId) {
+      return { success: false, id: "", path: "", error: "ID kỹ năng không hợp lệ." };
+    }
+
+    const draftsRoot = getSkillDraftsRootDir();
+    fs.mkdirSync(draftsRoot, { recursive: true });
+
+    const draftDir = path.join(draftsRoot, cleanId);
+    fs.mkdirSync(draftDir, { recursive: true });
+
+    const triggersYaml =
+      params.triggers && params.triggers.length > 0
+        ? `[${params.triggers.map((t) => `'${t.trim().replace(/'/g, "\\'")}'`).join(", ")}]`
+        : "[]";
+
+    const escapedDesc = params.description.replace(/"/g, '\\"');
+    const mdContent = [
+      "---",
+      `name: ${params.name.trim()}`,
+      `description: "${escapedDesc}"`,
+      `triggers: ${triggersYaml}`,
+      "---",
+      "",
+      params.content.trim(),
+      "",
+    ].join("\n");
+
+    const filePath = path.join(draftDir, "SKILL.md");
+    fs.writeFileSync(filePath, mdContent, "utf-8");
+
+    if (params.sampleTestReport && params.sampleTestReport.trim()) {
+      fs.writeFileSync(
+        path.join(draftDir, "sample-test.md"),
+        params.sampleTestReport.trim() + "\n",
+        "utf-8",
+      );
+    }
+
+    return { success: true, id: cleanId, path: filePath };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return { success: false, id: "", path: "", error: msg };
+  }
+}
+
+/**
+ * Liệt kê tất cả bản nháp kỹ năng đang nằm trong Xưởng Skill (.agents/skill-drafts)
+ */
+export function listSkillDrafts(): (AgentSkill & { sampleTestReport?: string })[] {
+  const draftsRoot = getSkillDraftsRootDir();
+  if (!fs.existsSync(draftsRoot)) return [];
+
+  const drafts: (AgentSkill & { sampleTestReport?: string })[] = [];
+  const entries = fs.readdirSync(draftsRoot, { withFileTypes: true });
+
+  for (const entry of entries) {
+    if (!entry.isDirectory()) continue;
+    const draftDir = path.join(draftsRoot, entry.name);
+    const skillMdPath = path.join(draftDir, "SKILL.md");
+    if (!fs.existsSync(skillMdPath)) continue;
+
+    try {
+      const content = fs.readFileSync(skillMdPath, "utf-8");
+      const stat = fs.statSync(skillMdPath);
+      const parsed = parseSkillMarkdown(content);
+      const samplePath = path.join(draftDir, "sample-test.md");
+      const sampleTestReport = fs.existsSync(samplePath)
+        ? fs.readFileSync(samplePath, "utf-8")
+        : undefined;
+
+      drafts.push({
+        id: entry.name,
+        name: parsed.name || entry.name,
+        description: parsed.description,
+        triggers: parsed.triggers,
+        content: parsed.body,
+        dirPath: draftDir,
+        updatedAt: stat.mtime,
+        sampleTestReport,
+      });
+    } catch (err) {
+      console.warn(`[skill-manager] Lỗi khi đọc skill draft ${entry.name}:`, err);
+    }
+  }
+
+  return drafts;
+}
+
+/**
+ * Duyệt và chuyển bản nháp kỹ năng từ .agents/skill-drafts/<id> sang thư viện chung .agents/skills/<id>
+ */
+export function promoteSkillDraft(id: string): {
+  success: boolean;
+  id: string;
+  path: string;
+  error?: string;
+} {
+  try {
+    const cleanId = sanitizeSkillId(id);
+    if (!cleanId) {
+      return { success: false, id: "", path: "", error: "ID kỹ năng không hợp lệ." };
+    }
+
+    const draftsRoot = path.resolve(getSkillDraftsRootDir());
+    const draftDir = path.resolve(draftsRoot, cleanId);
+    const draftFile = path.join(draftDir, "SKILL.md");
+
+    if (!draftDir.startsWith(draftsRoot + path.sep) || !fs.existsSync(draftFile)) {
+      return {
+        success: false,
+        id: cleanId,
+        path: "",
+        error: `Không tìm thấy bản nháp kỹ năng '${cleanId}' trong Xưởng Skill.`,
+      };
+    }
+
+    const skillsRoot = getSkillsRootDir();
+    fs.mkdirSync(skillsRoot, { recursive: true });
+    const targetDir = path.join(skillsRoot, cleanId);
+    fs.mkdirSync(targetDir, { recursive: true });
+
+    const destFile = path.join(targetDir, "SKILL.md");
+    fs.copyFileSync(draftFile, destFile);
+
+    const sampleFile = path.join(draftDir, "sample-test.md");
+    if (fs.existsSync(sampleFile)) {
+      fs.copyFileSync(sampleFile, path.join(targetDir, "sample-test.md"));
+    }
+
+    // Xóa bản nháp sau khi đã chuyển vào thư viện chung
+    fs.rmSync(draftDir, { recursive: true, force: true });
+
+    cachedSkills = null;
+    lastCacheTime = 0;
+
+    return { success: true, id: cleanId, path: destFile };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return { success: false, id: "", path: "", error: msg };
+  }
+}
+

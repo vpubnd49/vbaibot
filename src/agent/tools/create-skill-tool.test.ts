@@ -38,3 +38,49 @@ test("createOrUpdateSkillTool tạo mới thành công và listSkillsTool hiển
     fs.rmSync(skillDir, { recursive: true, force: true });
   }
 });
+
+test("Xưởng Skill: sandbox_draft tạo bản thử trong thư mục riêng và promote_draft lưu vào thư viện chung", async () => {
+  const createTool = createOrUpdateSkillTool();
+  const listTool = createListSkillsTool();
+
+  const draftId = "ai-task-splitter-test";
+  const draftRes = await createTool.execute!(
+    {
+      mode: "sandbox_draft",
+      skill_id: draftId,
+      name: "AI Task Splitter",
+      description: "Chia nhỏ công việc AI để tiết kiệm lượt Claude và Codex",
+      triggers: ["chia-viec-ai", "task-splitter"],
+      content: "## Quy trình điều phối\n1. Phân tích yêu cầu\n2. Giao việc cho từng bot chuyên trách.",
+      sample_test_report: "Đã chạy thử trên 3 kịch bản mẫu, sửa lỗi tràn token ở bước 2.",
+    },
+    { toolCallId: "test-draft-1", messages: [], context: {} as never },
+  );
+
+  assert.ok(typeof draftRes === "string");
+  assert.ok(draftRes.includes("chờ Admin xác nhận"));
+
+  const listBefore = await listTool.execute!(
+    { filter: "AI Task Splitter", include_drafts: true },
+    { toolCallId: "test-list-draft", messages: [], context: {} as never },
+  );
+  assert.ok(typeof listBefore === "string");
+  assert.ok(listBefore.includes("[Bản thử chờ duyệt]"));
+
+  const promoteRes = await createTool.execute!(
+    {
+      mode: "promote_draft",
+      skill_id: draftId,
+    },
+    { toolCallId: "test-promote-1", messages: [], context: {} as never },
+  );
+  assert.ok(typeof promoteRes === "string");
+  assert.ok(promoteRes.includes("thư viện chung"));
+
+  // Dọn dẹp
+  const skillDir = path.join(getSkillsRootDir(), draftId);
+  if (fs.existsSync(skillDir)) {
+    fs.rmSync(skillDir, { recursive: true, force: true });
+  }
+});
+

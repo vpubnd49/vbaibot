@@ -6,14 +6,25 @@ import { createTicketTool } from "./ticket-tool.js";
 import { createVideoWorkshopTool } from "./video-workshop-tool.js";
 import { createNotionSyncTool } from "./notion-sync-tool.js";
 import { createMcpClientTool } from "./mcp-client-tool.js";
+import { createDelegateToBotTool } from "./chief-of-staff-tool.js";
 import { hasAnyMcpServer, hasAnyNotionConfig } from "./integration-availability.js";
 import type { ToolDefinition } from "./tool-catalog-types.js";
 
 /**
- * Nhóm "action" - phần MỞ RỘNG (media từ link, báo chủ bot, duyệt thành viên, ticket, Notion, MCP).
+ * Nhóm "action" - phần MỞ RỘNG (media từ link, báo chủ bot, duyệt thành viên, ticket, Notion, MCP, Chief of Staff).
  * Tách khỏi tool-catalog-action.ts (đã vượt 370 dòng). Thứ tự giữ nguyên như cũ.
  */
 export const EXTRA_TOOL_DEFINITIONS: ToolDefinition[] = [
+  {
+    key: "delegate_to_bot",
+    label: "Điều phối Đội ngũ Bot (Chief of Staff)",
+    description:
+      "Sếp – Chief of Staff giao việc dây chuyền hoặc song song cho các Bot chuyên trách (Radar Cộng Đồng FB, Jakie, Linh, Xưởng Skill, Ebook AI Thực Chiến, Soạn Bài Đào Tạo, Leader Marketing)",
+    group: "action",
+    keTrongKhaNang: true,
+    runsInScheduledTurn: true,
+    build: (ctx) => createDelegateToBotTool(ctx),
+  },
   {
     key: "youtube_transcript",
     label: "Đọc phụ đề YouTube",
@@ -94,3 +105,4 @@ export const EXTRA_TOOL_DEFINITIONS: ToolDefinition[] = [
     build: (ctx) => createMcpClientTool(ctx),
   },
 ];
+

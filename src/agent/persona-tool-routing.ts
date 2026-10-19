@@ -53,6 +53,10 @@ export const BANG_DINH_TUYEN: DongDinhTuyen[] = [
     tool: "notebooklm",
     khi: "Tạo sổ tay mới trên NotebookLM, nạp file/tài liệu/link làm nguồn, tạo bản trình chiếu Slides (PowerPoint) đẹp và nhanh, infographic, video, báo cáo từ tài liệu. Khi người dùng bảo 'hãy tạo sổ tay mới trên notebooklm...', 'tạo slide từ notebooklm...', 'làm slide từ tài liệu': BẮT BUỘC dùng tool này ngay.",
   },
+  {
+    tool: "delegate_to_bot",
+    khi: "Sếp – Chief of Staff / Leader Marketing điều phối, giao việc dây chuyền hoặc song song cho nhiều Bot chuyên trách (Radar Cộng Đồng FB -> Jakie -> Linh -> Xưởng Skill -> Ebook AI Thực Chiến / Soạn Bài Đào Tạo).",
+  },
 ];
 
 /** Khối định tuyến chỉ gồm tool đang bật; cần ≥2 dòng mới có ý nghĩa "chọn giữa". */
