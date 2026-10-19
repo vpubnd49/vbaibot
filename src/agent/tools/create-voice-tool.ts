@@ -3,7 +3,7 @@ import { z } from "zod";
 import type { API, ThreadType } from "zca-js";
 import { generatePodcastScript } from "../../voice/podcast-script.js";
 import { generateMultiSpeakerAudio } from "../../voice/gemini-tts.js";
-import { generateMultiSpeakerAudioEdge } from "../../voice/edge-tts.js";
+import { generateMultiSpeakerAudioEdge, synthesizeSingleVoiceEdge } from "../../voice/edge-tts.js";
 import { convertWavBufferToMp3 } from "../../voice/wav-to-mp3.js";
 import { saveVoiceFile } from "../../voice/voice-file-store.js";
 import { getTtsSettings } from "../../config/runtime-tts-settings.js";
@@ -32,24 +32,21 @@ export function createVoiceSummaryTool(ctx: {
 }) {
   return tool({
     description:
-      "Tạo và gửi TIN NHẮN THOẠI dạng PODCAST 2 người đọc/thảo luận tóm tắt văn bản (giọng Bắc chuẩn). " +
-      "CHỈ DÙNG CHO: \"đọc tóm tắt\", \"làm podcast\", \"đọc văn bản cho nghe\", \"tin nhắn thoại đọc báo cáo\". " +
-      "TUYỆT ĐỐI KHÔNG DÙNG CHO BÀI HÁT, CA KHÚC, SÁNG TÁC NHẠC (mọi yêu cầu bài hát, ca khúc, xuất file mp3 bài hát, hát cho nghe BẮT BUỘC dùng tool create_music).",
+      "Tạo và gửi TIN NHẮN THOẠI (Voice message) qua Zalo: hỗ trợ cả chế độ 'single-reply' (1 giọng Sếp – Chief of Staff báo cáo nhanh gọn 15-30s khi người dùng gửi voice hoặc nhờ báo cáo giọng nói) VÀ chế độ PODCAST 2 người thảo luận ('summary', 'deep-dive', 'brief'). " +
+      "TUYỆT ĐỐI KHÔNG DÙNG CHO BÀI HÁT, CA KHÚC, SÁNG TÁC NHẠC (mọi yêu cầu bài hát, ca khúc BẮT BUỘC dùng tool create_music).",
     inputSchema: z.object({
       content: z
         .string()
-        .min(20)
+        .min(10)
         .max(20000)
         .describe(
-          "Nội dung cần chuyển thành podcast. Có thể là bản tóm tắt, báo cáo, kết quả tra cứu, phân tích, " +
-          "hoặc bất kỳ văn bản nào người dùng muốn nghe. Lấy từ ngữ cảnh hoặc kết quả bạn vừa phân tích trong cuộc trò chuyện.",
+          "Nội dung cần chuyển thành tin nhắn thoại hoặc podcast. Với style='single-reply', truyền lời báo cáo ngắn gọn trực tiếp của Sếp (2-4 câu).",
         ),
       style: z
-        .enum(["summary", "deep-dive", "brief"])
+        .enum(["summary", "deep-dive", "brief", "single-reply"])
         .optional()
         .describe(
-          "Phong cách podcast: 'summary' (tóm tắt cân bằng, mặc định), " +
-          "'deep-dive' (phân tích chuyên sâu), 'brief' (ngắn gọn 1-2 phút)",
+          "Phong cách: 'single-reply' (1 giọng đọc trực tiếp ngắn gọn của Sếp, không qua kịch bản 2 MC), 'summary' (podcast 2 người cân bằng, mặc định), 'deep-dive' (chuyên sâu), 'brief' (podcast ngắn 1-2 phút)",
         ),
     }),
     execute: async ({ content, style }) => {
@@ -64,43 +61,57 @@ export function createVoiceSummaryTool(ctx: {
       }
 
       try {
-        // Bước 1: Sinh kịch bản podcast 2 người
-        log.info("Bước 1: Sinh kịch bản podcast...");
-        const script = await generatePodcastScript({
-          content,
-          hostNames: [ttsSettings.hostMaleName, ttsSettings.hostFemaleName],
-          style: style ?? "summary",
-          maxLengthChars: style === "brief" ? 2000 : style === "deep-dive" ? 8000 : 5000,
-        });
-
-        // Bước 2: Sinh audio (ưu tiên Edge TTS Neural chuẩn Bắc, hoặc Gemini TTS nếu có key)
-        log.info("Bước 2: Sinh audio podcast đa giọng...");
         let audioBuffer: Buffer;
         let format = "mp3";
 
-        if (ttsSettings.apiKey) {
-          try {
-            const wavBuffer = await generateMultiSpeakerAudio({
-              script,
-              voices: [
-                { speakerAlias: ttsSettings.hostMaleName, speakerId: ttsSettings.maleVoice },
-                { speakerAlias: ttsSettings.hostFemaleName, speakerId: ttsSettings.femaleVoice },
-              ],
-              apiKey: ttsSettings.apiKey,
-              model: ttsSettings.model,
-              baseUrl: ttsSettings.baseUrl || undefined,
-            });
-            // Gemini TTS trả WAV (PCM không nén, ~14MB cho 2.5 phút) → chuyển
-            // sang MP3 (~2MB) để Zalo PC tải được. WAV quá lớn khiến Zalo PC
-            // cache nghẽn → lỗi "Tin nhắn thoại không thể tải".
-            audioBuffer = await convertWavBufferToMp3(wavBuffer);
-            format = "mp3";
-            log.info(
-              { wavKb: Math.round(wavBuffer.length / 1024), mp3Kb: Math.round(audioBuffer.length / 1024) },
-              "Đã chuyển WAV → MP3",
-            );
-          } catch (geminiErr) {
-            log.warn({ geminiErr }, "Gemini TTS lỗi, chuyển sang Edge TTS Neural");
+        if (style === "single-reply") {
+          log.info("Sinh audio 1 giọng đọc trực tiếp (single-reply)...");
+          const voice = ttsSettings.maleVoice.includes("Neural")
+            ? ttsSettings.maleVoice
+            : "vi-VN-NamMinhNeural";
+          audioBuffer = await synthesizeSingleVoiceEdge(content, voice);
+        } else {
+          // Bước 1: Sinh kịch bản podcast 2 người
+          log.info("Bước 1: Sinh kịch bản podcast...");
+          const script = await generatePodcastScript({
+            content,
+            hostNames: [ttsSettings.hostMaleName, ttsSettings.hostFemaleName],
+            style: style ?? "summary",
+            maxLengthChars: style === "brief" ? 2000 : style === "deep-dive" ? 8000 : 5000,
+          });
+
+          // Bước 2: Sinh audio (ưu tiên Edge TTS Neural chuẩn Bắc, hoặc Gemini TTS nếu có key)
+          log.info("Bước 2: Sinh audio podcast đa giọng...");
+          if (ttsSettings.apiKey) {
+            try {
+              const wavBuffer = await generateMultiSpeakerAudio({
+                script,
+                voices: [
+                  { speakerAlias: ttsSettings.hostMaleName, speakerId: ttsSettings.maleVoice },
+                  { speakerAlias: ttsSettings.hostFemaleName, speakerId: ttsSettings.femaleVoice },
+                ],
+                apiKey: ttsSettings.apiKey,
+                model: ttsSettings.model,
+                baseUrl: ttsSettings.baseUrl || undefined,
+              });
+              audioBuffer = await convertWavBufferToMp3(wavBuffer);
+              format = "mp3";
+              log.info(
+                { wavKb: Math.round(wavBuffer.length / 1024), mp3Kb: Math.round(audioBuffer.length / 1024) },
+                "Đã chuyển WAV → MP3",
+              );
+            } catch (geminiErr) {
+              log.warn({ geminiErr }, "Gemini TTS lỗi, chuyển sang Edge TTS Neural");
+              audioBuffer = await generateMultiSpeakerAudioEdge({
+                script,
+                maleVoice: ttsSettings.maleVoice.includes("Neural") ? ttsSettings.maleVoice : "vi-VN-NamMinhNeural",
+                femaleVoice: ttsSettings.femaleVoice.includes("Neural") ? ttsSettings.femaleVoice : "vi-VN-HoaiMyNeural",
+                hostMaleName: ttsSettings.hostMaleName,
+                hostFemaleName: ttsSettings.hostFemaleName,
+              });
+              format = "mp3";
+            }
+          } else {
             audioBuffer = await generateMultiSpeakerAudioEdge({
               script,
               maleVoice: ttsSettings.maleVoice.includes("Neural") ? ttsSettings.maleVoice : "vi-VN-NamMinhNeural",
@@ -110,15 +121,6 @@ export function createVoiceSummaryTool(ctx: {
             });
             format = "mp3";
           }
-        } else {
-          audioBuffer = await generateMultiSpeakerAudioEdge({
-            script,
-            maleVoice: ttsSettings.maleVoice.includes("Neural") ? ttsSettings.maleVoice : "vi-VN-NamMinhNeural",
-            femaleVoice: ttsSettings.femaleVoice.includes("Neural") ? ttsSettings.femaleVoice : "vi-VN-HoaiMyNeural",
-            hostMaleName: ttsSettings.hostMaleName,
-            hostFemaleName: ttsSettings.hostFemaleName,
-          });
-          format = "mp3";
         }
 
         // Bước 3: Lưu file audio

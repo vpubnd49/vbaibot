@@ -56,6 +56,9 @@ import { legalDocsRoutes } from "./routes/legal-docs-routes.js";
 import { notionRoutes } from "./routes/notion-routes.js";
 import { mcpRoutes } from "./routes/mcp-routes.js";
 import { webchatRoutes } from "./routes/webchat-routes.js";
+import { sepWorkspaceRoutes } from "./routes/sep-workspace-routes.js";
+import { getSepManifestJson, getSepWorkspaceHtml } from "./routes/sep-workspace-html.js";
+import { getRadarDashboardHtml } from "./routes/radar-dashboard-html.js";
 import { attachNovncUpgrade, novncHttpRoutes } from "./novnc-proxy.js";
 
 const log = createLogger("dashboard-server");
@@ -104,7 +107,7 @@ const setSecurityHeaders: MiddlewareHandler = async (c, next) => {
   c.header("X-Frame-Options", c.req.path.startsWith("/novnc") ? "SAMEORIGIN" : "DENY");
   c.header("X-XSS-Protection", "1; mode=block");
   c.header("Referrer-Policy", "strict-origin-when-cross-origin");
-  c.header("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+  c.header("Permissions-Policy", "camera=(), microphone=(self), geolocation=()");
 };
 
 /** Tách buildApp khỏi serve() để test gọi app.request() không cần mở port */
@@ -136,6 +139,24 @@ export function buildDashboardApp(): Hono {
   // không có cookie dashboard. An toàn: filename có random suffix không đoán
   // được, file tự dọn sau 7 ngày.
   app.route("/voice", voiceRoutes);
+
+  // Ứng dụng di động PWA "🟢 Sếp – Chief of Staff & 🛠️ Xưởng Skill" (/sep) và Bảng điều khiển 3 tab (/radar)
+  app.get("/sep/manifest.json", (c) => {
+    c.header("Content-Type", "application/manifest+json; charset=utf-8");
+    c.header("Cache-Control", "no-store");
+    return c.body(getSepManifestJson());
+  });
+  app.get("/sep", (c) => {
+    c.header("Content-Type", "text/html; charset=utf-8");
+    c.header("Cache-Control", "no-store");
+    return c.body(getSepWorkspaceHtml());
+  });
+  app.get("/radar", (c) => {
+    c.header("Content-Type", "text/html; charset=utf-8");
+    c.header("Cache-Control", "no-store");
+    return c.body(getRadarDashboardHtml());
+  });
+  app.route("/api/public/sep", sepWorkspaceRoutes);
 
 
   app.post("/api/auth/login", async (c) => {

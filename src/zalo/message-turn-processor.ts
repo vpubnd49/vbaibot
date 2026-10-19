@@ -318,6 +318,40 @@ async function xuLyLuot(
     );
     if (giao.hong) return;
 
+    // Nếu người dùng gửi tin nhắn thoại (Voice message) trên Zalo và chưa có tool voice nào chạy trong lượt,
+    // tự động gửi kèm 1 bản tin nhắn thoại ngắn gọn (1 giọng Sếp – Chief of Staff) để người dùng trên điện thoại nghe rảnh tay!
+    const hasIncomingVoice = batch.some((m) => m.files?.some((f) => f.isAudio));
+    const alreadySentVoice = daGuiBoiTool.some((s) => /tin nhắn thoại|podcast/i.test(s));
+    if (hasIncomingVoice && !alreadySentVoice && result.text.trim().length >= 15) {
+      void (async () => {
+        try {
+          const { getTtsSettings } = await import("../config/runtime-tts-settings.js");
+          const tts = getTtsSettings();
+          if (!tts.publicBaseUrl) return;
+          const { synthesizeSingleVoiceEdge } = await import("../voice/edge-tts.js");
+          const { saveVoiceFile } = await import("../voice/voice-file-store.js");
+          const { enqueueSend } = await import("../middleware/rate-limiter.js");
+          const firstParagraphs = result.text
+            .split(/\n\n+/)
+            .slice(0, 3)
+            .join(". ")
+            .slice(0, 700);
+          const voiceName = tts.maleVoice.includes("Neural") ? tts.maleVoice : "vi-VN-NamMinhNeural";
+          const buf = await synthesizeSingleVoiceEdge(firstParagraphs, voiceName);
+          if (buf.length > 0) {
+            const { filename } = await saveVoiceFile(config.id, latest.threadId, buf, "mp3");
+            const voiceUrl = `${tts.publicBaseUrl}/voice/${config.id}/${filename}`;
+            await enqueueSend(threadKey, async () => {
+              return await api.sendVoice({ voiceUrl }, latest.threadId, latest.threadType);
+            });
+            log.info({ filename }, "Đã tự động gửi kèm Voice reply cho tin nhắn thoại của người dùng");
+          }
+        } catch (voiceErr) {
+          log.warn({ voiceErr }, "Không thể gửi kèm Voice reply tự động");
+        }
+      })();
+    }
+
     // Proactive follow-up: nếu bot hỏi lại user → đặt timer nhắc
     if (shouldTrackFollowup(result.text)) {
       scheduleFollowup(config.id, latest.threadId);

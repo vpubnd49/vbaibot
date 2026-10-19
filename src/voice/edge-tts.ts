@@ -40,6 +40,24 @@ async function synthesizeSegment(text: string, voiceName: string): Promise<Buffe
 }
 
 /**
+ * Sinh giọng đọc 1 người ngắn gọn, tự nhiên cho phản hồi Voice của Sếp – Chief of Staff.
+ */
+export async function synthesizeSingleVoiceEdge(
+  text: string,
+  voiceName = "vi-VN-NamMinhNeural",
+): Promise<Buffer> {
+  const cleaned = text
+    .replace(/```[\s\S]*?```/g, "")
+    .replace(/[*#_~`>|]/g, "")
+    .replace(/https?:\/\/\S+/g, "đường dẫn đính kèm")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 1200);
+  if (!cleaned) return Buffer.alloc(0);
+  return synthesizeSegment(cleaned, voiceName);
+}
+
+/**
  * Sinh audio podcast đa người nói (Nam Minh & Hoài My - giọng Bắc chuẩn).
  * Tách từng dòng kịch bản "Anh: ..." và "Chị: ..." để tổng hợp thành 1 file MP3 hoàn chỉnh.
  */
