@@ -195,8 +195,11 @@ export function buildDashboardApp(): Hono {
   // API WebChat CÔNG KHAI cho frontend VBAI (https://vbai.tracuu.lamdong.vn)
   app.route("/api/public/webchat", webchatRoutes);
 
-  // Mọi API sau điểm này yêu cầu session hợp lệ
+  // Mọi API sau điểm này yêu cầu session hợp lệ (trừ nhánh /api/public/*)
   app.use("/api/*", async (c, next) => {
+    if (c.req.path.startsWith("/api/public/")) {
+      return next();
+    }
     const internalSecret = c.req.header("x-internal-secret");
     if (internalSecret && internalSecret === env.CREDENTIALS_ENCRYPTION_KEY) {
       return next();
