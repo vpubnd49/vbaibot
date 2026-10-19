@@ -4,22 +4,43 @@
  * Overlapping Multi-Bot Badges, Bảng giao việc Markdown Table, Stacked Preview Fan, Poll Card A/B/C/D/E)
  * nhưng nạp 100% dữ liệu thật từ source & SQLite DB của VBAIBot.
  */
+export function getSepIconSvg(): string {
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="128" fill="#10b981"/>
+  <ellipse cx="256" cy="266" rx="168" ry="138" transform="rotate(-14 256 266)" fill="#ffffff"/>
+  <rect x="195" y="218" width="26" height="56" rx="13" fill="#111827" transform="rotate(-12 208 246)"/>
+  <rect x="268" y="208" width="26" height="56" rx="13" fill="#111827" transform="rotate(-12 281 236)"/>
+</svg>`;
+}
+
+export function getSepServiceWorkerJs(): string {
+  return `self.addEventListener('install', (e) => { self.skipWaiting(); });
+self.addEventListener('activate', (e) => { e.waitUntil(self.clients.claim()); });
+self.addEventListener('fetch', (e) => {
+  if (e.request.method !== 'GET') return;
+  e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+});`;
+}
+
 export function getSepManifestJson(): string {
   return JSON.stringify(
     {
+      id: "/sep",
       name: "VBAIBot – Sếp Chief of Staff",
-      short_name: "VBAIBot",
+      short_name: "Sếp VBAIBot",
       description: "Điều phối Multi-Agent, Kỹ năng (.agents/skills), Xưởng Skill Sandbox & Voice Chat",
       start_url: "/sep",
+      scope: "/",
       display: "standalone",
       background_color: "#ffffff",
       theme_color: "#ffffff",
       orientation: "portrait",
       icons: [
         {
-          src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='26' fill='%23ffffff'/><ellipse cx='50' cy='52' rx='34' ry='28' transform='rotate(-15 50 52)' fill='%2310b981'/><rect x='38' y='43' width='5' height='11' rx='2.5' fill='%23ffffff' transform='rotate(-12 40 48)'/><rect x='52' y='41' width='5' height='11' rx='2.5' fill='%23ffffff' transform='rotate(-12 54 46)'/></svg>",
-          sizes: "192x192",
+          src: "/sep/icon.svg",
+          sizes: "192x192 512x512",
           type: "image/svg+xml",
+          purpose: "any maskable",
         },
       ],
     },
@@ -37,6 +58,8 @@ export function getSepWorkspaceHtml(): string {
   <meta name="theme-color" content="#ffffff" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="mobile-web-app-capable" content="yes" />
+  <link rel="icon" type="image/svg+xml" href="/sep/icon.svg" />
+  <link rel="apple-touch-icon" href="/sep/icon.svg" />
   <link rel="manifest" href="/sep/manifest.json" />
   <title>Sếp – Chief of Staff | VBAIBot Multi-Agent</title>
   <style>
@@ -802,7 +825,10 @@ export function getSepWorkspaceHtml(): string {
         <span id="activeBotBeanWrap" style="display:inline-flex"></span>
         <span class="bot-selector-title" id="activeBotName">Sếp – Chief of Staff</span>
       </div>
-      <button class="float-circle-btn" id="moreMenuBtn" title="Tùy chọn & Radar Dashboard">•••</button>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <button id="installPwaBtn" style="height:38px;padding:0 12px;border-radius:999px;background:#10b981;color:#fff;border:none;font-size:12.5px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-float);display:inline-flex;align-items:center;gap:4px;" title="Cài ứng dụng lên màn hình chính Samsung">📲 Cài App</button>
+        <button class="float-circle-btn" id="moreMenuBtn" title="Tùy chọn & Radar Dashboard">•••</button>
+      </div>
     </header>
 
     <!-- Chat Stream -->
@@ -836,6 +862,40 @@ export function getSepWorkspaceHtml(): string {
         </button>
       </div>
     </footer>
+
+    <!-- Drawer Hướng dẫn & Cài App 1 chạm lên màn hình Samsung -->
+    <div class="drawer-backdrop" id="installDrawerBackdrop">
+      <div class="drawer-sheet">
+        <div class="drawer-handle"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <strong style="font-size:17px;">📲 Cài App Sếp lên màn hình Samsung</strong>
+          <button id="closeInstallDrawerBtn" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;">✕</button>
+        </div>
+        <div style="font-size:13.5px;line-height:1.5;color:var(--text);">
+          <div style="background:#ecfdf5;border:1px solid #6ee7b7;border-radius:12px;padding:12px;margin-bottom:10px;color:#065f46;">
+            <strong>⚠️ Lưu ý quan trọng nếu bạn bấm link từ trong Zalo:</strong><br/>
+            Trình duyệt nội bộ của Zalo ẩn nút <em>"Thêm vào màn hình chính"</em>. Hãy bấm nút màu xanh dưới đây để mở thẳng sang <strong>Chrome</strong> hoặc <strong>Samsung Internet</strong>:
+            <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;">
+              <a href="intent://vbaibot.chauphienbanso.com/sep#Intent;scheme=https;package=com.android.chrome;end" style="display:block;text-align:center;background:#10b981;color:#fff;font-weight:700;padding:11px;border-radius:10px;text-decoration:none;">🚀 Mở ngay bằng Google Chrome</a>
+              <a href="intent://vbaibot.chauphienbanso.com/sep#Intent;scheme=https;package=com.sec.android.app.sbrowser;end" style="display:block;text-align:center;background:#2563eb;color:#fff;font-weight:700;padding:10px;border-radius:10px;text-decoration:none;">🌐 Mở ngay bằng Samsung Internet</a>
+            </div>
+          </div>
+
+          <div style="background:var(--bubble-bg);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:8px;">
+            <strong>Cách 1: Nếu đang ở trình duyệt Samsung Internet</strong><br/>
+            1. Nhìn xuống <strong>góc dưới cùng bên phải</strong> màn hình, bấm biểu tượng <strong><code>≡</code> (3 gạch ngang)</strong>.<br/>
+            2. Bấm vào nút <strong><code>+ Thêm trang vào</code> (Add page to)</strong>.<br/>
+            3. Chọn <strong><code>Màn hình chính</code> (Home screen)</strong>.
+          </div>
+
+          <div style="background:var(--bubble-bg);border:1px solid var(--border);border-radius:12px;padding:12px;">
+            <strong>Cách 2: Nếu đang ở trình duyệt Google Chrome</strong><br/>
+            1. Nhìn lên <strong>góc trên cùng bên phải</strong> (cạnh thanh địa chỉ), bấm biểu tượng <strong><code>⋮</code> (3 chấm dọc)</strong>.<br/>
+            2. Kéo menu xuống và chọn <strong><code>Thêm vào màn hình chính</code> (Add to Home screen)</strong> hoặc <strong><code>Cài đặt ứng dụng</code> (Install app)</strong>.
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- Drawer chọn Agent / Kỹ năng (.agents/skills) -->
     <div class="drawer-backdrop" id="drawerBackdrop">
@@ -879,6 +939,43 @@ export function getSepWorkspaceHtml(): string {
     if (localStorage.getItem("sep_theme") === "dark") {
       document.body.classList.add("dark");
     }
+
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sep-sw.js", { scope: "/" }).catch(() => {});
+    }
+
+    let deferredPwaPrompt = null;
+    const installPwaBtn = document.getElementById("installPwaBtn");
+    const installDrawerBackdrop = document.getElementById("installDrawerBackdrop");
+
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      deferredPwaPrompt = e;
+    });
+
+    if (window.matchMedia("(display-mode: standalone)").matches) {
+      installPwaBtn.style.display = "none";
+    }
+
+    installPwaBtn.addEventListener("click", async () => {
+      if (deferredPwaPrompt) {
+        deferredPwaPrompt.prompt();
+        const choice = await deferredPwaPrompt.userChoice.catch(() => null);
+        if (choice && choice.outcome === "accepted") {
+          deferredPwaPrompt = null;
+          installPwaBtn.style.display = "none";
+          return;
+        }
+      }
+      installDrawerBackdrop.classList.add("open");
+    });
+
+    document.getElementById("closeInstallDrawerBtn").addEventListener("click", () => {
+      installDrawerBackdrop.classList.remove("open");
+    });
+    installDrawerBackdrop.addEventListener("click", (e) => {
+      if (e.target === installDrawerBackdrop) installDrawerBackdrop.classList.remove("open");
+    });
 
     let bots = [];
     let activeBotId = "sep-chief";

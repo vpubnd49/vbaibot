@@ -57,7 +57,12 @@ import { notionRoutes } from "./routes/notion-routes.js";
 import { mcpRoutes } from "./routes/mcp-routes.js";
 import { webchatRoutes } from "./routes/webchat-routes.js";
 import { sepWorkspaceRoutes } from "./routes/sep-workspace-routes.js";
-import { getSepManifestJson, getSepWorkspaceHtml } from "./routes/sep-workspace-html.js";
+import {
+  getSepIconSvg,
+  getSepManifestJson,
+  getSepServiceWorkerJs,
+  getSepWorkspaceHtml,
+} from "./routes/sep-workspace-html.js";
 import { getRadarDashboardHtml } from "./routes/radar-dashboard-html.js";
 import { attachNovncUpgrade, novncHttpRoutes } from "./novnc-proxy.js";
 
@@ -141,6 +146,17 @@ export function buildDashboardApp(): Hono {
   app.route("/voice", voiceRoutes);
 
   // Ứng dụng di động PWA "🟢 Sếp – Chief of Staff & 🛠️ Xưởng Skill" (/sep) và Bảng điều khiển 3 tab (/radar)
+  app.get("/sep/icon.svg", (c) => {
+    c.header("Content-Type", "image/svg+xml; charset=utf-8");
+    c.header("Cache-Control", "public, max-age=86400");
+    return c.body(getSepIconSvg());
+  });
+  app.get("/sep-sw.js", (c) => {
+    c.header("Content-Type", "application/javascript; charset=utf-8");
+    c.header("Service-Worker-Allowed", "/");
+    c.header("Cache-Control", "no-store");
+    return c.body(getSepServiceWorkerJs());
+  });
   app.get("/sep/manifest.json", (c) => {
     c.header("Content-Type", "application/manifest+json; charset=utf-8");
     c.header("Cache-Control", "no-store");
