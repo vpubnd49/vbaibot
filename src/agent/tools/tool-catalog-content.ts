@@ -119,13 +119,13 @@ export const CONTENT_TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     key: "notebooklm",
-    label: "NotebookLM",
+    label: "Gemini Notebook (NotebookLM)",
     description:
-      "Nạp file/link làm nguồn vào notebook riêng của cuộc chat, hỏi đáp có trích dẫn, tạo podcast/video/infographic/báo cáo rồi gửi luôn",
+      "Nạp file/link làm nguồn vào sổ tay Gemini Notebook (NotebookLM) riêng của cuộc chat, hỏi đáp có trích dẫn, tạo slides/podcast/video/infographic/báo cáo rồi gửi luôn",
     group: "action",
     hasSettings: true,
     available: () => isNotebooklmConfigured(),
-    unavailableHint: "Bấm Settings để bật NotebookLM và đăng nhập tài khoản Google của bot",
+    unavailableHint: "Bấm Settings để bật Gemini Notebook (NotebookLM) và đăng nhập tài khoản Google của bot",
     // Gửi file thẳng qua enqueueSend + chạy nền nhiều phút - không hợp lượt theo lịch
     runsInScheduledTurn: false,
     build: (ctx) => createNotebooklmTool(ctx),

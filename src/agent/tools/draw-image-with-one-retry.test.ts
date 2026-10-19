@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { LoiVeHutAnh } from "../../images/image-retry-policy.js";
+import { LoiVeHutAnh, LoiKetNoiTamThoi } from "../../images/image-retry-policy.js";
 import type { GeneratedImage, GenerateImageParams } from "../../images/image-generation-client.js";
 import { veVoiMotLanThuLai } from "./draw-image-with-one-retry.js";
 
@@ -113,4 +113,32 @@ describe("veVoiMotLanThuLai", () => {
     assert.equal(ket, ANH);
     assert.equal(lanGoi.length, 2);
   });
+
+  // --- Test lỗi kết nối tạm thời ---
+
+  it("lỗi kết nối tạm thời lần đầu -> BÁO rồi thử lại, lần hai được thì trả ảnh", async () => {
+    const { generate, lanGoi } = providerTheoKichBan([new LoiKetNoiTamThoi("HTTP 502: Bad Gateway")]);
+    const baoDaGoi: string[] = [];
+
+    const ket = await veVoiMotLanThuLai(generate, THAM_SO, () => {
+      baoDaGoi.push("bao");
+    });
+
+    assert.equal(ket, ANH);
+    assert.equal(lanGoi.length, 2, "phải gọi lại provider khi lỗi kết nối tạm thời");
+    assert.equal(baoDaGoi.length, 1, "phải báo trước khi thử lại");
+  });
+
+  it("lỗi kết nối qua regex (ECONNRESET) cũng được retry", async () => {
+    const { generate, lanGoi } = providerTheoKichBan([new Error("read ECONNRESET")]);
+    // Error thường với chữ ECONNRESET cũng khớp regex trong laLoiDangThuLai
+
+    // Vì draw-image-with-one-retry import laLoiDangThuLai (dùng regex), lỗi
+    // Error thường có "ECONNRESET" cũng được bắt
+    const ket = await veVoiMotLanThuLai(generate, THAM_SO, () => {});
+
+    assert.equal(ket, ANH);
+    assert.equal(lanGoi.length, 2);
+  });
 });
+

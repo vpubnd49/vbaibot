@@ -319,7 +319,7 @@ describe("create_image - hụt ảnh thì vẽ lại một lần", () => {
   it("hụt lần đầu -> nhắn báo rồi vẽ lại rồi GỬI ẢNH, người dùng vẫn nhận được ảnh", async () => {
     generateErrorQueue = [HUT_ANH()];
 
-    const result = await run(makeCtx(), { mode: "ve_moi", prompt: "infographic tiếng Việt" });
+    const result = await run(makeCtx(), { mode: "ve_moi", prompt: "banner nghệ thuật tiếng Việt" });
 
     assert.deepEqual(
       events.map((e) => e.kind),
@@ -388,4 +388,14 @@ describe("create_image - hụt ảnh thì vẽ lại một lần", () => {
       "chỉ còn câu báo trước - hứa 'đang thử lại' khi không thử lại là nói dối",
     );
   });
+
+  it("chặn yêu cầu infographic và KHÔNG gửi câu 'Đang vẽ ảnh...'", async () => {
+    const ctx = makeCtx();
+    (ctx.message as any).text = "tạo Infographic @Châu Phiên Bản Số";
+    const result = await run(ctx, { mode: "ve_moi", prompt: "sơ đồ tóm tắt nghị định" });
+
+    assert.equal(events.length, 0, "tuyệt đối không được gửi tin nhắn báo vẽ ảnh");
+    assert.match(loiCuaTool(result), /notebooklm/i);
+  });
 });
+

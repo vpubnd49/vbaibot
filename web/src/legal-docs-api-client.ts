@@ -59,6 +59,11 @@ export type LegalDocsOverview = {
     };
   };
   recent: LegalDocItem[];
+  province?: {
+    qpplCount: number;
+    thanhtraCount: number;
+    syncRunning: boolean;
+  };
 };
 
 export type LegalDocsListQuery = { status?: string; source?: string; q?: string; limit?: number; offset?: number };
@@ -71,6 +76,8 @@ export const legalDocsApi = {
     return request<{ items: LegalDocItem[]; total: number }>(`/api/legal-docs/list?${p.toString()}`);
   },
   crawl: () => request<{ ok: boolean; started: boolean; message?: string }>("/api/legal-docs/crawl", { method: "POST" }),
+  syncProvince: () =>
+    request<{ ok: boolean; started: boolean; message?: string }>("/api/legal-docs/sync-province", { method: "POST" }),
   retry: (id: string) => request<{ ok: boolean }>(`/api/legal-docs/retry/${encodeURIComponent(id)}`, { method: "POST" }),
   retryFailed: () => request<{ ok: boolean; count: number }>("/api/legal-docs/retry-failed", { method: "POST" }),
   purge: () => request<{ ok: boolean; files: number; bytes: number; reason: string[] }>("/api/legal-docs/purge", { method: "POST" }),

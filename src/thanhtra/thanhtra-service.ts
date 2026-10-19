@@ -60,7 +60,25 @@ export async function syncThanhtraDocuments(limit = 30): Promise<ThanhtraSyncRes
 
         const notFoundPath = `${absPath}.notfound`;
 
+        let hasValidCachedPdf = false;
         if (fs.existsSync(absPath)) {
+          try {
+            const fd = fs.openSync(absPath, "r");
+            const head = Buffer.alloc(4);
+            const bytesRead = fs.readSync(fd, head, 0, 4, 0);
+            fs.closeSync(fd);
+            if (bytesRead === 4 && head.toString() === "%PDF") {
+              hasValidCachedPdf = true;
+            } else {
+              fs.unlinkSync(absPath);
+              log.warn({ title, file: baseName }, "Phát hiện file PDF thanh tra cũ bị hỏng (không có %PDF) - đã xóa để tải lại");
+            }
+          } catch {
+            hasValidCachedPdf = false;
+          }
+        }
+
+        if (hasValidCachedPdf) {
           const stats = fs.statSync(absPath);
           fileSize = stats.size;
           localPath = relPath;

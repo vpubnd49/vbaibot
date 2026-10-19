@@ -130,6 +130,31 @@ Em tiến hành gọi tool xuất file Excel cho anh ngay đây ạ!`;
       const botText = "Để giải quyết việc này, em sẽ soạn cho anh một Công văn từ Bệnh viện An Phước gửi Sở Y tế và Bảo hiểm xã hội.\n\nEm tiến hành gọi tool để xuất file Word chuẩn thể thức cho anh ngay đây ạ.";
       assert.equal(laTinNhanAoGiacGuiFile(botText, []), true);
     });
+
+    // ── Hồi quy vụ 11/10/2026: ảo giác podcast âm thanh / tin nhắn thoại / infographic / notebooklm ──
+
+    it("bắt nhãn giả mạo [Đã gửi tin nhắn thoại tổng hợp ~ 4 phút 15 giây] khi không gọi tool", () => {
+      const text =
+        "[Đã gửi tin nhắn thoại tổng hợp ~ 4 phút 15 giây]Dạ anh Châu, em vừa tạo và gửi trực tiếp tin nhắn thoại Podcast âm thanh.";
+      assert.equal(laTinNhanAoGiacGuiFile(text, []), true);
+    });
+
+    it("không coi là ảo giác tin nhắn thoại nếu đã gọi create_voice_summary", () => {
+      const text =
+        "Dạ anh Châu, em vừa tạo và gửi trực tiếp tin nhắn thoại Podcast âm thanh cho anh ạ.";
+      assert.equal(laTinNhanAoGiacGuiFile(text, ["create_voice_summary"]), false);
+    });
+
+    it("nhận diện người dùng yêu cầu 'nạp vào notebooklm và tạo Infographic, Podcast âm thanh gửi tôi' là ý định xuất file/media", () => {
+      const userPrompt = "nạp vào notebooklm và tạo Infographic, Podcast âm thanh gửi tôi";
+      assert.equal(laNguoiDungYeuCauXuatFile(userPrompt), true);
+    });
+
+    it("bắt câu trả lời tuyên bố đã tạo podcast/infographic khi calls rỗng", () => {
+      const text =
+        "Dạ em vừa tạo tin nhắn thoại Podcast âm thanh tóm tắt nội dung và đã gửi infographic cho anh.";
+      assert.equal(laTinNhanAoGiacGuiFile(text, []), true);
+    });
   });
 
   describe("xoaNhanAoGiacGuiFile", () => {
@@ -140,6 +165,15 @@ Em tiến hành gọi tool xuất file Excel cho anh ngay đây ạ!`;
       assert.ok(!cleaned.includes("[đã gửi file: bao-cao.xlsx]"));
       assert.ok(cleaned.includes("Dạ anh Tran, em đã tổng hợp nội dung."));
       assert.ok(cleaned.includes("Anh xem qua nhé!"));
+    });
+
+    it("xóa sạch nhãn giả mạo tin nhắn thoại và infographic", () => {
+      const text =
+        "[Đã gửi tin nhắn thoại tổng hợp ~ 4 phút 15 giây][đã gửi infographic từ NotebookLM]\n\nNội dung văn bản như sau:";
+      const cleaned = xoaNhanAoGiacGuiFile(text);
+      assert.ok(!cleaned.includes("Đã gửi tin nhắn thoại"));
+      assert.ok(!cleaned.includes("đã gửi infographic"));
+      assert.ok(cleaned.includes("Nội dung văn bản như sau:"));
     });
   });
 
@@ -156,6 +190,14 @@ Em tiến hành gọi tool xuất file Excel cho anh ngay đây ạ!`;
       assert.ok(msg.includes("create_admin_document"), "phải nhắc create_admin_document");
       assert.ok(!msg.includes("qppl_lamdong"), "không được ép qppl_lamdong khi đang soạn VB");
     });
+
+    it("yêu cầu notebooklm/podcast/infographic phải nhắc notebooklm và create_voice_summary", () => {
+      const userPrompt = "nạp vào notebooklm và tạo Infographic, Podcast âm thanh gửi tôi";
+      const msg = taoTinNhanNhacGoiTool(userPrompt);
+      assert.ok(msg.includes("notebooklm"), "phải nhắc notebooklm");
+      assert.ok(msg.includes("create_voice_summary"), "phải nhắc create_voice_summary");
+    });
   });
 });
+
 

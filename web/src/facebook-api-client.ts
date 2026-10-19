@@ -6,7 +6,9 @@ export type FacebookStatus = {
     hasSession: boolean;
     userId?: string;
     savedAt?: string;
-    source?: "password" | "import";
+    source?: "password" | "import" | "env" | "file";
+    isHardcoded?: boolean;
+    cookieCount?: number;
     health: { lastCheckAt?: string; lastCheckOk?: boolean; lastError?: string };
     pendingVerification: boolean;
     browserAvailable: boolean;
@@ -65,6 +67,20 @@ export const facebookMonitorApi = {
     return request<{ items: FacebookPost[]; total: number }>(`/api/facebook/posts?${p.toString()}`);
   },
   crawlNow: () => request<FacebookStatus>("/api/facebook/crawl", { method: "POST" }),
+  addPage: (data: { pageId: string; pageName: string; pageUrl?: string; category?: string }) =>
+    request<FacebookStatus & { ok: boolean }>("/api/facebook/pages", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  togglePage: (pageId: string, enabled: boolean) =>
+    request<FacebookStatus & { ok: boolean }>(`/api/facebook/pages/${encodeURIComponent(pageId)}`, {
+      method: "PATCH",
+      body: JSON.stringify({ enabled }),
+    }),
+  deletePage: (pageId: string) =>
+    request<FacebookStatus & { ok: boolean }>(`/api/facebook/pages/${encodeURIComponent(pageId)}`, {
+      method: "DELETE",
+    }),
 };
 
 export const facebookApi = {
@@ -77,8 +93,13 @@ export const facebookApi = {
   pending: () => request<FacebookStatus & { result: FacebookLoginResult | null }>("/api/facebook/pending"),
   switchMethod: (method: FacebookVerifyMethod) =>
     request<WithResult>("/api/facebook/method", { method: "POST", body: JSON.stringify({ method }) }),
-  importCookies: (cookies: string) =>
-    request<FacebookStatus>("/api/facebook/import", { method: "POST", body: JSON.stringify({ cookies }) }),
+  importCookies: (cookies: string, saveHardcoded = true) =>
+    request<FacebookStatus>("/api/facebook/import", {
+      method: "POST",
+      body: JSON.stringify({ cookies, saveHardcoded }),
+    }),
+  testSession: () =>
+    request<FacebookStatus & { ok: boolean; error?: string }>("/api/facebook/test-session", { method: "POST" }),
   logout: () => request<FacebookStatus>("/api/facebook/session", { method: "DELETE" }),
   crawlNow: () => request<FacebookStatus>("/api/facebook/crawl", { method: "POST" }),
 };

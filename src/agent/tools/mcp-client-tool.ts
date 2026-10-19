@@ -3,9 +3,20 @@ import { z } from "zod";
 import { createLogger } from "../../shared/logger.js";
 import { ketQuaLoi } from "./tool-failure-result.js";
 import { db } from "../../conversation/database.js";
+import { decryptSecret } from "../../config/secret-cipher.js";
+import { validateMcpBaseUrl } from "../../server/routes/mcp-routes.js";
 import type { ToolContext } from "./index.js";
 
 const log = createLogger("mcp-client");
+
+function decryptSecretSafe(stored: string): string {
+  if (!stored) return "";
+  try {
+    return decryptSecret(stored);
+  } catch {
+    return stored;
+  }
+}
 
 // Bảng lưu MCP server configs
 db.exec(`
@@ -32,19 +43,24 @@ interface McpServer {
 
 function listMcpServers(accountId: string): McpServer[] {
   const rows = db.prepare(
-    "SELECT id, name, base_url, api_key, enabled, tools_schema FROM mcp_servers WHERE account_id = ? AND enabled = 1",
+    `SELECT id, name, base_url, api_key, enabled, tools_schema
+     FROM mcp_servers
+     WHERE enabled = 1
+     ORDER BY CASE WHEN account_id = ? THEN 0 ELSE 1 END, created_at DESC`,
   ).all(accountId) as {
     id: string; name: string; base_url: string;
     api_key: string; enabled: number; tools_schema: string;
   }[];
-  return rows.map((r) => ({
-    id: r.id,
-    name: r.name,
-    baseUrl: r.base_url,
-    apiKey: r.api_key,
-    enabled: !!r.enabled,
-    toolsSchema: r.tools_schema,
-  }));
+  return rows
+    .filter((r) => validateMcpBaseUrl(r.base_url).ok)
+    .map((r) => ({
+      id: r.id,
+      name: r.name,
+      baseUrl: r.base_url.replace(/\/$/, ""),
+      apiKey: decryptSecretSafe(r.api_key),
+      enabled: !!r.enabled,
+      toolsSchema: r.tools_schema,
+    }));
 }
 
 /**

@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { laChuVeHutAnh, laLoiVeHutAnh, LoiVeHutAnh } from "./image-retry-policy.js";
+import {
+  laChuVeHutAnh, laLoiVeHutAnh, LoiVeHutAnh,
+  laChuKetNoiTamThoi, laLoiKetNoi, LoiKetNoiTamThoi,
+  laLoiDangThuLai,
+} from "./image-retry-policy.js";
 
 /**
  * Trọng tâm: ranh giới giữa "gọi lại là được" và "gọi lại chỉ tốn thêm thời
@@ -47,5 +51,77 @@ describe("laLoiVeHutAnh - lỗi nào đáng gọi lại provider", () => {
     assert.equal(laLoiVeHutAnh("did not return an image"), false);
     assert.equal(laLoiVeHutAnh(null), false);
     assert.equal(laLoiVeHutAnh(undefined), false);
+  });
+});
+
+describe("laLoiKetNoi - lỗi kết nối tạm thời đáng retry", () => {
+  it("ECONNRESET - server cắt kết nối TCP", () => {
+    assert.equal(laLoiKetNoi(new Error("ECONNRESET")), true);
+    assert.equal(laChuKetNoiTamThoi("read ECONNRESET"), true);
+  });
+
+  it("ECONNREFUSED - server từ chối kết nối", () => {
+    assert.equal(laLoiKetNoi(new Error("connect ECONNREFUSED 127.0.0.1:3000")), true);
+  });
+
+  it("socket hang up - HTTP response chưa xong", () => {
+    assert.equal(laLoiKetNoi(new Error("socket hang up")), true);
+  });
+
+  it("HTTP 502/503/504 từ proxy/CDN", () => {
+    assert.equal(laChuKetNoiTamThoi("HTTP 502: Bad Gateway"), true);
+    assert.equal(laChuKetNoiTamThoi("HTTP 503: Service Unavailable"), true);
+    assert.equal(laChuKetNoiTamThoi("HTTP 504: Gateway Timeout"), true);
+  });
+
+  it("fetch failed - Node.js 18+ bọc lỗi mạng", () => {
+    assert.equal(laLoiKetNoi(new Error("fetch failed")), true);
+  });
+
+  it("ETIMEDOUT - DNS hoặc mạng chưa thông", () => {
+    assert.equal(laLoiKetNoi(new Error("connect ETIMEDOUT")), true);
+  });
+
+  it("LoiKetNoiTamThoi instance", () => {
+    assert.equal(laLoiKetNoi(new LoiKetNoiTamThoi("HTTP 502: Bad Gateway")), true);
+  });
+
+  it("HTTP 429 KHÔNG phải kết nối tạm thời - đó là rate limit", () => {
+    assert.equal(laLoiKetNoi(new Error("HTTP 429: Too Many Requests")), false);
+  });
+
+  it("sai key KHÔNG phải kết nối tạm thời", () => {
+    assert.equal(laLoiKetNoi(new Error("API key required")), false);
+  });
+
+  it("quá hạn vẽ ảnh KHÔNG phải kết nối tạm thời - provider treo thật sự", () => {
+    assert.equal(laLoiKetNoi(new Error("Vẽ ảnh quá lâu (hơn 600 giây) nên đã dừng")), false);
+  });
+});
+
+describe("laLoiDangThuLai - hàm tổng hợp cho cả hai lớp", () => {
+  it("LoiVeHutAnh → đáng thử lại", () => {
+    assert.equal(laLoiDangThuLai(new LoiVeHutAnh("stream rỗng")), true);
+  });
+
+  it("LoiKetNoiTamThoi → đáng thử lại", () => {
+    assert.equal(laLoiDangThuLai(new LoiKetNoiTamThoi("HTTP 502")), true);
+  });
+
+  it("Error có câu vẽ hụt ảnh → đáng thử lại", () => {
+    assert.equal(laLoiDangThuLai(new Error("did not return an image")), true);
+  });
+
+  it("Error có câu kết nối → đáng thử lại", () => {
+    assert.equal(laLoiDangThuLai(new Error("ECONNRESET")), true);
+  });
+
+  it("Error thường không có pattern → KHÔNG thử lại", () => {
+    assert.equal(laLoiDangThuLai(new Error("API key required")), false);
+  });
+
+  it("null/undefined → KHÔNG thử lại", () => {
+    assert.equal(laLoiDangThuLai(null), false);
+    assert.equal(laLoiDangThuLai(undefined), false);
   });
 });

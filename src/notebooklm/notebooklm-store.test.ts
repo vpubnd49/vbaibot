@@ -83,7 +83,7 @@ describe("cấu hình NotebookLM", () => {
     const s = settings.getNotebooklmSettings();
     assert.equal(s.enabled, false);
     assert.equal(settings.isNotebooklmConfigured(s), false);
-    assert.equal(s.maxPerDay, 10);
+    assert.equal(s.maxPerDay, 5);
     assert.equal(s.maxPerDayGlobal, 30);
   });
 

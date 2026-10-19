@@ -96,7 +96,7 @@ describe("DossierEngine — Status Logic", () => {
     // 2. 09/10: thông tuyến sau sạt lở (partial_reopen)
     // → Status PHẢI là 'restricted' (🟡), KHÔNG ĐƯỢC là 'open'
     // Vì partial_reopen KHÔNG dỡ lệnh cấm
-    const expected = "restricted";
+    const expected: string = "restricted";
     assert.ok(expected !== "open", "Partial reopen must NOT clear ban");
   });
 

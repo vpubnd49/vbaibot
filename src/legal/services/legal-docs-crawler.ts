@@ -13,6 +13,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { execFile } from "node:child_process";
 import { dataDir } from "../../config/env.js";
 import { createLogger } from "../../shared/logger.js";
 import { fetchCongbaoDetail, fetchCongbaoRss } from "./congbao-crawler.js";
@@ -325,6 +326,10 @@ export async function runLegalCrawlRound(): Promise<CrawlRoundResult | null> {
         for (const r of after.reason) if (!result.purged.reason.includes(r)) result.purged.reason.push(r);
       }
     }
+
+    if (result.downloaded > 0 || result.newDocs > 0) {
+      triggerVbaiLegalSync();
+    }
   } finally {
     result.finishedAt = new Date().toISOString();
     state.lastRound = result;
@@ -333,6 +338,16 @@ export async function runLegalCrawlRound(): Promise<CrawlRoundResult | null> {
   }
   log.info(result, "Hoàn tất lượt cào văn bản pháp luật");
   return result;
+}
+
+function triggerVbaiLegalSync(): void {
+  const syncScript = "/var/www/vbai/proxy/scripts/sync-vbaibot-legal.cjs";
+  if (fs.existsSync(syncScript)) {
+    execFile("node", [syncScript], (err) => {
+      if (err) log.warn({ err: err.message }, "Không thể kích hoạt đồng bộ kho sang VBAI");
+      else log.info("Đã đồng bộ kho văn bản pháp luật sang VBAI (MongoDB known_documents)");
+    });
+  }
 }
 
 export function startLegalDocsCrawler(): void {

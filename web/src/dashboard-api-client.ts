@@ -324,6 +324,26 @@ export const api = {
       body: JSON.stringify(update),
     }),
 
+  getNotionSettings: () => request<NotionSettings>("/api/tools/notion"),
+  updateNotionSettings: (update: { apiKey?: string; defaultDatabaseId?: string; enabled?: boolean; clearKey?: boolean }) =>
+    request<NotionSettings & { ok: true }>("/api/tools/notion", { method: "PATCH", body: JSON.stringify(update) }),
+  testNotionConnection: (apiKey?: string) =>
+    request<{ ok: boolean; botName?: string; type?: string; error?: string }>("/api/tools/notion/test", {
+      method: "POST",
+      body: JSON.stringify({ apiKey }),
+    }),
+
+  listMcpServers: () => request<{ items: McpServerItem[] }>("/api/tools/mcp"),
+  saveMcpServer: (server: { id?: string; name: string; baseUrl: string; apiKey?: string; enabled?: boolean }) =>
+    request<{ ok: true; id: string }>("/api/tools/mcp/servers", { method: "POST", body: JSON.stringify(server) }),
+  deleteMcpServer: (id: string) =>
+    request<{ ok: true }>(`/api/tools/mcp/servers/${encodeURIComponent(id)}`, { method: "DELETE" }),
+  testMcpServer: (params: { baseUrl: string; apiKey?: string }) =>
+    request<{ ok: boolean; toolsCount?: number; tools?: string[]; hint?: string; error?: string }>("/api/tools/mcp/test", {
+      method: "POST",
+      body: JSON.stringify(params),
+    }),
+
   vision: () => request<VisionSettings>("/api/vision"),
   updateVision: (update: {
     mode?: "auto" | "on" | "off";
@@ -550,6 +570,24 @@ export type FetchSettings = {
   fallbackEnabled: boolean;
   jinaApiKeyMasked: string;
   hasJinaApiKey: boolean;
+};
+
+export type NotionSettings = {
+  hasApiKey: boolean;
+  apiKeyMasked: string;
+  defaultDatabaseId: string;
+  enabled: boolean;
+};
+
+export type McpServerItem = {
+  id: string;
+  name: string;
+  baseUrl: string;
+  hasApiKey: boolean;
+  apiKeyMasked: string;
+  enabled: boolean;
+  toolsCount: number;
+  createdAt: string;
 };
 
 export type ReactionIcon = { key: string; emoji: string; label: string };

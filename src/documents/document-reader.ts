@@ -368,7 +368,12 @@ export async function readDocument(filePath: string, options: DocumentReadOption
     }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    log.error({ err: error, filePath }, `Lỗi khi đọc file document`);
+    const isCorruptZip = /central directory|is this a zip file|invalid signature|end of data/i.test(errorMessage);
+    if (isCorruptZip) {
+      log.warn({ filePath, err: errorMessage }, "Tệp người dùng gửi bị hỏng hoặc không đúng định dạng zip/Office");
+    } else {
+      log.error({ err: error, filePath }, `Lỗi khi đọc file document`);
+    }
     readError = errorMessage;
     text = `Lỗi khi đọc nội dung file: ${errorMessage}`;
   }

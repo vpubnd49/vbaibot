@@ -165,9 +165,10 @@ export function searchQpplDocs(opts?: {
 
   if (kw && kw.toLowerCase() !== "mới nhất" && kw.toLowerCase() !== "latest") {
     if (requestedNumber) {
+      const numPrefix = requestedNumber.split("/")[0] || requestedNumber;
       const rows = db
-        .prepare("SELECT * FROM qppl_documents WHERE nguon = COALESCE(?, nguon)")
-        .all(nguon ?? null) as Row[];
+        .prepare("SELECT * FROM qppl_documents WHERE nguon = COALESCE(?, nguon) AND so_ky_hieu LIKE ?")
+        .all(nguon ?? null, `%${numPrefix}%`) as Row[];
       const exact = rows
         .filter((row) => normalizeQpplNumber(String(row.so_ky_hieu || "")) === requestedNumber)
         .filter((row) => !loai || String(row.loai_van_ban || "").toLowerCase().includes(loai.toLowerCase()))

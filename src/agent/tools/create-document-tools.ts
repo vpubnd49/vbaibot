@@ -50,7 +50,7 @@ export function createWordDocumentTool(ctx: Ctx) {
       "dòng địa danh - ngày tháng dùng paragraph align right, kết bằng two_columns (nơi nhận | chức vụ + tên người ký). " +
       "Nội dung ngắn thì trả lời thẳng, đừng tạo file.",
     inputSchema: z.object({
-      fileName: z.string().min(1).describe('Tên file, vd "bao-gia-thang-7.docx"'),
+      fileName: z.string().optional().default("Van_ban.docx").describe('Tên file, vd "bao-gia-thang-7.docx"'),
       title: z.string().optional().describe("Tiêu đề canh giữa, đậm, ở đầu trang"),
       blocks: z
         .array(documentBlockSchema)
@@ -92,7 +92,7 @@ export function createExcelFileTool(ctx: Ctx) {
       "mỗi ô mô tả trọn ý chứ không phải vài chữ. Đã bỏ công tạo file thì nội dung phải đáng để mở ra đọc.\n" +
       'MỌI chữ (tên sheet, tên file, header, nội dung) GIỮ NGUYÊN dấu tiếng Việt - viết "Tổng quan" chứ không "Tong quan".',
     inputSchema: z.object({
-      fileName: z.string().min(1).describe('Tên file, vd "bao-gia.xlsx"'),
+      fileName: z.string().optional().default("Bang_tinh.xlsx").describe('Tên file, vd "bao-gia.xlsx"'),
       sheets: z.array(sheetSchema).min(1).describe("Danh sách sheet, mỗi sheet có tên + cột + dòng"),
       caption: z.string().optional().describe("Lời nhắn gửi kèm file"),
     }),
@@ -113,7 +113,7 @@ export function createExcelFileTool(ctx: Ctx) {
           log.error({ accountId: ctx.account.id, threadId: ctx.message.threadId, fileName, stage: "render", err }, "Dựng file Excel thất bại");
           throw err;
         }
-        return deliverFile(ctx, safeFileName(fileName, "xlsx"), data, caption);
+        return deliverFile(ctx, safeFileName(fileName || "Bang_tinh.xlsx", "xlsx"), data, caption);
       }),
   });
 }
@@ -131,16 +131,42 @@ export function createPowerpointTool(ctx: Ctx) {
       "Bôi đậm bằng **chữ đậm** trong text bullet. Mỗi slide content tối đa 6-8 bullets ngắn gọn. " +
       "Theme 'zaloagent': nền trắng, card bo tròn, accent cam/xanh lá — lý tưởng cho pitch deck, giới thiệu sản phẩm. " +
       "MỌI chữ GIỮ NGUYÊN dấu tiếng Việt.",
-    inputSchema: z.object({
-      fileName: z.string().min(1).describe('Tên file, vd "bao-cao-quy-3.pptx"'),
+    inputSchema: z.preprocess((raw: any) => {
+      if (typeof raw === "string") {
+        try { raw = JSON.parse(raw); } catch {}
+      }
+      if (raw && typeof raw === "object") {
+        const copy: any = { ...raw };
+        if (typeof copy.slides === "string") {
+          try { copy.slides = JSON.parse(copy.slides); } catch {}
+        }
+        if (!copy.slides && Array.isArray(copy.slideList)) copy.slides = copy.slideList;
+        if (!copy.slides && Array.isArray(copy.pages)) copy.slides = copy.pages;
+        if (!copy.slides && Array.isArray(copy.content)) copy.slides = copy.content;
+        if (!copy.slides && Array.isArray(copy.presentation)) copy.slides = copy.presentation;
+
+        if (!Array.isArray(copy.slides) || copy.slides.length === 0) {
+          copy.slides = [
+            {
+              type: "title_slide",
+              title: copy.title || copy.caption || "Bài trình chiếu",
+              subtitle: copy.caption || "Tài liệu trình bày",
+            },
+          ];
+        }
+        return copy;
+      }
+      return raw;
+    }, z.object({
+      fileName: z.string().optional().describe('Tên file (tùy chọn), vd "bao-cao-quy-3.pptx"'),
       title: z.string().optional().describe("Metadata tiêu đề bài trình chiếu"),
-      theme: pptxThemeSchema,
+      theme: pptxThemeSchema.optional(),
       slides: z
         .array(pptxSlideSchema)
         .min(1)
-        .describe("Danh sách slide theo thứ tự trình bày"),
+        .describe("Danh sách slide theo thứ tự trình bày (khuyên dùng 4-8 slide cô đọng, súc tích)"),
       caption: z.string().optional().describe("Lời nhắn gửi kèm file"),
-    }),
+    })),
     execute: ({ fileName, title, theme, slides, caption }) =>
       guard(async () => {
         const limit = checkPresentationLimits(slides as PptxSlide[]);
@@ -150,8 +176,9 @@ export function createPowerpointTool(ctx: Ctx) {
         if (!rate.ok) return ketQuaLoi(rate.reason);
 
         const defaultTheme = getTuning("DOCUMENT_DEFAULT_PPTX_THEME");
+        const resolvedName = fileName || (title ? `${title.replace(/[^\w\s-]/g, "").trim().replace(/\s+/g, "_")}.pptx` : `presentation-${Date.now()}.pptx`);
         const data = await renderPptx(slides as PptxSlide[], theme ?? defaultTheme, { title });
-        return deliverFile(ctx, safeFileName(fileName, "pptx"), data, caption);
+        return deliverFile(ctx, safeFileName(resolvedName, "pptx"), data, caption);
       }),
   });
 }

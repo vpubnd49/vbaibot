@@ -21,6 +21,16 @@ import { tinKemFile } from "./clean-tool-caption.js";
 
 const log = createLogger("send-attachment");
 
+const SEND_ATTACHMENT_TIMEOUT_MS = 90_000;
+
+function withSendTimeout<T>(promise: Promise<T>, ms: number, errMsg: string): Promise<T> {
+  let timer: NodeJS.Timeout;
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error(errMsg)), ms);
+  });
+  return Promise.race([promise, timeoutPromise]).finally(() => clearTimeout(timer));
+}
+
 export async function guiFileKemCaption(
   api: API,
   threadKey: string,
@@ -39,7 +49,11 @@ export async function guiFileKemCaption(
       return false;
     }
     try {
-      await api.sendMessage({ ...tin, attachments: [filePath] }, threadId, threadType);
+      await withSendTimeout(
+        api.sendMessage({ ...tin, attachments: [filePath] }, threadId, threadType),
+        SEND_ATTACHMENT_TIMEOUT_MS,
+        `Zalo gửi file '${path.basename(filePath)}' quá thời gian chờ (${SEND_ATTACHMENT_TIMEOUT_MS / 1000}s)`,
+      );
       fileDaGuiTrongLuot?.add(fileKey);
       return true;
     } catch (err) {
@@ -51,7 +65,11 @@ export async function guiFileKemCaption(
         { threadId, soStyle: tin.styles.length, err },
         "Zalo từ chối caption có định dạng - gửi lại dạng chữ trơn",
       );
-      await api.sendMessage({ msg: tin.msg, attachments: [filePath] }, threadId, threadType);
+      await withSendTimeout(
+        api.sendMessage({ msg: tin.msg, attachments: [filePath] }, threadId, threadType),
+        SEND_ATTACHMENT_TIMEOUT_MS,
+        `Zalo gửi file '${path.basename(filePath)}' quá thời gian chờ (${SEND_ATTACHMENT_TIMEOUT_MS / 1000}s)`,
+      );
       fileDaGuiTrongLuot?.add(fileKey);
       return true;
     }

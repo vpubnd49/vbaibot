@@ -1,0 +1,42 @@
+{
+  "id": "REPLACE_WITH_RULE_ID",
+  "version": "0.1.0",
+  "scope_key": null,
+  "document": {
+    "number": null,
+    "status": "DRAFT",
+    "issued_at": null,
+    "effective_from": null
+  },
+  "source": {
+    "url": null,
+    "evidence": "DISCOVERY_ONLY",
+    "provision": null,
+    "checked_at": null,
+    "observed_at": null,
+    "source_sha256": null,
+    "original_pdf_pages": []
+  },
+  "application": {
+    "basis": null,
+    "rule_effective_from": null,
+    "rule_effective_to": null,
+    "tax_year_from": null,
+    "tax_year_to": null,
+    "tax_year_basis_verified": false,
+    "rule_effective_exception_verified": false,
+    "separate_effective_basis": null
+  },
+  "required_facts": [],
+  "parameters": {},
+  "formula": null,
+  "units": null,
+  "rounding": null,
+  "approval": {
+    "state": "DRAFT",
+    "approver": null,
+    "record_id": null,
+    "approved_at": null,
+    "payload_sha256": null
+  }
+}

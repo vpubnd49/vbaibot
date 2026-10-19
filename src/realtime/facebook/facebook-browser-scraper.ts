@@ -14,6 +14,7 @@
 import { createLogger } from "../../shared/logger.js";
 import { parseEmbeddedJsonPosts, type ScrapedPost } from "./facebook-public-scraper.js";
 import {
+  checkIsFacebookSessionAlive,
   getFacebookCookies,
   launchFacebookBrowser,
   prepareFacebookPage,
@@ -64,8 +65,14 @@ export async function withFacebookBrowser<T>(fn: (scrape: (slug: string, max?: n
         res = await scrapeOnePage(browser, cookies, slug, max);
       }
       if (res.loginWall) {
-        reportFacebookSessionResult(false, "Facebook trả trang đăng nhập dù đã có cookie");
-        throw new FacebookSessionExpiredError();
+        log.warn({ slug }, "Fanpage gặp trang đăng nhập - đang kiểm tra xem phiên Facebook chính còn sống không...");
+        const alive = await checkIsFacebookSessionAlive(browser, cookies);
+        if (!alive) {
+          reportFacebookSessionResult(false, "Facebook đã đăng xuất phiên này trên máy chủ Meta");
+          throw new FacebookSessionExpiredError();
+        }
+        log.warn({ slug }, "Fanpage này bị chặn riêng (có thể do giới hạn độ tuổi/quốc gia), phiên chính vẫn hoạt động bình thường");
+        return [];
       }
       if (!sessionChecked) {
         reportFacebookSessionResult(true);

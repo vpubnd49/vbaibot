@@ -44,8 +44,10 @@ voiceRoutes.get("/:accountId/:filename", (c) => {
   return c.body(fileBuffer, 200, {
     "Content-Type": contentType,
     "Content-Length": String(fileBuffer.length),
-    // Audio URL hoạt động như bearer token; không để proxy/cache trung gian giữ
-    // lại nội dung hội thoại lâu hơn cần thiết.
-    "Cache-Control": "private, no-store",
+    // File audio KHÔNG ĐỔI sau khi tạo và tự dọn sau 7 ngày. Cho phép cache
+    // private (Zalo client lưu lại) thay vì no-store: Zalo PC bấm play lại
+    // không cần gọi VPS nữa → tránh lỗi "Tin nhắn thoại không thể tải" khi
+    // VPS tạm nghẽn. immutable vì nội dung không bao giờ thay đổi.
+    "Cache-Control": "private, max-age=604800, immutable",
   });
 });

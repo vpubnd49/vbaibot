@@ -79,6 +79,7 @@
     "pino-roll": "^4.0.0",
     "pptxgenjs": "^4.0.1",
     "puppeteer-core": "^25.12.0",
+    "undici": "^8.11.2",
     "word-extractor": "^1.0.4",
     "xlsx": "^0.18.5",
     "zca-js": "2.1.2",

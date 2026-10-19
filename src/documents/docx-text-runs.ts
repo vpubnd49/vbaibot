@@ -26,6 +26,9 @@ export type TextRunBaseOptions = {
 function normalizeInlineMarkup(text: string): string {
   let s = text;
 
+  // Chuẩn hóa thẻ xuống dòng <br>, <br/>, <br /> thành \n
+  s = s.replace(/<br\s*\/?>/gi, "\n");
+
   // Sửa lỗi LLM gõ nhầm thẻ thiếu dấu > (ví dụ <b1. ...</b> hoặc <i2.1. ...</i>)
   s = s.replace(/<b\s*(?=[0-9])([^>]*?)<\/b>/gi, "<b>$1</b>");
   s = s.replace(/<i\s*(?=[0-9])([^>]*?)<\/i>/gi, "<i>$1</i>");
@@ -72,8 +75,8 @@ export function parseTextRuns(text: string, base: TextRunBaseOptions = {}): Text
     color?: string;
   }> = [];
 
-  // Match mọi thẻ HTML: <tag> hoặc </tag>
-  const TAG_RE = /<\/?([a-zA-Z][a-zA-Z0-9]*)(?:\s+[^>]*)?>/g;
+  // Match mọi thẻ HTML: <tag>, </tag> hoặc <tag/>
+  const TAG_RE = /<\/?([a-zA-Z][a-zA-Z0-9]*)(?:\s+[^>]*)?\/?>/g;
   const FORMAT_TAGS = new Set(["b", "i", "u", "s", "red", "green", "blue"]);
 
   const stack: string[] = [];

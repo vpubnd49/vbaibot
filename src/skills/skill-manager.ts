@@ -42,46 +42,128 @@ export function parseSkillMarkdown(fileContent: string): {
   }
 
   const yamlBlock = match[1];
-  const body = match[2].trim();
+  const rawBody = match[2].trim();
   const fm: Record<string, string> = {};
 
-  for (const line of yamlBlock.split(/\r?\n/)) {
+  const lines = yamlBlock.split(/\r?\n/);
+  let activeMultilineKey: string | null = null;
+  let multilineParts: string[] = [];
+
+  const flushMultiline = () => {
+    if (activeMultilineKey) {
+      fm[activeMultilineKey] = multilineParts.join(" ").replace(/\s+/g, " ").trim();
+      activeMultilineKey = null;
+      multilineParts = [];
+    }
+  };
+
+  for (const line of lines) {
+    if (activeMultilineKey) {
+      if (/^\s{2,}\S/.test(line)) {
+        multilineParts.push(line.trim());
+        continue;
+      }
+      if (!line.trim()) {
+        continue;
+      }
+      flushMultiline();
+    }
+
     const colonIdx = line.indexOf(":");
-    if (colonIdx > 0) {
+    if (colonIdx > 0 && !/^\s/.test(line)) {
       const key = line.slice(0, colonIdx).trim().toLowerCase();
       let val = line.slice(colonIdx + 1).trim();
+      if (val === ">" || val === "|" || val === ">-" || val === "|-") {
+        activeMultilineKey = key;
+        multilineParts = [];
+        continue;
+      }
       if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
         val = val.slice(1, -1);
       }
       fm[key] = val;
     }
   }
+  flushMultiline();
 
   const name = fm["name"] || "";
   const description = fm["description"] || "";
   const triggers: string[] = [];
 
-  // Lấy triggers từ trường triggers nếu có
+  const addTrigger = (rawItem: string) => {
+    const clean = rawItem.trim().replace(/^['"]|['"]$/g, "").toLowerCase();
+    if (clean && clean.length >= 2 && !triggers.includes(clean)) {
+      triggers.push(clean);
+    }
+  };
+
+  // 1. Lấy triggers từ trường triggers nếu có
   if (fm["triggers"]) {
     const raw = fm["triggers"].replace(/^\[|\]$/g, "");
     for (const item of raw.split(",")) {
-      const clean = item.trim().replace(/^['"]|['"]$/g, "");
-      if (clean) triggers.push(clean.toLowerCase());
+      addTrigger(item);
     }
   }
 
-  // Nếu không có trường triggers, trích từ description nếu có dạng: Triggers: 'a', 'b'
+  // 2. Trích từ description: hỗ trợ cả "Triggers: 'a', 'b'" và "Trigger (A): 'a', 'b'"
   if (triggers.length === 0 && description) {
-    const trigMatch = description.match(/Triggers:\s*([^.]+)/i);
-    if (trigMatch) {
-      for (const item of trigMatch[1].split(",")) {
-        const clean = item.trim().replace(/^['"]|['"]$/g, "");
-        if (clean) triggers.push(clean.toLowerCase());
+    const quotedRegex = /Triggers?(?:\s*\([A-Z]\))?:\s*([^.]+?)(?=\.\s*(?:Trigger|KHÔNG|DISCLAIMER|$)|$)/gi;
+    let m: RegExpExecArray | null;
+    while ((m = quotedRegex.exec(description)) !== null) {
+      const segment = m[1] || "";
+      const singleQuoted = segment.match(/'([^']+)'/g);
+      if (singleQuoted && singleQuoted.length > 0) {
+        for (const sq of singleQuoted) addTrigger(sq);
+      } else {
+        for (const item of segment.split(",")) addTrigger(item);
       }
     }
   }
 
+  const body = adaptSkillContentForZaloBot(rawBody);
   return { name, description, triggers, body };
+}
+
+/**
+ * Làm sạch ký hiệu LaTeX và ánh xạ các lệnh CLI/IDE trong SKILL.md sang bộ công cụ
+ * gốc của Zalo Bot để tránh làm model bối rối hoặc xuất LaTeX thô ra Zalo.
+ */
+export function adaptSkillContentForZaloBot(rawContent: string): string {
+  let cleaned = rawContent
+    // Chuyển khối công thức $$...$$ hoặc $...$ sang văn bản thuần
+    .replace(/\$\$([\s\S]*?)\$\$/g, (_m, inner: string) =>
+      inner
+        .replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, "($1) / ($2)")
+        .replace(/\\text\{([^}]+)\}/g, "$1")
+        .replace(/\\sum_\{([^}]+)\}\^\{?([^}\s]+)\}?/g, "Tổng($1..$2)")
+        .replace(/\\ge/g, ">=")
+        .replace(/\\le/g, "<=")
+        .replace(/\\neq/g, "!=")
+        .replace(/\\times/g, "×")
+        .trim(),
+    )
+    .replace(/\$([^$\n]+)\$/g, (_m, inner: string) =>
+      inner
+        .replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, "($1) / ($2)")
+        .replace(/\\text\{([^}]+)\}/g, "$1")
+        .replace(/\\ge/g, ">=")
+        .replace(/\\le/g, "<=")
+        .replace(/\\neq/g, "!=")
+        .replace(/\\times/g, "×")
+        .trim(),
+    )
+    // Loại bỏ câu cấm docx-js dành riêng cho môi trường CLI sửa file tại chỗ
+    .replace(/CẤM TUYỆT ĐỐI bóc tách text rồi tạo lại docx mới từ đầu[^\n]*/gi, "");
+
+  if (/(?:generate_cong_van_nd30\.js|edit_docx_template_in_place\.py|scripts\/lookup\.py|scripts\/review\.py)/i.test(cleaned)) {
+    cleaned +=
+      "\n\n> **[CHỈ DẪN THỰC THI TRÊN ZALO BOT]**: Trong môi trường Zalo Bot, bạn KHÔNG chạy lệnh bash/python CLI (`node engine/...`, `python scripts/...`). " +
+      "Thay vào đó, hãy áp dụng toàn bộ quy chuẩn thể thức/nghiệp vụ ở trên và GỌI TRỰC TIẾP các công cụ của Bot: " +
+      "`create_admin_document` (để xuất file .docx chuẩn Nghị định 30 / Hướng dẫn 05), `create_word_document` (cho hợp đồng/biểu mẫu), " +
+      "`create_excel_file` (cho phụ lục Excel), `review_admin_document` (để rà soát văn bản), `qppl_lamdong` & `national_legal` (để tra cứu VBQPPL).";
+  }
+
+  return cleaned;
 }
 
 /**
@@ -238,5 +320,28 @@ export function saveSkill(params: {
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     return { success: false, path: "", error: msg };
+  }
+}
+
+/**
+ * Xóa một skill theo ID (chỉ xóa thư mục con nằm trong .agents/skills/)
+ */
+export function deleteSkill(id: string): { success: boolean; error?: string } {
+  try {
+    const cleanId = id.trim().replace(/[^a-zA-Z0-9_-]/g, "");
+    if (!cleanId) {
+      return { success: false, error: "ID kỹ năng không hợp lệ." };
+    }
+    const rootDir = path.resolve(getSkillsRootDir());
+    const targetDir = path.resolve(rootDir, cleanId);
+    if (!targetDir.startsWith(rootDir + path.sep) || !fs.existsSync(targetDir)) {
+      return { success: false, error: "Không tìm thấy kỹ năng cần xóa." };
+    }
+    fs.rmSync(targetDir, { recursive: true, force: true });
+    cachedSkills = null;
+    lastCacheTime = 0;
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: err instanceof Error ? err.message : String(err) };
   }
 }

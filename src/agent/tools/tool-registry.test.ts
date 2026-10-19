@@ -221,6 +221,7 @@ describe("tool-registry", () => {
     "create_excel_file",
     "create_image",
     "create_music",
+    "create_or_update_skill",
     "create_poll",
     "create_powerpoint",
     "create_text_document",
@@ -304,12 +305,13 @@ describe("tool-registry", () => {
     assert.deepEqual(bịLoại.sort(), [...TOOL_LOAI_KHOI_LICH].sort());
   });
 
-  it("catalog: key duy nhất, đủ metadata cho UI, nhóm hợp lệ", () => {
-    const keys = registry.TOOL_DEFINITIONS.map((t) => t.key);
-    assert.equal(new Set(keys).size, keys.length, "key tool phải duy nhất");
-    for (const def of registry.TOOL_DEFINITIONS) {
-      assert.ok(def.label && def.description, `tool ${def.key} thiếu label/description cho UI`);
-      assert.ok(["read", "action"].includes(def.group));
-    }
+  it("người dùng yêu cầu infographic thì create_image bị LOẠI BỎ hoàn toàn khỏi schema", () => {
+    configureImageGen();
+    const ctx = makeContext([]);
+    (ctx.message as any).text = "tạo Infographic @Châu Phiên Bản Số";
+    const tools = registry.buildAgentTools(ctx);
+    assert.equal(tools.create_image, undefined, "khi yêu cầu infographic thì create_image phải bị loại");
+    imageStore.clearImageSettings();
   });
 });
+

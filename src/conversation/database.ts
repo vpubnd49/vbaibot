@@ -429,19 +429,6 @@ function runMigrations(): void {
   // Thời gian pause (ms) khi admin gửi tin. Mặc định 5 phút.
   addColumnIfMissing("accounts", "admin_pause_timeout_ms", "INTEGER NOT NULL DEFAULT 300000");
 
-  // ===== Phase 1: Response Overrides =====
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS response_overrides (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      account_id TEXT NOT NULL,
-      trigger_text TEXT NOT NULL,
-      corrected_response TEXT NOT NULL,
-      created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
-    );
-    CREATE INDEX IF NOT EXISTS idx_response_overrides_account
-      ON response_overrides (account_id);
-  `);
-
   // ===== Phase 2B: Proactive Follow-up =====
   db.exec(`
     CREATE TABLE IF NOT EXISTS pending_followups (

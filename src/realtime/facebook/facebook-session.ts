@@ -24,6 +24,8 @@ const log = createLogger("facebook-session");
 
 const DATA_DIR = join(process.cwd(), "data");
 const SESSION_FILE = join(DATA_DIR, "facebook-session.enc");
+const HARDCODED_COOKIE_FILE = join(DATA_DIR, "facebook-cookie.txt");
+export const FB_BROWSER_PROFILE_DIR = join(DATA_DIR, "facebook-browser-profile");
 
 /** UA desktop thật - headless-shell mặc định lộ chữ "HeadlessChrome" */
 export const FB_BROWSER_UA =
@@ -50,11 +52,11 @@ export type FbCookie = {
   secure?: boolean;
 };
 
-type StoredSession = {
+export type StoredSession = {
   cookies: FbCookie[];
   userId: string;
   savedAt: string;
-  source: "password" | "import";
+  source: "password" | "import" | "env" | "file";
 };
 
 type SessionHealth = {
@@ -68,33 +70,7 @@ const health: SessionHealth = {};
 /** Cache trong RAM để không giải mã file mỗi request */
 let cached: StoredSession | null | undefined;
 
-// ─────────────────────────── Lưu / đọc phiên ───────────────────────────
-
-function readSession(): StoredSession | null {
-  if (cached !== undefined) return cached;
-  try {
-    if (!existsSync(SESSION_FILE)) {
-      cached = null;
-      return null;
-    }
-    const json = decryptSecret(readFileSync(SESSION_FILE, "utf8").trim());
-    const parsed = JSON.parse(json) as StoredSession;
-    cached = Array.isArray(parsed.cookies) && parsed.cookies.length > 0 ? parsed : null;
-  } catch (err) {
-    log.warn({ err }, "Không đọc được phiên Facebook đã lưu (sai khoá hoặc file hỏng)");
-    cached = null;
-  }
-  return cached;
-}
-
-function writeSession(session: StoredSession): void {
-  mkdirSync(DATA_DIR, { recursive: true });
-  writeFileSync(SESSION_FILE, encryptSecret(JSON.stringify(session)), { mode: 0o600 });
-  cached = session;
-  health.lastCheckOk = true;
-  health.lastCheckAt = new Date().toISOString();
-  health.lastError = undefined;
-}
+// ─────────────────────────── Parse & Lọc Cookie ───────────────────────────
 
 /** Chỉ giữ cookie của facebook.com - không lưu rác của domain khác */
 function keepFacebookCookies(cookies: FbCookie[]): FbCookie[] {
@@ -112,76 +88,12 @@ function keepFacebookCookies(cookies: FbCookie[]): FbCookie[] {
     }));
 }
 
-/** Header `Cookie:` cho fetch(). null = chưa có phiên. */
-export function getFacebookCookieHeader(): string | null {
-  const s = readSession();
-  if (!s) return null;
-  return s.cookies.map((c) => `${c.name}=${c.value}`).join("; ");
-}
-
-/** Mảng cookie cho puppeteer page.setCookie() */
-export function getFacebookCookies(): FbCookie[] | null {
-  return readSession()?.cookies ?? null;
-}
-
-export function hasFacebookSession(): boolean {
-  return readSession() !== null;
-}
-
 /**
- * Crawler gọi khi có cookie mà FB vẫn trả trang login -> phiên hết hạn.
- * Không xoá ngay (có thể chỉ là lỗi tạm), chỉ đánh dấu để Dashboard báo đỏ.
+ * Phân tích chuỗi cookie (JSON hoặc Header chuỗi "c_user=...; xs=...; datr=...")
  */
-export function reportFacebookSessionResult(ok: boolean, error?: string): void {
-  health.lastCheckAt = new Date().toISOString();
-  health.lastCheckOk = ok;
-  health.lastError = ok ? undefined : error;
-  if (!ok) log.warn({ error }, "Phiên Facebook có vẻ đã hết hạn - cần đăng nhập lại trong Dashboard");
-}
-
-export function clearFacebookSession(): void {
-  try {
-    if (existsSync(SESSION_FILE)) unlinkSync(SESSION_FILE);
-  } catch (err) {
-    log.warn({ err }, "Không xoá được file phiên Facebook");
-  }
-  cached = null;
-  health.lastCheckOk = undefined;
-  health.lastError = undefined;
-  log.info("Đã xoá phiên Facebook");
-}
-
-export type FacebookSessionStatus = {
-  hasSession: boolean;
-  userId?: string;
-  savedAt?: string;
-  source?: StoredSession["source"];
-  health: SessionHealth;
-  pendingVerification: boolean;
-  browserAvailable: boolean;
-};
-
-export function getFacebookSessionStatus(): FacebookSessionStatus {
-  const s = readSession();
-  return {
-    hasSession: s !== null,
-    userId: s?.userId,
-    savedAt: s?.savedAt,
-    source: s?.source,
-    health: { ...health },
-    pendingVerification: pending !== null && pending.expiresAt > Date.now(),
-    browserAvailable: findChromiumPath() !== null,
-  };
-}
-
-// ─────────────────────────── Import cookie thủ công ───────────────────────────
-
-/**
- * Nhận cookie dán từ trình duyệt. Chấp nhận:
- * - JSON mảng (Cookie-Editor / EditThisCookie export)
- * - Chuỗi header "c_user=...; xs=...; datr=..."
- */
-export function importFacebookCookies(raw: string): { ok: true; userId: string } | { ok: false; error: string } {
+export function parseFacebookCookies(
+  raw: string,
+): { ok: true; cookies: FbCookie[]; userId: string } | { ok: false; error: string } {
   const text = raw.trim();
   if (!text) return { ok: false, error: "Chưa dán cookie" };
 
@@ -227,12 +139,184 @@ export function importFacebookCookies(raw: string): { ok: true; userId: string }
     return { ok: false, error: "Thiếu cookie c_user hoặc xs - hãy export khi đang ĐĂNG NHẬP facebook.com" };
   }
 
-  writeSession({ cookies, userId: cUser, savedAt: new Date().toISOString(), source: "import" });
-  log.info({ userId: cUser, count: cookies.length }, "Đã lưu phiên Facebook từ cookie import");
-  return { ok: true, userId: cUser };
+  return { ok: true, cookies, userId: cUser };
 }
 
-// ─────────────────────────── Trình duyệt headless ───────────────────────────
+// ─────────────────────────── Lưu / đọc phiên ───────────────────────────
+
+function readSession(): StoredSession | null {
+  if (cached !== undefined) return cached;
+
+  // 1. Ưu tiên cao nhất: Dán cứng trong biến môi trường FACEBOOK_COOKIE (.env)
+  if (env.FACEBOOK_COOKIE && env.FACEBOOK_COOKIE.trim().length > 10) {
+    const res = parseFacebookCookies(env.FACEBOOK_COOKIE);
+    if (res.ok) {
+      cached = {
+        cookies: res.cookies,
+        userId: res.userId,
+        savedAt: "env",
+        source: "env",
+      };
+      return cached;
+    } else {
+      log.warn({ error: res.error }, "Biến FACEBOOK_COOKIE trong .env không hợp lệ");
+    }
+  }
+
+  // 2. Ưu tiên thứ hai: Dán cứng trong file text vĩnh viễn data/facebook-cookie.txt
+  if (existsSync(HARDCODED_COOKIE_FILE)) {
+    try {
+      const content = readFileSync(HARDCODED_COOKIE_FILE, "utf8").trim();
+      if (content.length > 10) {
+        const res = parseFacebookCookies(content);
+        if (res.ok) {
+          cached = {
+            cookies: res.cookies,
+            userId: res.userId,
+            savedAt: "file",
+            source: "file",
+          };
+          return cached;
+        }
+      }
+    } catch (err) {
+      log.warn({ err }, "Không đọc được file cookie cứng data/facebook-cookie.txt");
+    }
+  }
+
+  // 3. Đọc từ file mã hoá phiên AES-256 data/facebook-session.enc
+  try {
+    if (!existsSync(SESSION_FILE)) {
+      cached = null;
+      return null;
+    }
+    const json = decryptSecret(readFileSync(SESSION_FILE, "utf8").trim());
+    const parsed = JSON.parse(json) as StoredSession;
+    cached = Array.isArray(parsed.cookies) && parsed.cookies.length > 0 ? parsed : null;
+  } catch (err) {
+    log.warn({ err }, "Không đọc được phiên Facebook đã lưu (sai khoá hoặc file hỏng)");
+    cached = null;
+  }
+  return cached;
+}
+
+function writeSession(session: StoredSession): void {
+  mkdirSync(DATA_DIR, { recursive: true });
+  writeFileSync(SESSION_FILE, encryptSecret(JSON.stringify(session)), { mode: 0o600 });
+  cached = session;
+  health.lastCheckOk = true;
+  health.lastCheckAt = new Date().toISOString();
+  health.lastError = undefined;
+}
+
+/** Header `Cookie:` cho fetch(). null = chưa có phiên. */
+export function getFacebookCookieHeader(): string | null {
+  const s = readSession();
+  if (!s) return null;
+  return s.cookies.map((c) => `${c.name}=${c.value}`).join("; ");
+}
+
+/** Mảng cookie cho puppeteer page.setCookie() */
+export function getFacebookCookies(): FbCookie[] | null {
+  return readSession()?.cookies ?? null;
+}
+
+export function hasFacebookSession(): boolean {
+  return readSession() !== null;
+}
+
+/**
+ * Crawler gọi khi có cookie mà FB vẫn trả trang login -> phiên hết hạn.
+ * Không xoá ngay (có thể chỉ là lỗi tạm), chỉ đánh dấu để Dashboard báo đỏ.
+ */
+export function reportFacebookSessionResult(ok: boolean, error?: string): void {
+  const wasOk = health.lastCheckOk !== false;
+  health.lastCheckAt = new Date().toISOString();
+  health.lastCheckOk = ok;
+  health.lastError = ok ? undefined : error;
+  if (!ok && wasOk) log.warn({ error }, "Phiên Facebook có vẻ đã hết hạn - cần đăng nhập lại trong Dashboard");
+}
+
+export function clearFacebookSession(): void {
+  try {
+    if (existsSync(SESSION_FILE)) unlinkSync(SESSION_FILE);
+  } catch (err) {
+    log.warn({ err }, "Không xoá được file phiên Facebook");
+  }
+  try {
+    if (existsSync(HARDCODED_COOKIE_FILE)) unlinkSync(HARDCODED_COOKIE_FILE);
+  } catch (err) {
+    log.warn({ err }, "Không xoá được file cookie cứng Facebook");
+  }
+  cached = undefined;
+  health.lastCheckOk = undefined;
+  health.lastError = undefined;
+  log.info("Đã xoá phiên Facebook");
+}
+
+export type FacebookSessionStatus = {
+  hasSession: boolean;
+  userId?: string;
+  savedAt?: string;
+  source?: StoredSession["source"];
+  isHardcoded: boolean;
+  cookieCount: number;
+  health: SessionHealth;
+  pendingVerification: boolean;
+  browserAvailable: boolean;
+};
+
+export function getFacebookSessionStatus(): FacebookSessionStatus {
+  const s = readSession();
+  return {
+    hasSession: s !== null,
+    userId: s?.userId,
+    savedAt: s?.savedAt,
+    source: s?.source,
+    isHardcoded: s?.source === "env" || s?.source === "file",
+    cookieCount: s?.cookies?.length ?? 0,
+    health: { ...health },
+    pendingVerification: pending !== null && pending.expiresAt > Date.now(),
+    browserAvailable: findChromiumPath() !== null,
+  };
+}
+
+// ─────────────────────────── Import cookie thủ công ───────────────────────────
+
+/**
+ * Nhận cookie dán từ trình duyệt (hỗ trợ lưu cứng vào data/facebook-cookie.txt).
+ */
+export function importFacebookCookies(
+  raw: string,
+  saveHardcoded = true,
+): { ok: true; userId: string; source: StoredSession["source"] } | { ok: false; error: string } {
+  const parsed = parseFacebookCookies(raw);
+  if (!parsed.ok) return parsed;
+
+  const { cookies, userId } = parsed;
+
+  if (saveHardcoded) {
+    try {
+      mkdirSync(DATA_DIR, { recursive: true });
+      writeFileSync(HARDCODED_COOKIE_FILE, raw.trim(), { mode: 0o600 });
+      log.info({ userId }, "Đã lưu cứng cookie Facebook vào data/facebook-cookie.txt");
+    } catch (err) {
+      log.warn({ err }, "Không ghi được file data/facebook-cookie.txt");
+    }
+  }
+
+  writeSession({
+    cookies,
+    userId,
+    savedAt: new Date().toISOString(),
+    source: saveHardcoded ? "file" : "import",
+  });
+
+  log.info({ userId, count: cookies.length, saveHardcoded }, "Đã lưu phiên Facebook thành công");
+  return { ok: true, userId, source: saveHardcoded ? "file" : "import" };
+}
+
+// ─────────────────────────── Trình duyệt headless & Persistent Profile ───────────────────────────
 
 export function findChromiumPath(): string | null {
   return [env.CHROMIUM_PATH, ...CHROMIUM_CANDIDATES].find((p) => p && existsSync(p)) ?? null;
@@ -241,17 +325,35 @@ export function findChromiumPath(): string | null {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let pptrModule: any = null;
 
+/**
+ * Mở Chromium với Persistent Profile (userDataDir) để giữ nguyên IndexedDB,
+ * LocalStorage và session tokens của Facebook giữa các lần chạy, tránh bị Meta
+ * coi là trình duyệt lạ / session hijacking rồi tự động vô hiệu hoá cookie.
+ */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function launchFacebookBrowser(): Promise<any> {
+export async function launchFacebookBrowser(options?: { useProfile?: boolean }): Promise<any> {
   if (!pptrModule) {
     const pkg = "puppeteer-core";
     pptrModule = await import(pkg);
   }
   const executablePath = findChromiumPath();
   if (!executablePath) throw new Error("Không tìm thấy Chromium trên máy chủ");
+
+  const useProfile = options?.useProfile ?? true;
+  let userDataDir: string | undefined;
+  if (useProfile) {
+    userDataDir = FB_BROWSER_PROFILE_DIR;
+    try {
+      mkdirSync(userDataDir, { recursive: true });
+    } catch {
+      // Đã tồn tại
+    }
+  }
+
   return pptrModule.default.launch({
     executablePath,
     headless: true,
+    userDataDir,
     args: [
       "--no-sandbox",
       "--disable-setuid-sandbox",
@@ -261,6 +363,8 @@ export async function launchFacebookBrowser(): Promise<any> {
       "--disable-notifications",
       "--lang=vi-VN",
       "--window-size=1280,900",
+      // Chống anti-bot: che giấu thuộc tính AutomationControlled
+      "--disable-blink-features=AutomationControlled",
       "--disable-background-networking",
       "--disable-component-update",
       "--disable-default-apps",
@@ -279,16 +383,70 @@ export async function prepareFacebookPage(browser: any): Promise<any> {
   const page = await browser.newPage();
   await page.setUserAgent(FB_BROWSER_UA);
   await page.setViewport({ width: 1280, height: 900 });
-  await page.setExtraHTTPHeaders({ "Accept-Language": "vi-VN,vi;q=0.9,en;q=0.8" });
-  // Giảm tải RAM/băng thông: bỏ ảnh, font, media
+  await page.setExtraHTTPHeaders({
+    "Accept-Language": "vi-VN,vi;q=0.9,en-US;q=0.8,en;q=0.7",
+    "sec-ch-ua": '"Chromium";v="131", "Not_A Brand";v="24"',
+    "sec-ch-ua-mobile": "?0",
+    "sec-ch-ua-platform": '"Windows"',
+  });
+
+  // Ẩn navigator.webdriver tránh bị phát hiện tự động
+  await page.evaluateOnNewDocument(() => {
+    try {
+      Object.defineProperty(navigator, "webdriver", { get: () => undefined });
+    } catch {
+      // Bỏ qua nếu không gán được
+    }
+  }).catch(() => undefined);
+
+  // Giảm tải RAM/băng thông: bỏ media, font nặng
   await page.setRequestInterception(true);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   page.on("request", (req: any) => {
     const t = req.resourceType();
-    if (t === "image" || t === "media" || t === "font") req.abort().catch(() => undefined);
+    if (t === "media" || t === "font") req.abort().catch(() => undefined);
     else req.continue().catch(() => undefined);
   });
   return page;
+}
+
+/**
+ * Kiểm tra xem phiên Facebook có thật sự còn sống trên Facebook không
+ * bằng cách truy cập trang chủ facebook.com. Tránh việc 1 page lẻ bị chặn mà
+ * kết luận oan là toàn bộ phiên đã hết hạn.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function checkIsFacebookSessionAlive(browser: any, cookies?: FbCookie[]): Promise<boolean> {
+  let page: any = null;
+  try {
+    page = await prepareFacebookPage(browser);
+    const sessionCookies = cookies ?? getFacebookCookies();
+    if (sessionCookies && sessionCookies.length > 0) {
+      await page.setCookie(
+        ...sessionCookies.map((c) => ({
+          name: c.name,
+          value: c.value,
+          domain: c.domain ?? ".facebook.com",
+          path: c.path ?? "/",
+          secure: c.secure ?? true,
+          httpOnly: c.httpOnly ?? false,
+          ...(c.expires && c.expires > 0 ? { expires: c.expires } : {}),
+        })),
+      );
+    }
+    await page.goto("https://www.facebook.com/", { waitUntil: "domcontentloaded", timeout: 20_000 });
+    const currentUrl: string = page.url();
+    const isLogin =
+      currentUrl.includes("/login") ||
+      currentUrl.includes("checkpoint") ||
+      (await page.$("#login_form, form[action*='login']").then(Boolean).catch(() => false));
+    return !isLogin;
+  } catch (err) {
+    log.warn({ err }, "Lỗi khi kiểm tra độ sống của phiên Facebook");
+    return false;
+  } finally {
+    if (page) await page.close().catch(() => undefined);
+  }
 }
 
 // ─────────────────────────── Đăng nhập bằng mật khẩu ───────────────────────────
@@ -332,12 +490,20 @@ async function extractSessionIfLoggedIn(page: any): Promise<string | null> {
   const cUser = cookies.find((c) => c.name === "c_user")?.value;
   const xs = cookies.find((c) => c.name === "xs")?.value;
   if (!cUser || !xs) return null;
+  const fbCookies = keepFacebookCookies(cookies);
   writeSession({
-    cookies: keepFacebookCookies(cookies),
+    cookies: fbCookies,
     userId: cUser,
     savedAt: new Date().toISOString(),
     source: "password",
   });
+  try {
+    const rawHeader = fbCookies.map((c) => `${c.name}=${c.value}`).join("; ");
+    mkdirSync(DATA_DIR, { recursive: true });
+    writeFileSync(HARDCODED_COOKIE_FILE, rawHeader, { mode: 0o600 });
+  } catch (err) {
+    log.warn({ err }, "Không ghi được file dự phòng facebook-cookie.txt khi login");
+  }
   log.info({ userId: cUser }, "Đăng nhập Facebook thành công - đã lưu cookie (không lưu mật khẩu)");
   return cUser;
 }

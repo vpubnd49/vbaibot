@@ -5,9 +5,13 @@
  *  2. Dựng BẢNG bằng gạch đầu dòng dạng "1 | | | | Nội dung" thay vì khối bảng thật.
  */
 
-/** Đổi chuỗi "\n" (2 ký tự) thành xuống dòng thật, đệ quy qua object/mảng. */
+/** Đổi chuỗi "\n" (2 ký tự) và các biến thể thẻ <br> thành xuống dòng thật, đệ quy qua object/mảng. */
 export function unescapeNewlinesDeep<T>(value: T): T {
-  if (typeof value === "string") return value.replace(/\\r\\n|\\n/g, "\n") as unknown as T;
+  if (typeof value === "string") {
+    return value
+      .replace(/<br\s*\/?>/gi, "\n")
+      .replace(/\\r\\n|\\n/g, "\n") as unknown as T;
+  }
   if (Array.isArray(value)) return value.map((v) => unescapeNewlinesDeep(v)) as unknown as T;
   if (value && typeof value === "object") {
     const out: Record<string, unknown> = {};

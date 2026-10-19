@@ -88,8 +88,8 @@ export function NotebooklmSettingsModal({
 
   return (
     <ToolModalShell
-      title="NotebookLM"
-      subtitle="Mỗi cuộc chat một notebook riêng: nạp file/link, hỏi đáp có trích dẫn, tạo podcast, video, infographic, báo cáo."
+      title="Gemini Notebook (NotebookLM)"
+      subtitle="Google đã đổi tên NotebookLM thành Gemini Notebook (notebook.google.com). Mỗi cuộc chat một sổ tay riêng: nạp file/link, hỏi đáp có trích dẫn, tạo slides, podcast, video, infographic, báo cáo."
       onClose={onClose}
       footer={
         <>

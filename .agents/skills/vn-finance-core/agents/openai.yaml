@@ -1,0 +1,4 @@
+interface:
+  display_name: "Điều phối tài chính Việt Nam"
+  short_description: "Kiểm chứng căn cứ, dữ liệu và kỳ áp dụng"
+  default_prompt: "Dùng $vn-finance-core phân tích hồ sơ, chọn skill và kiểm tra căn cứ theo kỳ."

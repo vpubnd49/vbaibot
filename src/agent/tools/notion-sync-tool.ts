@@ -4,9 +4,19 @@ import { z } from "zod";
 import { createLogger } from "../../shared/logger.js";
 import { ketQuaLoi } from "./tool-failure-result.js";
 import { db } from "../../conversation/database.js";
+import { decryptSecret } from "../../config/secret-cipher.js";
 import type { ToolContext } from "./index.js";
 
 const log = createLogger("notion-sync");
+
+function decryptSecretSafe(stored: string): string {
+  if (!stored) return "";
+  try {
+    return decryptSecret(stored);
+  } catch {
+    return stored;
+  }
+}
 
 // Tạo bảng cấu hình Notion
 db.exec(`
@@ -26,12 +36,15 @@ interface NotionConfig {
 }
 
 function getNotionConfig(accountId: string): NotionConfig | null {
-  const row = db.prepare(
-    "SELECT api_key, default_database_id, enabled FROM notion_config WHERE account_id = ?",
-  ).get(accountId) as { api_key: string; default_database_id: string; enabled: number } | undefined;
+  const row = (db.prepare(
+    "SELECT api_key, default_database_id, enabled FROM notion_config WHERE account_id = ? AND api_key <> ''",
+  ).get(accountId) ??
+    db.prepare(
+      "SELECT api_key, default_database_id, enabled FROM notion_config WHERE api_key <> '' ORDER BY created_at ASC LIMIT 1",
+    ).get()) as { api_key: string; default_database_id: string; enabled: number } | undefined;
   if (!row || !row.api_key) return null;
   return {
-    apiKey: row.api_key,
+    apiKey: decryptSecretSafe(row.api_key),
     defaultDatabaseId: row.default_database_id,
     enabled: !!row.enabled,
   };

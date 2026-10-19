@@ -39,7 +39,7 @@ export const novncHttpRoutes = new Hono().all("/*", async (c) => {
     headers.set("cache-control", "no-store");
     return new Response(upstream.body, { status: upstream.status, headers });
   } catch {
-    return c.text("Máy chủ NotebookLM (noVNC) đang tắt", 502);
+    return c.text("Máy chủ Gemini Notebook / NotebookLM (noVNC) đang tắt", 502);
   }
 });
 
@@ -56,9 +56,12 @@ function readCookie(req: IncomingMessage, name: string): string | undefined {
 function sameOrigin(req: IncomingMessage): boolean {
   const origin = req.headers.origin;
   const host = req.headers["x-forwarded-host"] ?? req.headers.host;
-  if (!origin || !host) return false;
+  if (!host) return false;
+  if (!origin) return true; // một số trình duyệt/proxy nội bộ không đính kèm Origin khi cùng host
   try {
-    return new URL(origin).host === String(host).split(",")[0]!.trim();
+    const originUrl = new URL(origin);
+    const targetHost = String(host).split(",")[0]!.trim();
+    return originUrl.host === targetHost || originUrl.hostname === targetHost.split(":")[0];
   } catch {
     return false;
   }
@@ -72,6 +75,7 @@ export function attachNovncUpgrade(server: Server): void {
   server.on("upgrade", (req: IncomingMessage, socket: Duplex, head: Buffer) => {
     if (!req.url?.startsWith(WS_PATH)) return; // không phải của mình - để yên
     if (!verifySessionToken(readCookie(req, SESSION_COOKIE)) || !sameOrigin(req)) {
+      log.warn({ origin: req.headers.origin, host: req.headers.host }, "Từ chối kết nối noVNC WebSocket (cookie/origin)");
       reject(socket, 401, "Unauthorized");
       return;
     }
@@ -79,7 +83,7 @@ export function attachNovncUpgrade(server: Server): void {
     const upstream = net.connect(NOVNC_PORT, NOVNC_HOST, () => {
       const lines = [`GET /websockify HTTP/1.1`, `Host: ${NOVNC_HOST}:${NOVNC_PORT}`];
       for (const [k, v] of Object.entries(req.headers)) {
-        if (["host", "cookie", "origin"].includes(k) || v === undefined) continue;
+        if (["host", "cookie", "origin"].includes(k.toLowerCase()) || v === undefined) continue;
         lines.push(`${k}: ${Array.isArray(v) ? v.join(", ") : v}`);
       }
       upstream.write(lines.join("\r\n") + "\r\n\r\n");
@@ -93,7 +97,7 @@ export function attachNovncUpgrade(server: Server): void {
       socket.destroy();
     };
     upstream.on("error", (err) => {
-      log.debug({ err: err.message }, "noVNC upstream lỗi");
+      log.warn({ err: err.message }, "noVNC upstream lỗi");
       reject(socket, 502, "Bad Gateway");
       close();
     });

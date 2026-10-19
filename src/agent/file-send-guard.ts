@@ -31,6 +31,7 @@ export const FILE_SEND_TOOLS = new Set([
   "create_image",
   "create_music",
   "create_video",
+  "create_voice_summary",
   "qppl_lamdong",
   "thanhtra_lamdong",
   "national_legal",
@@ -40,7 +41,8 @@ export const FILE_SEND_TOOLS = new Set([
 
 /** Nhãn giả mạo do model tự gõ nhại theo history */
 const NHAN_GIA_MAO_RE = /\[(?:đang|đã)\s+(?:tạo|xuất|gửi)\s+file:[^\]]+\]/i;
-const NHAN_MEDIA_GIA_MAO_RE = /\[đã\s+gửi\s+(?:ảnh|video|file\s+nhạc)[^\]]*\]/i;
+const NHAN_MEDIA_GIA_MAO_RE =
+  /\[(?:đang|đã)\s+gửi\s+(?:ảnh|video|file\s+nhạc|tin\s+nhắn\s+thoại|podcast|infographic)[^\]]*\]/i;
 
 /** Câu từ khẳng định đã chuyển/gửi file cho người dùng */
 const CAU_KHANG_DINH_GUI_FILE_RE =
@@ -63,6 +65,14 @@ const CAU_SE_XUAT_FILE_RE =
 const CAU_GOI_TOOL_XUAT_RE =
   /(?:gọi|kích\s+hoạt)\s+tool(?:\s+\S+){0,3}\s+(?:xuất|tạo|gửi|lập|soạn)/i;
 
+/** Câu từ khẳng định đã tạo/gửi tin nhắn thoại, podcast âm thanh */
+const CAU_KHANG_DINH_GUI_VOICE_RE =
+  /(?:đã|vừa|em|sẽ|em\s+sẽ)\s+(?:tạo|phát|gửi)(?:\s+trực\s+tiếp)?\s+(?:tin\s+nhắn\s+thoại|podcast|audio|bản\s+tin\s+thoại|bản\s+ghi\s+âm)/i;
+
+/** Câu từ khẳng định đã tạo/gửi infographic */
+const CAU_KHANG_DINH_INFOGRAPHIC_RE =
+  /(?:đã|vừa|em|sẽ|em\s+sẽ)\s+(?:tạo|thiết\s+kế|vẽ|gửi)\s+(?:infographic|poster)/i;
+
 /** Người dùng có ý định rõ ràng muốn xuất/chuyển sang file */
 const Y_DINH_XUAT_FILE_RE =
   /(?:chuyển|xuất|tạo|lập|làm|làm\s+lại|lập\s+lại|chỉnh\s+sửa|soạn|viết|dựng|tiến\s+hành\s+(?:xuất|tạo|lập|làm))\s+(?:qua|sang|thành|ra)?\s*(?:file\s*)?(?:excel|word|powerpoint|pptx|xlsx|docx|pdf|bảng\s+biểu|bảng\s+tính|biểu\s+mẫu)/i;
@@ -76,8 +86,91 @@ const Y_DINH_XUAT_CHUNG_RE =
 const Y_DINH_SOAN_VB_RE =
   /(?:soạn|viết|dự\s+thảo|biên\s+soạn|tạo|lập|làm|ban\s+hành)(?:\s+(?:giúp|hộ)(?:\s+(?:tôi|em|anh|chị))?)?\s+(?:cho\s+(?:tôi|em|anh|chị)\s+)?(?:1\s+|một\s+)?(?:bản\s+|văn\s+bản\s+)?(?:công\s+văn|tờ\s+trình|quyết\s+định|kế\s+hoạch|báo\s+cáo|thông\s+báo|giấy\s+mời|biên\s+bản|quy\s+chế|quy\s+định|hướng\s+dẫn|chương\s+trình)/i;
 
+/** Người dùng yêu cầu làm podcast / tin nhắn thoại */
+const Y_DINH_VOICE_PODCAST_RE =
+  /(?:tạo|làm|xuất|gửi|phát|nghe)\s+(?:podcast|tin\s+nhắn\s+thoại|audio|giọng\s+nói|âm\s+thanh|bản\s+tin\s+thoại|đọc\s+(?:cho\s+nghe|tóm\s+tắt))/i;
+
+/** Người dùng yêu cầu làm infographic */
+const Y_DINH_INFOGRAPHIC_RE =
+  /(?:tạo|làm|thiết\s+kế|vẽ|xuất)\s+infographic/i;
+
+/** Người dùng yêu cầu tạo sản phẩm xuất file / nạp nguồn trên Gemini Notebook (NotebookLM) */
+const Y_DINH_NOTEBOOKLM_RE =
+  /(?:nạp|lưu|đưa|đẩy|chuyển)\s+(?:vào|qua|lên)?\s*(?:notebooklm|gemini\s*notebook)|(?:tạo|làm|xuất|sinh|gửi)\s+(?:podcast|audio|video|slide|báo\s+cáo|infographic|sơ\s+đồ\s+tư\s+duy|mind\s*map|flashcard)\s+(?:bằng|qua|trên|từ)?\s*(?:notebooklm|gemini\s*notebook)/i;
+
 const MO_TA_FILE_CUA_BOT_RE =
   /(?:em\s+(?:đã|đang|vừa|sẽ)\s+(?:thiết\s+lập|tạo|chuyển|chia|sắp\s+xếp|xuất|hoàn\s+tất|triển\s+khai)|file\s+excel\s+(?:gồm|được|với|chi\s+tiết)|bảng\s+tính\s+(?:gồm|với)|nội\s+dung\s+(?:bảng|file|tài\s+liệu)|sheet\s+["“]?[\w\s]+["”]?)/i;
+
+const MULTI_ACTION_FILE_TOOLS = new Set([
+  "qppl_lamdong",
+  "thanhtra_lamdong",
+  "national_legal",
+]);
+
+/**
+ * Lọc danh sách tên các tool thực sự thực hiện hành động tạo/gửi file thành công
+ * (loại bỏ trường hợp gọi qppl_lamdong/national_legal chỉ với action="search" và sendFileToChat=false,
+ * hoặc gọi notebooklm chỉ để hỏi/liệt kê, hoặc tool trả về lỗi `{ ok: false, loi }`).
+ */
+export function layToolGuiFileHopLe(
+  steps: Array<{
+    toolCalls?: Array<{ toolCallId?: string; toolName: string; input?: unknown }>;
+    toolResults?: Array<{ toolCallId?: string; toolName?: string; output?: unknown }>;
+  }>,
+  daGuiBoiToolCount = 0,
+): string[] {
+  if (daGuiBoiToolCount > 0) {
+    // Có ít nhất 1 file/media đã thực sự được đẩy vào hàng đợi gửi Zalo
+    const called = steps.flatMap((s) => (s.toolCalls ?? []).map((c) => c.toolName));
+    const matched = called.filter((t) => FILE_SEND_TOOLS.has(t));
+    return matched.length > 0 ? matched : ["send_file"];
+  }
+
+  const failedIds = new Set<string>();
+  for (const s of steps) {
+    for (const r of s.toolResults ?? []) {
+      const out = r.output as Record<string, unknown> | null | undefined;
+      if (out && typeof out === "object" && out.ok === false && typeof out.loi === "string") {
+        if (r.toolCallId) failedIds.add(r.toolCallId);
+      }
+    }
+  }
+
+  const validTools: string[] = [];
+  for (const s of steps) {
+    for (const c of s.toolCalls ?? []) {
+      if (!FILE_SEND_TOOLS.has(c.toolName)) continue;
+      if (c.toolCallId && failedIds.has(c.toolCallId)) continue;
+
+      const inp = (c.input ?? {}) as Record<string, unknown>;
+      if (MULTI_ACTION_FILE_TOOLS.has(c.toolName)) {
+        // Chỉ tính là gửi file nếu action === "download" hoặc sendFileToChat === true
+        if (inp.action === "download" || inp.sendFileToChat === true) {
+          validTools.push(c.toolName);
+        }
+        continue;
+      }
+
+      if (c.toolName === "notebooklm") {
+        // Với notebooklm, các action tạo/gửi/nạp nguồn mới tính là đáp ứng yêu cầu thao tác file/studio
+        if (
+          inp.action === "tao" ||
+          inp.action === "lay" ||
+          inp.action === "gui_lai" ||
+          inp.action === "them_nguon" ||
+          inp.action === "tao_so_tay"
+        ) {
+          validTools.push(c.toolName);
+        }
+        continue;
+      }
+
+      validTools.push(c.toolName);
+    }
+  }
+
+  return validTools;
+}
 
 /**
  * Kiểm tra xem lượt trả lời có phải là ảo giác "đã gửi file" hay không.
@@ -91,7 +184,10 @@ export function laNguoiDungYeuCauXuatFile(userPrompt: string): boolean {
     Y_DINH_XUAT_FILE_RE.test(userPrompt) ||
     Y_DINH_XUAT_EXCEL_RE.test(userPrompt) ||
     Y_DINH_XUAT_CHUNG_RE.test(userPrompt) ||
-    Y_DINH_SOAN_VB_RE.test(userPrompt)
+    Y_DINH_SOAN_VB_RE.test(userPrompt) ||
+    Y_DINH_VOICE_PODCAST_RE.test(userPrompt) ||
+    Y_DINH_INFOGRAPHIC_RE.test(userPrompt) ||
+    Y_DINH_NOTEBOOKLM_RE.test(userPrompt)
   );
 }
 
@@ -108,19 +204,21 @@ export function laTinNhanAoGiacGuiFile(
   // Loại bỏ định dạng markdown (bold, italic, code, quotes) để regex không bị đứt đoạn
   const textChuan = text.replace(/[*_`"“”]/g, " ");
 
-  // 1. Model tự gõ nhãn giả mạo [đã gửi file: ...] hoặc [đã gửi ảnh...]
+  // 1. Model tự gõ nhãn giả mạo [đã gửi file: ...] hoặc [đã gửi ảnh...], [đã gửi tin nhắn thoại...]
   if (NHAN_GIA_MAO_RE.test(text) || NHAN_MEDIA_GIA_MAO_RE.test(text)) {
     return true;
   }
 
-  // 2. Model nói bằng lời "em đã chuyển ... sang file Excel", "em gửi anh file...", "em tiến hành gọi tool xuất file..."
+  // 2. Model nói bằng lời "em đã chuyển ... sang file Excel", "em gửi anh file...", "em vừa tạo và gửi tin nhắn thoại Podcast..."
   if (
     CAU_KHANG_DINH_GUI_FILE_RE.test(textChuan) ||
     CAU_DA_GUI_FILE_RE.test(textChuan) ||
     CAU_DANG_XUAT_CHO_RE.test(textChuan) ||
     CAU_THUC_HIEN_XUAT_RE.test(textChuan) ||
     CAU_SE_XUAT_FILE_RE.test(textChuan) ||
-    CAU_GOI_TOOL_XUAT_RE.test(textChuan)
+    CAU_GOI_TOOL_XUAT_RE.test(textChuan) ||
+    CAU_KHANG_DINH_GUI_VOICE_RE.test(textChuan) ||
+    CAU_KHANG_DINH_INFOGRAPHIC_RE.test(textChuan)
   ) {
     return true;
   }
@@ -142,7 +240,29 @@ export function laTinNhanAoGiacGuiFile(
 export function taoTinNhanNhacGoiTool(userPrompt?: string): string {
   const p = userPrompt?.toLowerCase() || "";
 
-  // 1. Người dùng yêu cầu SOẠN văn bản hành chính mới (NĐ 30 / HD 05)
+  // 1. Người dùng yêu cầu liên quan đến Gemini Notebook (NotebookLM) / Infographic / Podcast âm thanh
+  const laYeuCauNotebookLmOrVoice =
+    p.includes("notebooklm") ||
+    p.includes("gemini notebook") ||
+    p.includes("infographic") ||
+    p.includes("podcast") ||
+    p.includes("tin nhắn thoại") ||
+    Y_DINH_VOICE_PODCAST_RE.test(p) ||
+    Y_DINH_INFOGRAPHIC_RE.test(p) ||
+    Y_DINH_NOTEBOOKLM_RE.test(p);
+
+  if (laYeuCauNotebookLmOrVoice) {
+    return (
+      "CẢNH BÁO HỆ THỐNG: Người dùng đang yêu cầu NẠP VÀO GEMINI NOTEBOOK (NOTEBOOKLM) / TẠO INFOGRAPHIC / TẠO PODCAST ÂM THANH! " +
+      "- Với nạp file/link: gọi `notebooklm` (action: 'them_nguon'). " +
+      "- Với infographic: gọi `notebooklm` (action: 'tao', loai: 'infographic'). " +
+      "- Với podcast âm thanh / tin nhắn thoại / giọng đọc tóm tắt: BẮT BUỘC gọi `create_voice_summary` (đây là voice podcast tiếng Việt 2 MC sinh nhanh 30s trực tiếp trong Zalo)! " +
+      "- TUYỆT ĐỐI KHÔNG tự tiện soạn thảo văn bản hành chính (dự thảo công văn...) dài dòng làm chậm phản hồi khi người dùng không yêu cầu soạn thảo VBHC. " +
+      "- TUYỆT ĐỐI KHÔNG tự sinh nhãn giả mạo '[Đã gửi tin nhắn thoại...]', KHÔNG từ chối rằng 'không truy cập được Google', và KHÔNG hứa hẹn suông mà không gọi tool!"
+    );
+  }
+
+  // 2. Người dùng yêu cầu SOẠN văn bản hành chính mới (NĐ 30 / HD 05)
   const laYeuCauSoanVB =
     p.includes("soạn") ||
     p.includes("dự thảo") ||
@@ -166,7 +286,7 @@ export function taoTinNhanNhacGoiTool(userPrompt?: string): string {
     );
   }
 
-  // 2. Người dùng yêu cầu TẢI văn bản QPPL tỉnh Lâm Đồng có sẵn
+  // 3. Người dùng yêu cầu TẢI văn bản QPPL tỉnh Lâm Đồng có sẵn
   const laYeuCauTaiVB =
     (p.includes("tải") ||
       p.includes("download") ||
@@ -206,7 +326,10 @@ export function taoTinNhanNhacGoiTool(userPrompt?: string): string {
 export function xoaNhanAoGiacGuiFile(text: string): string {
   let cleaned = text
     .replace(/\[(?:đang|đã)\s+(?:tạo|xuất|gửi)\s+file:[^\]]+\]/gi, "")
-    .replace(/\[đã\s+gửi\s+(?:ảnh|video|file\s+nhạc)[^\]]*\]/gi, "")
+    .replace(
+      /\[(?:đang|đã)\s+gửi\s+(?:ảnh|video|file\s+nhạc|tin\s+nhắn\s+thoại|podcast|infographic)[^\]]*\]/gi,
+      "",
+    )
     .replace(/\n{3,}/g, "\n\n")
     .trim();
 
@@ -217,7 +340,9 @@ export function xoaNhanAoGiacGuiFile(text: string): string {
     CAU_KHANG_DINH_GUI_FILE_RE.test(textChuan) ||
     CAU_THUC_HIEN_XUAT_RE.test(textChuan) ||
     CAU_SE_XUAT_FILE_RE.test(textChuan) ||
-    CAU_GOI_TOOL_XUAT_RE.test(textChuan)
+    CAU_GOI_TOOL_XUAT_RE.test(textChuan) ||
+    CAU_KHANG_DINH_GUI_VOICE_RE.test(textChuan) ||
+    CAU_KHANG_DINH_INFOGRAPHIC_RE.test(textChuan)
   ) {
     cleaned += "\n\n*(⚠️ Lưu ý: Hệ thống chưa hoàn tất lệnh xuất/gửi file đính kèm tự động. Vui lòng nhắn lại: 'xuất file excel' hoặc 'xuất file word' để em kích hoạt tạo và gửi file cho anh nhé!)*";
   }

@@ -1,4 +1,5 @@
 import { createLogger } from "../../shared/logger.js";
+import { dataDir } from "../../config/env.js";
 import {
   searchCongbao,
   fetchCongbaoDetail,
@@ -415,7 +416,7 @@ async function downloadFromOfficialDetailPage(
     if (!valid) return { filePath: null, format, fileSize: 0, source: "vbpl", error: `File Chính phủ không phải ${format.toUpperCase()} hợp lệ` };
     const fs = await import("node:fs/promises");
     const path = await import("node:path");
-    const dir = path.join(process.cwd(), "data", "vbpl");
+    const dir = path.join(dataDir, "vbpl");
     await fs.mkdir(dir, { recursive: true });
     const safe = (soHieu || "van-ban").replace(/[/\\:*?"<>|]/g, "-");
     const ext = path.extname(new URL(preferred).pathname).toLowerCase();

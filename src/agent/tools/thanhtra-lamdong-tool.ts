@@ -10,7 +10,7 @@ import { ghiChuDaGuiFile } from "./sent-by-tool-note.js";
 import type { ToolContext } from "./tool-catalog-types.js";
 import { ketQuaLoi } from "./tool-failure-result.js";
 
-export function createThanhtraLamdongTool({ api, account, message, ghiNhanDaGui }: ToolContext) {
+export function createThanhtraLamdongTool({ api, account, message, isolated, ghiNhanDaGui }: ToolContext) {
   return tool({
     description:
       "Tra cứu, tìm kiếm danh sách và lấy file PDF Kết luận thanh tra, Thông báo kết luận của Thanh tra tỉnh Lâm Đồng (nguồn chính thức Cổng TTĐT tỉnh Lâm Đồng lamdong.gov.vn). " +
@@ -35,6 +35,7 @@ export function createThanhtraLamdongTool({ api, account, message, ghiNhanDaGui 
         .describe("Nếu true, tool sẽ gửi thẳng file PDF Kết luận thanh tra vào tin nhắn Zalo cho người dùng"),
     }),
     execute: async ({ action, keyword, docId, sendFileToChat }) => {
+      const canSendFile = Boolean(sendFileToChat && !isolated);
       // 1. Nhánh đồng bộ cưỡng bức từ mạng
       if (action === "sync") {
         try {
@@ -53,7 +54,7 @@ export function createThanhtraLamdongTool({ api, account, message, ghiNhanDaGui 
         }
 
         let sendNote = "";
-        if (sendFileToChat && doc.localPath) {
+        if (canSendFile && doc.localPath && doc.localPath !== "NOT_FOUND") {
           const absPath = path.resolve(dataDir, doc.localPath);
           if (fs.existsSync(absPath)) {
             const caption = `Văn bản Kết luận thanh tra: ${doc.title}`;
@@ -80,7 +81,7 @@ export function createThanhtraLamdongTool({ api, account, message, ghiNhanDaGui 
           `- **Ngày cập nhật**: ${doc.modifiedAt ? doc.modifiedAt.slice(0, 10) : "Chưa rõ"}\n` +
           `- **Trang công bố**: ${doc.fileRef ? `https://lamdong.gov.vn${doc.fileRef}` : "N/A"}\n` +
           `- **File PDF**: ${doc.pdfUrl || "Chưa có file đính kèm"}\n` +
-          `- **Trạng thái lưu trữ**: ${doc.localPath ? `Đã lưu trên máy (${Math.round(doc.fileSize / 1024)} KB)` : "Chưa tải về"}${sendNote}`
+          `- **Trạng thái lưu trữ**: ${doc.localPath && doc.localPath !== "NOT_FOUND" ? `Đã lưu trên máy (${Math.round(doc.fileSize / 1024)} KB)` : "Chưa tải về"}${sendNote}`
         );
       }
 
@@ -105,7 +106,7 @@ export function createThanhtraLamdongTool({ api, account, message, ghiNhanDaGui 
       // Model gọi tool ĐÚNG 1 LẦN với sendFileToChat=true → tool tự gửi toàn bộ.
       // Trước đây chỉ gửi docs[0] → model phải gọi riêng lẻ từng ID → tốn step → thiếu file.
       let sendStatusNote = "";
-      if (sendFileToChat && docs.length > 0) {
+      if (canSendFile && docs.length > 0) {
         const sentFiles: string[] = [];
         const failed: string[] = [];
         for (const targetDoc of docs) {

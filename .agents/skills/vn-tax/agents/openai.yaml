@@ -1,0 +1,4 @@
+interface:
+  display_name: "Thuế Việt Nam theo kỳ"
+  short_description: "Thuế và hóa đơn có căn cứ, chuyển tiếp rõ"
+  default_prompt: "Dùng $vn-tax rà soát hồ sơ thuế theo kỳ và tách điều kiện đã xác minh."

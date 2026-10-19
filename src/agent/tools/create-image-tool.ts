@@ -61,13 +61,16 @@ export function createImageTool(ctx: ToolContext, generate = generateImage) {
         .describe(
           'BẮT BUỘC chọn. "ve_moi" = vẽ ảnh hoàn toàn mới từ mô tả (khi người dùng KHÔNG gửi ảnh hoặc không yêu cầu ' +
             'dựa vào ảnh đã gửi). "sua_anh_da_gui" = BẮT BUỘC khi người dùng đã gửi ảnh trong hội thoại và yêu cầu ' +
-            'vẽ lại / sửa / biến đổi / làm lại dựa theo ảnh đó (vd: "vẽ lại ảnh", "sửa ảnh này", "đổi phong cách", "làm nét hơn")',
+            'sửa / biến đổi / đổi nền studio / phối cảnh thêm rèm, nội thất / làm sáng ảnh / xóa chi tiết thừa / thêm chữ vào ảnh đã gửi.',
         ),
       prompt: z
         .string()
         .min(1)
         .max(MAX_PROMPT_CHARS)
-        .describe("Mô tả chi tiết ảnh cần vẽ, hoặc thay đổi cần thực hiện nếu đang sửa ảnh"),
+        .describe(
+          "Mô tả chi tiết ảnh cần vẽ. Nếu mode='sua_anh_da_gui', BẮT BUỘC cấu trúc thành 2 phần rõ rệt: " +
+            "[BẢO TOÀN: đối tượng hoặc không gian gốc cần giữ nguyên] + [BIẾN ĐỔI: chi tiết nền mới/phông studio, vật thể thêm vào như rèm/nội thất, hiệu ứng ánh sáng/làm sáng, chi tiết cần xóa, hoặc chữ cần thêm]",
+        ),
       imageIndex: z.coerce
         .number()
         .int()
@@ -80,10 +83,23 @@ export function createImageTool(ctx: ToolContext, generate = generateImage) {
         .boolean()
         .optional()
         .describe("Cần nền trong suốt (logo, sticker, icon để ghép lên nền khác)"),
-      caption: z.string().optional().describe("Lời nhắn gửi kèm ảnh"),
+      caption: z
+        .string()
+        .optional()
+        .describe(
+          "Lời nhắn gửi kèm ảnh giải thích chuyên nghiệp các điểm đã xử lý (phông nền, ánh sáng, tiếp đất/bóng đổ, chi tiết bổ sung)",
+        ),
     }),
     execute: async ({ mode, prompt, imageIndex, transparentBackground, caption }) => {
       const threadKey = `${ctx.account.id}:${ctx.message.threadId}`;
+
+      const allUserText = [ctx.message.text, ...(ctx.batch?.map((m) => m.text) ?? []), prompt].join(" ");
+      if (/\binfographic\b|đồ họa thông tin|tóm tắt.*(?:quyết định|nghị định|văn bản|luật|thông tư|kế hoạch|đề án|tài liệu|chính sách)/i.test(allUserText)) {
+        log.warn({ prompt, userText: ctx.message.text }, "Từ chối create_image vì yêu cầu infographic/tóm tắt văn bản tài liệu");
+        return ketQuaLoi(
+          "Yêu cầu tạo Infographic tóm tắt tài liệu văn bản BẮT BUỘC phải dùng công cụ `notebooklm` (action: 'tao', loai: 'infographic')! TUYỆT ĐỐI KHÔNG dùng tool create_image cho việc này. Hãy gọi tool notebooklm ngay bây giờ.",
+        );
+      }
 
       if (!isImageGenConfigured()) {
         return ketQuaLoi(
@@ -126,6 +142,13 @@ export function createImageTool(ctx: ToolContext, generate = generateImage) {
           }
           refImage = loaded;
         }
+      }
+
+      if (/infographic|tóm tắt.*(?:văn bản|nghị định|quyết định|tài liệu|chính sách)/i.test(prompt)) {
+        log.warn({ prompt }, "Từ chối create_image vì người dùng yêu cầu infographic từ tài liệu văn bản");
+        return ketQuaLoi(
+          "Yêu cầu tạo Infographic tóm tắt tài liệu văn bản BẮT BUỘC phải gọi công cụ `notebooklm` (action: 'tao', loai: 'infographic')! TUYỆT ĐỐI KHÔNG dùng tool create_image cho việc này. Hãy gọi tool notebooklm ngay bây giờ.",
+        );
       }
 
       const rate = checkImageRateLimit(threadKey);
@@ -188,7 +211,7 @@ export function createImageTool(ctx: ToolContext, generate = generateImage) {
       } catch (err) {
         const reason = err instanceof Error ? err.message : String(err);
         log.warn({ err }, "Vẽ ảnh thất bại");
-        return ketQuaLoi(`Vẽ ảnh thất bại (${reason}). Nói thật với người dùng, đừng hứa gửi ảnh sau.`);
+        return ketQuaLoi(`Vẽ ảnh thất bại: ${reason}`);
       }
     },
   });

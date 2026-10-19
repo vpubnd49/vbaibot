@@ -8,7 +8,6 @@ import {
   IconFileText,
   IconGlobe,
   IconRefresh,
-  IconWarning,
 } from "../shared/dashboard-icons";
 import { Badge, EmptyRow, ListToolbar, SectionCard, StatCard, TableShell, formatNumber, formatTime } from "../shared/ui-bits";
 
@@ -120,9 +119,22 @@ export function LegalDocsPage() {
       <PageHeader
         icon={IconFileText}
         title="Kho văn bản pháp luật"
-        subtitle="Tự động cào văn bản mới từ vanban.chinhphu.vn và Công báo, tải sẵn bản PDF chính thức để trả người dùng ngay"
+        subtitle="Tự động cào văn bản mới từ vanban.chinhphu.vn, Công báo, QPPL & Kết luận Thanh tra tỉnh Lâm Đồng"
         aside={
           <>
+            <button
+              id="legal-docs-sync-province"
+              className="rounded-xl border border-line bg-surface/90 px-3 py-2 text-xs font-semibold text-ink hover:bg-tile disabled:opacity-50"
+              disabled={busy !== null || overview?.province?.syncRunning}
+              onClick={() =>
+                void act("sync-province", async () => {
+                  const r = await legalDocsApi.syncProvince();
+                  return r.started ? "Đã kích hoạt đồng bộ QPPL & Thanh tra Lâm Đồng" : (r.message ?? "Đang đồng bộ");
+                })
+              }
+            >
+              {overview?.province?.syncRunning ? "Đang đồng bộ tỉnh..." : "Đồng bộ Lâm Đồng"}
+            </button>
             <button
               id="legal-docs-retry-failed"
               className="rounded-xl border border-line bg-surface/90 px-3 py-2 text-xs font-semibold text-ink hover:bg-tile disabled:opacity-50"
@@ -153,10 +165,15 @@ export function LegalDocsPage() {
       {notice && <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-400">{notice}</div>}
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard icon={IconDatabase} label="Tổng đã cào" value={formatNumber(s?.total ?? 0)} sub={`+${s?.newToday ?? 0} văn bản mới hôm nay`} />
+        <StatCard icon={IconDatabase} label="Tổng VB Trung ương" value={formatNumber(s?.total ?? 0)} sub={`+${s?.newToday ?? 0} văn bản mới hôm nay`} />
         <StatCard icon={IconCheck} label="Đã tải về" value={formatNumber(downloaded)} sub={`+${s?.downloadedToday ?? 0} hôm nay · ${formatBytes(s?.totalBytes ?? 0)}`} />
-        <StatCard icon={IconClock} label="Chờ tải" value={formatNumber(pending)} sub={c ? `Tối đa ${c.downloadsPerRound} file / lượt` : undefined} />
-        <StatCard icon={IconWarning} label="Lỗi / chưa có file" value={formatNumber(failed)} sub={`Mới nhất ban hành: ${formatDate(s?.latestIssued)}`} />
+        <StatCard icon={IconClock} label="Chờ tải / Lỗi" value={`${formatNumber(pending)} / ${formatNumber(failed)}`} sub={`Mới nhất ban hành: ${formatDate(s?.latestIssued)}`} />
+        <StatCard
+          icon={IconFileText}
+          label="Kho VB tỉnh Lâm Đồng"
+          value={`${formatNumber(overview?.province?.qpplCount ?? 0)} QPPL`}
+          sub={`${formatNumber(overview?.province?.thanhtraCount ?? 0)} Kết luận Thanh tra`}
+        />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">

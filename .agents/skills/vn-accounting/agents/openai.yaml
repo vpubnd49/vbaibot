@@ -1,0 +1,4 @@
+interface:
+  display_name: "Kế toán Việt Nam"
+  short_description: "Kiểm tra sổ, chế độ kế toán và chuyển đổi"
+  default_prompt: "Dùng $vn-accounting đối chiếu sổ và đề xuất bút toán theo chế độ/kỳ đã xác định."

@@ -29,6 +29,7 @@ import {
   nganSachAnToan,
   soSanhUocLuong,
   TOKEN_MOI_ANH_THEO_CO,
+  uocLuongTokenChuoi,
   uocLuongTokenTinNhan,
 } from "./token-estimate.js";
 import { catNguCanhTheoNganSach } from "./trim-context-to-budget.js";
@@ -47,6 +48,7 @@ import {
   FILE_SEND_TOOLS,
   laNguoiDungYeuCauXuatFile,
   laTinNhanAoGiacGuiFile,
+  layToolGuiFileHopLe,
   taoTinNhanNhacGoiTool,
   xoaNhanAoGiacGuiFile,
 } from "./file-send-guard.js";
@@ -198,22 +200,6 @@ export async function runAgentTurn({
   // `agent.maxSteps ?? getTuning(...)`.
   const tranStep = agent.maxSteps ?? getTuning("LLM_MAX_STEPS");
 
-  const built = await buildTurnMessages({
-    history,
-    batch,
-    override: agent,
-    allowlist: account.allowlist,
-    tranToken,
-  });
-  let messages = built.messages;
-  let imageMode = built.imageMode;
-  if (built.daCat) {
-    log.warn(
-      { ...built.daCat, tranToken },
-      "Ngữ cảnh vượt ngân sách token - đã cắt bớt trước khi gọi model",
-    );
-  }
-
   // Memory: fact bền (lọc theo quy tắc privacy) + summary phần hội thoại cũ
   // + tri thức dùng chung đã được admin duyệt
   const sharedKnowledge = getApprovedKnowledge(account.id);
@@ -229,6 +215,39 @@ export async function runAgentTurn({
         threadSummary: getThreadSummary(account.id, latest.threadId).summary,
         sharedKnowledge,
       };
+
+  // Dựng systemPrompt MỘT LẦN và đo token của nó; phần vượt quá biên dự phòng 30% sẽ trừ vào ngân sách tin nhắn
+  const systemPrompt = buildSystemPrompt(agent, latest, memory, account, isolated, {
+    disabledTools: threadSettings.disabledTools,
+  });
+  const systemTokens = uocLuongTokenChuoi(systemPrompt);
+  const duPhongHeThong = Math.floor(tranToken * 0.3);
+  const phanVuotSystem = tranToken >= 64_000 ? Math.max(0, systemTokens - duPhongHeThong) : 0;
+  const tranTokenTinNhan = Math.max(8_000, tranToken - phanVuotSystem);
+
+  let soFileDaGuiThucTe = 0;
+  const ghiNhanDaGuiWrapped = (noiDung: string) => {
+    if (/^\[đã gửi (?:file|ảnh|video|nhạc|tin nhắn thoại|bản ghi âm|podcast|infographic)/i.test(noiDung.trim())) {
+      soFileDaGuiThucTe += 1;
+    }
+    ghiNhanDaGui?.(noiDung);
+  };
+
+  const built = await buildTurnMessages({
+    history,
+    batch,
+    override: agent,
+    allowlist: account.allowlist,
+    tranToken: tranTokenTinNhan,
+  });
+  let messages = built.messages;
+  let imageMode = built.imageMode;
+  if (built.daCat) {
+    log.warn(
+      { ...built.daCat, tranToken, tranTokenTinNhan, systemTokens },
+      "Ngữ cảnh vượt ngân sách token - đã cắt bớt trước khi gọi model",
+    );
+  }
 
   // `trace` do caller truyền vào và dùng chung cho MỌI lần chạy trong lượt: lượt
   // retry (glitch router) và lượt dựng lại không kèm pixel đều nối tiếp vào đó -
@@ -362,13 +381,13 @@ export async function runAgentTurn({
             threadId: latest.threadId,
             contextEpoch,
           }),
-          system: buildSystemPrompt(agent, latest, memory, account, isolated, { disabledTools: threadSettings.disabledTools }),
+          system: systemPrompt,
           messages: nguCanh,
           // Ba lớp lọc tool giao nhau: agent khai năng lực, account áp chính sách, thread tinh chỉnh riêng.
           // Thêm `isolated` lọc bớt tool không hợp với lượt theo lịch (add_reaction
           // không có msgId thật, read_image không có ảnh, save_memory chặn injection
           // từ job) - xem runsInScheduledTurn ở tool-registry.ts
-          tools: buildAgentTools({ api, account, agent, message: latest, batch, isolated, ghiNhanDaGui, fileDaGuiTrongLuot, thread: { disabledTools: threadSettings.disabledTools } }),
+          tools: buildAgentTools({ api, account, agent, message: latest, batch, isolated, ghiNhanDaGui: ghiNhanDaGuiWrapped, fileDaGuiTrongLuot, thread: { disabledTools: threadSettings.disabledTools } }),
           // Hai điều kiện dừng. `stepCountIs` chặn số VÒNG; điều kiện token chặn
           // KÍCH THƯỚC - kết quả tool cộng dồn qua từng step (web_fetch một mình đã
           // tới WEB_FETCH_MAX_CHARS ký tự), nên một lượt ít step vẫn phình được.
@@ -458,7 +477,7 @@ export async function runAgentTurn({
     // đuôi được bảo vệ ở đây là đẩy `chuaChoSan` lên tới mức cắt sạch phần còn lại.
     const tinChenChot =
       tinChenDaKeo.length > 0
-        ? [await dungTinChenTrongNganSach(tinChenDaKeo, imageMode, tranToken)]
+        ? [await dungTinChenTrongNganSach(tinChenDaKeo, imageMode, tranTokenTinNhan)]
         : [];
     const duoiBaoVe = [...(cauHoi ? [cauHoi] : []), ...tinChenChot, nhacChot];
     const chuaChoSan = uocLuongTokenTinNhan(
@@ -469,7 +488,7 @@ export async function runAgentTurn({
     const { tinNhan: phanCatDuoc, daCat: daCatChot } = catNguCanhTheoNganSach({
       tinNhan: [...truocCauHoi, ...daLam],
       // Chừa sẵn chỗ cho phần đuôi không bao giờ bị cắt
-      tranToken: Math.max(0, nganSachAnToan(tranToken) - chuaChoSan),
+      tranToken: Math.max(0, nganSachAnToan(tranTokenTinNhan) - chuaChoSan),
       soTinBaoVeCuoi: 1,
       coAnh: getTuning("ZALO_IMAGE_QUALITY"),
     });
@@ -487,7 +506,7 @@ export async function runAgentTurn({
             threadId: latest.threadId,
             contextEpoch,
           }),
-          system: buildSystemPrompt(agent, latest, memory, account, isolated, { disabledTools: threadSettings.disabledTools }),
+          system: systemPrompt,
           messages: tinChot,
           maxOutputTokens: getTuning("LLM_MAX_OUTPUT_TOKENS"),
           maxRetries: 1,
@@ -527,7 +546,7 @@ export async function runAgentTurn({
       allowlist: account.allowlist,
       // Đường này từng QUÊN truyền trần, nên lượt thử lại chạy hoàn toàn không
       // có ngân sách - đúng lúc ngữ cảnh đã nặng tới mức provider vừa từ chối
-      tranToken,
+      tranToken: tranTokenTinNhan,
     });
     imageMode = rebuilt.imageMode;
     // Gắn lại SAU khi đã đổi `imageMode`: tin chen phải được dựng theo chế độ
@@ -696,7 +715,7 @@ export async function runAgentTurn({
   }
 
   const doLechUocLuong = soSanhUocLuong(
-    uocLuongTokenTinNhan(messages, TOKEN_MOI_ANH_THEO_CO[getTuning("ZALO_IMAGE_QUALITY")]),
+    systemTokens + uocLuongTokenTinNhan(messages, TOKEN_MOI_ANH_THEO_CO[getTuning("ZALO_IMAGE_QUALITY")]),
     result.steps[0]?.usage?.inputTokens,
   );
 
@@ -777,9 +796,10 @@ export async function runAgentTurn({
   const exportIntent = laNguoiDungYeuCauXuatFile(latest.text);
   for (let lanEp = 0; lanEp < 3; lanEp += 1) {
     const allToolCalls = layAllToolCalls(result);
-    const coGoiToolFile = allToolCalls.some((t) => FILE_SEND_TOOLS.has(t));
+    const validFileTools = layToolGuiFileHopLe(result.steps, soFileDaGuiThucTe);
+    const coGoiToolFile = validFileTools.length > 0;
     const laAoGiac =
-      laTinNhanAoGiacGuiFile(result.text, allToolCalls, latest.text) ||
+      laTinNhanAoGiacGuiFile(result.text, validFileTools, latest.text) ||
       (exportIntent && !coGoiToolFile);
 
     if (canLuotChot({ lastStepToolCalls }) || !laAoGiac) {
@@ -787,7 +807,7 @@ export async function runAgentTurn({
     }
 
     log.warn(
-      { text: result.text.slice(0, 150), toolCalls: allToolCalls, lanChay, lanEp: lanEp + 1 },
+      { text: result.text.slice(0, 150), toolCalls: allToolCalls, validFileTools, lanChay, lanEp: lanEp + 1 },
       "Phát hiện ảo giác 'đã gửi file' nhưng không gọi tool - ép gọi tool tạo file",
     );
     lanChay++;
@@ -849,14 +869,15 @@ export async function runAgentTurn({
   // Nếu sau 3 lần ép mà vẫn chỉ có lời hứa, không được gửi lời hứa xuống Zalo.
   // Trả lỗi rõ ràng để người dùng nhắn lại thay vì tưởng đã nhận được file.
   const allCallsCuoi = layAllToolCalls(result);
-  const coGoiToolFileCuoi = allCallsCuoi.some((t) => FILE_SEND_TOOLS.has(t));
+  const validFileToolsCuoi = layToolGuiFileHopLe(result.steps, soFileDaGuiThucTe);
+  const coGoiToolFileCuoi = validFileToolsCuoi.length > 0;
   const laAoGiacCuoi =
-    laTinNhanAoGiacGuiFile(result.text, allCallsCuoi, latest.text) ||
+    laTinNhanAoGiacGuiFile(result.text, validFileToolsCuoi, latest.text) ||
     (exportIntent && !coGoiToolFileCuoi);
 
   if (!canLuotChot({ lastStepToolCalls }) && laAoGiacCuoi) {
     log.error(
-      { toolCalls: allCallsCuoi, lanChay },
+      { toolCalls: allCallsCuoi, validFileToolsCuoi, lanChay },
       "Model vẫn không gọi tool gửi file sau 3 lần ép - chặn câu trả lời ảo giác",
     );
     result = {
@@ -909,7 +930,8 @@ export async function runAgentTurn({
   }
 
   const finalToolCalls = layAllToolCalls(result);
-  const daGoiToolGuiFile = finalToolCalls.some((t) => FILE_SEND_TOOLS.has(t));
+  const validFinalFileTools = layToolGuiFileHopLe(result.steps, soFileDaGuiThucTe);
+  const daGoiToolGuiFile = validFinalFileTools.length > 0;
   const failedActions = getFailedActions(result.steps);
   const textKhongAoGiac = daGoiToolGuiFile ? result.text.trim() : xoaNhanAoGiacGuiFile(result.text.trim());
   const textSauGuard = guardFailedActionReply(textKhongAoGiac, failedActions);

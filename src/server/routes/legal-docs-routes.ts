@@ -15,9 +15,15 @@ import {
   retryAllFailedLegalDocs,
   retryLegalDoc,
 } from "../../legal/services/legal-docs-store.js";
+import { countQpplDocs } from "../../qppl/qppl-store.js";
+import { syncQpplDocuments } from "../../qppl/qppl-service.js";
+import { countThanhtraDocs } from "../../thanhtra/thanhtra-store.js";
+import { syncThanhtraDocuments } from "../../thanhtra/thanhtra-service.js";
 import { createLogger } from "../../shared/logger.js";
 
 const log = createLogger("legal-docs-routes");
+
+let provinceSyncRunning = false;
 
 export const legalDocsRoutes = new Hono();
 
@@ -26,6 +32,11 @@ legalDocsRoutes.get("/", (c) => {
     stats: getLegalDocsStats(),
     crawler: getLegalCrawlerState(),
     recent: listLegalDocs({ limit: 10 }).items,
+    province: {
+      qpplCount: countQpplDocs(),
+      thanhtraCount: countThanhtraDocs(),
+      syncRunning: provinceSyncRunning,
+    },
   });
 });
 
@@ -45,6 +56,22 @@ legalDocsRoutes.get("/list", (c) => {
 legalDocsRoutes.post("/crawl", (c) => {
   if (getLegalCrawlerState().running) return c.json({ ok: true, started: false, message: "Đang có lượt cào chạy" });
   void runLegalCrawlRound().catch((err) => log.error({ err }, "Manual legal crawl failed"));
+  return c.json({ ok: true, started: true });
+});
+
+legalDocsRoutes.post("/sync-province", (c) => {
+  if (provinceSyncRunning) {
+    return c.json({ ok: true, started: false, message: "Đang đồng bộ kho văn bản Lâm Đồng" });
+  }
+  provinceSyncRunning = true;
+  void Promise.all([
+    syncQpplDocuments("ubnd", 150),
+    syncThanhtraDocuments(25),
+  ])
+    .catch((err) => log.error({ err }, "Lỗi đồng bộ thủ công QPPL/Thanh tra Lâm Đồng"))
+    .finally(() => {
+      provinceSyncRunning = false;
+    });
   return c.json({ ok: true, started: true });
 });
 

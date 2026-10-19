@@ -69,25 +69,66 @@ export function FacebookSessionModal({ onClose }: { onClose: () => void }) {
     }
   }
 
+  const [saveHardcoded, setSaveHardcoded] = useState(true);
+  const [testing, setTesting] = useState(false);
+
   const s = status?.session;
   const needVerify = step?.status === "need_code" || step?.status === "need_approval" || Boolean(s?.pendingVerification);
+
+  const sourceLabel =
+    s?.source === "env"
+      ? "Cấu hình cứng (.env)"
+      : s?.source === "file"
+        ? "Lưu cứng (data/facebook-cookie.txt)"
+        : s?.source === "password"
+          ? "Đăng nhập mật khẩu"
+          : "Dán qua Dashboard";
 
   const sessionBadge = !s ? null : !s.hasSession ? (
     <Badge tone="amber">Chưa đăng nhập Facebook</Badge>
   ) : s.health.lastCheckOk === false ? (
-    <Badge tone="amber">Phiên hết hạn - cần đăng nhập lại</Badge>
+    <Badge tone="amber">Phiên hết hạn - cần cập nhật cookie</Badge>
   ) : (
-    <Badge tone="green">Đã đăng nhập · UID {s.userId}</Badge>
+    <Badge tone="green">Đã đăng nhập · UID {s.userId} {s.isHardcoded ? `(${sourceLabel})` : ""}</Badge>
   );
+
+  async function handleTestSession() {
+    setTesting(true);
+    setError("");
+    setInfo("");
+    try {
+      const res = await facebookApi.testSession();
+      setStatus(res);
+      if (res.ok) {
+        setInfo("Phiên Facebook đang hoạt động rất tốt! Trình duyệt VPS đã truy cập trang chủ thành công.");
+      } else {
+        setError(res.error || "Facebook yêu cầu đăng nhập lại (phiên không còn hợp lệ trên máy chủ Meta).");
+      }
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : "Không kiểm tra được phiên");
+    } finally {
+      setTesting(false);
+    }
+  }
 
   return (
     <ToolModalShell
       title="Facebook cho Tin tức"
-      subtitle="Đăng nhập Facebook cá nhân 1 lần để bot tự đọc bài mới từ các fanpage (Yêu Phan Thiết, Đà Lạt – Lâm Đồng, Ghiền Đà Lạt, Cổng TTĐT...) mà không cần API token."
+      subtitle="Đăng nhập Facebook cá nhân để bot tự động cào bài mới từ các fanpage (Yêu Phan Thiết, Cổng TTĐT, Đà Lạt...) mà không cần Graph API token."
       onClose={onClose}
       footer={
         <>
           {s?.hasSession && (
+            <button
+              type="button"
+              disabled={busy || testing}
+              onClick={() => void handleTestSession()}
+              className={modalButton.secondary}
+            >
+              {testing ? "Đang kiểm tra..." : "Kiểm tra phiên"}
+            </button>
+          )}
+          {s?.hasSession && !s.isHardcoded && (
             <button type="button" disabled={busy} onClick={() => run(facebookApi.logout, setStatus)} className={modalButton.danger}>
               Xoá phiên
             </button>
@@ -112,6 +153,17 @@ export function FacebookSessionModal({ onClose }: { onClose: () => void }) {
             Xem bài đã cào →
           </a>
         </div>
+        {s?.hasSession && (
+          <div className="rounded-lg border border-line bg-tile/40 px-3 py-2 text-[12px] text-ink-soft">
+            <div><b>Nguồn lưu:</b> {sourceLabel}</div>
+            <div><b>Cơ chế chống thoát:</b> Đang dùng Persistent Browser Profile (giữ nguyên LocalStorage & device tokens trên VPS).</div>
+            {s.source === "env" && (
+              <div className="mt-1 text-emerald-600 dark:text-emerald-400">
+                ✓ Được cấu hình cứng từ file <code>.env</code> - không bao giờ bị mất khi restart server hoặc deploy.
+              </div>
+            )}
+          </div>
+        )}
         {s && !s.browserAvailable && (
           <p className="text-[12px] text-amber-700 dark:text-amber-300">Máy chủ chưa có Chromium - đăng nhập bằng mật khẩu sẽ không chạy, hãy dùng cách dán cookie.</p>
         )}
@@ -196,22 +248,73 @@ export function FacebookSessionModal({ onClose }: { onClose: () => void }) {
         </ChainStep>
       )}
 
-      <ChainStep index={3} title="Cách dự phòng: dán cookie" enabled={showImport} onToggle={() => setShowImport((v) => !v)}>
+      <ChainStep index={3} title="Dán cookie cứng (Khuyên dùng - Không bị thoát)" enabled={showImport} onToggle={() => setShowImport((v) => !v)}>
         {showImport && (
           <>
-            <p className="text-[12px] leading-[1.6] text-ink-soft">
-              Dùng khi Facebook chặn đăng nhập từ máy chủ. Trên máy tính đang đăng nhập facebook.com, cài tiện ích <b>Cookie-Editor</b> → Export → JSON, rồi dán vào đây.
-              Hoặc dán chuỗi <code>c_user=...; xs=...; datr=...</code>.
-            </p>
-            <textarea className="gc-input h-28 w-full font-mono text-[11px]" value={cookies} onChange={(e) => setCookies(e.target.value)} placeholder='[{"name":"c_user","value":"..."}, ...]' />
-            <button
-              type="button"
-              disabled={busy || cookies.length < 10}
-              onClick={() => run(() => facebookApi.importCookies(cookies), (r) => { setStatus(r); setCookies(""); setInfo("Đã lưu cookie. Bấm \"Cào ngay\" để thử."); })}
-              className={modalButton.secondary}
-            >
-              Lưu cookie
-            </button>
+            <div className="space-y-2 text-[12px] leading-[1.6] text-ink-soft">
+              <p>
+                <b>Mẹo giữ phiên lâu nhất:</b> Khi export cookie từ tiện ích <b>Cookie-Editor</b>, hãy export dạng <b>JSON</b> đầy đủ (bao gồm cả <code>datr</code>, <code>sb</code>, <code>c_user</code>, <code>xs</code>, <code>fr</code>). Meta cần các token này để xác thực trình duyệt quen thuộc.
+              </p>
+              <p>
+                Hoặc dán chuỗi header <code>c_user=...; xs=...; datr=...; sb=...</code>.
+              </p>
+            </div>
+
+            <textarea
+              className="gc-input h-28 w-full font-mono text-[11px]"
+              value={cookies}
+              onChange={(e) => setCookies(e.target.value)}
+              placeholder='[{"name":"c_user","value":"..."}, {"name":"xs","value":"..."}, {"name":"datr","value":"..."}]'
+            />
+
+            <div className="flex items-center gap-2">
+              <label className="flex cursor-pointer items-center gap-2 text-[12px] font-medium text-ink">
+                <input
+                  type="checkbox"
+                  checked={saveHardcoded}
+                  onChange={(e) => setSaveHardcoded(e.target.checked)}
+                  className="rounded border-line text-blue-600 focus:ring-blue-500"
+                />
+                Lưu cứng vào file dữ liệu vĩnh viễn (<code>data/facebook-cookie.txt</code>)
+              </label>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                disabled={busy || cookies.length < 10}
+                onClick={() =>
+                  run(
+                    () => facebookApi.importCookies(cookies, saveHardcoded),
+                    (r) => {
+                      setStatus(r);
+                      setCookies("");
+                      setInfo(
+                        saveHardcoded
+                          ? "Đã lưu cứng cookie thành công! Phiên sẽ tồn tại bền vững trên VPS."
+                          : "Đã lưu cookie thành công. Bấm \"Cào ngay\" để thử."
+                      );
+                    }
+                  )
+                }
+                className={modalButton.secondary}
+              >
+                Lưu cookie {saveHardcoded ? "cứng" : ""}
+              </button>
+            </div>
+
+            <div className="mt-2 rounded-xl border border-line/70 bg-tile/40 p-3 text-[11px] text-ink-soft">
+              <div className="font-semibold text-ink">Cách dán cứng vào file <code>.env</code> trên VPS:</div>
+              <p className="mt-1">
+                Thêm dòng sau vào file <code>.env</code> ở thư mục gốc bot trên VPS:
+              </p>
+              <pre className="mt-1.5 overflow-x-auto rounded bg-zinc-900 p-2 font-mono text-[11px] text-zinc-100">
+                FACEBOOK_COOKIE="c_user=...; xs=...; datr=...; sb=..."
+              </pre>
+              <p className="mt-1">
+                Khi có biến này, bot sẽ luôn ưu tiên nạp cookie này, không bao giờ bị mất kể cả khi redeploy hay xoá phiên tạm.
+              </p>
+            </div>
           </>
         )}
       </ChainStep>

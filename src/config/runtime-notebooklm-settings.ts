@@ -24,7 +24,7 @@ const DEFAULTS: NotebooklmSettings = {
   enabled: false,
   apiUrl: "http://127.0.0.1:3000",
   publicAccess: true,
-  maxPerDay: 10,
+  maxPerDay: 5,
   maxPerDayGlobal: 30,
 };
 

@@ -66,6 +66,11 @@ export function createNationalLegalTool(ctx: ToolContext) {
     }),
     execute: async ({ action, keyword, downloadId, source, format, sendFileToChat, soHieu, limit }) => {
       const dinhDang = format || "pdf";
+      const canSendFile = Boolean(sendFileToChat && !ctx.isolated);
+
+      if (ctx.isolated && action === "download") {
+        return ketQuaLoi("Không cho phép tải và gửi file trực tiếp trong lượt chạy lịch tự động. Hãy dùng action='search' để lấy thông tin.");
+      }
 
       // ── SEARCH ──
       if (action === "search") {
@@ -79,7 +84,7 @@ export function createNationalLegalTool(ctx: ToolContext) {
             );
           }
           // Model gọi search nhưng bật sendFileToChat (thực ra muốn tải file)
-          if (sendFileToChat) {
+          if (canSendFile) {
             const n = soLuongCanTai(LA_SO_NHIEU.test(keyword), results.length, limit);
             const { sent, failed } = await taiVaGuiNhieu(ctx, results.slice(0, n), dinhDang);
             if (sent.length > 0) return baoDaGuiNhieu(sent, failed, results, n);

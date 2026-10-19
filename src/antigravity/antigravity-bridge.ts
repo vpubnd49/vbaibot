@@ -1,4 +1,5 @@
 import { exec } from "node:child_process";
+import crypto from "node:crypto";
 import { promisify } from "node:util";
 import fs from "node:fs";
 import path from "node:path";
@@ -96,8 +97,15 @@ class AntigravityBridge {
       }
     }
     if (subDir) {
-      const resolved = path.resolve(base, subDir);
-      if (fs.existsSync(resolved)) return resolved;
+      const normalizedBase = path.resolve(base);
+      const resolved = path.resolve(normalizedBase, subDir);
+      // Chặn leo thư mục (Path Traversal) ra ngoài workspace base
+      if (
+        (resolved === normalizedBase || resolved.startsWith(normalizedBase + path.sep)) &&
+        fs.existsSync(resolved)
+      ) {
+        return resolved;
+      }
     }
     return base;
   }
@@ -107,7 +115,8 @@ class AntigravityBridge {
    */
   public isAuthorizedAdmin(senderId: string): boolean {
     if (!senderId) return false;
-    const allowed = (env.ANTIGRAVITY_ADMIN_USER_IDS || "1049933544839800796")
+    const rawIds = env.ANTIGRAVITY_ADMIN_USER_IDS || "";
+    const allowed = rawIds
       .split(",")
       .map((s) => s.trim())
       .filter(Boolean);
@@ -341,8 +350,13 @@ class AntigravityBridge {
   }
 
   public verifyRelayKey(key: string): boolean {
-    const expected = env.ANTIGRAVITY_RELAY_KEY || "vbai-antigravity-relay-2026-secret";
-    return key.trim() === expected.trim();
+    const expected = (env.ANTIGRAVITY_RELAY_KEY || "").trim();
+    const provided = (key || "").trim();
+    if (!expected || !provided) return false;
+    const bufA = Buffer.from(provided, "utf8");
+    const bufB = Buffer.from(expected, "utf8");
+    if (bufA.length !== bufB.length) return false;
+    return crypto.timingSafeEqual(bufA, bufB);
   }
 }
 

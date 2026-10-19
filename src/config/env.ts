@@ -129,6 +129,10 @@ const envSchema = z.object({
   // Action vbpl.vn đổi). Rỗng = tự dò các đường dẫn chromium/chrome phổ biến.
   CHROMIUM_PATH: z.string().default(""),
 
+  // Cookie phiên Facebook dự phòng / dán cứng (chuỗi raw "c_user=...; xs=...; datr=..." hoặc JSON export).
+  // Đặt trong .env giúp phiên tồn tại vĩnh viễn, không bao giờ bị mất khi restart server hoặc deploy.
+  FACEBOOK_COOKIE: z.string().default(""),
+
   // ===== Cấu hình tra cứu tri thức & nghiên cứu (knowledge_research / developer_research) =====
   RESEARCH_MAX_RESULTS: z.coerce.number().int().min(1).max(10).default(5),
   RESEARCH_MAX_OUTPUT_CHARS: z.coerce.number().int().min(2000).max(30_000).default(12_000),

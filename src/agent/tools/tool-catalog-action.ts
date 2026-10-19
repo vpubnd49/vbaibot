@@ -29,10 +29,11 @@ const ACTION_DAU: ToolDefinition[] = [
   {
     key: "create_or_update_skill",
     label: "Tạo/cập nhật kỹ năng",
-    description: "Tạo mới hoặc cập nhật một kỹ năng (Skill) cho bot từ mẫu văn bản, quy trình hoặc hướng dẫn của người dùng",
+    description: "Tạo mới hoặc cập nhật một kỹ năng (Skill) cho bot từ mẫu văn bản, quy trình hoặc hướng dẫn của người dùng (chỉ Admin)",
     group: "action",
     keTrongKhaNang: true,
-    build: () => createOrUpdateSkillTool(),
+    runsInScheduledTurn: false,
+    build: (ctx) => createOrUpdateSkillTool(ctx),
   },
   {
     key: "add_reaction",

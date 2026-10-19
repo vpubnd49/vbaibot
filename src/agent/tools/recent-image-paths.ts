@@ -34,11 +34,21 @@ export function collectRecentImagePaths(ctx: ToolContext): string[] {
     if (p && !paths.includes(p)) paths.push(p);
   };
 
-  for (let i = ctx.batch.length - 1; i >= 0; i--) {
-    for (const image of ctx.batch[i]!.images) {
+  for (let i = (ctx.batch?.length ?? 0) - 1; i >= 0; i--) {
+    for (const image of ctx.batch[i]!.images ?? []) {
       addPath(image.localPath);
     }
     for (const file of ctx.batch[i]!.files ?? []) {
+      if (isImageFilePath(file.localPath) || isImageFilePath(file.fileName)) {
+        addPath(file.localPath);
+      }
+    }
+  }
+  if (ctx.message) {
+    for (const image of ctx.message.images ?? []) {
+      addPath(image.localPath);
+    }
+    for (const file of ctx.message.files ?? []) {
       if (isImageFilePath(file.localPath) || isImageFilePath(file.fileName)) {
         addPath(file.localPath);
       }

@@ -1,6 +1,6 @@
 import { getImageSettings, getKieImageConfig, isImageGenConfigured, type ImageGenSettings } from "../config/runtime-image-settings.js";
 import { readImageFromSseStream } from "./read-image-sse-stream.js";
-import { LoiVeHutAnh } from "./image-retry-policy.js";
+import { LoiVeHutAnh, LoiKetNoiTamThoi } from "./image-retry-policy.js";
 import { getTuning } from "../config/runtime-tuning-settings.js";
 import { generateImageViaKie } from "./kie-image-adapter.js";
 
@@ -57,7 +57,9 @@ const EXT_BY_MIME: Record<string, ImageExt> = {
 async function readErrorMessage(response: Response): Promise<string> {
   const raw = await response.text().catch(() => "");
   try {
-    const parsed = JSON.parse(raw) as { error?: unknown };
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    const jsonStr = jsonMatch ? jsonMatch[0] : raw;
+    const parsed = JSON.parse(jsonStr) as { error?: unknown };
     const err = parsed.error;
     if (typeof err === "string" && err) return err;
     if (err && typeof err === "object") {
@@ -67,7 +69,8 @@ async function readErrorMessage(response: Response): Promise<string> {
   } catch {
     // Không phải JSON (HTML của proxy, body rỗng) - rơi xuống dùng mã HTTP
   }
-  return `HTTP ${response.status}${raw ? `: ${raw.slice(0, 200)}` : ""}`;
+  if (response.status === 404) return "Không tìm thấy model hoặc endpoint vẽ ảnh (HTTP 404)";
+  return `HTTP ${response.status}${raw ? `: ${raw.slice(0, 100)}` : ""}`;
 }
 
 export async function generateImage(
@@ -137,7 +140,14 @@ export async function generateImage(
       signal: AbortSignal.timeout(getTuning("IMAGE_GEN_TIMEOUT_MS")),
     });
 
-    if (!response.ok) throw new Error(await readErrorMessage(response));
+    if (!response.ok) {
+      const msg = await readErrorMessage(response);
+      // HTTP 502/503/504 từ proxy/CDN = hạ tầng tạm quá tải, đáng thử lại
+      if (response.status >= 502 && response.status <= 504) {
+        throw new LoiKetNoiTamThoi(`HTTP ${response.status}: ${msg}`);
+      }
+      throw new Error(msg);
+    }
     return await readImageResponse(response, requestedExt, fetchImpl);
   } catch (err) {
     // Bọc CẢ lượt gọi lẫn lượt đọc stream: với SSE, fetch trả về sau vài giây
@@ -146,6 +156,12 @@ export async function generateImage(
     const name = err instanceof Error ? err.name : "";
     if (name === "AbortError" || name === "TimeoutError") {
       throw new Error(`Vẽ ảnh quá lâu (hơn ${Math.round(getTuning("IMAGE_GEN_TIMEOUT_MS") / 1000)} giây) nên đã dừng`);
+    }
+    // Lỗi kết nối (ECONNRESET, ECONNREFUSED, fetch failed, socket hang up)
+    // → bọc thành LoiKetNoiTamThoi để retry wrapper bắt được.
+    if (err instanceof LoiVeHutAnh || err instanceof LoiKetNoiTamThoi) throw err;
+    if (err instanceof Error && /ECONNRESET|ECONNREFUSED|socket hang up|ETIMEDOUT|fetch failed/i.test(err.message)) {
+      throw new LoiKetNoiTamThoi(err.message);
     }
     throw err;
   }

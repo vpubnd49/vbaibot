@@ -1,0 +1,4 @@
+interface:
+  display_name: "Xây ứng dụng tài chính"
+  short_description: "Code nghiệp vụ, quy tắc theo kỳ và kiểm thử"
+  default_prompt: "Dùng $vn-finance-app-builder xây module trong dự án hiện tại từ đặc tả và căn cứ đã kiểm chứng."

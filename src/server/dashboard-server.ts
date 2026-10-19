@@ -53,6 +53,9 @@ import { antigravityRelayRoutes } from "./routes/antigravity-relay-routes.js";
 import { notebooklmRoutes } from "./routes/notebooklm-routes.js";
 import { facebookRoutes } from "./routes/facebook-routes.js";
 import { legalDocsRoutes } from "./routes/legal-docs-routes.js";
+import { notionRoutes } from "./routes/notion-routes.js";
+import { mcpRoutes } from "./routes/mcp-routes.js";
+import { webchatRoutes } from "./routes/webchat-routes.js";
 import { attachNovncUpgrade, novncHttpRoutes } from "./novnc-proxy.js";
 
 const log = createLogger("dashboard-server");
@@ -98,7 +101,7 @@ const setStaticCacheHeaders: MiddlewareHandler = async (c, next) => {
 const setSecurityHeaders: MiddlewareHandler = async (c, next) => {
   await next();
   c.header("X-Content-Type-Options", "nosniff");
-  c.header("X-Frame-Options", "DENY");
+  c.header("X-Frame-Options", c.req.path.startsWith("/novnc") ? "SAMEORIGIN" : "DENY");
   c.header("X-XSS-Protection", "1; mode=block");
   c.header("Referrer-Policy", "strict-origin-when-cross-origin");
   c.header("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
@@ -167,6 +170,9 @@ export function buildDashboardApp(): Hono {
 
   // API cầu nối Antigravity Relay (xác thực bằng x-relay-key riêng)
   app.route("/api/antigravity", antigravityRelayRoutes);
+
+  // API WebChat CÔNG KHAI cho frontend VBAI (https://vbai.tracuu.lamdong.vn)
+  app.route("/api/public/webchat", webchatRoutes);
 
   // Mọi API sau điểm này yêu cầu session hợp lệ
   app.use("/api/*", async (c, next) => {
@@ -265,6 +271,8 @@ export function buildDashboardApp(): Hono {
   app.route("/api/notebooklm", notebooklmRoutes);
   app.route("/api/facebook", facebookRoutes);
   app.route("/api/legal-docs", legalDocsRoutes);
+  app.route("/api/tools/notion", notionRoutes);
+  app.route("/api/tools/mcp", mcpRoutes);
 
   // API không khớp route nào phải trả JSON 404, không được rơi xuống SPA
   // fallback bên dưới (client fetch JSON mà nhận HTML thì lỗi rất khó đọc)

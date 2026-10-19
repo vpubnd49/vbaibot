@@ -1,6 +1,8 @@
 import { tool } from "ai";
 import { z } from "zod";
 import { saveSkill, loadAllSkills } from "../../skills/skill-manager.js";
+import { getAdminUserIds } from "../../zalo/owner-notifier.js";
+import type { ToolContext } from "./tool-catalog-types.js";
 import { ketQuaLoi } from "./tool-failure-result.js";
 import { createLogger } from "../../shared/logger.js";
 
@@ -12,7 +14,7 @@ const CREATE_SKILL_DESC = [
   "Sau khi lưu, skill được lưu thành file chuẩn .agents/skills/<skill_id>/SKILL.md và tự động kích hoạt cho các lượt hội thoại tiếp theo có từ khóa liên quan.",
 ].join("\n");
 
-export function createOrUpdateSkillTool() {
+export function createOrUpdateSkillTool(ctx?: ToolContext) {
   return tool({
     description: CREATE_SKILL_DESC,
     inputSchema: z.object({
@@ -42,6 +44,17 @@ export function createOrUpdateSkillTool() {
     }),
     execute: async ({ skill_id, name, description, triggers, content }) => {
       try {
+        if (ctx) {
+          if (ctx.isolated) {
+            return ketQuaLoi("Không cho phép tạo hoặc cập nhật kỹ năng trong lượt chạy lịch tự động.");
+          }
+          const admins = getAdminUserIds(ctx.account.id);
+          const isAdmin = admins.includes(ctx.message.senderId);
+          if (!isAdmin) {
+            return ketQuaLoi("Chỉ quản trị viên (Admin) mới có quyền tạo hoặc cập nhật kỹ năng hệ thống.");
+          }
+        }
+
         const res = saveSkill({
           id: skill_id,
           name,

@@ -32,6 +32,39 @@ function getOcrUploadDir(): string {
   return dir;
 }
 
+const OCR_SESSION_TTL_MS = 24 * 60 * 60 * 1000; // 24 giờ
+
+export function cleanupExpiredOcrSessions(): number {
+  let removed = 0;
+  try {
+    const rootDir = getOcrUploadDir();
+    const now = Date.now();
+    for (const entry of fs.readdirSync(rootDir, { withFileTypes: true })) {
+      if (!entry.isDirectory()) continue;
+      const fullPath = path.join(rootDir, entry.name);
+      try {
+        const stat = fs.statSync(fullPath);
+        if (now - stat.mtimeMs > OCR_SESSION_TTL_MS) {
+          fs.rmSync(fullPath, { recursive: true, force: true });
+          removed++;
+        }
+      } catch {
+        // ignore individual folder stat/rm error
+      }
+    }
+    if (removed > 0) {
+      log.info({ removed }, "Đã tự động dọn dẹp các OCR session quá hạn (>24h)");
+    }
+  } catch (err) {
+    log.warn({ err }, "Lỗi khi dọn dẹp OCR sessions quá hạn");
+  }
+  return removed;
+}
+
+setInterval(() => {
+  cleanupExpiredOcrSessions();
+}, 60 * 60 * 1000).unref();
+
 // Kích thước tối đa 1 file: 100 MB
 const MAX_FILE_BYTES = 100 * 1024 * 1024;
 // Không giới hạn số file (xử lý theo yêu cầu người dùng)
@@ -57,6 +90,7 @@ export const ocrRoutes = new Hono()
    */
   .post("/upload", async (c) => {
     try {
+      cleanupExpiredOcrSessions();
       const formData = await c.req.formData();
       const uploadedFiles = formData.getAll("files[]") as File[];
 

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Ngân hàng Việt Nam"
+  short_description: "Tín dụng, trả nợ, đối soát và KYC/AML"
+  default_prompt: "Dùng $vn-banking phân tích hồ sơ ngân hàng và chuyển tiếp hợp đồng."

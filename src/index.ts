@@ -1,4 +1,17 @@
+import { Agent, setGlobalDispatcher } from "undici";
 import { env } from "./config/env.js";
+
+// Tăng trần timeout HTTP cho toàn bộ Node.js fetch / undici:
+// Mặc định undici chỉ cho 300s (5 phút) khiến các lượt gọi AI model nặng bị BodyTimeoutError.
+// Nâng lên 15 phút (900s) khớp trần LLM_TURN_TIMEOUT_MS để triệt tiêu lỗi BodyTimeoutError.
+setGlobalDispatcher(
+  new Agent({
+    headersTimeout: 900_000,
+    bodyTimeout: 900_000,
+    connectTimeout: 60_000,
+  }),
+);
+
 import { getEffectiveLlmSettings } from "./config/runtime-llm-settings.js";
 import { closeHistoryStore } from "./conversation/history-store.js";
 import { startMediaCleanupSchedule } from "./conversation/media-store.js";

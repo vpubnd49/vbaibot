@@ -74,6 +74,9 @@ importers:
       puppeteer-core:
         specifier: ^25.12.0
         version: 25.12.0(yauzl@2.10.0)
+      undici:
+        specifier: ^8.11.2
+        version: 8.11.2
       word-extractor:
         specifier: ^1.0.4
         version: 1.0.4
@@ -1961,6 +1964,10 @@ packages:
     resolution: {integrity: sha512-IDxfleLmmbSskfWSUATiN1nfn2rDuvnMOqb5CWR92iIfojA0Ud+ulOAAEQ57LPr9rWmsreUyf5lwyao+7GNNVw==}
     engines: {node: '>=20.18.1'}
 
+  undici@8.11.2:
+    resolution: {integrity: sha512-u4UB2/IrKdU6lFxumHmmo1a3fCQO5tzQllRorfoRS63txhrB7xTpSn1PftwC4qEHkOaqP95fCWW4lJzwErwzhQ==}
+    engines: {node: '>=22.19.0'}
+
   unzipper@0.10.14:
     resolution: {integrity: sha512-ti4wZj+0bQTiX2KmKWuwj7lhV+2n//uXEotUmGuQqrbVZSEGFMbI68+c6JCQ8aAmUWYvtHEz2A8K6wXvueR/6g==}
 
@@ -3745,6 +3752,8 @@ snapshots:
   undici-types@8.3.0: {}
 
   undici@7.29.0: {}
+
+  undici@8.11.2: {}
 
   unzipper@0.10.14:
     dependencies:

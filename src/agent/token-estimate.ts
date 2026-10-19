@@ -111,6 +111,12 @@ export function uocLuongTokenTinNhan(
   return tong;
 }
 
+/** Ước lượng token của chuỗi văn bản thuần (ví dụ: System Prompt) */
+export function uocLuongTokenChuoi(vanBan: string): number {
+  if (!vanBan) return 0;
+  return Math.ceil(vanBan.length / KY_TU_MOI_TOKEN);
+}
+
 /**
  * Hệ số an toàn: chỉ dùng tới ngần này phần trần.
  *

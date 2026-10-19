@@ -42,6 +42,18 @@ test("findMatchingSkills tìm đúng skill theo từ khóa người dùng", () =
 
   const matchedDang = findMatchingSkills("Cần làm tờ trình gửi Tỉnh uỷ theo quy định Đảng");
   assert.ok(matchedDang.some((s) => s.id === "soan-thao-vb-dang-hd05"));
+
+  const matchedTax = findMatchingSkills("Cách tính thuế TNCN theo luật mới và khấu trừ thuế GTGT");
+  assert.ok(matchedTax.some((s) => s.id === "vn-tax"));
+
+  const matchedBanking = findMatchingSkills("Kiểm tra lãi vay ngân hàng và lịch trả nợ tín dụng");
+  assert.ok(matchedBanking.some((s) => s.id === "vn-banking"));
+
+  const matchedAccounting = findMatchingSkills("Hướng dẫn định khoản kế toán doanh nghiệp theo thông tư 99");
+  assert.ok(matchedAccounting.some((s) => s.id === "vn-accounting"));
+
+  const matchedCorporateFinance = findMatchingSkills("Lập dự báo dòng tiền 13 tuần cho tài chính doanh nghiệp");
+  assert.ok(matchedCorporateFinance.some((s) => s.id === "vn-corporate-finance"));
 });
 
 test("saveSkill tạo mới skill và nạp lại ngay lập tức", () => {

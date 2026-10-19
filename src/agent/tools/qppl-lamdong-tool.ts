@@ -104,6 +104,7 @@ export function createQpplLamdongTool(ctx: ToolContext) {
         ),
     }),
     execute: async ({ action, keyword, coQuan, loaiVanBan, nguon, docId, dateFrom, dateTo, sendFileToChat, archiveFiles, maxSendDocs }) => {
+      const canSendFile = Boolean(sendFileToChat && !ctx.isolated);
       const targetNguon = phanGiaiNguon(coQuan, nguon, keyword);
 
       // === SYNC ===
@@ -123,7 +124,7 @@ export function createQpplLamdongTool(ctx: ToolContext) {
         const doc = getQpplDocById(docId);
         if (!doc) return ketQuaLoi(`Không tìm thấy văn bản QPPL có ID #${docId}. Dùng action=search để lấy ID đúng.`);
         let sendNote = "";
-        if (sendFileToChat) {
+        if (canSendFile) {
           // Tải TẤT CẢ file đính kèm
           const dl = await downloadAllFilesForDoc(docId);
           sendNote = archiveFiles ? await guiZipQppl(ctx, [doc], [{ doc, download: dl }]) : await guiFileMotVb(ctx, doc, dl);
@@ -142,7 +143,7 @@ export function createQpplLamdongTool(ctx: ToolContext) {
       }
 
       let sendStatusNote = "";
-      if (sendFileToChat) {
+      if (canSendFile) {
         // Giới hạn số VB gửi file: mặc định 1 (chỉ VB mới nhất). User nói "tất cả" → model đặt maxSendDocs > 1.
         const toSend = locTheoThang(loaiTrungSoKyHieu(docs), dateFrom, dateTo).slice(0, maxSendDocs);
         if (archiveFiles) {

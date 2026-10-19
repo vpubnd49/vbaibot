@@ -72,9 +72,25 @@ antigravityRelayRoutes.post("/result", async (c) => {
  * Endpoint kiểm tra trạng thái hoạt động của cầu nối Antigravity
  */
 antigravityRelayRoutes.get("/status", (c) => {
+  const relayKey = c.req.header("x-relay-key") || "";
+  const isAuthenticated = antigravityBridge.verifyRelayKey(relayKey);
   const isOnline = antigravityBridge.isLocalPcOnline();
   const pcInfo = antigravityBridge.getLocalPcInfo();
   const lastSeen = antigravityBridge.getLastSeen();
+
+  if (!isAuthenticated) {
+    return c.json({
+      vps: {
+        online: true,
+        uptimeSeconds: Math.floor(process.uptime()),
+      },
+      localPc: {
+        online: isOnline,
+        lastSeenMsAgo: lastSeen > 0 ? Date.now() - lastSeen : null,
+      },
+      hybridMode: "Local PC First -> Fallback VPS (Multi-workspace: VBAIBot + VBAI)",
+    });
+  }
 
   return c.json({
     vps: {

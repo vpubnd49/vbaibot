@@ -14,7 +14,7 @@ export type NlmResult<T> = { ok: true; data: T } | { ok: false; error: string };
 export type NlmHealth = { authenticated: boolean; status?: string; version?: string };
 export type NlmCreated = { notebook_url: string; notebook_id: string };
 export type NlmAnswer = { answer: string; session_id?: string };
-export type NlmContentItem = { id: string; type: string; name: string; content?: string };
+export type NlmContentItem = { id: string; type: string; name: string; content?: string; url?: string; mediaUrl?: string };
 export type NlmContent = {
   sources: { id: string; name: string }[];
   generatedContent: NlmContentItem[];
@@ -125,7 +125,8 @@ export const nlmGenerate = (notebookUrl: string, type: StudioType, opts: { instr
         // report không nhận custom_instructions (máy chủ trả 400)
         custom_instructions: type === "report" ? undefined : opts.instructions,
       },
-      20 * MIN,
+      // Theo tài liệu Gemini Notebook 10/2026 (Chương 7), Video Overview có thể mất > 30 phút
+      type === "video" ? 40 * MIN : 20 * MIN,
     ),
   );
 

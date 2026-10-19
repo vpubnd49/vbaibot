@@ -380,6 +380,22 @@ export async function executeVpsReboot(): Promise<{ ok: boolean; message: string
   };
 }
 
+const KNOWN_DOCKER_SERVICES = new Set(["9router", "vbai-mongo", "notebooklm"]);
+
+async function isDockerContainer(name: string): Promise<boolean> {
+  if (KNOWN_DOCKER_SERVICES.has(name)) return true;
+  try {
+    const { stdout } = await execAsync("docker ps -a --format '{{.Names}}'");
+    const names = stdout
+      .split("\n")
+      .map((s) => s.trim().replace(/^\//, ""))
+      .filter(Boolean);
+    return names.includes(name);
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Khởi động lại 1 service cụ thể (PM2 hoặc Docker)
  */
@@ -388,7 +404,7 @@ export async function restartSpecificService(name: string): Promise<{ ok: boolea
   log.info({ service: sanitized }, "Yêu cầu restart service");
 
   try {
-    if (sanitized === "9router" || sanitized === "vbai-mongo") {
+    if (await isDockerContainer(sanitized)) {
       await execAsync(`docker restart ${sanitized}`);
     } else if (sanitized === "caddy") {
       await execAsync("systemctl restart caddy");

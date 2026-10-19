@@ -1,0 +1,4 @@
+interface:
+  display_name: "Tài chính doanh nghiệp"
+  short_description: "Dòng tiền, ngân sách và mô hình có truy vết"
+  default_prompt: "Dùng $vn-corporate-finance lập mô hình và độ nhạy từ dữ liệu có nguồn."

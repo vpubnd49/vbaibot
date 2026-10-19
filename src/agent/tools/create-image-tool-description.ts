@@ -50,13 +50,32 @@ const KHI_BI_CHE_XAU =
   "Người dùng chê xấu hoặc nhờ chỉnh lại: viết prompt MỚI theo ĐÚNG hướng họ nêu (sang trọng hơn, tối giản hơn, " +
   "nhiều màu hơn...), giữ nguyên phần chữ. Đừng gửi lại prompt cũ, cũng đừng tự đổi sang hướng họ không nhắc tới.";
 
+/** Hướng dẫn sửa ảnh chuyên sâu (Image-to-Image / Inpainting / Virtual Staging) */
+const QUY_TAC_SUA_ANH =
+  "KHI SỬA ẢNH ĐÃ GỬI (mode = 'sua_anh_da_gui'):\n" +
+  "1. ĐỔI NỀN / STUDIO BACKDROP: Giữ nguyên sản phẩm/chủ thể chính (hình dáng, màu sắc, chi tiết, nhãn hiệu). " +
+  "Thay toàn bộ bối cảnh bằng phông nền mới (vd: phông studio đen tuyền ngả xám than mờ lì matte chống lóa, phông trắng tối giản, vân đá, bối cảnh sang trọng). " +
+  "Ánh sáng studio kiểm soát tập trung vào sản phẩm, chuyển sắc gradient mịn màng ra các góc, vệt bóng mờ nhẹ tự nhiên (soft shadow) ở phần tiếp đất/chân máy.\n" +
+  "2. PHỐI CẢNH NỘI THẤT / VIRTUAL STAGING (thêm rèm, sofa, giường, tủ, cây cảnh, tranh decor): Giữ nguyên cấu trúc căn phòng (tường, trần, sàn, giường ngủ, khung cửa sổ). " +
+  "Lắp thêm vật thể mới (vd: rèm cầu vồng, rèm vải 2 lớp, bàn làm việc...) phủ vừa vặn khung cửa sổ hoặc vị trí chỉ định, ánh sáng và màu sắc hòa quyện tự nhiên với căn phòng.\n" +
+  "3. LÀM SÁNG LẠI & CHỈNH ÁNH SÁNG (Relighting): Giữ nguyên bố cục ảnh gốc. Bù sáng cho các vùng tối, làm nổi rõ chi tiết, " +
+  "tạo ánh sáng tự nhiên chan hòa (như nắng sớm qua cửa sổ) hoặc ánh sáng đèn studio ấm áp, cân bằng tương phản không bị chói gắt.\n" +
+  "4. CẮT BỎ PHẦN THỪA & XÓA VẬT THỂ: Chỉ rõ vật thể thừa/bừa bộn cần loại bỏ (dây điện, đồ đạc ngổn ngang, người qua đường, rác...), " +
+  "tái tạo bề mặt phía sau một cách tự nhiên và liền mạch.\n" +
+  "5. THÊM CHỮ / TYPOGRAPHY / SLOGAN: Nêu rõ vị trí đặt chữ (góc trên, góc dưới, trung tâm), màu chữ tương phản dễ đọc, font chữ phù hợp và nội dung chữ nguyên văn trong ngoặc kép.\n" +
+  "⭐ CẤU TRÚC PROMPT VÀNG KHI SỬA ẢNH: Phải tách bạch 2 phần: [BẢO TOÀN: nêu rõ đối tượng/không gian gốc cần giữ nguyên] + [BIẾN ĐỔI/THÊM/XÓA: nêu chi tiết nền mới, vật thể lắp thêm, ánh sáng, góc bóng đổ hoặc chữ cần chèn].";
+
 export const CREATE_IMAGE_DESCRIPTION =
-  "Vẽ ảnh mới bằng AI hoặc SỬA / VẼ LẠI ảnh người dùng vừa gửi, rồi gửi thẳng vào cuộc trò chuyện. " +
-  "Dùng khi người dùng nhờ vẽ/tạo/thiết kế ảnh (poster, banner, cover, e-magazine, minh họa), " +
-  "hoặc khi người dùng gửi ảnh rồi nhờ vẽ lại / sửa ảnh / làm lại dựa theo ảnh đó (đổi màu, xóa vật thể, đổi phong cách). " +
-  "LƯU Ý: Nếu người dùng gửi ảnh và nói 'vẽ lại ảnh', 'sửa ảnh', 'làm lại' -> BẮT BUỘC chọn mode 'sua_anh_da_gui' để AI dùng ảnh gốc làm mẫu tham chiếu.\n" +
+  "Vẽ ảnh mới bằng AI hoặc SỬA / VẼ LẠI / BIẾN ĐỔI ảnh người dùng vừa gửi, rồi gửi thẳng vào cuộc trò chuyện. " +
+  "⚠️ TUYỆT ĐỐI KHÔNG DÙNG TOOL NÀY ĐỂ LÀM INFOGRAPHIC HOẶC TÓM TẮT TÀI LIỆU VĂN BẢN (mọi yêu cầu làm Infographic từ tài liệu văn bản BẮT BUỘC dùng tool 'notebooklm' với action: 'tao', loai: 'infographic'). " +
+  "Dùng khi: " +
+  "(1) Vẽ ảnh tranh vẽ, nghệ thuật (poster, banner, cover, e-magazine, ảnh minh họa); " +
+  "(2) SỬA ẢNH ĐÃ GỬI (mode 'sua_anh_da_gui'): đổi nền / đặt vào phông studio, phối cảnh thêm rèm/nội thất vào phòng, làm sáng ảnh/chỉnh ánh sáng, xóa vật thể thừa/dọn dẹp bối cảnh, thêm chữ/slogan vào ảnh. " +
+  "LƯU Ý: Khi người dùng gửi ảnh rồi yêu cầu sửa/đổi nền/thêm rèm/làm sáng/xóa vật thể/thêm chữ -> BẮT BUỘC chọn mode 'sua_anh_da_gui' để AI dùng ảnh gốc làm mẫu tham chiếu.\n" +
   "Mất 1-3 phút mỗi ảnh nên chỉ gọi khi người dùng thật sự muốn có ảnh.\n" +
+  `${QUY_TAC_SUA_ANH}\n` +
   `${CHU_PHAI_NGUYEN_VAN}\n` +
   `${TI_LE_NOI_TRONG_PROMPT}\n` +
   `${TRUNG_THANH_VOI_Y_NGUOI_DUNG}\n` +
   `${KHI_BI_CHE_XAU}`;
+

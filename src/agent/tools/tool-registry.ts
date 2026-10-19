@@ -43,10 +43,17 @@ export type ToolScope = {
  */
 export function buildAgentTools(ctx: ToolContext): Record<string, Tool> {
   const tools: Record<string, Tool> = {};
+  const allTexts = [ctx.message.text, ...(ctx.batch?.map((m) => m.text) ?? [])].join(" ");
+  const isInfographicRequest = /\binfographic\b|đồ họa thông tin/i.test(allTexts);
   for (const def of listAvailableTools(
     { agent: ctx.agent, account: ctx.account, thread: ctx.thread },
     { isolated: ctx.isolated },
   )) {
+    // Nếu người dùng yêu cầu làm infographic từ tài liệu, LOẠI BỎ hoàn toàn create_image khỏi schema
+    // để AI không bao giờ nhầm sang công cụ vẽ tranh, bắt buộc phải chọn notebooklm!
+    if (isInfographicRequest && def.key === "create_image") {
+      continue;
+    }
     tools[def.key] = bocToolAnToan(def.key, def.build(ctx));
   }
   return tools;

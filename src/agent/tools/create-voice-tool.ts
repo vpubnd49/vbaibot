@@ -4,6 +4,7 @@ import type { API, ThreadType } from "zca-js";
 import { generatePodcastScript } from "../../voice/podcast-script.js";
 import { generateMultiSpeakerAudio } from "../../voice/gemini-tts.js";
 import { generateMultiSpeakerAudioEdge } from "../../voice/edge-tts.js";
+import { convertWavBufferToMp3 } from "../../voice/wav-to-mp3.js";
 import { saveVoiceFile } from "../../voice/voice-file-store.js";
 import { getTtsSettings } from "../../config/runtime-tts-settings.js";
 import { enqueueSend } from "../../middleware/rate-limiter.js";
@@ -79,7 +80,7 @@ export function createVoiceSummaryTool(ctx: {
 
         if (ttsSettings.apiKey) {
           try {
-            audioBuffer = await generateMultiSpeakerAudio({
+            const wavBuffer = await generateMultiSpeakerAudio({
               script,
               voices: [
                 { speakerAlias: ttsSettings.hostMaleName, speakerId: ttsSettings.maleVoice },
@@ -89,7 +90,15 @@ export function createVoiceSummaryTool(ctx: {
               model: ttsSettings.model,
               baseUrl: ttsSettings.baseUrl || undefined,
             });
-            format = "wav";
+            // Gemini TTS trả WAV (PCM không nén, ~14MB cho 2.5 phút) → chuyển
+            // sang MP3 (~2MB) để Zalo PC tải được. WAV quá lớn khiến Zalo PC
+            // cache nghẽn → lỗi "Tin nhắn thoại không thể tải".
+            audioBuffer = await convertWavBufferToMp3(wavBuffer);
+            format = "mp3";
+            log.info(
+              { wavKb: Math.round(wavBuffer.length / 1024), mp3Kb: Math.round(audioBuffer.length / 1024) },
+              "Đã chuyển WAV → MP3",
+            );
           } catch (geminiErr) {
             log.warn({ geminiErr }, "Gemini TTS lỗi, chuyển sang Edge TTS Neural");
             audioBuffer = await generateMultiSpeakerAudioEdge({
@@ -124,8 +133,8 @@ export function createVoiceSummaryTool(ctx: {
           return await ctx.api.sendVoice({ voiceUrl }, ctx.threadId, ctx.threadType);
         });
 
-        // Ước lượng thời lượng
-        const durationSecs = format === "mp3" ? audioBuffer.length / 6000 : audioBuffer.length / 48000;
+        // Ước lượng thời lượng (MP3 ~6KB/s ở chất lượng trung bình)
+        const durationSecs = audioBuffer.length / 6000;
         ctx.ghiNhanDaGui?.(ghiChuDaGuiVoice(durationSecs));
 
         log.info({ filename, durationSecs: Math.round(durationSecs) }, "Đã gửi voice thành công");

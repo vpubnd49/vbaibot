@@ -32,18 +32,24 @@ export function columnWidths(count: number, total = CONTENT_WIDTH_DXA): number[]
 }
 
 function buildCell(text: string, width: number, isHeader: boolean): TableCell {
+  const normalized = text.replace(/<br\s*\/?>/gi, "\n");
+  const rawLines = normalized.split("\n").map((l) => l.trim());
+  const lines = rawLines.filter((l) => l.length > 0);
+  const cellLines = lines.length > 0 ? lines : [""];
+
   return new TableCell({
     // Bảng cần DUAL WIDTH: cả table lẫn từng cell, đều DXA.
     // PERCENTAGE trông vẫn ổn trong Word nhưng vỡ khi mở bằng Google Docs.
     width: { size: width, type: WidthType.DXA },
     // CLEAR chứ không SOLID - SOLID render ra nền đen đặc
     shading: isHeader ? { type: ShadingType.CLEAR, fill: "F1F5F9" } : undefined,
-    children: [
-      new Paragraph({
-        children: parseTextRuns(text, { bold: isHeader }),
-        spacing: { after: 0 },
-      }),
-    ],
+    children: cellLines.map(
+      (line) =>
+        new Paragraph({
+          children: parseTextRuns(line, { bold: isHeader }),
+          spacing: { after: 40 },
+        }),
+    ),
   });
 }
 

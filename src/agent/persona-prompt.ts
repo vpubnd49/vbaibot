@@ -211,10 +211,12 @@ export function buildSystemPrompt(
     sections.push(toolCapabilitySection(available));
     sections.push(...toolPersonaSections(available.map((t) => t.key)));
 
-    // Tri thức chuyên ngành: mapping tập trung ở account-knowledge-map.ts
+    // Tri thức chuyên ngành: mapping tập trung ở account-knowledge-map.ts (lọc thông minh theo ngữ cảnh lượt chat)
+    const contextHint = [msg.text || "", memory?.threadSummary || ""].join(" ");
     const knowledgeLayers = getAccountKnowledge(
       account.id,
       available.some((t) => t.key === "create_admin_document"),
+      contextHint,
     );
     for (const layer of knowledgeLayers) sections.push(layer);
   }

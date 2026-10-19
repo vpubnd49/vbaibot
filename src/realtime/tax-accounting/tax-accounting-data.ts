@@ -116,3 +116,42 @@ export const CIT_AND_FEES = {
     { capital: "Doanh nghiệp mới thành lập năm đầu tiên", fee: "Miễn lệ phí môn bài năm đầu (Nghị định 22/2020/NĐ-CP)" },
   ],
 };
+
+/**
+ * Biểu thuế Thu nhập cá nhân (TNCN) mới 5 bậc — Luật số 109/2025/QH15 (Kỳ tính thuế 2026 cá nhân cư trú)
+ */
+export const PIT_BRACKETS_2026 = [
+  { level: 1, maxIncome: 10_000_000, rate: 0.05, subtractQuick: 0, desc: "Đến 10 triệu đồng: 5%" },
+  { level: 2, maxIncome: 30_000_000, rate: 0.10, subtractQuick: 500_000, desc: "Trên 10 đến 30 triệu đồng: 10% (Trừ nhanh: 0.5 tr)" },
+  { level: 3, maxIncome: 60_000_000, rate: 0.20, subtractQuick: 3_500_000, desc: "Trên 30 đến 60 triệu đồng: 20% (Trừ nhanh: 3.5 tr)" },
+  { level: 4, maxIncome: 100_000_000, rate: 0.30, subtractQuick: 9_500_000, desc: "Trên 60 đến 100 triệu đồng: 30% (Trừ nhanh: 9.5 tr)" },
+  { level: 5, maxIncome: Infinity, rate: 0.35, subtractQuick: 14_500_000, desc: "Trên 100 triệu đồng: 35% (Trừ nhanh: 14.5 tr)" },
+];
+
+/**
+ * Mức giảm trừ gia cảnh thuế TNCN mới — Luật số 109/2025/QH15 (Kỳ 2026)
+ */
+export const PIT_DEDUCTIONS_2026 = {
+  personal: 15_500_000, // Bản thân người nộp thuế: 15.5 triệu đồng/tháng (186 triệu/năm)
+  dependent: 6_200_000, // Mỗi người phụ thuộc: 6.2 triệu đồng/tháng (74.4 triệu/năm)
+  insuranceRates: {
+    bhxh: 0.08,
+    bhyt: 0.015,
+    bhtn: 0.01,
+    totalWorker: 0.105,
+    totalEmployer: 0.215,
+  },
+};
+
+/**
+ * Các chính sách Thuế & Kế toán & Ngân hàng cập nhật 2026
+ */
+export const TAX_POLICIES_2026 = {
+  pitNewLaw: "Luật TNCN 109/2025/QH15: Giảm trừ bản thân 15.5 tr/tháng, người phụ thuộc 6.2 tr/tháng; Biểu 5 bậc (5%, 10%, 20%, 30%, 35%) áp dụng kỳ thuế 2026 cho cá nhân cư trú.",
+  citReduction43: "Nghị quyết 43/2026/QH16: Giảm 30% số thuế TNDN và TNCN phải nộp trong kỳ 2026–2027 cho DN và cá nhân KD có doanh thu không quá 10 tỷ đồng.",
+  citExemption141: "Nghị định 141/2026/NĐ-CP: Nâng ngưỡng doanh thu miễn thuế hộ kinh doanh lên 01 tỷ đồng; Miễn thuế TNDN cho DN thành lập theo PL VN có doanh thu từ 01 tỷ đồng trở xuống.",
+  vatDeferred144: "Nghị định 144/2026/NĐ-CP: Mua hàng trả chậm từ 05 triệu đồng vẫn được khấu trừ thuế GTGT trước hạn thanh toán; chỉ điều chỉnh giảm khi đến hạn mà chưa có chứng từ không dùng tiền mặt.",
+  eInvoice254: "Nghị định 254/2026/NĐ-CP & Thông tư 91/2026/TT-BTC: Chế độ hóa đơn điện tử mới từ 01/07/2026 thay thế NĐ 123/2020 và TT 78/2021.",
+  accountingStandard99: "Thông tư 99/2025/TT-BTC: Chế độ kế toán doanh nghiệp mới thay thế TT 200/2014 từ năm tài chính 2026; SME được chọn TT 99 hoặc TT 133.",
+  bankingLending29: "Thông tư 29/2026/TT-NHNN: Vay giá trị nhỏ tối đa 400 triệu (200 triệu tại QTDND); nợ quá hạn bắt buộc thu gốc trước, lãi sau.",
+};

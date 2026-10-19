@@ -130,9 +130,10 @@ export async function downloadPdfFile(pdfUrl: string, destPath: string): Promise
     const arrayBuf = await res.arrayBuffer();
     const buffer = Buffer.from(arrayBuf);
 
-    // Kiểm tra header PDF
+    // Kiểm tra header PDF: tuyệt đối không ghi trang HTML báo lỗi thành file .pdf
     if (buffer.length < 4 || buffer.subarray(0, 4).toString() !== "%PDF") {
-      log.warn({ pdfUrl }, "Nội dung tải về không phải định dạng PDF hợp lệ");
+      log.warn({ pdfUrl, bytes: buffer.length }, "Nội dung tải về không phải định dạng PDF hợp lệ");
+      throw new Error("Nội dung tải về không phải định dạng PDF hợp lệ (%PDF header missing)");
     }
 
     fs.mkdirSync(path.dirname(destPath), { recursive: true });

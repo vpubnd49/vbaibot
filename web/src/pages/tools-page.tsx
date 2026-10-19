@@ -8,7 +8,7 @@ import type {
   ToolCatalogItem,
   VisionSettings,
 } from "../dashboard-api-client";
-import { api } from "../dashboard-api-client";
+import { api, request } from "../dashboard-api-client";
 import { PageHeader } from "../layout/page-header";
 import {
   IconBolt,
@@ -22,6 +22,17 @@ import { VisionSettingsModal } from "./vision-settings-modal";
 import { NotebooklmSettingsModal } from "./notebooklm-settings-modal";
 import { notebooklmApi, type NotebooklmStatus } from "../notebooklm-api-client";
 import { FacebookSessionModal } from "./facebook-session-modal";
+import { NotionSettingsModal } from "./notion-settings-modal";
+import { McpSettingsModal } from "./mcp-settings-modal";
+
+type SkillSummaryItem = {
+  name: string;
+  description: string;
+  triggers: string[];
+  contentPreview: string;
+  contentLength: number;
+  isSystem: boolean;
+};
 
 /**
  * Trang Tools theo mẫu Built-in Tools của GoClaw: tool nhóm theo mức rủi ro,
@@ -47,6 +58,7 @@ const IMAGE_MODE_BADGE: Record<
 
 export function ToolsPage() {
   const [tools, setTools] = useState<ToolCatalogItem[]>([]);
+  const [skills, setSkills] = useState<SkillSummaryItem[]>([]);
   const [search, setSearch] = useState<SearchSettings | null>(null);
   const [fetchSettings, setFetchSettings] = useState<FetchSettings | null>(null);
   const [vision, setVision] = useState<VisionSettings | null>(null);
@@ -63,6 +75,10 @@ export function ToolsPage() {
 
   /** Nạp lại catalog: cấu hình sidecar/vẽ ảnh đổi thì `available` của tool đổi theo */
   const reloadTools = () => api.tools().then((res) => setTools(res.items));
+  const reloadSkills = () =>
+    request<{ items: SkillSummaryItem[] }>("/api/tools/skills")
+      .then((res) => setSkills(res.items))
+      .catch(() => undefined);
 
   useEffect(() => {
     Promise.all([
@@ -92,6 +108,7 @@ export function ToolsPage() {
       .catch((e: Error) => setError(e.message));
     // Riêng, không chặn trang: máy chủ NotebookLM tắt cũng không được làm hỏng trang Tools
     notebooklmApi.get().then(setNotebooklm).catch(() => undefined);
+    void reloadSkills();
   }, []);
 
   const account = useMemo(() => accounts.find((a) => a.id === accountId), [accounts, accountId]);
@@ -279,6 +296,78 @@ export function ToolsPage() {
         ))
       )}
 
+      {skills.length > 0 && (
+        <section className="mb-6">
+          <div className="mb-2 flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:gap-2.5">
+            <h2 className="text-[15px] font-semibold text-ink">
+              Skills chuyên ngành ({skills.length})
+            </h2>
+            <span className="text-[12px] text-ink-soft">
+              Tự động nạp vào ngữ cảnh bot theo từ khóa kích hoạt (Triggers) từ .agents/skills và data/skills
+            </span>
+          </div>
+          <div className="gc-card divide-y divide-line">
+            {skills.map((skill) => (
+              <div
+                key={skill.name}
+                className="flex w-full items-start justify-between gap-4 px-5 py-3.5"
+              >
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-[14px] font-medium text-ink">{skill.name}</span>
+                    <Badge tone={skill.isSystem ? "blue" : "green"} dot={false}>
+                      {skill.isSystem ? "Hệ thống (.agents/skills)" : "Tùy chỉnh (data/skills)"}
+                    </Badge>
+                    <span className="text-[11px] text-ink-soft">
+                      {Math.round(skill.contentLength / 1024)} KB
+                    </span>
+                  </div>
+                  <p className="mt-0.5 text-[12px] leading-[1.6] text-ink-soft line-clamp-2">
+                    {skill.description}
+                  </p>
+                  {skill.triggers.length > 0 && (
+                    <div className="mt-1.5 flex flex-wrap gap-1">
+                      {skill.triggers.slice(0, 8).map((tr) => (
+                        <code
+                          key={tr}
+                          className="rounded bg-tile px-1.5 py-0.5 text-[11px] text-ink-soft"
+                        >
+                          {tr}
+                        </code>
+                      ))}
+                      {skill.triggers.length > 8 && (
+                        <span className="text-[11px] text-ink-soft">
+                          +{skill.triggers.length - 8} từ khóa
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+                {!skill.isSystem && (
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      if (!window.confirm(`Xóa skill tùy chỉnh "${skill.name}"?`)) return;
+                      try {
+                        await request(`/api/tools/skills/${encodeURIComponent(skill.name)}`, {
+                          method: "DELETE",
+                        });
+                        await reloadSkills();
+                      } catch (e) {
+                        setError(e instanceof Error ? e.message : String(e));
+                      }
+                    }}
+                    className="rounded-lg border border-rose-500/30 px-2.5 py-1 text-[12px] font-semibold text-rose-500 hover:bg-rose-500/10"
+                  >
+                    Xóa
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
       {settingsFor?.key === "read_image" && vision && (
         <VisionSettingsModal
           vision={vision}
@@ -318,10 +407,28 @@ export function ToolsPage() {
         <FacebookSessionModal onClose={() => setSettingsFor(null)} />
       )}
 
+      {settingsFor?.key === "notion_sync" && (
+        <NotionSettingsModal
+          onClose={() => setSettingsFor(null)}
+          onSaved={() => {
+            void reloadTools();
+          }}
+        />
+      )}
+
+      {settingsFor?.key === "mcp_client" && (
+        <McpSettingsModal
+          onClose={() => setSettingsFor(null)}
+          onSaved={() => {
+            void reloadTools();
+          }}
+        />
+      )}
+
       {/* Danh sách tường minh, KHÔNG dùng "mọi key còn lại": thêm tool có
           settings riêng mà quên loại trừ ở đây là nó mở nhầm modal chuỗi web */}
       {settingsFor &&
-        !["read_image", "create_image", "notebooklm", "news_lookup"].includes(settingsFor.key) &&
+        !["read_image", "create_image", "notebooklm", "news_lookup", "notion_sync", "mcp_client"].includes(settingsFor.key) &&
         search &&
         fetchSettings && (
           <ToolChainSettingsModal

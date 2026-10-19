@@ -76,6 +76,52 @@ export function FacebookMonitorPage() {
     }
   };
 
+  const [newPageId, setNewPageId] = useState("");
+  const [newPageName, setNewPageName] = useState("");
+
+  const handleAddPage = async () => {
+    if (!newPageId.trim() || !newPageName.trim()) return;
+    setBusy(true);
+    try {
+      await facebookMonitorApi.addPage({
+        pageId: newPageId.trim(),
+        pageName: newPageName.trim(),
+      });
+      setNewPageId("");
+      setNewPageName("");
+      await loadMon();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Không thêm được fanpage");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleTogglePage = async (targetPageId: string, enabled: boolean) => {
+    setBusy(true);
+    try {
+      await facebookMonitorApi.togglePage(targetPageId, enabled);
+      await loadMon();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Không đổi được trạng thái fanpage");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleDeletePage = async (targetPageId: string, pageName: string) => {
+    if (!window.confirm(`Xóa fanpage "${pageName}" khỏi danh sách theo dõi?`)) return;
+    setBusy(true);
+    try {
+      await facebookMonitorApi.deletePage(targetPageId);
+      await loadMon();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Không xóa được fanpage");
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const session = mon?.session;
   const okPages = mon?.pages.filter((p) => p.enabled && p.lastReport && !p.lastReport.error).length ?? 0;
   const errPages = mon?.pages.filter((p) => p.enabled && p.lastReport?.error).length ?? 0;
@@ -106,19 +152,73 @@ export function FacebookMonitorPage() {
 
       {error && <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-600">{error}</div>}
 
+      {session?.hasSession && session.health?.lastCheckOk === false && (
+        <div className="flex flex-col gap-2 rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-400 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <span className="font-semibold">⚠️ Phiên Facebook đã hết hạn:</span> Facebook đã đăng xuất phiên này theo chu kỳ bảo mật. Cần dán cookie mới để tiếp tục cào fanpage.
+          </div>
+          <Link
+            to="/tools"
+            className="inline-flex shrink-0 items-center justify-center rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-semibold text-zinc-950 shadow-sm hover:bg-amber-400"
+          >
+            Cập nhật Cookie
+          </Link>
+        </div>
+      )}
+
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard icon={IconMessage} label="Bài đã lưu" value={formatNumber(mon?.totalPosts ?? 0)} sub="Giữ 30 ngày gần nhất" />
         <StatCard
-          icon={IconCheck}
+          icon={session?.health?.lastCheckOk === false ? IconWarning : IconCheck}
           label="Phiên Facebook"
-          value={session?.hasSession ? "Đã đăng nhập" : "Chưa đăng nhập"}
-          sub={session?.hasSession ? `UID ${session.userId ?? ""}` : "Đang dùng cách đọc công khai (hay bị chặn)"}
+          value={
+            !session?.hasSession
+              ? "Chưa đăng nhập"
+              : session.health?.lastCheckOk === false
+                ? "Phiên hết hạn"
+                : session.isHardcoded
+                  ? session.source === "env"
+                    ? "Cấu hình cứng (.env)"
+                    : "Lưu cứng (file txt)"
+                  : "Đang hoạt động"
+          }
+          sub={
+            !session?.hasSession
+              ? "Đang dùng cách đọc công khai (hay bị chặn)"
+              : session.health?.lastCheckOk === false
+                ? "Cần cập nhật cookie mới"
+                : `UID ${session.userId ?? ""}${session.isHardcoded ? " · Lưu vĩnh viễn" : ""}`
+          }
         />
         <StatCard icon={IconClock} label="Lượt cào gần nhất" value={formatTime(mon?.lastRun?.finishedAt ?? mon?.lastRun?.startedAt)} sub={mon?.lastRun ? `+${mon.lastRun.totalNew} bài · ${mon.lastRun.pagesProcessed} trang` : "Tự chạy mỗi 30 phút"} />
         <StatCard icon={IconWarning} label="Fanpage OK / lỗi" value={`${okPages} / ${errPages}`} sub="Theo lượt cào gần nhất" />
       </div>
 
-      <SectionCard icon={IconGlobe} title="Tình trạng từng fanpage" subtitle="Cách cào, số bài lấy được và lỗi ở lượt gần nhất">
+      <SectionCard icon={IconGlobe} title="Tình trạng từng fanpage" subtitle="Cách cào, số bài lấy được và quản lý danh sách fanpage theo dõi">
+        <div className="mb-4 flex flex-col gap-2 sm:flex-row">
+          <input
+            type="text"
+            className="gc-input sm:w-64"
+            placeholder="ID hoặc URL fanpage (vd: thongtinlamdong)"
+            value={newPageId}
+            onChange={(e) => setNewPageId(e.target.value)}
+          />
+          <input
+            type="text"
+            className="gc-input sm:flex-1"
+            placeholder="Tên hiển thị (vd: Thông tin Lâm Đồng)"
+            value={newPageName}
+            onChange={(e) => setNewPageName(e.target.value)}
+          />
+          <button
+            type="button"
+            disabled={busy || !newPageId.trim() || !newPageName.trim()}
+            onClick={() => void handleAddPage()}
+            className="rounded-xl bg-blue-600 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-500 disabled:opacity-50"
+          >
+            + Thêm Fanpage
+          </button>
+        </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[760px] text-[13px]">
             <thead>
@@ -129,7 +229,7 @@ export function FacebookMonitorPage() {
                 <th className="py-2 text-right">Lấy được</th>
                 <th className="py-2 text-right">Đã lưu</th>
                 <th className="py-2">Bài mới nhất</th>
-                <th className="py-2"></th>
+                <th className="py-2 text-right">Thao tác</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-line/60">
@@ -160,15 +260,31 @@ export function FacebookMonitorPage() {
                   <td className="py-2.5 text-right tabular-nums font-semibold">{p.posts}</td>
                   <td className="py-2.5 tabular-nums text-ink-soft">{formatTime(p.latestPostAt)}</td>
                   <td className="py-2.5 text-right">
-                    <button
-                      className="rounded-lg border border-line px-2.5 py-1 text-[12px] font-semibold text-ink hover:bg-tile"
-                      onClick={() => {
-                        setPageId(p.pageId);
-                        setPage(0);
-                      }}
-                    >
-                      Xem bài
-                    </button>
+                    <div className="inline-flex items-center gap-1.5">
+                      <button
+                        className="rounded-lg border border-line px-2 py-1 text-[11.5px] font-semibold text-ink hover:bg-tile"
+                        onClick={() => {
+                          setPageId(p.pageId);
+                          setPage(0);
+                        }}
+                      >
+                        Xem bài
+                      </button>
+                      <button
+                        className="rounded-lg border border-line px-2 py-1 text-[11.5px] font-semibold text-ink-soft hover:bg-tile hover:text-ink"
+                        disabled={busy}
+                        onClick={() => void handleTogglePage(p.pageId, !p.enabled)}
+                      >
+                        {p.enabled ? "Tắt" : "Bật"}
+                      </button>
+                      <button
+                        className="rounded-lg border border-rose-500/30 px-2 py-1 text-[11.5px] font-semibold text-rose-500 hover:bg-rose-500/10"
+                        disabled={busy}
+                        onClick={() => void handleDeletePage(p.pageId, p.pageName)}
+                      >
+                        Xóa
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

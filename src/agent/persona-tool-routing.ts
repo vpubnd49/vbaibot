@@ -41,6 +41,18 @@ export const BANG_DINH_TUYEN: DongDinhTuyen[] = [
   { tool: "legal_search", khi: "Hỏi hiệu lực, điều khoản, VB thay thế (không cần tải file)." },
   { tool: "thanhtra_lamdong", khi: "Kết luận thanh tra tỉnh Lâm Đồng." },
   { tool: "search_noi_chinh", khi: "Tìm mẫu VB Nội chính thật để tham khảo trước khi soạn." },
+  {
+    tool: "create_voice_summary",
+    khi: "Tạo và gửi tin nhắn thoại tóm tắt / podcast âm thanh thảo luận 2 người (tiếng Việt chuẩn, sinh nhanh 30s) trực tiếp trong Zalo. BẮT BUỘC dùng cho mọi yêu cầu 'podcast', 'podcast âm thanh', 'tin nhắn thoại', 'xuất file âm thanh', 'đọc cho nghe'.",
+  },
+  {
+    tool: "create_image",
+    khi: "Vẽ tranh, poster, banner minh họa HOẶC SỬA ẢNH ĐÃ GỬI (đổi nền/phông studio, phối cảnh thêm rèm/nội thất, làm sáng ảnh, xóa vật thể thừa, thêm chữ vào ảnh). CẤM dùng cho infographic văn bản (dùng notebooklm).",
+  },
+  {
+    tool: "notebooklm",
+    khi: "Tạo sổ tay mới trên NotebookLM, nạp file/tài liệu/link làm nguồn, tạo bản trình chiếu Slides (PowerPoint) đẹp và nhanh, infographic, video, báo cáo từ tài liệu. Khi người dùng bảo 'hãy tạo sổ tay mới trên notebooklm...', 'tạo slide từ notebooklm...', 'làm slide từ tài liệu': BẮT BUỘC dùng tool này ngay.",
+  },
 ];
 
 /** Khối định tuyến chỉ gồm tool đang bật; cần ≥2 dòng mới có ý nghĩa "chọn giữa". */
@@ -48,7 +60,7 @@ export function khoiDinhTuyen(available: Set<string>): string | null {
   const dong = BANG_DINH_TUYEN.filter((d) => available.has(d.tool));
   if (dong.length < 2) return null;
   return (
-    "Bảng chọn công cụ (chọn ĐÚNG một tool theo việc, đừng gọi tool khác làm thay):\n" +
+    "Bảng chọn công cụ (NGUYÊN TẮC: CHỈ CHỌN ĐÚNG 1 TOOL TRỰC TIẾP PHỤC VỤ YÊU CẦU, TUYỆT ĐỐI KHÔNG GỌI NHIỀU TOOL MÊNH MANG VẼ THÊM VIỆC):\n" +
     dong.map((d) => `- ${d.tool}: ${d.khi}`).join("\n")
   );
 }
