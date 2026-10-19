@@ -27,6 +27,11 @@ describe("VBAIBot Multi-Agent Workspace & System Radar Routes", () => {
     const sepHtml = getSepWorkspaceHtml();
     assert.ok(sepHtml.includes("VBAIBot"));
     assert.ok(sepHtml.includes("/api/public/sep/chat"));
+    assert.ok(sepHtml.includes("renderBeanSvg"));
+    assert.ok(sepHtml.includes("bean-stack"));
+    assert.ok(sepHtml.includes("preview-fan"));
+    assert.ok(sepHtml.includes("md-table"));
+    assert.ok(sepHtml.includes("voice-wave-mini"));
     assert.ok(!sepHtml.includes("Jakie"));
     assert.ok(!sepHtml.includes("Nguyễn Tất Kiểm"));
 
@@ -36,8 +41,12 @@ describe("VBAIBot Multi-Agent Workspace & System Radar Routes", () => {
 
     const radarHtml = getRadarDashboardHtml();
     assert.ok(radarHtml.includes("Bảng Hoạt động & Nhu cầu Thực tế VBAIBot"));
-    assert.ok(radarHtml.includes("Bản đồ nhiệt Hoạt động 7 ngày gần nhất"));
+    assert.ok(radarHtml.includes("Bản đồ nhiệt Hoạt động 7 ngày & Công cụ"));
     assert.ok(radarHtml.includes("KIẾN TRÚC NĂNG LỰC HỆ THỐNG VBAIBOT"));
+    assert.ok(radarHtml.includes("radar-sidebar"));
+    assert.ok(radarHtml.includes("hm-o4"));
+    assert.ok(radarHtml.includes("hm-t4"));
+    assert.ok(radarHtml.includes("p-bar"));
     assert.ok(!radarHtml.includes("Jakie"));
     assert.ok(!radarHtml.includes("Nguyễn Tất Kiểm"));
   });

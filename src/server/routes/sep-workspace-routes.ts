@@ -45,12 +45,16 @@ export type SepExportFile = {
   downloadUrl: string;
   viewUrl?: string;
   ext: string;
+  sizeBytes: number;
+  sizeLabel: string;
 };
 
 export type SepBotBadge = {
   botId: string;
   botName: string;
   icon: string;
+  color: string;
+  shape: "bean" | "hex" | "tri" | "round";
   summary: string;
 };
 
@@ -60,9 +64,30 @@ export type WorkspaceBotItem = {
   shortName: string;
   icon: string;
   color: string;
+  shape: "bean" | "hex" | "tri" | "round";
   role: string;
   source: "system" | "agent" | "skill";
 };
+
+const PALETTE: { color: string; shape: "bean" | "hex" | "tri" | "round" }[] = [
+  { color: "#10b981", shape: "bean" },
+  { color: "#f97316", shape: "tri" },
+  { color: "#ef4444", shape: "tri" },
+  { color: "#ec4899", shape: "hex" },
+  { color: "#8b5cf6", shape: "bean" },
+  { color: "#3b82f6", shape: "round" },
+  { color: "#92400e", shape: "bean" },
+  { color: "#0d9488", shape: "hex" },
+];
+
+function formatFileSize(bytes: number): string {
+  if (!Number.isFinite(bytes) || bytes <= 0) return "1 KB";
+  if (bytes < 1024) return `${bytes} B`;
+  const kb = bytes / 1024;
+  if (kb < 100) return `${kb.toFixed(1).replace(/\.0$/, "")} KB`;
+  if (kb < 1024) return `${Math.round(kb)} KB`;
+  return `${(kb / 1024).toFixed(1)} MB`;
+}
 
 /**
  * Xây dựng danh sách Bot hoàn toàn từ dữ liệu thật của hệ thống VBAIBot:
@@ -74,33 +99,39 @@ export function buildWorkspaceBotsFromVbaibot(): WorkspaceBotItem[] {
   const items: WorkspaceBotItem[] = [
     {
       id: "sep-chief",
-      name: "🟢 Điều Phối Hệ Thống (VBAIBot)",
-      shortName: "Điều Phối Hệ Thống",
+      name: "Sếp – Chief of Staff",
+      shortName: "Sếp – Chief of Staff",
       icon: "🟢",
-      color: "#3b82f6",
+      color: "#10b981",
+      shape: "bean",
       role: "Tổng điều phối các Agent, Kỹ năng (.agents/skills) và Công cụ thực tế của VBAIBot",
       source: "system",
     },
     {
       id: "xuong-skill",
-      name: "🛠️ Xưởng Skill (Sandbox)",
+      name: "Xưởng Skill",
       shortName: "Xưởng Skill",
       icon: "🛠️",
-      color: "#8b5cf6",
+      color: "#059669",
+      shape: "hex",
       role: "Thiết kế, kiểm thử Sandbox (.agents/skill-drafts) và nâng cấp SKILL.md cho VBAIBot",
       source: "system",
     },
   ];
 
+  let colorIdx = 1;
   try {
     const agents = listAgents();
     for (const ag of agents) {
+      const p = PALETTE[colorIdx % PALETTE.length]!;
+      colorIdx++;
       items.push({
         id: `agent:${ag.id}`,
-        name: `${ag.icon || "🤖"} ${ag.name}`,
+        name: ag.name,
         shortName: ag.name,
         icon: ag.icon || "🤖",
-        color: "#10b981",
+        color: p.color,
+        shape: p.shape,
         role:
           (ag.persona && ag.persona.trim().slice(0, 140)) ||
           `Agent hệ thống (${ag.modelProvider ?? "mặc định"} · ${ag.accountCount} tài khoản gắn kết)`,
@@ -114,12 +145,15 @@ export function buildWorkspaceBotsFromVbaibot(): WorkspaceBotItem[] {
   try {
     const skills = loadAllSkills();
     for (const sk of skills) {
+      const p = PALETTE[colorIdx % PALETTE.length]!;
+      colorIdx++;
       items.push({
         id: `skill:${sk.id}`,
-        name: `📘 ${sk.name || sk.id}`,
+        name: sk.name || sk.id,
         shortName: sk.name || sk.id,
         icon: "📘",
-        color: "#f59e0b",
+        color: p.color,
+        shape: p.shape,
         role: sk.description ? sk.description.slice(0, 160) : `Kỹ năng chuyên môn (${sk.id})`,
         source: "skill",
       });
@@ -159,6 +193,7 @@ function createSepMockZaloApi(capturedFiles: SepExportFile[]): API {
       const destPath = path.join(SEP_EXPORT_DIR, uniqueName);
       try {
         fs.copyFileSync(item, destPath);
+        const stat = fs.statSync(destPath);
         const ext = path.extname(base).toLowerCase();
         capturedFiles.push({
           fileName: path.basename(item),
@@ -168,6 +203,8 @@ function createSepMockZaloApi(capturedFiles: SepExportFile[]): API {
               ? `/api/public/sep/view/${encodeURIComponent(uniqueName)}`
               : undefined,
           ext,
+          sizeBytes: stat.size,
+          sizeLabel: formatFileSize(stat.size),
         });
       } catch (err) {
         log.warn({ err, item }, "Không thể sao lưu file xuất từ Workspace");
@@ -199,6 +236,7 @@ function extractBotBadgesFromTrace(
 ): SepBotBadge[] {
   const badges: SepBotBadge[] = [];
   const seenKey = new Set<string>();
+  let fallbackIdx = 0;
 
   for (const step of trace) {
     for (const tc of step.toolCalls) {
@@ -217,7 +255,9 @@ function extractBotBadgesFromTrace(
                 b.id === `agent:${rawBot}` ||
                 b.shortName.toLowerCase().includes(rawBot.toLowerCase()),
             );
-            const label = found ? found.name : rawBot;
+            const p = PALETTE[fallbackIdx % PALETTE.length]!;
+            fallbackIdx++;
+            const label = found ? found.shortName : rawBot;
             const icon = found ? found.icon : "🤖";
             const key = `bot:${rawBot}`;
             if (!seenKey.has(key)) {
@@ -226,6 +266,8 @@ function extractBotBadgesFromTrace(
                 botId: rawBot,
                 botName: label,
                 icon,
+                color: found ? found.color : p.color,
+                shape: found ? found.shape : p.shape,
                 summary: t.instruction?.slice(0, 120) ?? "Đã thực thi nhiệm vụ chuyên môn",
               });
             }
@@ -239,8 +281,10 @@ function extractBotBadgesFromTrace(
           seenKey.add(key);
           badges.push({
             botId: "xuong-skill",
-            botName: "🛠️ Xưởng Skill",
+            botName: "Xưởng Skill",
             icon: "🛠️",
+            color: "#059669",
+            shape: "hex",
             summary: "Đóng gói SKILL.md & chạy Sandbox Test",
           });
         }
@@ -250,10 +294,14 @@ function extractBotBadgesFromTrace(
           const key = `tool:${tc.name}`;
           if (!seenKey.has(key)) {
             seenKey.add(key);
+            const p = PALETTE[fallbackIdx % PALETTE.length]!;
+            fallbackIdx++;
             badges.push({
               botId: tc.name,
-              botName: `⚙️ ${toolDef.label}`,
+              botName: toolDef.label,
               icon: "⚙️",
+              color: p.color,
+              shape: p.shape,
               summary: toolDef.description,
             });
           }
@@ -262,7 +310,7 @@ function extractBotBadgesFromTrace(
     }
   }
 
-  // Kiểm tra các bản nháp skill vừa được tạo/cập nhật trong lượt này để đính kèm file .md
+  // Kiểm tra các bản nháp skill vừa được tạo/cập nhật trong lượt này để đính kèm file .md kèm dung lượng thật
   try {
     const drafts = listSkillDrafts();
     const dateTag = new Date().toISOString().slice(0, 10);
@@ -281,23 +329,31 @@ function extractBotBadgesFromTrace(
         if (fs.existsSync(skillMdPath)) {
           const displayName = `skill-${d.id}-${dateTag}.md`;
           const uniqueName = `${Date.now()}_${displayName}`;
-          fs.copyFileSync(skillMdPath, path.join(SEP_EXPORT_DIR, uniqueName));
+          const dest = path.join(SEP_EXPORT_DIR, uniqueName);
+          fs.copyFileSync(skillMdPath, dest);
+          const sz = fs.statSync(dest).size;
           capturedFiles.push({
             fileName: displayName,
             downloadUrl: `/api/public/sep/files/${encodeURIComponent(uniqueName)}`,
             viewUrl: `/api/public/sep/view/${encodeURIComponent(uniqueName)}`,
             ext: ".md",
+            sizeBytes: sz,
+            sizeLabel: formatFileSize(sz),
           });
         }
         if (fs.existsSync(samplePath)) {
           const displayName = `${d.id}-sample-test-${dateTag}.md`;
           const uniqueName = `${Date.now()}_${displayName}`;
-          fs.copyFileSync(samplePath, path.join(SEP_EXPORT_DIR, uniqueName));
+          const dest = path.join(SEP_EXPORT_DIR, uniqueName);
+          fs.copyFileSync(samplePath, dest);
+          const sz = fs.statSync(dest).size;
           capturedFiles.push({
             fileName: displayName,
             downloadUrl: `/api/public/sep/files/${encodeURIComponent(uniqueName)}`,
             viewUrl: `/api/public/sep/view/${encodeURIComponent(uniqueName)}`,
             ext: ".md",
+            sizeBytes: sz,
+            sizeLabel: formatFileSize(sz),
           });
         }
       }
@@ -389,7 +445,7 @@ export const sepWorkspaceRoutes = new Hono()
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;");
-    return c.html(`<!DOCTYPE html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${safeName.replace(/^\d+_/, "")}</title><style>body{font-family:system-ui,-apple-system,sans-serif;background:#0f172a;color:#f8fafc;padding:20px;line-height:1.6;max-width:860px;margin:0 auto}pre{white-space:pre-wrap;word-break:break-word;background:#1e293b;padding:16px;border-radius:12px;border:1px solid #334155}</style></head><body><h2>📄 ${safeName.replace(/^\d+_/, "")}</h2><pre>${escaped}</pre></body></html>`);
+    return c.html(`<!DOCTYPE html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${safeName.replace(/^\d+_/, "")}</title><style>body{font-family:system-ui,-apple-system,sans-serif;background:#f8f9fa;color:#111827;padding:20px;line-height:1.6;max-width:860px;margin:0 auto}pre{white-space:pre-wrap;word-break:break-word;background:#ffffff;padding:16px;border-radius:12px;border:1px solid #e5e7eb}</style></head><body><h2>📄 ${safeName.replace(/^\d+_/, "")}</h2><pre>${escaped}</pre></body></html>`);
   })
 
   .post("/tts", async (c) => {
@@ -483,8 +539,9 @@ export const sepWorkspaceRoutes = new Hono()
     let promptWithPersona = message;
     if (botId === "sep-chief") {
       promptWithPersona =
-        `[BỐI CẢNH: Người dùng đang làm việc trực tiếp với Điều Phối Hệ Thống VBAIBot trên ứng dụng di động. ` +
-        `Khi cần phối hợp nhiều kỹ năng thực tế trong hệ thống (.agents/skills) hoặc tạo/kiểm thử kỹ năng mới trong Xưởng Skill, hãy gọi \`delegate_to_bot\` hoặc \`create_or_update_skill\` (với mode='sandbox_draft' khi tạo skill mới và trình bày các lựa chọn [A], [B], [C] để người dùng chọn duyệt).]\n\n` +
+        `[BỐI CẢNH: Người dùng đang làm việc trực tiếp với Sếp – Chief of Staff (Điều Phối Hệ Thống VBAIBot) trên ứng dụng di động. ` +
+        `Khi cần phối hợp nhiều kỹ năng thực tế trong hệ thống (.agents/skills) hoặc tạo/kiểm thử kỹ năng mới trong Xưởng Skill, hãy gọi \`delegate_to_bot\` hoặc \`create_or_update_skill\` (với mode='sandbox_draft' khi tạo skill mới). ` +
+        `Nếu lập bảng phân công công việc cho các bot/skill, hãy trình bày bằng bảng Markdown (\`| Bot / Kỹ năng | Việc cần làm |\`) và luôn đặt các phương án lựa chọn \`[A]\`, \`[B]\`, \`[C]\` ở cuối tin nhắn để người dùng bấm chọn duyệt.]\n\n` +
         message;
     } else if (botId === "xuong-skill") {
       promptWithPersona =
