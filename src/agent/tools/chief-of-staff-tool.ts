@@ -36,7 +36,7 @@ export function getVbaibotTeamRoles(): SubBotRole[] {
       icon: "🛠️",
       source: "system",
       rolePrompt:
-        "Bạn là Xưởng Skill của hệ thống VBAIBot — chuyên thiết kế, viết mới và kiểm thử các Kỹ năng (SKILL.md) trong `.agents/skill-drafts/` trước khi lưu vào `.agents/skills/`. Khi được giao tạo hoặc đề xuất skill mới: hãy gọi `create_or_update_skill` với `mode='sandbox_draft'`, tự thiết kế dữ liệu mẫu để kiểm thử, ghi lại kết quả vào `sample_test_report`, và báo cáo rõ kết quả chạy thử để xin ý kiến duyệt.",
+        "Bạn là Xưởng Skill của hệ thống VBAIBot — chuyên nghiên cứu dữ liệu từ Internet (`web_search`, `news_lookup`), thiết kế, viết mới và kiểm thử các Kỹ năng (`SKILL.md`) trong `.agents/skill-drafts/` hoặc lưu vào `.agents/skills/`. Khi người dùng yêu cầu tạo kỹ năng mới (ví dụ cho ngành Quản lý thị trường, hành chính, thuế...): (1) Hãy gọi `web_search` để thu thập các nguồn tra cứu chính thống trên internet và căn cứ pháp lý mới nhất; (2) Gọi `create_or_update_skill` với `mode='sandbox_draft'` (hoặc `'direct_save'` nếu người dùng yêu cầu lưu ngay) kèm đầy đủ `name`, `description`, `triggers`, `content` (quy trình tra cứu, nguồn dữ liệu internet, biểu mẫu, căn cứ pháp lý) và `sample_test_report`; (3) Báo cáo rõ kết quả để người dùng duyệt.",
     },
   ];
 
@@ -157,7 +157,7 @@ export function createDelegateToBotTool(ctx?: ToolContext) {
                 system: `${role.rolePrompt}\nTrả lời chính xác, bám sát dữ liệu thực tế của hệ thống VBAIBot.`,
                 prompt: t.instruction,
                 tools: subTools,
-                stopWhen: stepCountIs(3),
+                stopWhen: stepCountIs(6),
               });
               return {
                 botId: role.id,
@@ -181,7 +181,7 @@ export function createDelegateToBotTool(ctx?: ToolContext) {
               system: `${role.rolePrompt}\nTrả lời chính xác, rõ ràng kết quả đã thực hiện để chuyển tiếp cho bước sau.`,
               prompt: promptText,
               tools: subTools,
-              stopWhen: stepCountIs(3),
+              stopWhen: stepCountIs(6),
             });
 
             const out = res.text.trim() || "(Đã hoàn thành thao tác công cụ)";

@@ -18,7 +18,12 @@ import { updateThreadSettings } from "../../conversation/thread-settings-store.j
 import { recordThreadActivity } from "../../conversation/thread-store.js";
 import { finishAgentTurn, openAgentTurn } from "../../conversation/usage-store.js";
 import { readDocument } from "../../documents/document-reader.js";
-import { listSkillDrafts, loadAllSkills, getSkillDraftsRootDir } from "../../skills/skill-manager.js";
+import {
+  listSkillDrafts,
+  loadAllSkills,
+  getSkillDraftsRootDir,
+  promoteSkillDraft,
+} from "../../skills/skill-manager.js";
 import { synthesizeSingleVoiceEdge } from "../../voice/edge-tts.js";
 import { saveVoiceFile } from "../../voice/voice-file-store.js";
 import { getAccountInsight } from "../group-insight.js";
@@ -406,6 +411,30 @@ export const sepWorkspaceRoutes = new Hono()
     });
   })
 
+  .post("/promote-skill", async (c) => {
+    const body = (await c.req.json().catch(() => null)) as { skillId?: string } | null;
+    const skillId = body?.skillId?.trim() ?? "";
+    if (!skillId) {
+      return c.json({ ok: false, error: "Thiếu skillId cần duyệt" }, 400);
+    }
+    const res = promoteSkillDraft(skillId);
+    if (!res.success) {
+      return c.json({ ok: false, error: res.error || "Không thể duyệt skill" }, 400);
+    }
+    return c.json({
+      ok: true,
+      skillId: res.id,
+      path: res.path,
+      drafts: listSkillDrafts(),
+      activeSkills: loadAllSkills(true).map((s) => ({
+        id: s.id,
+        name: s.name,
+        description: s.description,
+        triggers: s.triggers,
+      })),
+    });
+  })
+
   .get("/files/:fileName", (c) => {
     const rawName = c.req.param("fileName") || "";
     const safeName = path.basename(rawName);
@@ -539,14 +568,14 @@ export const sepWorkspaceRoutes = new Hono()
     let promptWithPersona = message;
     if (botId === "sep-chief") {
       promptWithPersona =
-        `[BỐI CẢNH: Người dùng đang làm việc trực tiếp với Sếp – Chief of Staff (Điều Phối Hệ Thống VBAIBot) trên ứng dụng di động. ` +
-        `Khi cần phối hợp nhiều kỹ năng thực tế trong hệ thống (.agents/skills) hoặc tạo/kiểm thử kỹ năng mới trong Xưởng Skill, hãy gọi \`delegate_to_bot\` hoặc \`create_or_update_skill\` (với mode='sandbox_draft' khi tạo skill mới). ` +
+        `[BỐI CẢNH: Người dùng đang làm việc trực tiếp với Sếp – Chief of Staff (Điều Phối Hệ Thống VBAIBot) trên ứng dụng di động (hỗ trợ cả Voice và Chat). ` +
+        `Khi người dùng yêu cầu tạo kỹ năng mới (ví dụ: tạo skill tra cứu dữ liệu internet cho ngành Quản lý thị trường, hành chính, thuế...), hãy chủ động: (1) Dùng \`web_search\` để tra cứu nguồn dữ liệu thực tế trên internet & văn bản pháp luật liên quan, (2) Gọi \`create_or_update_skill\` (với \`mode="sandbox_draft"\` kèm \`sample_test_report\` hoặc \`mode="direct_save"\` nếu người dùng yêu cầu lưu ngay) hoặc điều phối \`delegate_to_bot\` cho \`xuong-skill\`. ` +
         `Nếu lập bảng phân công công việc cho các bot/skill, hãy trình bày bằng bảng Markdown (\`| Bot / Kỹ năng | Việc cần làm |\`) và luôn đặt các phương án lựa chọn \`[A]\`, \`[B]\`, \`[C]\` ở cuối tin nhắn để người dùng bấm chọn duyệt.]\n\n` +
         message;
     } else if (botId === "xuong-skill") {
       promptWithPersona =
         `[BỐI CẢNH: Người dùng đang làm việc trực tiếp với 🛠️ Xưởng Skill của VBAIBot. ` +
-        `Khi được giao thiết kế hoặc nâng cấp bộ kỹ năng mới, hãy lưu vào Sandbox trước bằng \`create_or_update_skill\` với \`mode="sandbox_draft"\` kèm \`sample_test_report\`, sau đó liệt kê các phương án [A], [B] ở cuối câu trả lời để người dùng bấm chọn duyệt.]\n\n` +
+        `Khi được giao thiết kế hoặc nâng cấp bộ kỹ năng mới (kể cả qua giọng nói), hãy dùng \`web_search\` tra cứu nguồn dữ liệu thực tế trên internet, lưu vào Sandbox bằng \`create_or_update_skill\` với \`mode="sandbox_draft"\` kèm \`sample_test_report\`, sau đó liệt kê các phương án [A] Duyệt đưa kỹ năng vào thư viện chính thức (.agents/skills), [B] Chỉnh sửa/bổ sung thêm nội dung ở cuối câu trả lời để người dùng bấm chọn duyệt.]\n\n` +
         message;
     } else if (botId.startsWith("skill:")) {
       const skillId = botId.slice("skill:".length);

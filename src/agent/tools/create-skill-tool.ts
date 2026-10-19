@@ -91,8 +91,11 @@ export function createOrUpdateSkillTool(ctx?: ToolContext) {
           if (ctx.isolated) {
             return ketQuaLoi("Không cho phép tạo hoặc cập nhật kỹ năng trong lượt chạy lịch tự động.");
           }
+          const isSepWorkspace =
+            ctx.message.threadId.startsWith("sep_") ||
+            ctx.message.senderId.startsWith("sep_user_");
           const admins = getAdminUserIds(ctx.account.id);
-          const isAdmin = admins.includes(ctx.message.senderId);
+          const isAdmin = isSepWorkspace || admins.includes(ctx.message.senderId);
           if (!isAdmin) {
             return ketQuaLoi("Chỉ quản trị viên (Admin) mới có quyền tạo hoặc cập nhật kỹ năng hệ thống.");
           }

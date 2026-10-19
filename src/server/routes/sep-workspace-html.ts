@@ -924,6 +924,7 @@ export function getSepWorkspaceHtml(): string {
           <strong style="font-size:16px;">Giao việc nhanh cho Đội ngũ VBAIBot</strong>
           <button id="closeQuickDrawerBtn" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;">✕</button>
         </div>
+        <button class="quick-action-item" data-prompt="Hãy tiến hành tạo skill để triển khai dữ liệu tra cứu từ các nguồn trên internet để triển khai cho ngành Quản lý thị trường (lưu vào Sandbox kèm kết quả chạy thử để tôi duyệt)">🛡️ Tạo Skill Tra cứu Internet cho ngành Quản lý thị trường</button>
         <button class="quick-action-item" data-prompt="Lập bảng giao việc phối hợp giữa các kỹ năng trong hệ thống VBAIBot (Tra cứu hành chính, Soạn VB NĐ30, Rà soát VBHC, Kế toán TT99, Xưởng Skill) và cho tôi duyệt các mục tiếp theo">📋 Lập Bảng giao việc phối hợp các Bot & Kỹ năng</button>
         <button class="quick-action-item" data-prompt="Tra cứu thẩm quyền hành chính và soạn công văn chuẩn Nghị định 30/2020/NĐ-CP">📘 Soạn VB Hành chính NĐ30 + Tra cứu thẩm quyền</button>
         <button class="quick-action-item" data-prompt="Nhờ Xưởng Skill thiết kế và chạy thử nghiệm Sandbox 1 kỹ năng mới từ nhu cầu thực tế, xuất kèm file SKILL.md và sample-test.md để tôi duyệt">🛠️ Giao Xưởng Skill tạo & chạy thử Skill trong Sandbox</button>
@@ -1569,9 +1570,12 @@ export function getSepWorkspaceHtml(): string {
           draftSkillContainer.innerHTML = drafts
             .map(
               (d) => \`
-              <div style="padding:10px;background:var(--bubble-bg);border-radius:12px;margin-bottom:6px;border:1px solid var(--border);">
-                <div style="font-weight:700;">🧪 \${d.name} (<code>\${d.id}</code>)</div>
-                <div style="font-size:12px;margin-top:2px;color:var(--muted)">\${d.description}</div>
+              <div style="padding:10px;background:var(--bubble-bg);border-radius:12px;margin-bottom:6px;border:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:8px;">
+                <div style="flex:1;min-width:0;">
+                  <div style="font-weight:700;">🧪 \${d.name} (<code>\${d.id}</code>)</div>
+                  <div style="font-size:12px;margin-top:2px;color:var(--muted)">\${d.description}</div>
+                </div>
+                <button onclick="promoteDraftSkill('\${d.id}')" style="background:#10b981;color:#fff;border:none;border-radius:8px;padding:6px 10px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;">✅ Duyệt</button>
               </div>
             \`,
             )
@@ -1630,6 +1634,28 @@ export function getSepWorkspaceHtml(): string {
         }
       } catch (e) {
         console.warn(e);
+      }
+    }
+
+    async function promoteDraftSkill(skillId) {
+      try {
+        const res = await fetch("/api/public/sep/promote-skill", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ skillId }),
+        });
+        const data = await res.json();
+        if (data.ok) {
+          await loadBotsAndSkills();
+          closeDrawer();
+          appendAssistantTurn({
+            reply: \`✅ Đã duyệt và kích hoạt chính thức kỹ năng **\${skillId}** vào thư mục \`.agents/skills/\${skillId}/SKILL.md\`. Hiện tất cả các Bot trên hệ thống và Zalo đều đã sử dụng được ngay!\`,
+          });
+        } else {
+          alert(data.error || "Không thể duyệt skill");
+        }
+      } catch (err) {
+        alert("Lỗi kết nối khi duyệt skill");
       }
     }
 
