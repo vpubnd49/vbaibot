@@ -98,6 +98,18 @@ export async function readDocument(filePath: string, options: DocumentReadOption
   let pageCount: number | undefined;
   let readError: string | undefined;
 
+  if (!filePath || !fs.existsSync(filePath)) {
+    const missingMsg = `Không tìm thấy tệp tài liệu trên đĩa: ${path.basename(filePath || 'unknown')}`;
+    log.warn({ filePath }, missingMsg);
+    return {
+      text: `Lỗi khi đọc nội dung file: ${missingMsg}`,
+      truncated: false,
+      originalLength: 0,
+      fileType: ext,
+      error: missingMsg,
+    };
+  }
+
   try {
     switch (ext) {
       case '.pdf': {
@@ -372,7 +384,7 @@ export async function readDocument(filePath: string, options: DocumentReadOption
     if (isCorruptZip) {
       log.warn({ filePath, err: errorMessage }, "Tệp người dùng gửi bị hỏng hoặc không đúng định dạng zip/Office");
     } else {
-      log.error({ err: error, filePath }, `Lỗi khi đọc file document`);
+      log.warn({ err: errorMessage, filePath }, "Không đọc được file document");
     }
     readError = errorMessage;
     text = `Lỗi khi đọc nội dung file: ${errorMessage}`;
@@ -515,9 +527,9 @@ async function ocrScannedPdf(
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'pdf-ocr-'));
 
   try {
-    // Chuyển PDF → PNG bằng pdftoppm (200 DPI, đủ nét cho OCR)
-    log.info({ filePath, totalPages, pageStart: startPage, pageEnd: actualEnd, pagesToOcr, dpi: 200 }, 'Bắt đầu auto-OCR PDF scan');
-    await runPdftoppm(filePath, tmpDir, startPage, actualEnd);
+    const dpi = pagesToOcr > 15 ? 150 : 200;
+    log.info({ filePath, totalPages, pageStart: startPage, pageEnd: actualEnd, pagesToOcr, dpi }, 'Bắt đầu auto-OCR PDF scan');
+    await runPdftoppm(filePath, tmpDir, startPage, actualEnd, dpi);
 
     // Đọc các file PNG đã render
     const pngFiles = fs.readdirSync(tmpDir)
@@ -583,20 +595,20 @@ function checkPdftoppm(): Promise<boolean> {
   });
 }
 
-/** Chạy pdftoppm chuyển PDF → PNG, 200 DPI, giới hạn số trang */
-function runPdftoppm(pdfPath: string, outDir: string, startPage: number, endPage: number): Promise<void> {
+/** Chạy pdftoppm chuyển PDF → PNG, giới hạn số trang */
+function runPdftoppm(pdfPath: string, outDir: string, startPage: number, endPage: number, dpi = 200): Promise<void> {
   const outPrefix = path.join(outDir, 'page');
   return new Promise((resolve, reject) => {
     execFile('pdftoppm', [
       '-png',           // Xuất PNG
-      '-r', '200',      // 200 DPI — cân bằng nét chữ và dung lượng
+      '-r', String(dpi), // 150-200 DPI — cân bằng nét chữ và dung lượng
       '-f', String(startPage), // Bắt đầu từ trang người dùng yêu cầu
       '-l', String(endPage), // Kết thúc ở trang người dùng yêu cầu
       pdfPath,
       outPrefix,
-    ], { timeout: 120_000 }, (err, _stdout, stderr) => {
+    ], { timeout: 180_000 }, (err, _stdout, stderr) => {
       if (err) {
-        log.error({ err, stderr }, 'pdftoppm thất bại');
+        log.warn({ pdfPath, err: err.message, stderr }, 'pdftoppm thất bại');
         reject(new Error(`pdftoppm lỗi: ${stderr || err.message}`));
       } else {
         resolve();

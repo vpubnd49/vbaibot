@@ -84,7 +84,7 @@ export async function generateMultiSpeakerAudio(params: TtsParams): Promise<Buff
 
     if (!response.ok) {
       const errorText = await response.text();
-      log.error({ status: response.status, errorText }, 'Lỗi API từ Gemini TTS');
+      log.warn({ status: response.status, errorText }, 'Gemini TTS trả lỗi — sẽ chuyển sang giọng đọc dự phòng');
       throw new Error(`Gemini API lỗi: ${response.status} - ${errorText}`);
     }
 
@@ -104,7 +104,6 @@ export async function generateMultiSpeakerAudio(params: TtsParams): Promise<Buff
     // Sử dụng tiện ích bọc PCM header thành WAV
     return wrapPcmInWav(pcmBuffer);
   } catch (error) {
-    log.error({ error }, 'Lỗi hệ thống khi sinh giọng đọc (TTS)');
     throw error;
   }
 }

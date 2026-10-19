@@ -365,16 +365,18 @@ async function processZipFile(fp: string, cfg: OcrConfig): Promise<OcrPageResult
 
     log.info({ fp, count: toProcess.length, total: filePaths.length, truncated }, "ZIP: bat dau OCR cac file ben trong");
     const results: OcrPageResult[] = [];
+    let processedFiles = 0;
 
     for (const innerFile of toProcess) {
       // Kiem tra abort signal (timeout batch)
       if (cfg.signal?.aborted) {
-        log.warn({ fp, processed: results.length, remaining: toProcess.length - results.length }, "ZIP OCR bi abort do timeout");
-        results.push({ filePath: fp, error: `Batch OCR timeout — da xu ly ${results.length}/${toProcess.length} file trong ZIP` });
+        log.warn({ fp, processed: processedFiles, remaining: toProcess.length - processedFiles, pages: results.length }, "ZIP OCR bi abort do timeout");
+        results.push({ filePath: fp, error: `Batch OCR timeout — da xu ly ${processedFiles}/${toProcess.length} file trong ZIP` });
         break;
       }
       const pages = await processFile(innerFile, cfg);
       results.push(...pages);
+      processedFiles++;
     }
 
     if (truncated) {

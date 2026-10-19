@@ -134,13 +134,13 @@ export async function persistBatchFiles(
       try {
         const downloaded = await download(file.url, { maxBytes: MAX_DOC_BYTES });
         if (!downloaded) continue;
-        const safeName = sanitizeSegment(path.basename(file.fileName, path.extname(file.fileName)));
-        const ext = normalizeExtension(file.extension, file.fileName);
+        const safeName = sanitizeSegment(path.basename(file.fileName, path.extname(file.fileName))).slice(0, 80);
+        const ext = normalizeExtension(file.extension, file.fileName).slice(0, 15);
         const relPath = [
           "media",
           sanitizeSegment(accountId),
           sanitizeSegment(msg.threadId),
-          `${sanitizeSegment(msg.msgId)}-file-${index}-${safeName}${ext}`,
+          `${sanitizeSegment(msg.msgId).slice(0, 40)}-file-${index}-${safeName}${ext}`,
         ].join("/");
         const absPath = path.join(dataDir, relPath);
         fs.mkdirSync(path.dirname(absPath), { recursive: true });

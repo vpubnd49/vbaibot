@@ -4,10 +4,12 @@ import { z } from "zod";
 import {
   documentBlockSchema,
   sheetSchema,
+  preprocessWordDocumentInput,
+  preprocessExcelFileInput,
   type DocumentBlock,
   type Sheet,
 } from "../../documents/document-content-schema.js";
-import { pptxSlideSchema, pptxThemeSchema, type PptxSlide } from "../../documents/pptx-content-schema.js";
+import { pptxSlideSchema, pptxThemeSchema, preprocessPowerpointInput, type PptxSlide } from "../../documents/pptx-content-schema.js";
 import { checkDocumentRateLimit } from "../../documents/document-rate-limit.js";
 import {
   checkDocumentLimits,
@@ -49,7 +51,7 @@ export function createWordDocumentTool(ctx: Ctx) {
       "Văn bản hành chính: mở đầu bằng two_columns (cơ quan bên trái, quốc hiệu **CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM** bên phải), " +
       "dòng địa danh - ngày tháng dùng paragraph align right, kết bằng two_columns (nơi nhận | chức vụ + tên người ký). " +
       "Nội dung ngắn thì trả lời thẳng, đừng tạo file.",
-    inputSchema: z.object({
+    inputSchema: z.preprocess(preprocessWordDocumentInput, z.object({
       fileName: z.string().optional().default("Van_ban.docx").describe('Tên file, vd "bao-gia-thang-7.docx"'),
       title: z.string().optional().describe("Tiêu đề canh giữa, đậm, ở đầu trang"),
       blocks: z
@@ -57,8 +59,8 @@ export function createWordDocumentTool(ctx: Ctx) {
         .min(1)
         .describe("Nội dung theo thứ tự: heading, paragraph, bullets, table, two_columns"),
       caption: z.string().optional().describe("Lời nhắn gửi kèm file"),
-    }),
-    execute: ({ fileName, title, blocks, caption }) =>
+    })),
+    execute: ({ fileName = "Van_ban.docx", title, blocks, caption }) =>
       guard(async () => {
         const limit = checkDocumentLimits(blocks as DocumentBlock[]);
         if (!limit.ok) return ketQuaLoi(limit.reason);
@@ -91,12 +93,12 @@ export function createExcelFileTool(ctx: Ctx) {
       "(tổng quan, chi tiết từng mục, số liệu, rủi ro/kết luận, nguồn tham khảo), mỗi sheet có title + subtitle + note, " +
       "mỗi ô mô tả trọn ý chứ không phải vài chữ. Đã bỏ công tạo file thì nội dung phải đáng để mở ra đọc.\n" +
       'MỌI chữ (tên sheet, tên file, header, nội dung) GIỮ NGUYÊN dấu tiếng Việt - viết "Tổng quan" chứ không "Tong quan".',
-    inputSchema: z.object({
+    inputSchema: z.preprocess(preprocessExcelFileInput, z.object({
       fileName: z.string().optional().default("Bang_tinh.xlsx").describe('Tên file, vd "bao-gia.xlsx"'),
       sheets: z.array(sheetSchema).min(1).describe("Danh sách sheet, mỗi sheet có tên + cột + dòng"),
       caption: z.string().optional().describe("Lời nhắn gửi kèm file"),
-    }),
-    execute: ({ fileName, sheets, caption }) =>
+    })),
+    execute: ({ fileName = "Bang_tinh.xlsx", sheets, caption }) =>
       guard(async () => {
         const limit = checkSpreadsheetLimits(sheets as Sheet[]);
         if (!limit.ok) return ketQuaLoi(limit.reason);
@@ -131,33 +133,7 @@ export function createPowerpointTool(ctx: Ctx) {
       "Bôi đậm bằng **chữ đậm** trong text bullet. Mỗi slide content tối đa 6-8 bullets ngắn gọn. " +
       "Theme 'zaloagent': nền trắng, card bo tròn, accent cam/xanh lá — lý tưởng cho pitch deck, giới thiệu sản phẩm. " +
       "MỌI chữ GIỮ NGUYÊN dấu tiếng Việt.",
-    inputSchema: z.preprocess((raw: any) => {
-      if (typeof raw === "string") {
-        try { raw = JSON.parse(raw); } catch {}
-      }
-      if (raw && typeof raw === "object") {
-        const copy: any = { ...raw };
-        if (typeof copy.slides === "string") {
-          try { copy.slides = JSON.parse(copy.slides); } catch {}
-        }
-        if (!copy.slides && Array.isArray(copy.slideList)) copy.slides = copy.slideList;
-        if (!copy.slides && Array.isArray(copy.pages)) copy.slides = copy.pages;
-        if (!copy.slides && Array.isArray(copy.content)) copy.slides = copy.content;
-        if (!copy.slides && Array.isArray(copy.presentation)) copy.slides = copy.presentation;
-
-        if (!Array.isArray(copy.slides) || copy.slides.length === 0) {
-          copy.slides = [
-            {
-              type: "title_slide",
-              title: copy.title || copy.caption || "Bài trình chiếu",
-              subtitle: copy.caption || "Tài liệu trình bày",
-            },
-          ];
-        }
-        return copy;
-      }
-      return raw;
-    }, z.object({
+    inputSchema: z.preprocess(preprocessPowerpointInput, z.object({
       fileName: z.string().optional().describe('Tên file (tùy chọn), vd "bao-cao-quy-3.pptx"'),
       title: z.string().optional().describe("Metadata tiêu đề bài trình chiếu"),
       theme: pptxThemeSchema.optional(),

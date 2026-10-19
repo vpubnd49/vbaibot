@@ -115,12 +115,57 @@ export function createAdminDocumentTool(ctx: Ctx) {
       "để bôi đỏ nổi bật tất cả các từ đã sửa trong file Word (.docx) xuất ra cho người dùng dễ nhìn thấy.\n" +
       "Hỗ trợ các thẻ định dạng inline: `<b>đậm</b>` (hoặc `**đậm**`), `<i>nghiêng</i>` (hoặc `*nghiêng*`), `<u>gạch chân</u>`, `~~gạch bỏ~~`, `<red>bôi đỏ</red>` (hoặc `<green>`, `<blue>`). Tuyệt đối không gõ sai cú pháp thẻ như `<b1.`.\n" +
       "Tự động định dạng Quốc hiệu, Tiêu ngữ, Căn cứ pháp lý in nghiêng, thụt đầu dòng 1cm, số trang đỉnh trang, khối ký và nơi nhận chuẩn 100%.",
-    inputSchema: z.object({
-      fileName: z.string().min(1).describe('Tên file .docx, ví dụ: "to-trinh-phe-duyet-du-toan.docx"'),
+    inputSchema: z.preprocess((raw: any) => {
+      if (typeof raw === "string") {
+        try { raw = JSON.parse(raw); } catch {}
+      }
+      if (raw && typeof raw === "object") {
+        const copy: any = { ...raw };
+        // Sửa lỗi model truyền key bị bọc dấu ngoặc kép thừa như "\"fileName\""
+        for (const k of Object.keys(copy)) {
+          const cleanKey = k.replace(/^["'\s]+|["'\s]+$/g, "");
+          if (cleanKey && cleanKey !== k && copy[cleanKey] === undefined) {
+            copy[cleanKey] = copy[k];
+          }
+        }
+        if (typeof copy.document === "string") {
+          try { copy.document = JSON.parse(copy.document); } catch {}
+        }
+        // Nếu model truyền thẳng các trường của document ở top-level thay vì bọc trong { document: {...} }
+        if (!copy.document && Array.isArray(copy.sections)) {
+          const { fileName, caption, ...docFields } = copy;
+          copy.document = docFields;
+        }
+        if (copy.document && typeof copy.document === "object") {
+          const doc: any = { ...copy.document };
+          // Kéo fileName từ bên trong document ra ngoài nếu ở ngoài thiếu
+          if (!copy.fileName && typeof doc.fileName === "string") copy.fileName = doc.fileName;
+          // Đẩy các trường bị đặt nhầm ở ngoài vào trong document
+          for (const field of [
+            "heThong", "loaiVanBan", "coQuanCapTren", "coQuanBanHanh", "soKyHieu",
+            "diaDanh", "ngay", "thang", "nam", "trichYeu", "kinhGui", "canCuPhapLy",
+            "sections", "chucVuNguoiKy", "hoTenNguoiKy", "noiNhan",
+          ]) {
+            if (doc[field] === undefined && copy[field] !== undefined) {
+              doc[field] = copy[field];
+            }
+          }
+          copy.document = doc;
+        }
+        if (!copy.fileName || typeof copy.fileName !== "string" || !copy.fileName.trim()) {
+          const loai = copy.document?.loaiVanBan || "van-ban";
+          const ty = copy.document?.trichYeu || copy.caption || "hanh-chinh";
+          copy.fileName = `${loai}-${String(ty).slice(0, 50)}.docx`;
+        }
+        return copy;
+      }
+      return raw;
+    }, z.object({
+      fileName: z.string().optional().default("van-ban-hanh-chinh.docx").describe('Tên file .docx, ví dụ: "to-trinh-phe-duyet-du-toan.docx"'),
       document: adminDocumentSchema.describe("Cấu trúc văn bản hành chính hoàn chỉnh"),
       caption: z.string().optional().describe("Lời nhắn kèm theo khi gửi file"),
-    }),
-    execute: ({ fileName, document: docData, caption }) =>
+    })),
+    execute: ({ fileName = "van-ban-hanh-chinh.docx", document: docData, caption }) =>
       guard(async () => {
         const rate = checkDocumentRateLimit(`${ctx.account.id}:${ctx.message.threadId}`);
         if (!rate.ok) return ketQuaLoi(rate.reason);

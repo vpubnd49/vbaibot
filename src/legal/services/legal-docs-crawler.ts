@@ -341,9 +341,11 @@ export async function runLegalCrawlRound(): Promise<CrawlRoundResult | null> {
 }
 
 function triggerVbaiLegalSync(): void {
-  const syncScript = "/var/www/vbai/proxy/scripts/sync-vbaibot-legal.cjs";
+  const syncScript = fs.existsSync("/var/www/vbai/proxy/scripts/sync-vbaibot-legal.cjs")
+    ? "/var/www/vbai/proxy/scripts/sync-vbaibot-legal.cjs"
+    : "/var/www/vbaibot/scripts/sync-vbaibot-legal.cjs";
   if (fs.existsSync(syncScript)) {
-    execFile("node", [syncScript], (err) => {
+    execFile("node", ["--no-warnings", syncScript], (err) => {
       if (err) log.warn({ err: err.message }, "Không thể kích hoạt đồng bộ kho sang VBAI");
       else log.info("Đã đồng bộ kho văn bản pháp luật sang VBAI (MongoDB known_documents)");
     });

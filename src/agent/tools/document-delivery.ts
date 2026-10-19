@@ -41,7 +41,7 @@ export async function deliverFile(
       ),
     );
   } catch (err) {
-    log.error(
+    log.warn(
       { accountId: ctx.account.id, threadId: ctx.message.threadId, fileName, bytes: data.length, stage: "delivery", err },
       "Gửi attachment file tự tạo thất bại",
     );

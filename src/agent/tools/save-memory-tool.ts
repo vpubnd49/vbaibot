@@ -68,7 +68,27 @@ function cauTraKhiHong(ketQua: Extract<KetQuaSuaFact, { ok: false }>) {
 export function createSaveMemoryTool({ account, message }: ToolContext) {
   return tool({
     description: MO_TA,
-    inputSchema: z.object({
+    inputSchema: z.preprocess((raw: any) => {
+      if (typeof raw === "string") {
+        try { raw = JSON.parse(raw); } catch {}
+      }
+      if (raw && typeof raw === "object") {
+        const copy: any = { ...raw };
+        if (!copy.content && typeof copy.fact === "string") copy.content = copy.fact;
+        if (!copy.content && typeof copy.text === "string") copy.content = copy.text;
+        if (!copy.content && typeof copy.memory === "string") copy.content = copy.memory;
+        if (typeof copy.content === "string" && copy.content.length > 500) {
+          copy.content = copy.content.slice(0, 497) + "...";
+        }
+        if (!copy.doan_chu && typeof copy.doanChu === "string") copy.doan_chu = copy.doanChu;
+        if (!copy.doan_chu && typeof copy.old_content === "string") copy.doan_chu = copy.old_content;
+        if (copy.about !== "sender" && copy.about !== "thread") {
+          copy.about = message.isGroup && copy.about === "group" ? "thread" : "sender";
+        }
+        return copy;
+      }
+      return raw;
+    }, z.object({
       action: z
         .enum(["them", "sua", "xoa"])
         .default("them")
@@ -77,23 +97,24 @@ export function createSaveMemoryTool({ account, message }: ToolContext) {
         ),
       content: z
         .string()
-        .min(5)
-        .max(500)
+        .min(3)
+        .max(1000)
         .optional()
         .describe(
           "Nội dung cần nhớ, 1-2 câu ngắn gọn, vd 'Anh Hải thích cà phê đen, không đường'. Bắt buộc với 'them' và 'sua'.",
         ),
       doan_chu: z
         .string()
-        .min(3)
+        .min(2)
         .optional()
         .describe(
           "Đoạn chữ ngắn khớp đúng điều đang nhớ cần sửa/xóa, lấy từ chính nội dung đó. Bắt buộc với 'sua' và 'xoa'.",
         ),
       about: z
         .enum(["sender", "thread"])
+        .default("sender")
         .describe("'sender' = về người vừa nhắn; 'thread' = về nhóm/cuộc trò chuyện này"),
-    }),
+    })),
     execute: async ({ action, content, doan_chu, about }) => {
       const subjectId = about === "sender" ? message.senderId : message.threadId;
       if (!subjectId) return ketQuaLoi("Không xác định được đối tượng để lưu");

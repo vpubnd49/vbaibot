@@ -55,7 +55,25 @@ export function createNotebooklmTool(ctx: ToolContext) {
       "'tao' (tạo bản trình chiếu Slides, infographic, podcast, video, báo cáo - tự động tạo sổ tay và nạp nguồn nếu cần, chạy nền 1-3 phút rồi gửi file về Zalo), " +
       "'hoi' (hỏi đáp có trích dẫn), 'lay' (gửi lại file đã tạo), 'danh_sach' (xem danh sách). " +
       "Khi người dùng yêu cầu 'tạo sổ tay mới trên Gemini Notebook / NotebookLM...', 'tạo slide từ Gemini Notebook / NotebookLM...', hoặc làm slide trình chiếu: BẮT BUỘC gọi tool này ngay!",
-    inputSchema: z.object({
+    inputSchema: z.preprocess((raw: any) => {
+      if (typeof raw === "string") {
+        try { raw = JSON.parse(raw); } catch {}
+      }
+      if (raw && typeof raw === "object") {
+        const copy: any = { ...raw };
+        if (typeof copy.tenFile === "string") {
+          copy.tenFile = [copy.tenFile];
+        }
+        if (typeof copy.yeuCau === "string" && copy.yeuCau.length > 4000) {
+          copy.yeuCau = copy.yeuCau.slice(0, 4000);
+        }
+        if (typeof copy.cauHoi === "string" && copy.cauHoi.length > 4000) {
+          copy.cauHoi = copy.cauHoi.slice(0, 4000);
+        }
+        return copy;
+      }
+      return raw;
+    }, z.object({
       action: z
         .enum(["tao_so_tay", "them_nguon", "hoi", "tao", "lay", "danh_sach"])
         .describe(
@@ -70,7 +88,7 @@ export function createNotebooklmTool(ctx: ToolContext) {
         .describe("ĐẶT TRUE khi người dùng yêu cầu 'hãy tạo sổ tay mới...', 'tạo notebook mới...' để không bị lẫn tài liệu cũ."),
       tenSoTay: z
         .string()
-        .max(200)
+        .max(300)
         .optional()
         .describe("Tên đặt cho sổ tay mới (ví dụ: 'Báo cáo Chuyển đổi số 2026', 'Tóm tắt Quyết định 1842')"),
       tenFile: z
@@ -87,17 +105,17 @@ export function createNotebooklmTool(ctx: ToolContext) {
         .describe("nạp N file mới nhất trong hội thoại"),
       url: z.string().url().optional().describe("link website hoặc YouTube làm nguồn"),
       vanBan: z.string().max(400_000).optional().describe("đoạn văn bản dán trực tiếp"),
-      cauHoi: z.string().max(2000).optional().describe("hoi: câu hỏi cần giải đáp từ tài liệu"),
+      cauHoi: z.string().max(5000).optional().describe("hoi: câu hỏi cần giải đáp từ tài liệu"),
       loai: z
         .enum(["slides", "infographic", "podcast", "video", "bao_cao", "bang_du_lieu"])
         .optional()
         .describe("tao/lay: loại nội dung. 'slides' = bản trình chiếu PowerPoint/Google Slides đẹp và nhanh"),
       yeuCau: z
         .string()
-        .max(1000)
+        .max(5000)
         .optional()
         .describe("tao: yêu cầu thêm (trọng tâm, phong cách thiết kế, đối tượng người xem...)"),
-    }),
+    })),
     execute: async (input) => {
       const settings = getNotebooklmSettings();
       if (!isNotebooklmConfigured(settings)) return ketQuaLoi("Gemini Notebook (NotebookLM) đang tắt. Nói thật với người dùng.");

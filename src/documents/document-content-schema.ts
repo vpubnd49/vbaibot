@@ -35,6 +35,10 @@ function normalizeStringArray(val: unknown): string[] {
     return arr.length > 0 ? arr : [""];
   }
   if (val && typeof val === "object") {
+    const obj = val as Record<string, unknown>;
+    if (Array.isArray(obj.lines)) return normalizeStringArray(obj.lines);
+    if (Array.isArray(obj.paragraphs)) return normalizeStringArray(obj.paragraphs);
+    if (Array.isArray(obj.items)) return normalizeStringArray(obj.items);
     const s = normalizeString(val);
     return s.trim().length > 0 ? [s] : [""];
   }
@@ -80,7 +84,7 @@ const bulletsBlock = z.object({
 
 const tableBlock = z.object({
   type: z.literal("table"),
-  headers: z.preprocess(normalizeStringArray, z.array(z.string()).min(1).max(8)),
+  headers: z.preprocess(normalizeStringArray, z.array(z.string()).min(1).max(20)),
   rows: z.preprocess(
     (val) => {
       if (Array.isArray(val)) {
@@ -112,9 +116,17 @@ const twoColumnsBlock = z.object({
     .optional()
     .describe("Căn lề cột phải: center (mặc định)"),
   ratio: z
-    .array(z.number().int().min(20).max(80))
-    .length(2)
-    .optional()
+    .preprocess(
+      (v) => {
+        if (Array.isArray(v) && v.length === 2) {
+          const a = Math.max(20, Math.min(80, Math.round(Number(v[0]) || 40)));
+          const b = Math.max(20, Math.min(80, Math.round(Number(v[1]) || 60)));
+          return [a, b];
+        }
+        return undefined;
+      },
+      z.array(z.number().int().min(20).max(80)).length(2).optional(),
+    )
     .describe("Tỷ lệ % bề rộng [cột trái, cột phải], mặc định [40, 60]"),
 });
 
@@ -125,11 +137,14 @@ const twoColumnsBlock = z.object({
 const separatorBlock = z.object({
   type: z.literal("separator"),
   width_percent: z
-    .number()
-    .int()
-    .min(10)
-    .max(100)
-    .default(33)
+    .preprocess(
+      (v) => {
+        const n = Number(v);
+        if (isNaN(n)) return 33;
+        return Math.max(10, Math.min(100, Math.round(n)));
+      },
+      z.number().int().min(10).max(100).default(33),
+    )
     .describe("Chiều rộng đường kẻ (% bề rộng vùng nội dung): 33 cho cơ quan, 100 cho tiêu ngữ"),
 });
 
@@ -143,13 +158,35 @@ const baseDocumentBlockSchema = z.discriminatedUnion("type", [
 ]);
 
 export const documentBlockSchema = z.preprocess((val: any) => {
+  if (typeof val === "string") {
+    return { type: "paragraph", text: val.trim() || " " };
+  }
   if (val && typeof val === "object") {
     const obj = { ...val };
+    // Tự suy luận type khi model quên gửi type
+    if (!obj.type || typeof obj.type !== "string") {
+      if (obj.left || obj.right || obj.columns) obj.type = "two_columns";
+      else if (obj.headers || obj.rows) obj.type = "table";
+      else if (obj.items || obj.bullets) obj.type = "bullets";
+      else if (obj.level) obj.type = "heading";
+      else obj.type = "paragraph";
+    }
     if (obj.type === "two_columns") {
       // Trường hợp model gửi `columns: [col1, col2]`
       if (Array.isArray(obj.columns) && obj.columns.length >= 2) {
-        if (!obj.left) obj.left = obj.columns[0];
-        if (!obj.right) obj.right = obj.columns[1];
+        const c0 = obj.columns[0];
+        const c1 = obj.columns[1];
+        if (!obj.left) obj.left = c0;
+        if (!obj.right) obj.right = c1;
+        if (c0 && typeof c0 === "object" && !Array.isArray(c0)) {
+          if (!obj.left_align && (c0.align === "left" || c0.align === "center")) obj.left_align = c0.align;
+          if (!obj.ratio && typeof c0.width === "number" && typeof c1?.width === "number") {
+            obj.ratio = [c0.width, c1.width];
+          }
+        }
+        if (c1 && typeof c1 === "object" && !Array.isArray(c1)) {
+          if (!obj.right_align && (c1.align === "left" || c1.align === "center")) obj.right_align = c1.align;
+        }
       }
       // Pattern thực tế: model Đảng gửi col1/col2 thay vì left/right
       if (!obj.left && (obj.col1 || obj.column1 || obj.left_lines || obj.left_column)) {
@@ -165,8 +202,8 @@ export const documentBlockSchema = z.preprocess((val: any) => {
       if (!obj.ratio && Array.isArray(obj.width) && obj.width.length === 2) {
         obj.ratio = obj.width;
       }
-      if (!obj.left) obj.left = [""];
-      if (!obj.right) obj.right = [""];
+      if (!obj.left) obj.left = [" "];
+      if (!obj.right) obj.right = [" "];
     } else if (obj.type === "paragraph") {
       if (!obj.text && obj.paragraph) {
         if (typeof obj.paragraph === "string") obj.text = obj.paragraph;
@@ -175,6 +212,12 @@ export const documentBlockSchema = z.preprocess((val: any) => {
           obj.text = p.text ?? p.content ?? "";
           if (p.align && !obj.align) obj.align = p.align;
         }
+      }
+      if (!obj.text && Array.isArray(obj.paragraphs)) {
+        obj.text = obj.paragraphs.map(normalizeString).filter(Boolean).join("\n");
+      }
+      if (!obj.text && Array.isArray(obj.lines)) {
+        obj.text = obj.lines.map(normalizeString).filter(Boolean).join("\n");
       }
       // Pattern thực tế: model dùng content/value/description thay vì text
       if (!obj.text && obj.content) {
@@ -185,6 +228,10 @@ export const documentBlockSchema = z.preprocess((val: any) => {
       }
       if (!obj.text && obj.description) {
         obj.text = String(obj.description);
+      }
+      // Nếu model gửi {"type": "paragraph"} rỗng (làm dòng trống) -> điền khoảng trắng để không lỗi min(1)
+      if (!obj.text || (typeof obj.text === "string" && !obj.text.trim())) {
+        obj.text = " ";
       }
     } else if (obj.type === "heading") {
       // Pattern thực tế: model gửi heading thay vì text, hoặc title thay vì text
@@ -201,22 +248,24 @@ export const documentBlockSchema = z.preprocess((val: any) => {
         obj.text = typeof obj.value === "string" ? obj.value : String(obj.value);
       }
       // Pattern thực tế: model gửi {type: "heading"} rỗng → default text
-      if (!obj.text) {
+      if (!obj.text || (typeof obj.text === "string" && !obj.text.trim())) {
         obj.text = "—";
       }
     } else if (obj.type === "bullets") {
-      if (!obj.items && (obj.bullets || obj.lines || obj.list || obj.content)) {
-        obj.items = obj.bullets || obj.lines || obj.list || obj.content;
+      if (!obj.items && (obj.bullets || obj.lines || obj.list || obj.content || obj.paragraphs)) {
+        obj.items = obj.bullets || obj.lines || obj.list || obj.content || obj.paragraphs;
       }
+      if (!obj.items) obj.items = [" "];
     } else if (obj.type === "table") {
       // Pattern thực tế: model dùng data/body thay vì rows, columns thay vì headers
       if (!obj.rows && (obj.data || obj.body)) {
         obj.rows = obj.data || obj.body;
       }
       if (!obj.headers && obj.columns && Array.isArray(obj.columns)) {
-        // Chỉ khi columns là string[] (tên cột), không phải object[]
         if (obj.columns.every((c: unknown) => typeof c === "string")) {
           obj.headers = obj.columns;
+        } else {
+          obj.headers = obj.columns.map((c: any) => String(c?.header ?? c?.name ?? c?.title ?? c ?? ""));
         }
       }
     }
@@ -369,14 +418,16 @@ const formulaString = z
  * Zalo thật trong khi toàn bộ test vẫn xanh (test gọi thẳng execute, không
  * qua tầng validate). Xem test hồi quy trong document-content-schema.test.ts.
  */
-export const spreadsheetCellSchema = z.union([
+export const spreadsheetCellSchema = z.preprocess((raw: any) => {
+  if (raw === null || raw === undefined) return { kind: "text", value: "" };
+  if (typeof raw === "boolean") return { kind: "text", value: raw ? "Có" : "Không" };
+  return raw;
+}, z.union([
   textCell,
   numberCell,
   multiplyFormula,
   sumFormula,
   formulaString,
-  // Chuỗi "=" phải rơi vào formulaString ở trên - lọt xuống đây thành text là
-  // công thức sai âm thầm biến thành chữ, người dùng không bao giờ biết
   z
     .string()
     .refine((s) => !s.startsWith("="))
@@ -391,14 +442,50 @@ export const spreadsheetCellSchema = z.union([
       return { kind: "text" as const, value };
     }),
   z.number().transform((value) => ({ kind: "number", value, format: "plain" }) as const),
-]);
+]));
 
 export type SpreadsheetCell = z.output<typeof spreadsheetCellSchema>;
 
-export const sheetSchema = z.object({
+export const sheetSchema = z.preprocess((raw: any) => {
+  if (raw && typeof raw === "object") {
+    const s: any = { ...raw };
+    if (!s.name || typeof s.name !== "string" || !s.name.trim()) {
+      s.name = s.sheetName || s.title || s.subtitle || "Bảng tổng hợp";
+      if (typeof s.name === "string" && s.name.length > 31) {
+        s.name = s.name.slice(0, 31).trim();
+      }
+    }
+    if (!Array.isArray(s.headers) && Array.isArray(s.columns)) {
+      s.headers = s.columns.map((c: any) => (typeof c === "string" ? c : String(c?.header ?? c?.name ?? c?.title ?? c ?? "")));
+    }
+    if (!Array.isArray(s.rows) && Array.isArray(s.data)) {
+      s.rows = s.data;
+    }
+    if (!Array.isArray(s.headers) || s.headers.length === 0) {
+      if (Array.isArray(s.rows) && s.rows.length > 0 && Array.isArray(s.rows[0])) {
+        s.headers = s.rows[0].map((_: any, idx: number) => `Cột ${idx + 1}`);
+      } else {
+        s.headers = ["Nội dung"];
+      }
+    } else {
+      s.headers = s.headers.map((h: any) => String(h ?? ""));
+    }
+    if (!Array.isArray(s.rows)) {
+      s.rows = [];
+    } else if (s.rows.length > 0 && !Array.isArray(s.rows[0]) && typeof s.rows[0] === "object" && s.rows[0] !== null && !("kind" in s.rows[0])) {
+      // Nếu model gửi rows là mảng object [{STT: 1, Ten: "A"}, ...] thay vì mảng 2 chiều
+      s.rows = s.rows.map((rowObj: Record<string, any>) =>
+        s.headers.map((h: string) => rowObj[h] ?? ""),
+      );
+    }
+    return s;
+  }
+  return raw;
+}, z.object({
   name: z
     .string()
     .min(1)
+    .default("Bảng tổng hợp")
     .describe('Tên sheet GIỮ NGUYÊN dấu tiếng Việt, vd "Tổng quan" (không viết "Tong quan")'),
   /** Bảng màu - model chọn theo ngữ cảnh tài liệu, không tự do hex */
   theme: z
@@ -412,12 +499,114 @@ export const sheetSchema = z.object({
   /** Banner tiêu đề nổi bật ở đầu sheet - nên có với báo cáo */
   title: z.string().optional().describe('Tiêu đề lớn đầu sheet, vd "BÁO CÁO TỔNG HỢP..."'),
   subtitle: z.string().optional().describe("Dòng phụ đề nhỏ dưới tiêu đề (phạm vi, khoảng thời gian)"),
-  headers: z.array(z.string()).min(1).max(20),
+  headers: z.array(z.string()).min(1).max(30),
   rows: z
     .array(z.array(spreadsheetCellSchema))
+    .default([])
     .describe("Các dòng dữ liệu; có thể để rỗng khi người dùng yêu cầu file mẫu chỉ gồm tiêu đề và cột"),
   /** Ghi chú đỏ nghiêng cuối bảng - dùng cho lưu ý quan trọng, nguồn số liệu */
   note: z.string().optional().describe("Ghi chú/lưu ý quan trọng hiện cuối bảng"),
-});
+}));
 
 export type Sheet = z.output<typeof sheetSchema>;
+
+export function preprocessWordDocumentInput(raw: any): any {
+  if (typeof raw === "string") {
+    try { raw = JSON.parse(raw); } catch {}
+  }
+  if (raw && typeof raw === "object") {
+    const copy: any = { ...raw };
+    if (typeof copy.blocks === "string") {
+      try { copy.blocks = JSON.parse(copy.blocks); } catch {}
+    }
+    if (!Array.isArray(copy.blocks) && Array.isArray(copy.sections)) {
+      copy.blocks = copy.sections.flatMap((sec: any) => {
+        const out: any[] = [];
+        if (sec?.heading || sec?.title) out.push({ type: "heading", level: 2, text: sec.heading || sec.title });
+        if (Array.isArray(sec?.paragraphs)) {
+          for (const p of sec.paragraphs) out.push({ type: "paragraph", text: String(p ?? "") });
+        } else if (typeof sec?.text === "string") {
+          out.push({ type: "paragraph", text: sec.text });
+        }
+        if (Array.isArray(sec?.items)) out.push({ type: "bullets", items: sec.items });
+        if (sec?.table) out.push({ type: "table", headers: sec.table.headers, rows: sec.table.rows });
+        return out;
+      });
+    }
+    if ((!Array.isArray(copy.blocks) || copy.blocks.length === 0) && typeof copy.content === "string" && copy.content.trim()) {
+      copy.blocks = copy.content
+        .split(/\n{2,}/)
+        .map((p: string) => p.trim())
+        .filter(Boolean)
+        .map((text: string) => ({ type: "paragraph", text }));
+    }
+    if (Array.isArray(copy.blocks)) {
+      copy.blocks = copy.blocks.map((b: any) => {
+        if (b && typeof b === "object" && (b.type === "heading" || (!b.type && b.level !== undefined))) {
+          const n = Number(b.level);
+          const clamped = isNaN(n) ? 2 : Math.max(1, Math.min(3, Math.round(n)));
+          return { ...b, level: clamped };
+        }
+        return b;
+      });
+    }
+    return copy;
+  }
+  return raw;
+}
+
+export function preprocessExcelFileInput(raw: any): any {
+  if (typeof raw === "string") {
+    try { raw = JSON.parse(raw); } catch {}
+  }
+  if (raw && typeof raw === "object") {
+    const copy: any = { ...raw };
+    if (typeof copy.sheets === "string") {
+      try { copy.sheets = JSON.parse(copy.sheets); } catch {}
+    }
+    if ((!Array.isArray(copy.sheets) || copy.sheets.length === 0) && (Array.isArray(copy.headers) || Array.isArray(copy.rows))) {
+      copy.sheets = [
+        {
+          name: copy.sheetName || copy.title || "Bảng tổng hợp",
+          theme: copy.theme,
+          title: copy.title,
+          subtitle: copy.subtitle,
+          headers: copy.headers,
+          rows: copy.rows,
+          note: copy.note,
+        },
+      ];
+    }
+    if (Array.isArray(copy.sheets) && copy.sheets.length > 0) {
+      copy.sheets = copy.sheets.map((sh: any, idx: number) => {
+        if (!sh || typeof sh !== "object") return sh;
+        const s = { ...sh };
+        if (idx === 0) {
+          if (!s.theme && copy.theme) s.theme = copy.theme;
+          if (!s.title && copy.title) s.title = copy.title;
+          if (!s.subtitle && copy.subtitle) s.subtitle = copy.subtitle;
+          if (!s.note && copy.note) s.note = copy.note;
+        }
+        if (Array.isArray(s.rows)) {
+          s.rows = s.rows.map((row: any) => {
+            if (!Array.isArray(row)) return row;
+            return row.map((cell: any) => {
+              if (typeof cell === "string" && cell.startsWith("=")) {
+                const mul = cell.match(MULTIPLY_RE);
+                if (mul) return cell;
+                const sum = cell.match(SUM_RE);
+                if (sum && sum[1]!.toUpperCase() === sum[3]!.toUpperCase()) return cell;
+                return { kind: "text", value: cell };
+              }
+              return cell;
+            });
+          });
+        }
+        return s;
+      });
+    }
+    return copy;
+  }
+  return raw;
+}
+

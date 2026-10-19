@@ -45,7 +45,11 @@ export function startListener(
     const backoff = Math.min(MAX_RECONNECT_DELAY_MS, 2 ** reconnectAttempts * 1000);
     const delay = backoff + Math.floor(Math.random() * 1000);
     reconnectAttempts += 1;
-    log.warn({ attempt: reconnectAttempts, delayMs: delay }, "Listener bị đóng - sẽ kết nối lại");
+    if (reconnectAttempts === 1) {
+      log.info({ attempt: reconnectAttempts, delayMs: delay }, "Listener bị đóng - sẽ kết nối lại");
+    } else {
+      log.warn({ attempt: reconnectAttempts, delayMs: delay }, "Listener bị đóng - sẽ kết nối lại");
+    }
 
     if (reconnectAttempts === 3) {
       notifyAccountDisconnect(accountId, `Mất kết nối liên tiếp ${reconnectAttempts} lần`).catch(() => undefined);

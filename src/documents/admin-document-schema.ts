@@ -61,11 +61,60 @@ export const TEN_LOAI_TIENG_VIET: Record<LoaiVanBanHC, string> = {
   phieu_trinh: "PHIẾU TRÌNH",
 };
 
-export const adminSectionSchema = z.object({
+export const adminSectionSchema = z.preprocess((raw: any) => {
+  if (typeof raw === "string") {
+    return { paragraphs: [raw] };
+  }
+  if (raw && typeof raw === "object") {
+    const s: any = { ...raw };
+    if (!s.heading && typeof s.title === "string") s.heading = s.title;
+    if (typeof s.paragraphs === "string") {
+      s.paragraphs = s.paragraphs.split("\n").map((l: string) => l.trim()).filter(Boolean);
+    }
+    if (!Array.isArray(s.paragraphs)) {
+      if (typeof s.text === "string" && s.text.trim()) s.paragraphs = [s.text.trim()];
+      else if (typeof s.content === "string" && s.content.trim()) s.paragraphs = [s.content.trim()];
+      else s.paragraphs = [];
+    } else {
+      s.paragraphs = s.paragraphs
+        .map((p: any) => (typeof p === "string" ? p.trim() : String(p?.text ?? p?.content ?? p ?? "").trim()))
+        .filter((p: string) => p.length > 0);
+    }
+    if (typeof s.items === "string") {
+      s.items = s.items.split("\n").map((l: string) => l.trim()).filter(Boolean);
+    } else if (Array.isArray(s.items)) {
+      s.items = s.items
+        .map((it: any) => (typeof it === "string" ? it.trim() : String(it?.text ?? it?.content ?? it ?? "").trim()))
+        .filter((it: string) => it.length > 0);
+    }
+    // Nếu model chỉ truyền items hoặc table mà quên truyền paragraphs -> điền mảng rỗng hợp lệ hoặc dùng heading/items
+    if (s.paragraphs.length === 0 && (!Array.isArray(s.items) || s.items.length === 0) && !s.table) {
+      s.paragraphs = [s.heading || " "];
+    }
+    if (s.table && typeof s.table === "object") {
+      const headers = Array.isArray(s.table.headers)
+        ? s.table.headers.map((h: any) => String(h ?? ""))
+        : Array.isArray(s.table.columns)
+          ? s.table.columns.map((h: any) => String(h ?? ""))
+          : ["Nội dung"];
+      const rawRows = Array.isArray(s.table.rows) ? s.table.rows : Array.isArray(s.table.data) ? s.table.data : [];
+      const rows = rawRows.map((r: any) =>
+        Array.isArray(r) ? r.map((c: any) => String(c ?? "")) : [String(r ?? "")],
+      );
+      if (headers.length > 0 && rows.length > 0) {
+        s.table = { headers, rows };
+      } else {
+        delete s.table;
+      }
+    }
+    return s;
+  }
+  return raw;
+}, z.object({
   heading: z.string().optional().describe("Tiêu đề mục, ví dụ: 'I. SỰ CẦN THIẾT', 'Điều 1. Phạm vi điều chỉnh'"),
   paragraphs: z
-    .array(z.string().min(1))
-    .min(1)
+    .array(z.string())
+    .default([])
     .describe(
       "Các đoạn văn xuôi trong mục (tự động thụt đầu dòng 1cm). " +
       "QUY TẮC BÔI ĐỎ KHI HIỆU ĐÍNH / SỬA LỖI: BẮT BUỘC dùng thẻ `<red>từ đã sửa</red>` (hoặc `~~từ sai~~ <red>từ đúng</red>`) " +
@@ -83,11 +132,52 @@ export const adminSectionSchema = z.object({
     })
     .optional()
     .describe("Bảng biểu số liệu nếu có trong mục"),
-});
+}));
 
 export type AdminSection = z.infer<typeof adminSectionSchema>;
 
-export const adminDocumentSchema = z.object({
+export const adminDocumentSchema = z.preprocess((raw: any) => {
+  if (typeof raw === "string") {
+    try { raw = JSON.parse(raw); } catch {}
+  }
+  if (raw && typeof raw === "object") {
+    const d: any = { ...raw };
+    if (typeof d.kinhGui === "string") {
+      d.kinhGui = d.kinhGui.split(/;|\n/).map((s: string) => s.trim()).filter(Boolean);
+    } else if (Array.isArray(d.kinhGui)) {
+      d.kinhGui = d.kinhGui.map((s: any) => String(s ?? "").trim()).filter(Boolean);
+    }
+    if (typeof d.canCuPhapLy === "string") {
+      d.canCuPhapLy = d.canCuPhapLy.split("\n").map((s: string) => s.trim()).filter(Boolean);
+    } else if (Array.isArray(d.canCuPhapLy)) {
+      d.canCuPhapLy = d.canCuPhapLy.map((s: any) => String(s ?? "").trim()).filter(Boolean);
+    }
+    if (typeof d.noiNhan === "string") {
+      d.noiNhan = d.noiNhan.split(/;|\n/).map((s: string) => s.trim()).filter(Boolean);
+    } else if (Array.isArray(d.noiNhan)) {
+      const cleaned = d.noiNhan.map((s: any) => String(s ?? "").trim()).filter(Boolean);
+      d.noiNhan = cleaned.length > 0 ? cleaned : ["Như trên", "Lưu: VT"];
+    }
+    if (typeof d.ngay === "number") d.ngay = String(d.ngay);
+    if (typeof d.thang === "number") d.thang = String(d.thang);
+    if (typeof d.nam === "number") d.nam = String(d.nam);
+    if (!d.trichYeu || typeof d.trichYeu !== "string" || !d.trichYeu.trim()) {
+      d.trichYeu =
+        d.title ||
+        d.subject ||
+        (Array.isArray(d.sections) && d.sections[0]?.heading) ||
+        "Về việc thực hiện nhiệm vụ công tác";
+    }
+    if (!d.coQuanBanHanh || typeof d.coQuanBanHanh !== "string" || !d.coQuanBanHanh.trim()) {
+      d.coQuanBanHanh = "ỦY BAN NHÂN DÂN TỈNH LÂM ĐỒNG";
+    }
+    if (!d.chucVuNguoiKy || typeof d.chucVuNguoiKy !== "string" || !d.chucVuNguoiKy.trim()) {
+      d.chucVuNguoiKy = "GIÁM ĐỐC";
+    }
+    return d;
+  }
+  return raw;
+}, z.object({
   heThong: z
     .enum(["nha_nuoc_nd30", "dang_hd05"])
     .default("nha_nuoc_nd30")
@@ -115,7 +205,7 @@ export const adminDocumentSchema = z.object({
   nam: z.string().default("2026").describe("Năm ban hành"),
   trichYeu: z
     .string()
-    .min(1)
+    .default("Về việc thực hiện nhiệm vụ công tác")
     .describe("Trích yếu nội dung văn bản (V/v phê duyệt..., Về việc quy định chức năng nhiệm vụ...)"),
   kinhGui: z
     .array(z.string().min(1))
@@ -136,6 +226,6 @@ export const adminDocumentSchema = z.object({
     .array(z.string().min(1))
     .default(["Như trên", "Lưu: VT"])
     .describe("Nơi nhận phía cuối văn bản, ví dụ: ['Như trên', 'Thường trực Tỉnh ủy', 'Lưu: VT, NC']. BẮT BUỘC: mục đầu tiên gửi các cơ quan tại phần kính gửi phải ghi là 'Như trên', TUYỆT ĐỐI KHÔNG ghi 'Như kính gửi'."),
-});
+}));
 
 export type AdminDocument = z.infer<typeof adminDocumentSchema>;
