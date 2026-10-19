@@ -238,7 +238,12 @@ function extractBotBadgesFromTrace(
     const dateTag = new Date().toISOString().slice(0, 10);
     fs.mkdirSync(SEP_EXPORT_DIR, { recursive: true });
     for (const d of drafts) {
-      const updatedMs = Date.parse(d.updatedAt);
+      const updatedMs =
+        d.updatedAt instanceof Date
+          ? d.updatedAt.getTime()
+          : d.updatedAt
+            ? Date.parse(String(d.updatedAt))
+            : 0;
       if (Number.isFinite(updatedMs) && updatedMs >= turnStartMs - 5000) {
         const draftDir = path.join(getSkillDraftsRootDir(), d.id);
         const skillMdPath = path.join(draftDir, "SKILL.md");
