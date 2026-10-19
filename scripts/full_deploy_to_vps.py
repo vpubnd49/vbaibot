@@ -34,6 +34,7 @@ VBAIBOT_FILES = [
     # Conversation & Zalo
     "src/conversation/media-store.ts",
     "src/zalo/zalo-listener.ts",
+    "src/zalo/zalo-message-parser.ts",
     # Config & Documents
     "src/config/env.ts",
     "src/config/runtime-notebooklm-settings.ts",
