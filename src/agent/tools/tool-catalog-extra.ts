@@ -17,9 +17,9 @@ import type { ToolDefinition } from "./tool-catalog-types.js";
 export const EXTRA_TOOL_DEFINITIONS: ToolDefinition[] = [
   {
     key: "delegate_to_bot",
-    label: "Điều phối Đội ngũ Bot (Chief of Staff)",
+    label: "Điều phối Đội ngũ Bot & Kỹ năng",
     description:
-      "Sếp – Chief of Staff giao việc dây chuyền hoặc song song cho các Bot chuyên trách (Radar Cộng Đồng FB, Jakie, Linh, Xưởng Skill, Ebook AI Thực Chiến, Soạn Bài Đào Tạo, Leader Marketing)",
+      "Điều phối dây chuyền hoặc song song giữa các Agent trong hệ thống, các Kỹ năng chuyên môn (.agents/skills) và Xưởng Skill",
     group: "action",
     keTrongKhaNang: true,
     runsInScheduledTurn: true,

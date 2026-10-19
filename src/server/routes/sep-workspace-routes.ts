@@ -9,7 +9,9 @@ import { ThreadType } from "zca-js";
 import { runAgentTurn } from "../../agent/agent-loop.js";
 import { saveTurnTrace, trongGiaoDich } from "../../agent/agent-trace-store.js";
 import type { StepTrace } from "../../agent/agent-step-trace.js";
+import { TOOL_DEFINITIONS } from "../../agent/tools/index.js";
 import { listAccounts, listEnabledAccounts } from "../../config/account-store.js";
+import { listAgents } from "../../config/agent-store.js";
 import { dataDir } from "../../config/env.js";
 import { appendMessage } from "../../conversation/history-store.js";
 import { updateThreadSettings } from "../../conversation/thread-settings-store.js";
@@ -19,6 +21,7 @@ import { readDocument } from "../../documents/document-reader.js";
 import { listSkillDrafts, loadAllSkills, getSkillDraftsRootDir } from "../../skills/skill-manager.js";
 import { synthesizeSingleVoiceEdge } from "../../voice/edge-tts.js";
 import { saveVoiceFile } from "../../voice/voice-file-store.js";
+import { getAccountInsight } from "../group-insight.js";
 import { createLogger } from "../../shared/logger.js";
 import type { ParsedMessage } from "../../zalo/zalo-message-parser.js";
 
@@ -26,7 +29,7 @@ const log = createLogger("sep-workspace-routes");
 
 const SEP_EXPORT_DIR = path.join(dataDir, "shared-files", "sep-exports");
 
-/** Chỉ chặn các tool đặc thù Zalo group/poll/email trên giao diện Web App Sếp */
+/** Chỉ chặn các tool đặc thù Zalo group/poll/email trên giao diện Web App */
 const SEP_RESTRICTED_TOOLS = [
   "send_email",
   "group_admin",
@@ -51,72 +54,82 @@ export type SepBotBadge = {
   summary: string;
 };
 
-const WORKSPACE_BOTS = [
-  {
-    id: "sep-chief",
-    name: "🟢 Sếp – Chief of Staff",
-    shortName: "Sếp – Chief of Staff",
-    icon: "🟢",
-    color: "#3b82f6",
-    role: "Tổng chỉ huy Multi-Agent (điều phối Radar, Jakie, Linh, Xưởng Skill, Đào Tạo, Marketing)",
-  },
-  {
-    id: "xuong-skill",
-    name: "🛠️ Xưởng Skill",
-    shortName: "Xưởng Skill",
-    icon: "🛠️",
-    color: "#8b5cf6",
-    role: "Nhà máy chế tạo & kiểm thử Sandbox Skill (.md) trước khi kích hoạt",
-  },
-  {
-    id: "radar-cong-dong",
-    name: "🟠 Radar Cộng Đồng FB",
-    shortName: "Radar Cộng Đồng FB",
-    icon: "🟠",
-    color: "#f97316",
-    role: "Quét tín hiệu cộng đồng AI, phân tích xu hướng, xuất Excel & Web Dashboard 3 tab",
-  },
-  {
-    id: "jakie-insight",
-    name: "🔴 Jakie",
-    shortName: "Jakie",
-    icon: "🔴",
-    color: "#ef4444",
-    role: "Chuyên gia bóc tách Insight & Tâm lý học hành vi khách hàng",
-  },
-  {
-    id: "linh-content",
-    name: "🩷 Linh",
-    shortName: "Linh",
-    icon: "🩷",
-    color: "#ec4899",
-    role: "Biên tập viên Content Viral, Storytelling & Copywriting chuyển đổi cao",
-  },
-  {
-    id: "ebook-ai-thuc-chien",
-    name: "🟣 Ebook AI Thực Chiến",
-    shortName: "Ebook AI Thực Chiến",
-    icon: "🟣",
-    color: "#a855f7",
-    role: "Đóng gói Ebook, Cẩm nang, Playbook chuyên sâu",
-  },
-  {
-    id: "soan-bai-dao-tao",
-    name: "🔵 Soạn Bài Đào Tạo",
-    shortName: "Soạn Bài Đào Tạo",
-    icon: "🔵",
-    color: "#06b6d4",
-    role: "Thiết kế giáo án, kịch bản Workshop, bài tập thực hành & rubric",
-  },
-  {
-    id: "leader-marketing",
-    name: "🟤 Leader Marketing",
-    shortName: "Leader Marketing",
-    icon: "🟤",
-    color: "#b45309",
-    role: "Hoạch định phễu Marketing, GTM, định vị chiến lược & lịch đăng bài",
-  },
-];
+export type WorkspaceBotItem = {
+  id: string;
+  name: string;
+  shortName: string;
+  icon: string;
+  color: string;
+  role: string;
+  source: "system" | "agent" | "skill";
+};
+
+/**
+ * Xây dựng danh sách Bot hoàn toàn từ dữ liệu thật của hệ thống VBAIBot:
+ * 1. Điều phối viên hệ thống & Xưởng Skill Sandbox
+ * 2. Các Agent thực tế đang cấu hình trong bảng `agents` (listAgents)
+ * 3. Các Kỹ năng thực tế trong `.agents/skills/` (loadAllSkills)
+ */
+export function buildWorkspaceBotsFromVbaibot(): WorkspaceBotItem[] {
+  const items: WorkspaceBotItem[] = [
+    {
+      id: "sep-chief",
+      name: "🟢 Điều Phối Hệ Thống (VBAIBot)",
+      shortName: "Điều Phối Hệ Thống",
+      icon: "🟢",
+      color: "#3b82f6",
+      role: "Tổng điều phối các Agent, Kỹ năng (.agents/skills) và Công cụ thực tế của VBAIBot",
+      source: "system",
+    },
+    {
+      id: "xuong-skill",
+      name: "🛠️ Xưởng Skill (Sandbox)",
+      shortName: "Xưởng Skill",
+      icon: "🛠️",
+      color: "#8b5cf6",
+      role: "Thiết kế, kiểm thử Sandbox (.agents/skill-drafts) và nâng cấp SKILL.md cho VBAIBot",
+      source: "system",
+    },
+  ];
+
+  try {
+    const agents = listAgents();
+    for (const ag of agents) {
+      items.push({
+        id: `agent:${ag.id}`,
+        name: `${ag.icon || "🤖"} ${ag.name}`,
+        shortName: ag.name,
+        icon: ag.icon || "🤖",
+        color: "#10b981",
+        role:
+          (ag.persona && ag.persona.trim().slice(0, 140)) ||
+          `Agent hệ thống (${ag.modelProvider ?? "mặc định"} · ${ag.accountCount} tài khoản gắn kết)`,
+        source: "agent",
+      });
+    }
+  } catch {
+    // Bỏ qua nếu DB chưa khởi tạo trong môi trường test cô lập
+  }
+
+  try {
+    const skills = loadAllSkills();
+    for (const sk of skills) {
+      items.push({
+        id: `skill:${sk.id}`,
+        name: `📘 ${sk.name || sk.id}`,
+        shortName: sk.name || sk.id,
+        icon: "📘",
+        color: "#f59e0b",
+        role: sk.description ? sk.description.slice(0, 160) : `Kỹ năng chuyên môn (${sk.id})`,
+        source: "skill",
+      });
+    }
+  } catch {
+    // Bỏ qua nếu thư mục skill chưa có
+  }
+
+  return items;
+}
 
 const chatSchema = z.object({
   message: z.string().trim().min(1, "Nội dung yêu cầu không được để trống").max(8000),
@@ -126,9 +139,9 @@ const chatSchema = z.object({
     .trim()
     .min(1)
     .max(80)
-    .regex(/^[a-zA-Z0-9_-]+$/)
-    .default("samsung_sep"),
-  senderName: z.string().trim().max(100).optional().default("Anh"),
+    .regex(/^[a-zA-Z0-9_:-]+$/)
+    .default("vbaibot_mobile"),
+  senderName: z.string().trim().max(100).optional().default("Người dùng"),
   autoVoice: z.boolean().optional().default(false),
   voiceInputDurationSec: z.number().optional(),
 });
@@ -157,7 +170,7 @@ function createSepMockZaloApi(capturedFiles: SepExportFile[]): API {
           ext,
         });
       } catch (err) {
-        log.warn({ err, item }, "Không thể sao lưu file xuất từ Sếp Workspace");
+        log.warn({ err, item }, "Không thể sao lưu file xuất từ Workspace");
       }
     }
   };
@@ -182,6 +195,7 @@ function extractBotBadgesFromTrace(
   trace: StepTrace[],
   capturedFiles: SepExportFile[],
   turnStartMs: number,
+  workspaceBots: WorkspaceBotItem[],
 ): SepBotBadge[] {
   const badges: SepBotBadge[] = [];
   const seenKey = new Set<string>();
@@ -191,26 +205,28 @@ function extractBotBadgesFromTrace(
       if (tc.name === "delegate_to_bot") {
         try {
           const parsed = JSON.parse(tc.input) as {
-            bot_id?: string;
-            pipeline_bot_ids?: string[];
-            task_brief?: string;
+            tasks?: { bot?: string; instruction?: string }[];
           };
-          const ids = [
-            ...(parsed.bot_id ? [parsed.bot_id] : []),
-            ...(Array.isArray(parsed.pipeline_bot_ids) ? parsed.pipeline_bot_ids : []),
-          ];
-          for (const id of ids) {
-            const found = WORKSPACE_BOTS.find((b) => b.id === id);
-            const label = found ? found.name : id;
+          const taskList = Array.isArray(parsed.tasks) ? parsed.tasks : [];
+          for (const t of taskList) {
+            const rawBot = t.bot?.trim() || "agent";
+            const found = workspaceBots.find(
+              (b) =>
+                b.id === rawBot ||
+                b.id === `skill:${rawBot}` ||
+                b.id === `agent:${rawBot}` ||
+                b.shortName.toLowerCase().includes(rawBot.toLowerCase()),
+            );
+            const label = found ? found.name : rawBot;
             const icon = found ? found.icon : "🤖";
-            const key = `bot:${id}`;
+            const key = `bot:${rawBot}`;
             if (!seenKey.has(key)) {
               seenKey.add(key);
               badges.push({
-                botId: id,
+                botId: rawBot,
                 botName: label,
                 icon,
-                summary: parsed.task_brief?.slice(0, 120) ?? "Đã bàn giao nhiệm vụ chuyên sâu",
+                summary: t.instruction?.slice(0, 120) ?? "Đã thực thi nhiệm vụ chuyên môn",
               });
             }
           }
@@ -228,11 +244,25 @@ function extractBotBadgesFromTrace(
             summary: "Đóng gói SKILL.md & chạy Sandbox Test",
           });
         }
+      } else {
+        const toolDef = TOOL_DEFINITIONS.find((d) => d.key === tc.name);
+        if (toolDef) {
+          const key = `tool:${tc.name}`;
+          if (!seenKey.has(key)) {
+            seenKey.add(key);
+            badges.push({
+              botId: tc.name,
+              botName: `⚙️ ${toolDef.label}`,
+              icon: "⚙️",
+              summary: toolDef.description,
+            });
+          }
+        }
       }
     }
   }
 
-  // Kiểm tra các bản nháp skill vừa được tạo/cập nhật trong lượt này để đính kèm file .md vào bong bóng chat
+  // Kiểm tra các bản nháp skill vừa được tạo/cập nhật trong lượt này để đính kèm file .md
   try {
     const drafts = listSkillDrafts();
     const dateTag = new Date().toISOString().slice(0, 10);
@@ -291,15 +321,32 @@ export const sepWorkspaceRoutes = new Hono()
   )
 
   .get("/bots", (c) => {
+    const bots = buildWorkspaceBotsFromVbaibot();
+    const accounts = listAccounts().map((a) => ({
+      id: a.id,
+      label: a.label,
+      enabled: a.enabled,
+      agentId: a.agentId,
+    }));
+    const insight = getAccountInsight("all", 30);
     return c.json({
       ok: true,
-      bots: WORKSPACE_BOTS,
+      bots,
+      accounts,
       drafts: listSkillDrafts(),
       activeSkills: loadAllSkills().map((s) => ({
         id: s.id,
         name: s.name,
         description: s.description,
+        triggers: s.triggers,
       })),
+      toolsCount: TOOL_DEFINITIONS.length,
+      stats30d: {
+        totalThreads: insight.totalThreads,
+        totalTurns: insight.totalTurns,
+        totalTokens: insight.totalTokens,
+        averageResponseTimeMs: insight.averageResponseTimeMs,
+      },
     });
   })
 
@@ -362,7 +409,7 @@ export const sepWorkspaceRoutes = new Hono()
         voiceUrl: `/voice/sep/${encodeURIComponent(saved.filename)}`,
       });
     } catch (err) {
-      log.error({ err }, "Lỗi tổng hợp giọng nói cho Sếp Workspace");
+      log.error({ err }, "Lỗi tổng hợp giọng nói cho Workspace");
       return c.json(
         { ok: false, error: err instanceof Error ? err.message : "Lỗi TTS" },
         500,
@@ -399,7 +446,7 @@ export const sepWorkspaceRoutes = new Hono()
         }
       }
     } catch (err) {
-      log.error({ err }, "Lỗi STT trên Sếp Workspace");
+      log.error({ err }, "Lỗi STT trên Workspace");
       return c.json(
         { ok: false, error: err instanceof Error ? err.message : "Không nhận diện được giọng nói" },
         500,
@@ -423,30 +470,35 @@ export const sepWorkspaceRoutes = new Hono()
       return c.json({ ok: false, error: "Hệ thống chưa cấu hình tài khoản bot" }, 500);
     }
 
-    const selectedBot = WORKSPACE_BOTS.find((b) => b.id === botId) ?? WORKSPACE_BOTS[0]!;
-    const threadId = `sep_${botId}_${sessionId}`;
+    const workspaceBots = buildWorkspaceBotsFromVbaibot();
+    const selectedBot = workspaceBots.find((b) => b.id === botId) ?? workspaceBots[0]!;
+    const safeBotThreadKey = botId.replace(/[^a-zA-Z0-9_-]/g, "_");
+    const threadId = `sep_${safeBotThreadKey}_${sessionId}`;
     const startMs = Date.now();
 
     updateThreadSettings(account.id, threadId, {
       disabledTools: SEP_RESTRICTED_TOOLS,
     });
 
-    // Định hình vai trò theo bot mà người dùng đang chọn trên thanh pill
     let promptWithPersona = message;
     if (botId === "sep-chief") {
       promptWithPersona =
-        `[BỐI CẢNH: Người dùng đang trò chuyện trực tiếp với 🟢 Sếp – Chief of Staff trên ứng dụng di động. ` +
-        `Khi cần phân tích sâu theo chuyên môn (Radar Cộng Đồng FB, Jakie Insight, Linh Content, Xưởng Skill, Soạn Bài Đào Tạo, Leader Marketing), hãy chủ động gọi tool \`delegate_to_bot\` hoặc \`create_or_update_skill\` (với mode='sandbox_draft' khi tạo skill mới và trình bày các lựa chọn [A], [B], [C], [D], [E] rõ ràng để người dùng tick chọn duyệt). ` +
-        `Nếu người dùng yêu cầu lập bảng hay báo cáo Radar, hãy tạo cả file Excel (\`create_excel_file\`) và nhắc có sẵn Dashboard trực quan tại /radar.]\n\n` +
+        `[BỐI CẢNH: Người dùng đang làm việc trực tiếp với Điều Phối Hệ Thống VBAIBot trên ứng dụng di động. ` +
+        `Khi cần phối hợp nhiều kỹ năng thực tế trong hệ thống (.agents/skills) hoặc tạo/kiểm thử kỹ năng mới trong Xưởng Skill, hãy gọi \`delegate_to_bot\` hoặc \`create_or_update_skill\` (với mode='sandbox_draft' khi tạo skill mới và trình bày các lựa chọn [A], [B], [C] để người dùng chọn duyệt).]\n\n` +
         message;
     } else if (botId === "xuong-skill") {
       promptWithPersona =
-        `[BỐI CẢNH: Người dùng đang làm việc trực tiếp với 🛠️ Xưởng Skill. ` +
-        `Khi được giao thiết kế hoặc nâng cấp bộ kỹ năng mới, hãy lưu vào Sandbox trước bằng \`create_or_update_skill\` với \`mode="sandbox_draft"\` kèm \`sample_test_report\`, sau đó liệt kê các phương án [A], [B], [C], [D], [E] ở cuối câu trả lời để người dùng bấm chọn duyệt.]\n\n` +
+        `[BỐI CẢNH: Người dùng đang làm việc trực tiếp với 🛠️ Xưởng Skill của VBAIBot. ` +
+        `Khi được giao thiết kế hoặc nâng cấp bộ kỹ năng mới, hãy lưu vào Sandbox trước bằng \`create_or_update_skill\` với \`mode="sandbox_draft"\` kèm \`sample_test_report\`, sau đó liệt kê các phương án [A], [B] ở cuối câu trả lời để người dùng bấm chọn duyệt.]\n\n` +
+        message;
+    } else if (botId.startsWith("skill:")) {
+      const skillId = botId.slice("skill:".length);
+      promptWithPersona =
+        `[BỐI CẢNH: Người dùng đang chọn làm việc chuyên sâu với Kỹ năng "${selectedBot.shortName}" (ID: \`${skillId}\`) của hệ thống VBAIBot. Hãy áp dụng đúng quy chuẩn nghiệp vụ của kỹ năng này.]\n\n` +
         message;
     } else {
       promptWithPersona =
-        `[BỐI CẢNH: Người dùng đang làm việc trực tiếp với chuyên gia ${selectedBot.name} (${selectedBot.role}). Hãy phản hồi đúng chuyên môn sâu của ${selectedBot.name}.]\n\n` +
+        `[BỐI CẢNH: Người dùng đang làm việc trực tiếp với ${selectedBot.name} (${selectedBot.role}) trong hệ thống VBAIBot.]\n\n` +
         message;
     }
 
@@ -493,25 +545,10 @@ export const sepWorkspaceRoutes = new Hono()
         replyText = daGuiBoiTool.join("\n\n");
       }
       if (!replyText) {
-        replyText = "Em đã ghi nhận yêu cầu của Sếp.";
+        replyText = "Đã ghi nhận yêu cầu của bạn.";
       }
 
-      const botBadges = extractBotBadgesFromTrace(trace, capturedFiles, startMs);
-
-      // Nếu câu trả lời có nhắc tới Radar hoặc nghiên cứu cộng đồng mà chưa đính kèm link /radar, tự động đính card Web Dashboard
-      if (
-        (botId === "radar-cong-dong" ||
-          botBadges.some((b) => b.botId === "radar-cong-dong") ||
-          /radar|bản đồ nhiệt|phòng chiến lược|bảng cơ hội/i.test(replyText)) &&
-        !capturedFiles.some((f) => f.ext === ".html")
-      ) {
-        capturedFiles.push({
-          fileName: "ai-community-radar-dashboard.html",
-          downloadUrl: "/radar",
-          viewUrl: "/radar",
-          ext: ".html",
-        });
-      }
+      const botBadges = extractBotBadgesFromTrace(trace, capturedFiles, startMs, workspaceBots);
 
       appendMessage(account.id, threadId, {
         role: "user",
@@ -539,7 +576,7 @@ export const sepWorkspaceRoutes = new Hono()
           const saved = await saveVoiceFile("sep", threadId, mp3Buf, "mp3");
           voiceUrl = `/voice/sep/${encodeURIComponent(saved.filename)}`;
         } catch (ttsErr) {
-          log.warn({ err: ttsErr }, "Không thể tạo voice tự động cho Sếp Workspace");
+          log.warn({ err: ttsErr }, "Không thể tạo voice tự động cho Workspace");
         }
       }
 
@@ -562,7 +599,7 @@ export const sepWorkspaceRoutes = new Hono()
         );
         if (trace.length > 0) saveTurnTrace(turnId, trace);
       });
-      log.error({ err, sessionId, botId }, "Lỗi xử lý lượt chat trên Sếp Workspace");
+      log.error({ err, sessionId, botId }, "Lỗi xử lý lượt chat trên Workspace");
       return c.json(
         {
           ok: false,

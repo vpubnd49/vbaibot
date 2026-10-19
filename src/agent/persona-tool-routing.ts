@@ -55,7 +55,7 @@ export const BANG_DINH_TUYEN: DongDinhTuyen[] = [
   },
   {
     tool: "delegate_to_bot",
-    khi: "Sếp – Chief of Staff / Leader Marketing điều phối, giao việc dây chuyền hoặc song song cho nhiều Bot chuyên trách (Radar Cộng Đồng FB -> Jakie -> Linh -> Xưởng Skill -> Ebook AI Thực Chiến / Soạn Bài Đào Tạo).",
+    khi: "Điều phối, giao việc dây chuyền hoặc song song cho các Agent thực tế trong DB và các Kỹ năng chuyên môn (.agents/skills: soạn VB NĐ30, VB Đảng HD05, rà soát VBHC, tra cứu hành chính, pháp lý, kế toán, thuế, ngân hàng, tài chính, Xưởng Skill).",
   },
 ];
 

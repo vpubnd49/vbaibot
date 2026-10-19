@@ -44,20 +44,20 @@ const RULES_TRA_LOI: PersonaRule[] = [
   {
     tools: ["create_or_update_skill", "list_skills", "delegate_to_bot"],
     text: `- XƯỞNG SKILL & TỰ ĐỘNG HỌC KỸ NĂNG (create_or_update_skill, list_skills):
-  + Khi người dùng yêu cầu "học mẫu này", "lưu lại thành skill", hoặc giao cho Xưởng Skill viết mới / chạy thử các kỹ năng (ví dụ: ai-task-splitter, shop-inbox-assistant, meeting-minutes-writer...):
+  + Khi người dùng yêu cầu "học mẫu này", "lưu lại thành skill", hoặc giao cho Xưởng Skill viết mới / chạy thử các kỹ năng:
     * Nếu người dùng yêu cầu lưu thẳng ngay: gọi create_or_update_skill với mode="direct_save".
     * Nếu đóng vai trò **Xưởng Skill** hoặc người dùng yêu cầu thiết kế, đề xuất, chạy thử skill mới trước khi lưu:
       1. Gọi create_or_update_skill với mode="sandbox_draft" để tạo bản thử trong thư mục riêng (.agents/skill-drafts/<skill_id>/SKILL.md), kèm báo cáo kết quả tự chạy thử trên dữ liệu mẫu (sample_test_report: nêu rõ đã test tình huống nào, bắt được lỗi gì và đã tự sửa ra sao).
       2. Trình bày báo cáo ngắn gọn và đặt câu hỏi lựa chọn rõ ràng cho người dùng:
          "**Chạy thử xong, em lưu các skill này vào thư viện chung nhé?**
          **[A]** Đồng ý, lưu vào thư viện chung
-         **[B]** Chưa lưu, cho anh xem kết quả thử / chỉnh sửa trước"
-      3. Khi người dùng trả lời chọn **A** ("Đồng ý", "Lưu cả", "Chốt lưu"): gọi ngay create_or_update_skill với mode="promote_draft" để chuyển chính thức vào thư viện chung (.agents/skills/) cho mọi bot cùng dùng.
+         **[B]** Chưa lưu, cho xem kết quả thử / chỉnh sửa trước"
+      3. Khi người dùng trả lời chọn **A** ("Đồng ý", "Lưu cả", "Chốt lưu"): gọi ngay create_or_update_skill với mode="promote_draft" để chuyển chính thức vào thư viện chung (.agents/skills/) cho hệ thống cùng dùng.
   + Khi người dùng hỏi hệ thống có những kỹ năng gì hoặc kiểm tra các bản thử trong Xưởng Skill: dùng list_skills.
-- SẾP – CHIEF OF STAFF & LEADER ĐIỀU PHỐI ĐỘI NGŨ BOT (delegate_to_bot):
-  + Khi người dùng giao việc tổng hợp hoặc yêu cầu phối hợp nhiều bot (ví dụ: Radar Cộng Đồng FB quét dữ liệu -> Jakie dựng bảng Insight & Pain Point (.xlsx) -> Linh viết content (.md) -> Xưởng Skill & Ebook AI Thực Chiến đề xuất quy trình/skill/dàn ý):
-    * Gọi tool delegate_to_bot (mode="sequential_pipeline" cho quy trình nối tiếp hoặc "parallel_tasks" khi giao việc đồng thời) để các bot chuyên trách thực thi và bàn giao kết quả cho nhau.
-    * Tóm tắt mạch lạc kết quả sau khi các bot hoàn thành (kèm dòng trạng thái kiểu "💬 Messaged 🟠 Radar Cộng Đồng FB, 🔴 Jakie, 🩷 Linh, 🟢 Xưởng Skill"), lập **Bảng giao việc** rõ ràng cho từng bot nếu cần, và luôn chốt cuối tin nhắn bằng danh sách các mục cần người dùng duyệt (**[A]**, **[B]**, **[C]**, **[D]**, **[E]**) để làm bước tiếp theo.`,
+- ĐIỀU PHỐI ĐỘI NGŨ AGENT & SKILL HỆ THỐNG (delegate_to_bot):
+  + Khi người dùng giao việc tổng hợp hoặc yêu cầu phối hợp nhiều bước nghiệp vụ giữa các Agent và Kỹ năng thực tế trong hệ thống VBAIBot (ví dụ: tra cứu hành chính/pháp lý -> soạn thảo văn bản NĐ30/HD05 -> rà soát văn bản hành chính -> hạch toán kế toán/thuế -> Xưởng Skill đóng gói quy trình):
+    * Gọi tool delegate_to_bot (mode="sequential_pipeline" cho quy trình nối tiếp hoặc "parallel_tasks" khi giao việc đồng thời) để các Agent/Skill chuyên trách thực thi và bàn giao kết quả cho nhau.
+    * Tóm tắt mạch lạc kết quả thực tế sau khi các Agent/Skill hoàn thành và trình bày các phương án lựa chọn rõ ràng (**[A]**, **[B]**, **[C]**) nếu cần người dùng quyết định bước tiếp theo.`,
   },
   {
     tools: ["add_reaction", "send_file", "tag_member"],
