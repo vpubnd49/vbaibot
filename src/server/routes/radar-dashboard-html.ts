@@ -142,7 +142,9 @@ export function getRadarDashboardHtml(): string {
   const dailyRows = report14.daily.slice(-7).reverse();
 
   // Phân nhóm kỹ năng thật trong .agents/skills
-  const adminLegalSkills = skills.filter((s) => /nd30|hd05|hanh-chinh|legal|van-ban/i.test(s.id));
+  const adminLegalSkills = skills.filter((s) =>
+    /nd30|hd05|hanh-chinh|legal|van-ban|market-surveillance|qltt/i.test(s.id),
+  );
   const financeTaxSkills = skills.filter((s) => /accounting|tax|banking|finance/i.test(s.id));
   const otherSkills = skills.filter(
     (s) => !adminLegalSkills.includes(s) && !financeTaxSkills.includes(s),
