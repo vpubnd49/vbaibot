@@ -58,6 +58,7 @@ import { mcpRoutes } from "./routes/mcp-routes.js";
 import { webchatRoutes } from "./routes/webchat-routes.js";
 import { sepWorkspaceRoutes } from "./routes/sep-workspace-routes.js";
 import {
+  getSepIconPng,
   getSepIconSvg,
   getSepManifestJson,
   getSepServiceWorkerJs,
@@ -146,6 +147,24 @@ export function buildDashboardApp(): Hono {
   app.route("/voice", voiceRoutes);
 
   // Ứng dụng di động PWA "🟢 Sếp – Chief of Staff & 🛠️ Xưởng Skill" (/sep) và Bảng điều khiển 3 tab (/radar)
+  app.get("/sep/icon-192.png", () => {
+    const buf = getSepIconPng(192);
+    return new Response(new Uint8Array(buf), {
+      headers: {
+        "Content-Type": "image/png",
+        "Cache-Control": "public, max-age=86400",
+      },
+    });
+  });
+  app.get("/sep/icon-512.png", () => {
+    const buf = getSepIconPng(512);
+    return new Response(new Uint8Array(buf), {
+      headers: {
+        "Content-Type": "image/png",
+        "Cache-Control": "public, max-age=86400",
+      },
+    });
+  });
   app.get("/sep/icon.svg", (c) => {
     c.header("Content-Type", "image/svg+xml; charset=utf-8");
     c.header("Cache-Control", "public, max-age=86400");

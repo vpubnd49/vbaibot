@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
+import vm from "node:vm";
 import { getRadarDashboardHtml } from "./radar-dashboard-html.js";
-import { getSepManifestJson, getSepWorkspaceHtml } from "./sep-workspace-html.js";
+import { getSepIconPng, getSepManifestJson, getSepWorkspaceHtml } from "./sep-workspace-html.js";
 import { sepWorkspaceRoutes } from "./sep-workspace-routes.js";
 
 describe("VBAIBot Multi-Agent Workspace & System Radar Routes", () => {
@@ -35,11 +36,23 @@ describe("VBAIBot Multi-Agent Workspace & System Radar Routes", () => {
     assert.ok(!sepHtml.includes("Jakie"));
     assert.ok(!sepHtml.includes("Nguyễn Tất Kiểm"));
 
+    const sepScript = sepHtml.match(/<script>([\s\S]*?)<\/script>/)?.[1] ?? "";
+    assert.ok(sepScript.length > 100);
+    assert.doesNotThrow(() => new vm.Script(sepScript));
+
+    const png192 = getSepIconPng(192);
+    assert.ok(png192.length > 500);
+    assert.equal(png192[0], 137);
+    assert.equal(png192[1], 80); // 'P'
+
     const manifest = JSON.parse(getSepManifestJson()) as { start_url: string; display: string };
     assert.equal(manifest.start_url, "/sep");
     assert.equal(manifest.display, "standalone");
 
     const radarHtml = getRadarDashboardHtml();
+    const radarScript = radarHtml.match(/<script>([\s\S]*?)<\/script>/)?.[1] ?? "";
+    assert.ok(radarScript.length > 50);
+    assert.doesNotThrow(() => new vm.Script(radarScript));
     assert.ok(radarHtml.includes("Bảng Hoạt động & Nhu cầu Thực tế VBAIBot"));
     assert.ok(radarHtml.includes("Bản đồ nhiệt Hoạt động 7 ngày & Công cụ"));
     assert.ok(radarHtml.includes("KIẾN TRÚC NĂNG LỰC HỆ THỐNG VBAIBOT"));

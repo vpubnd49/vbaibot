@@ -1,9 +1,95 @@
+import zlib from "node:zlib";
+
 /**
  * Giao diện Mobile Web App (PWA) "Sếp – Chief of Staff & Xưởng Skill" tại `/sep`
  * Thiết kế chuẩn theo bộ ảnh mẫu (Light Mode tinh tế + Dark Mode tùy chọn, Bean SVG 2 mắt,
  * Overlapping Multi-Bot Badges, Bảng giao việc Markdown Table, Stacked Preview Fan, Poll Card A/B/C/D/E)
  * nhưng nạp 100% dữ liệu thật từ source & SQLite DB của VBAIBot.
  */
+const pngCache = new Map<number, Buffer>();
+
+function crc32(buf: Buffer): number {
+  let c = 0xffffffff;
+  for (let i = 0; i < buf.length; i++) {
+    c ^= buf[i]!;
+    for (let k = 0; k < 8; k++) {
+      c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+    }
+  }
+  return (c ^ 0xffffffff) >>> 0;
+}
+
+function pngChunk(type: string, data: Buffer): Buffer {
+  const len = Buffer.alloc(4);
+  len.writeUInt32BE(data.length, 0);
+  const typeBuf = Buffer.from(type, "ascii");
+  const crcBuf = Buffer.alloc(4);
+  crcBuf.writeUInt32BE(crc32(Buffer.concat([typeBuf, data])), 0);
+  return Buffer.concat([len, typeBuf, data, crcBuf]);
+}
+
+export function getSepIconPng(size = 192): Buffer {
+  const cached = pngCache.get(size);
+  if (cached) return cached;
+
+  const raw = Buffer.alloc(size * (size * 4 + 1));
+  const cx = size / 2;
+  const cy = size * 0.52;
+  const rx = size * 0.32;
+  const ry = size * 0.26;
+
+  for (let y = 0; y < size; y++) {
+    const rowStart = y * (size * 4 + 1);
+    raw[rowStart] = 0;
+    for (let x = 0; x < size; x++) {
+      const idx = rowStart + 1 + x * 4;
+      // Nền xanh ngọc #10b981
+      let r = 16,
+        g = 185,
+        b = 129;
+      const dx = (x - cx) / rx;
+      const dy = (y - cy) / ry;
+      if (dx * dx + dy * dy <= 1) {
+        // Thân Bean trắng
+        r = 255;
+        g = 255;
+        b = 255;
+        // Hai mắt đen
+        const ex1 = (x - size * 0.41) / (size * 0.032);
+        const ex2 = (x - size * 0.55) / (size * 0.032);
+        const ey = (y - size * 0.48) / (size * 0.065);
+        if ((Math.abs(ex1) <= 1 || Math.abs(ex2) <= 1) && Math.abs(ey) <= 1) {
+          r = 17;
+          g = 24;
+          b = 39;
+        }
+      }
+      raw[idx] = r;
+      raw[idx + 1] = g;
+      raw[idx + 2] = b;
+      raw[idx + 3] = 255;
+    }
+  }
+
+  const ihdr = Buffer.alloc(13);
+  ihdr.writeUInt32BE(size, 0);
+  ihdr.writeUInt32BE(size, 4);
+  ihdr[8] = 8; // bit depth
+  ihdr[9] = 6; // RGBA
+  ihdr[10] = 0;
+  ihdr[11] = 0;
+  ihdr[12] = 0;
+
+  const out = Buffer.concat([
+    Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]),
+    pngChunk("IHDR", ihdr),
+    pngChunk("IDAT", zlib.deflateSync(raw)),
+    pngChunk("IEND", Buffer.alloc(0)),
+  ]);
+  pngCache.set(size, out);
+  return out;
+}
+
 export function getSepIconSvg(): string {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <rect width="512" height="512" rx="128" fill="#10b981"/>
@@ -18,7 +104,7 @@ export function getSepServiceWorkerJs(): string {
 self.addEventListener('activate', (e) => { e.waitUntil(self.clients.claim()); });
 self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET') return;
-  e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+  e.respondWith(fetch(e.request));
 });`;
 }
 
@@ -37,10 +123,22 @@ export function getSepManifestJson(): string {
       orientation: "portrait",
       icons: [
         {
-          src: "/sep/icon.svg",
-          sizes: "192x192 512x512",
-          type: "image/svg+xml",
+          src: "/sep/icon-192.png",
+          sizes: "192x192",
+          type: "image/png",
+          purpose: "any",
+        },
+        {
+          src: "/sep/icon-512.png",
+          sizes: "512x512",
+          type: "image/png",
           purpose: "any maskable",
+        },
+        {
+          src: "/sep/icon.svg",
+          sizes: "any",
+          type: "image/svg+xml",
+          purpose: "any",
         },
       ],
     },
@@ -1615,7 +1713,7 @@ export function getSepWorkspaceHtml(): string {
               },
             ],
             reply:
-              \`Hệ thống **VBAIBot** đang vận hành **\${skills.length} kỹ năng thực tế** trong \`.agents/skills\` cùng **\${toolsCount} công cụ** (\${st.totalTurns} lượt xử lý trên \${st.totalThreads} phiên trong 30 ngày qua).\\n\\n\` +
+              \`Hệ thống **VBAIBot** đang vận hành **\${skills.length} kỹ năng thực tế** trong thư mục **.agents/skills** cùng **\${toolsCount} công cụ** (\${st.totalTurns} lượt xử lý trên \${st.totalThreads} phiên trong 30 ngày qua).\\n\\n\` +
               \`**Bảng phân công Kỹ năng hệ thống**\\n\` +
               \`| Kỹ năng | Nhiệm vụ chuyên trách |\\n\` +
               \`|---|---|\\n\` +
@@ -1649,7 +1747,7 @@ export function getSepWorkspaceHtml(): string {
           await loadBotsAndSkills();
           closeDrawer();
           appendAssistantTurn({
-            reply: \`✅ Đã duyệt và kích hoạt chính thức kỹ năng **\${skillId}** vào thư mục \`.agents/skills/\${skillId}/SKILL.md\`. Hiện tất cả các Bot trên hệ thống và Zalo đều đã sử dụng được ngay!\`,
+            reply: \`✅ Đã duyệt và kích hoạt chính thức kỹ năng **\${skillId}** vào thư mục **.agents/skills/\${skillId}/SKILL.md**. Hiện tất cả các Bot trên hệ thống và Zalo đều đã sử dụng được ngay!\`,
           });
         } else {
           alert(data.error || "Không thể duyệt skill");
