@@ -101,7 +101,11 @@ export function getSepIconSvg(): string {
 
 export function getSepServiceWorkerJs(): string {
   return `self.addEventListener('install', (e) => { self.skipWaiting(); });
-self.addEventListener('activate', (e) => { e.waitUntil(self.clients.claim()); });
+self.addEventListener('activate', (e) => {
+  e.waitUntil(
+    caches.keys().then((keys) => Promise.all(keys.map((k) => caches.delete(k)))).then(() => self.clients.claim())
+  );
+});
 self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET') return;
   e.respondWith(fetch(e.request));
@@ -111,34 +115,34 @@ self.addEventListener('fetch', (e) => {
 export function getSepManifestJson(): string {
   return JSON.stringify(
     {
-      id: "/sep",
-      name: "VBAIBot – Sếp Chief of Staff",
+      id: "/sep?v=5",
+      name: "Sếp VBAIBot – Chief of Staff",
       short_name: "Sếp VBAIBot",
       description: "Điều phối Multi-Agent, Kỹ năng (.agents/skills), Xưởng Skill Sandbox & Voice Chat",
       start_url: "/sep",
-      scope: "/",
+      scope: "/sep",
       display: "standalone",
       background_color: "#ffffff",
       theme_color: "#ffffff",
-      orientation: "portrait",
+      orientation: "portrait-primary",
       icons: [
         {
-          src: "/sep/icon-192.png",
+          src: "/sep/icon-192.png?v=5",
           sizes: "192x192",
           type: "image/png",
           purpose: "any",
         },
         {
-          src: "/sep/icon-512.png",
+          src: "/sep/icon-512.png?v=5",
           sizes: "512x512",
           type: "image/png",
-          purpose: "any maskable",
+          purpose: "any",
         },
         {
-          src: "/sep/icon.svg",
-          sizes: "any",
-          type: "image/svg+xml",
-          purpose: "any",
+          src: "/sep/icon-512.png?v=5",
+          sizes: "512x512",
+          type: "image/png",
+          purpose: "maskable",
         },
       ],
     },
@@ -156,9 +160,9 @@ export function getSepWorkspaceHtml(): string {
   <meta name="theme-color" content="#ffffff" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="mobile-web-app-capable" content="yes" />
-  <link rel="icon" type="image/svg+xml" href="/sep/icon.svg" />
-  <link rel="apple-touch-icon" href="/sep/icon.svg" />
-  <link rel="manifest" href="/sep/manifest.json" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/sep/icon-192.png?v=5" />
+  <link rel="apple-touch-icon" href="/sep/icon-192.png?v=5" />
+  <link rel="manifest" href="/sep/manifest.json?v=5" />
   <title>Sếp – Chief of Staff | VBAIBot Multi-Agent</title>
   <style>
     :root {
@@ -966,30 +970,33 @@ export function getSepWorkspaceHtml(): string {
       <div class="drawer-sheet">
         <div class="drawer-handle"></div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-          <strong style="font-size:17px;">📲 Cài App Sếp lên màn hình Samsung</strong>
+          <strong style="font-size:17px;">📲 Đưa Sếp VBAIBot ra màn hình Samsung</strong>
           <button id="closeInstallDrawerBtn" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;">✕</button>
         </div>
-        <div style="font-size:13.5px;line-height:1.5;color:var(--text);">
-          <div style="background:#ecfdf5;border:1px solid #6ee7b7;border-radius:12px;padding:12px;margin-bottom:10px;color:#065f46;">
-            <strong>⚠️ Lưu ý quan trọng nếu bạn bấm link từ trong Zalo:</strong><br/>
-            Trình duyệt nội bộ của Zalo ẩn nút <em>"Thêm vào màn hình chính"</em>. Hãy bấm nút màu xanh dưới đây để mở thẳng sang <strong>Chrome</strong> hoặc <strong>Samsung Internet</strong>:
+        <div style="font-size:13.5px;line-height:1.55;color:var(--text);">
+          <div id="zaloWarningBox" style="display:none;background:#ecfdf5;border:1px solid #6ee7b7;border-radius:12px;padding:12px;margin-bottom:10px;color:#065f46;">
+            <strong>⚠️ Bạn đang mở trong Zalo:</strong><br/>
+            Bấm nút dưới đây để chuyển sang trình duyệt <strong>Chrome</strong> hoặc <strong>Samsung Internet</strong>:
             <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;">
-              <a href="intent://vbaibot.chauphienbanso.com/sep#Intent;scheme=https;package=com.android.chrome;end" style="display:block;text-align:center;background:#10b981;color:#fff;font-weight:700;padding:11px;border-radius:10px;text-decoration:none;">🚀 Mở ngay bằng Google Chrome</a>
-              <a href="intent://vbaibot.chauphienbanso.com/sep#Intent;scheme=https;package=com.sec.android.app.sbrowser;end" style="display:block;text-align:center;background:#2563eb;color:#fff;font-weight:700;padding:10px;border-radius:10px;text-decoration:none;">🌐 Mở ngay bằng Samsung Internet</a>
+              <a href="intent://vbaibot.chauphienbanso.com/sep#Intent;scheme=https;package=com.android.chrome;end" style="display:block;text-align:center;background:#10b981;color:#fff;font-weight:700;padding:11px;border-radius:10px;text-decoration:none;">🚀 Mở bằng Google Chrome</a>
+              <a href="intent://vbaibot.chauphienbanso.com/sep#Intent;scheme=https;package=com.sec.android.app.sbrowser;end" style="display:block;text-align:center;background:#2563eb;color:#fff;font-weight:700;padding:10px;border-radius:10px;text-decoration:none;">🌐 Mở bằng Samsung Internet</a>
             </div>
           </div>
 
-          <div style="background:var(--bubble-bg);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:8px;">
-            <strong>Cách 1: Nếu đang ở trình duyệt Samsung Internet</strong><br/>
-            1. Nhìn xuống <strong>góc dưới cùng bên phải</strong> màn hình, bấm biểu tượng <strong><code>≡</code> (3 gạch ngang)</strong>.<br/>
-            2. Bấm vào nút <strong><code>+ Thêm trang vào</code> (Add page to)</strong>.<br/>
-            3. Chọn <strong><code>Màn hình chính</code> (Home screen)</strong>.
+          <div style="background:#eff6ff;border:2px solid #3b82f6;border-radius:12px;padding:13px;margin-bottom:10px;color:#1e3a8a;">
+            <strong style="font-size:14.5px;">✅ Cách chuẩn nhất trên Chrome điện thoại Samsung (không bao giờ bị chặn):</strong><br/>
+            <div style="margin-top:6px;">
+              <strong>Bước 1:</strong> Nhìn lên <strong>góc trên cùng bên phải màn hình</strong> (ngay bên phải ô số trang <code>[2]</code> của Chrome), bấm vào dấu <strong>3 chấm dọc <code>⋮</code></strong>.<br/>
+              <strong>Bước 2:</strong> Chọn dòng <strong><code>Thêm vào màn hình chính</code></strong> (Add to Home screen).<br/>
+              <strong>Bước 3 (Quan trọng):</strong> Khi bảng hiện ra 2 dòng <em>"Cài đặt"</em> và <em>"Tạo lối tắt"</em>:<br/>
+              👉 Nếu máy Samsung chặn mục <em>"Cài đặt"</em> (do bật <em>Trình chặn tự động / Auto Blocker</em> hoặc đã cài bản Dashboard gốc), hãy bấm chọn dòng thứ 2: <strong><code>Tạo lối tắt</code> (Create shortcut)</strong> $\rightarrow$ bấm <strong><code>Thêm</code></strong>!
+            </div>
           </div>
 
           <div style="background:var(--bubble-bg);border:1px solid var(--border);border-radius:12px;padding:12px;">
-            <strong>Cách 2: Nếu đang ở trình duyệt Google Chrome</strong><br/>
-            1. Nhìn lên <strong>góc trên cùng bên phải</strong> (cạnh thanh địa chỉ), bấm biểu tượng <strong><code>⋮</code> (3 chấm dọc)</strong>.<br/>
-            2. Kéo menu xuống và chọn <strong><code>Thêm vào màn hình chính</code> (Add to Home screen)</strong> hoặc <strong><code>Cài đặt ứng dụng</code> (Install app)</strong>.
+            <strong>Hoặc nếu dùng trình duyệt Samsung Internet:</strong><br/>
+            1. Bấm biểu tượng <strong><code>≡</code> (3 gạch ngang ở góc dưới bên phải)</strong>.<br/>
+            2. Bấm <strong><code>+ Thêm trang vào</code></strong> $\rightarrow$ chọn <strong><code>Màn hình chính</code></strong>.
           </div>
         </div>
       </div>
@@ -1039,8 +1046,17 @@ export function getSepWorkspaceHtml(): string {
       document.body.classList.add("dark");
     }
 
+    if ("caches" in window) {
+      caches.keys().then((keys) => keys.forEach((k) => caches.delete(k))).catch(() => {});
+    }
+
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/sep-sw.js", { scope: "/" }).catch(() => {});
+      navigator.serviceWorker.register("/sep-sw.js", { scope: "/sep" }).catch(() => {});
+    }
+
+    const zaloWarningBox = document.getElementById("zaloWarningBox");
+    if (zaloWarningBox && /Zalo/i.test(navigator.userAgent || "")) {
+      zaloWarningBox.style.display = "block";
     }
 
     let deferredPwaPrompt = null;

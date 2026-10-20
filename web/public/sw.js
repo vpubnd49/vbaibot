@@ -23,8 +23,8 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = event.request.url;
 
-  // Bỏ qua các API dynamic requests
-  if (url.includes('/api/')) {
+  // Bỏ qua các API dynamic requests và ứng dụng /sep, /radar
+  if (url.includes('/api/') || url.includes('/sep') || url.includes('/radar') || url.includes('/voice/')) {
     return;
   }
 
